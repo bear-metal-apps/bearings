@@ -1,17 +1,64 @@
+import 'package:beariscope_scouter/Pages/Schedule.dart';
+import 'package:beariscope_scouter/Pages/Strat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'Pages/Match.dart';
+import 'Pages/MatchStages/AutoPage.dart';
+import 'Pages/MatchStages/EndPage.dart';
+import 'Pages/MatchStages/TelePage.dart';
+import 'Pages/User.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp()
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+    
+  static final GoRouter router = GoRouter(
+      initialLocation: "/",
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const UserPage(),
+        ),
+        GoRoute(
+          path: '/Match',
+          builder: (context, state) => const MatchPage(),
+        ),
+        GoRoute(
+          path: '/Match/Auto',
+          builder: (context, state) => const AutoPage(),
+        ),
+        GoRoute(
+          path: '/Match/Tele',
+          builder: (context, state) => const TelePage(),
+        ),
+        GoRoute(
+          path: '/Match/End',
+          builder: (context, state) => const EndPage(),
+        ),
+        GoRoute(
+          path: '/Strat',
+          builder: (context, state) => const StratPage(),
+        ),
+        GoRoute(
+          path: '/Schedule',
+          builder: (context, state) => const SchedulePage(),
+        ),
 
+  ]);
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Paw-Finder',
       theme: ThemeData(
         // This is the theme of your application.
         //
