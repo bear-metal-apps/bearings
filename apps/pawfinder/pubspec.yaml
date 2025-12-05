@@ -15,7 +15,6 @@ dependencies:
 
     http: ^1.6.0
     uuid: ^4.5.1
-    bluetooth_low_energy: ^6.0.0
     meta: ^1.16.0
 
     flutter:
