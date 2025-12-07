@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,6 @@ class SchedulePage extends ConsumerStatefulWidget {
 class SchedulePageState extends ConsumerState<SchedulePage> {
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return Center(child: Text('Schedule'));
   }
 }

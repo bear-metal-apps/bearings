@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,6 @@ class StratPage extends ConsumerStatefulWidget {
 class StratPageState extends ConsumerState<StratPage> {
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return Center(child: Text('Strat'));
   }
 }
