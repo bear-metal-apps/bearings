@@ -15,14 +15,14 @@ class UserPage extends ConsumerStatefulWidget {
 class UserPageState extends ConsumerState<UserPage> {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Welcome Back, $currentUser"),);
+    return Center(child: Text("Welcome Back, $currentUser"));
   }
 }
 
-
-class User{
+class User {
   final String name;
   final IconData icon;
   const User({required this.name, this.icon = Icons.person});
 }
+
 String currentUser = "";

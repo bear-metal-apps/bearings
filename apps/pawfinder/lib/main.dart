@@ -19,13 +19,16 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   static final GoRouter router = GoRouter(
     initialLocation: "/",
     routes: [
       ShellRoute(
         builder: (context, state, child) {
-          return NavBar(page: child, title: "Current Page", router: MyApp.router);
+          return NavBar(
+            page: child,
+            title: "Current Page",
+            router: MyApp.router,
+          );
         },
         routes: [
           GoRoute(path: '/User', builder: (context, state) => const UserPage()),
@@ -33,32 +36,29 @@ class MyApp extends StatelessWidget {
             path: '/Strat',
             builder: (context, state) => const StratPage(),
           ),
-          GoRoute(
-            path: '/',
-            builder: (context, state) => const SchedulePage(),
-          ),
+          GoRoute(path: '/', builder: (context, state) => const SchedulePage()),
           ShellRoute(
-            builder: (context, state ,page){
-              return NavBar(page: page, title: "Stage", router: MyApp.router,);
+            builder: (context, state, page) {
+              return NavBar(page: page, title: "Stage", router: MyApp.router);
             },
-          routes: [
-          GoRoute(
-            path: '/Match',
-            builder: (context, state) => const MatchPage(),
-          ),
-          GoRoute(
-            path: '/Match/Auto',
-            builder: (context, state) => const AutoPage(),
-          ),
-          GoRoute(
-            path: '/Match/Tele',
-            builder: (context, state) => const TelePage(),
-          ),
-          GoRoute(
-            path: '/Match/End',
-            builder: (context, state) => const EndPage(),
-          ),
-            ]
+            routes: [
+              GoRoute(
+                path: '/Match',
+                builder: (context, state) => const MatchPage(),
+              ),
+              GoRoute(
+                path: '/Match/Auto',
+                builder: (context, state) => const AutoPage(),
+              ),
+              GoRoute(
+                path: '/Match/Tele',
+                builder: (context, state) => const TelePage(),
+              ),
+              GoRoute(
+                path: '/Match/End',
+                builder: (context, state) => const EndPage(),
+              ),
+            ],
           ),
         ],
       ),

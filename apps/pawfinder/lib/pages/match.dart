@@ -14,6 +14,6 @@ class MatchPage extends ConsumerStatefulWidget {
 class MatchPageState extends ConsumerState<MatchPage> {
   @override
   Widget build(BuildContext context) {
-    return Center(child : Text("Match Page"));
+    return Center(child: Text("Match Page"));
   }
 }
