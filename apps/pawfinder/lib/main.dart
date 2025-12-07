@@ -1,5 +1,5 @@
-import 'package:beariscope_scouter/Pages/schedule.dart';
-import 'package:beariscope_scouter/Pages/strat.dart';
+import 'package:beariscope_scouter/pages/schedule.dart';
+import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
