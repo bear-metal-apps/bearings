@@ -90,3 +90,44 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int index = 0; // nts - index is a number that basically shows what tab ur on (index 1 = tab 1)
+
+  final tabs = [
+    Center(child: Text("page 1 info")),
+    Center(child: Text("page 2 info")),
+    Center(child: Text("page 3 info")),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("hi ben xx")),
+      body: tabs[index],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: index,
+        onTap: (i) => setState(() => index = i),
+        items: const [
+          BottomNavigationBarItem(
+            icon: SizedBox.shrink(),
+            label: "auto",
+          ),
+          BottomNavigationBarItem(
+            icon: SizedBox.shrink(),
+            label: "tele",
+          ),
+          BottomNavigationBarItem(
+            icon: SizedBox.shrink(),
+            label: "endgame",
+          ),
+        ],
+      ),
+    );
+  }
+}
