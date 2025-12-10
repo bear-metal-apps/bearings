@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../pages/user.dart';
 
@@ -32,7 +29,7 @@ class NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     List<Widget> userButtons = [];
-    users.forEach((element) {
+    for (var element in users) {
       userButtons.add(
         ListTile(
           leading: Icon(element.icon),
@@ -43,7 +40,7 @@ class NavBarState extends State<NavBar> {
           },
         ),
       );
-    });
+    }
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: widget.page,
