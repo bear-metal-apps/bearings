@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/store/strat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,40 +13,32 @@ class StratPage extends ConsumerStatefulWidget {
 }
 
 class StratPageState extends ConsumerState<StratPage> {
-  final List<String> _driverSkill = [
-    "2000",
-    "1000",
-    "2046",
-  ];
 
-  final List<String> _rigidity = [
-    "2000",
-    "1000",
-    "2046",
-  ];
+  
+  Column createList(String text, StratNotifier stratNotifier) {
+    return Column(children: [
+      Text(text, textScaler: TextScaler.linear(2)),
 
-  final List<String> _iForgot = [
-    "2000",
-    "1000",
-    "2046",
-  ];
-
-  Function(int, int) _onReorder(List<String> list) {
-    return (int oldIndex, int newIndex) => {
-      setState(() {
-        if (oldIndex < newIndex) {
-          newIndex -= 1;
-        }
-        final String item = list.removeAt(oldIndex);
-        list.insert(newIndex, item);
-      })
-    };
+      SizedBox(width: 400, height: 160, child: ReorderableListView(
+        onReorder: (int oldIndex, int newIndex) => setState(() => stratNotifier.reorder(oldIndex, newIndex)),
+        children: [
+          for (final String item in stratNotifier.get())
+            ListTile(
+              key: ValueKey(item),
+              title: Text(item),
+              trailing: const Icon(Icons.drag_handle),
+            )
+        ]
+      )),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
 
+    final driverSkill = ref.watch(driverSkillNotifierProvider.notifier);
+    final rigidity = ref.watch(rigidityNotifierProvider.notifier);
 
     return Scaffold(
       body: SingleChildScrollView(child: Column(
@@ -53,34 +46,13 @@ class StratPageState extends ConsumerState<StratPage> {
         children: [
           Column(children: [
             SizedBox(width: size.width,),
-            SizedBox(width: 400, height: 160, child: ReorderableListView(onReorder: _onReorder(_driverSkill), children: [
-              for (final String item in _driverSkill)
-                ListTile(
-                  key: ValueKey(item),
-                  title: Text(item),
-                  trailing: const Icon(Icons.drag_handle),
-                )
-            ])),
-
-            SizedBox(width: 400, height: 160, child: ReorderableListView(onReorder: _onReorder(_rigidity), children: [
-              for (final String item in _rigidity)
-                ListTile(
-                  key: ValueKey(item),
-                  title: Text(item),
-                  trailing: const Icon(Icons.drag_handle),
-                )
-            ])),
-
-            SizedBox(width: 400, height: 160, child: ReorderableListView(onReorder: _onReorder(_iForgot), children: [
-              for (final String item in _iForgot)
-                ListTile(
-                  key: ValueKey(item),
-                  title: Text(item),
-                  trailing: const Icon(Icons.drag_handle),
-                )
-            ])),
-          ],),
-
+            
+            createList("Driver Skill", driverSkill),
+            createList("Rigidity", rigidity),
+            
+            //createList("Rigidity", _rigidity),
+            //createList("'i forgot' - Ben", _iForgot),
+          ])
         ]
       )));
   }
