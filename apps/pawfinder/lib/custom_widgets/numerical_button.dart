@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-class NumberButton extends StatelessWidget {
-  final int number;
+// Number button widget that adds and substracts a numerical value.
+class NumberButton extends StatefulWidget {
+  final int variable;
   final VoidCallback onPressed;
   final Color? backgroundColor;
   final Alignment textAlignment;
@@ -11,7 +12,7 @@ class NumberButton extends StatelessWidget {
 
   const NumberButton({
     super.key,
-    required this.number,
+    required this.variable,
     required this.onPressed,
     required this.backgroundColor,
     required this.dataName,
@@ -21,14 +22,31 @@ class NumberButton extends StatelessWidget {
   });
 
   @override
+  State<NumberButton> createState() => _NumberButtonState();
+}
+
+class _NumberButtonState extends State<NumberButton> {
+  late int currentVariable; // Mutable variable to track changes
+
+  @override
+  void initState() {
+    super.initState();
+    currentVariable = widget.variable; // Initialize with the passed value
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: xLength,
-      height: yLength,
+      width: widget.xLength,
+      height: widget.yLength,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: () {
+          setState(() {
+            currentVariable++;
+          });
+        },
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
+          backgroundColor: widget.backgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
@@ -41,7 +59,7 @@ class NumberButton extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
               child: Text(
-                '$dataName: $number',
+                '${widget.dataName}: $currentVariable',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 24,
@@ -51,7 +69,7 @@ class NumberButton extends StatelessWidget {
               ),
             ),
             Align(
-              alignment: textAlignment,
+              alignment: widget.textAlignment,
               child: Container(
                 margin: const EdgeInsets.only(right: 12.0, bottom: 8.0),
                 width: 56,
@@ -66,8 +84,9 @@ class NumberButton extends StatelessWidget {
                   iconSize: 24,
                   icon: const Icon(Icons.remove, color: Colors.black),
                   onPressed: () {
-                    // Action for the inner control
-                    print('Inner control pressed!');
+                    setState(() {
+                      currentVariable--;
+                    });
                   },
                 ),
               ),
