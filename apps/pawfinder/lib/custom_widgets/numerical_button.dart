@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 
 // Number button widget that adds and substracts a numerical value.
 class NumberButton extends StatefulWidget {
-  final int variable;
-  final VoidCallback onPressed;
   final Color? backgroundColor;
   final Alignment textAlignment;
   final String dataName;
+  final VoidCallback onPressed;
   final double xLength;
   final double yLength;
 
   const NumberButton({
     super.key,
-    required this.variable,
     required this.onPressed,
     required this.backgroundColor,
     required this.dataName,
@@ -21,17 +19,18 @@ class NumberButton extends StatefulWidget {
     this.textAlignment = Alignment.bottomRight,
   });
 
+  static int get currentVariable => _NumberButtonState.currentVariable;
+
   @override
   State<NumberButton> createState() => _NumberButtonState();
 }
 
 class _NumberButtonState extends State<NumberButton> {
-  late int currentVariable; // Mutable variable to track changes
+  static int currentVariable = 0;
 
   @override
   void initState() {
     super.initState();
-    currentVariable = widget.variable; // Initialize with the passed value
   }
 
   @override
@@ -43,6 +42,7 @@ class _NumberButtonState extends State<NumberButton> {
         onPressed: () {
           setState(() {
             currentVariable++;
+            widget.onPressed();
           });
         },
         style: ElevatedButton.styleFrom(
@@ -86,6 +86,7 @@ class _NumberButtonState extends State<NumberButton> {
                   onPressed: () {
                     setState(() {
                       currentVariable--;
+                      widget.onPressed();
                     });
                   },
                 ),
