@@ -1,29 +1,99 @@
-import 'package:beariscope_scouter/custom_widgets/numerical_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SchedulePage extends ConsumerStatefulWidget {
-  const SchedulePage({super.key});
+// Number button widget that adds and substracts a numerical value.
+class NumberButton extends StatefulWidget {
+  final Color? backgroundColor;
+  final Alignment textAlignment;
+  final String dataName;
+  final VoidCallback onPressed;
+  final double xLength;
+  final double yLength;
+
+  const NumberButton({
+    super.key,
+    required this.onPressed,
+    required this.backgroundColor,
+    required this.dataName,
+    required this.xLength,
+    required this.yLength,
+    this.textAlignment = Alignment.bottomRight,
+  });
+
+  static int get currentVariable => _NumberButtonState.currentVariable;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return SchedulePageState();
-  }
+  State<NumberButton> createState() => _NumberButtonState();
 }
 
-int testVar = 67;
+class _NumberButtonState extends State<NumberButton> {
+  static int currentVariable = 0;
 
-class SchedulePageState extends ConsumerState<SchedulePage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: NumberButton(
-        dataName: 'Demo Button',
-        variable: testVar,
-        backgroundColor: Colors.purpleAccent,
-        xLength: 300,
-        yLength: 200,
-        onPressed: () {},
+    return SizedBox(
+      width: widget.xLength,
+      height: widget.yLength,
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            currentVariable++;
+            widget.onPressed();
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: widget.backgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
+              child: Text(
+                '${widget.dataName}: $currentVariable',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Align(
+              alignment: widget.textAlignment,
+              child: Container(
+                margin: const EdgeInsets.only(right: 12.0, bottom: 8.0),
+                width: 56,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  iconSize: 24,
+                  icon: const Icon(Icons.remove, color: Colors.black),
+                  onPressed: () {
+                    setState(() {
+                      currentVariable--;
+                      widget.onPressed();
+                    });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
