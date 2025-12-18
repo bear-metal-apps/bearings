@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +11,17 @@ import 'pages/match_stages/end_page.dart';
 import 'pages/match_stages/tele_page.dart';
 import 'pages/user.dart';
 
-void main() {
+
+void main() async {
+  await loadHive();
+  
   runApp(
     const ProviderScope(
       child: MyApp()
     )
   );
+  
+
 }
 
 class MyApp extends StatelessWidget {

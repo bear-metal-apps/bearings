@@ -23,6 +23,9 @@ dependencies:
       sdk: flutter
 
     cupertino_icons: ^1.0.8
+    hive_ce: ^2.15.1
+    hive_ce_flutter: ^2.3.3
+    graphql_flutter: ^5.2.1
   
 dev_dependencies:
   flutter_test:
@@ -30,6 +33,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner:
   riverpod_generator:
+  hive_ce_generator: ^1.9.2
 
 flutter:
   uses-material-design: true
