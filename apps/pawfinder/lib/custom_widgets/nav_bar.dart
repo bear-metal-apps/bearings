@@ -32,7 +32,7 @@ class NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     List<Widget> userButtons = [];
-    users.forEach((element) {
+    for (var element in users) {
       userButtons.add(
         ListTile(
           leading: Icon(element.icon),
@@ -43,7 +43,7 @@ class NavBarState extends State<NavBar> {
           },
         ),
       );
-    });
+    }
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: widget.page,
