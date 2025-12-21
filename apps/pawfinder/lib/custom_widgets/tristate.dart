@@ -1,7 +1,7 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-// text scaling handled with FittedBox; no external package required
 
-//Select between three states: checked, unchecked, indeterminate
+// Select between three states: checked, unchecked, indeterminate
 enum buttonState { unchecked, checked, indeterminate }
 
 class TristateButton extends StatefulWidget {
@@ -9,9 +9,11 @@ class TristateButton extends StatefulWidget {
   final double xLength;
   final double yLength;
   final VoidCallback stateChanged;
+  final double? minfontSize; // Optional font size parameter
 
   const TristateButton({
     super.key,
+    this.minfontSize,
     required this.dataName,
     required this.xLength,
     required this.yLength,
@@ -57,14 +59,16 @@ class _TristateState extends State<TristateButton> {
           });
         },
         child: Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              widget.dataName,
-              style: const TextStyle(color: Colors.black, fontSize: 20),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          child: AutoSizeText(
+            widget.dataName,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: widget.minfontSize ?? 20.0, // Use the provided font size or default to 16.0
+              fontWeight: FontWeight.bold,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),

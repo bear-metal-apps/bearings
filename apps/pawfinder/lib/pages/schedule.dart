@@ -1,11 +1,10 @@
 import 'package:beariscope_scouter/custom_widgets/numerical_button.dart';
+import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beariscope_scouter/custom_widgets/int_textbox.dart';
 
-
-//asdklfnldsjfljasdd
 class SchedulePage extends ConsumerStatefulWidget {
   const SchedulePage({super.key});
 
@@ -24,6 +23,9 @@ buttonState tristateButtonTestValue = buttonState.unchecked;
 //example variable that the value of int textbox will be assigned to
 int intTextboxTestValue = 0;
 
+//example variable that the value of string textbox will be assigned to
+String stringTextboxTestValue = '';
+
 class SchedulePageState extends ConsumerState<SchedulePage> {
   @override
   void dispose() {
@@ -37,10 +39,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
         // Example usage of NumberButton
         NumberButton(
           dataName: 'Demo Button',
-          backgroundColor: Colors.purpleAccent,
+          backgroundColor: Colors.yellow,
           xLength: 300,
           yLength: 200,
-          textAlignment: Alignment.center,
+          textAlignment: Alignment.bottomCenter,
           onPressed: () {
             numericalButtonTestValue = NumberButton.currentVariable;
             print(
@@ -53,20 +55,25 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           dataName: 'Demo Tristate',
           xLength: 100,
           yLength: 100,
-          stateChanged: () {
-            tristateButtonTestValue = currentState;
-            print(  tristateButtonTestValue,  ); //replace tristateButtonTestValue with desired variable
-          },
+          minfontSize: 20,
+          stateChanged: () => tristateButtonTestValue = currentState,
         ),
         // Example usage of IntTextbox
         IntTextbox(
           dataName: 'Demo Int Textbox',
-          backgroundColor: Colors.orangeAccent,
+          fillColor: Colors.red,
+          outlineColor: Colors.black,
           xLength: 300,
           yLength: 100,
-          onChanged: () {
-            intTextboxTestValue = IntTextbox.value;
-          }, //replace intTextboxTestValue with desired variable
+          onChanged: () => intTextboxTestValue = IntTextbox.value,
+        ),
+        StringTextbox(
+          dataName: 'Demo String Textbox',
+          fillColor: Colors.blue,
+          outlineColor: Colors.black,
+          xLength: 300,
+          yLength: 100,
+          onChanged: () => stringTextboxTestValue = StringTextbox.value,
         ),
       ],
     );

@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Number button widget that adds and substracts a numerical value.
-class IntTextbox extends StatefulWidget {
+// String textbox widget.
+class StringTextbox extends StatefulWidget {
   final Color? fillColor;
   final Color? outlineColor;
   final String dataName;
@@ -11,7 +11,7 @@ class IntTextbox extends StatefulWidget {
   final double xLength;
   final double yLength;
 
-  const IntTextbox({
+  const StringTextbox({
     super.key,
     this.fillColor,
     required this.onChanged,
@@ -21,15 +21,15 @@ class IntTextbox extends StatefulWidget {
     required this.yLength,
   });
 
-  static int get value => _IntTextboxState.value;
+  static String get value => _StringTextboxState.value;
 
   @override
-  State<IntTextbox> createState() => _IntTextboxState();
+  State<StringTextbox> createState() => _StringTextboxState();
 }
 
-class _IntTextboxState extends State<IntTextbox> {
+class _StringTextboxState extends State<StringTextbox> {
   static TextEditingController controller = TextEditingController();
-  static late int value;
+  static late String value;
   @override
   void initState() {
     super.initState();
@@ -41,7 +41,7 @@ class _IntTextboxState extends State<IntTextbox> {
       width: widget.xLength,
       height: widget.yLength,
       child: TextField(
-        cursorColor: widget.outlineColor ?? Colors.black,
+        cursorColor: Colors.black,
         decoration: InputDecoration(
           filled: true,
           fillColor: widget.fillColor ?? Colors.white,
@@ -66,13 +66,9 @@ class _IntTextboxState extends State<IntTextbox> {
           contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),
         controller: controller,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly
-        ],
         onChanged: (text) {
           setState(() {
-            value = int.tryParse(controller.text) ?? 0;
+            value = controller.text;
             widget.onChanged();
           });
         },

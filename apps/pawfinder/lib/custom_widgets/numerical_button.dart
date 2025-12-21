@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+// IMPORTANT: Font size automatically scales with screen size, but the text alignment and button size are fixed.
 // Number button widget that adds and substracts a numerical value.
 class NumberButton extends StatefulWidget {
   final Color? backgroundColor;
@@ -71,7 +71,7 @@ class _NumberButtonState extends State<NumberButton> {
             Align(
               alignment: widget.textAlignment,
               child: Container(
-                margin: const EdgeInsets.only(right: 12.0, bottom: 8.0),
+                margin: const EdgeInsets.only(right: 1.0, left: 1.0, bottom: 8.0),
                 width: 56,
                 height: 36,
                 decoration: BoxDecoration(
