@@ -1,4 +1,5 @@
-import 'package:beariscope_scouter/custom_widgets/numerical_button.dart';
+import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
+import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,9 @@ int intTextboxTestValue = 0;
 //example variable that the value of string textbox will be assigned to
 String stringTextboxTestValue = '';
 
+//etc. for other custom widgets
+bool boolTextboxTestValue = false;
+
 class SchedulePageState extends ConsumerState<SchedulePage> {
   @override
   void dispose() {
@@ -43,12 +47,8 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           xLength: 300,
           yLength: 200,
           textAlignment: Alignment.bottomCenter,
-          onPressed: () {
-            numericalButtonTestValue = NumberButton.currentVariable;
-            print(
-              numericalButtonTestValue,
-            ); //replace numericalButtonTestValue with desired variable
-          },
+          onChanged: () =>
+              numericalButtonTestValue = NumberButton.currentVariable,
         ),
         // Example usage of TristateButton
         TristateButton(
@@ -56,7 +56,7 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           xLength: 100,
           yLength: 100,
           minfontSize: 20,
-          stateChanged: () => tristateButtonTestValue = currentState,
+          onChanged: () => tristateButtonTestValue = currentState,
         ),
         // Example usage of IntTextbox
         IntTextbox(
@@ -74,6 +74,13 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           xLength: 300,
           yLength: 100,
           onChanged: () => stringTextboxTestValue = StringTextbox.value,
+        ),
+        // Example usage of BoolButton
+        BoolButton(
+          dataName: 'Demo Bool Button',
+          xLength: 300,
+          yLength: 100,
+          onChanged: () => boolTextboxTestValue = BoolButton.value,
         ),
       ],
     );

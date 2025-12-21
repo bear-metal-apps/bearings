@@ -41,7 +41,8 @@ class _IntTextboxState extends State<IntTextbox> {
       width: widget.xLength,
       height: widget.yLength,
       child: TextField(
-        cursorColor: widget.outlineColor ?? Colors.black,
+        cursorColor: widget.outlineColor ??
+       Colors.black,
         decoration: InputDecoration(
           filled: true,
           fillColor: widget.fillColor ?? Colors.white,

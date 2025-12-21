@@ -1,17 +1,14 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-// Select between three states: checked, unchecked, indeterminate
-enum buttonState { unchecked, checked, indeterminate }
-
-class TristateButton extends StatefulWidget {
+class BoolButton extends StatefulWidget {
   final String dataName;
   final double xLength;
   final double yLength;
   final VoidCallback onChanged;
   final double? minfontSize; // Optional font size parameter
 
-  const TristateButton({
+  const BoolButton({
     super.key,
     this.minfontSize,
     required this.dataName,
@@ -20,13 +17,14 @@ class TristateButton extends StatefulWidget {
     required this.onChanged,
   });
 
+    static bool get value => _BoolButtonState.boolButtonState;
+
   @override
-  _TristateState createState() => _TristateState();
+  _BoolButtonState createState() => _BoolButtonState();
 }
 
-buttonState currentState = buttonState.unchecked;
-
-class _TristateState extends State<TristateButton> {
+class _BoolButtonState extends State<BoolButton> {
+  static bool boolButtonState = false;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -38,25 +36,21 @@ class _TristateState extends State<TristateButton> {
             borderRadius: BorderRadius.circular(8.0),
           ),
           foregroundColor: Colors.black,
-          backgroundColor: (currentState == buttonState.unchecked
+          backgroundColor: (boolButtonState == false)
               ? Colors.red
-              : currentState == buttonState.checked
-              ? Colors.green
-              : currentState == buttonState.indeterminate
-              ? Colors.yellow
-              : Colors.grey),
+              : Colors.green,
+          padding: EdgeInsets.all(16.0),
+          minimumSize: Size(widget.xLength, widget.yLength),
         ),
         onPressed: () {
           setState(() {
-            if (currentState == buttonState.unchecked) {
-              currentState = buttonState.checked;
-            } else if (currentState == buttonState.checked) {
-              currentState = buttonState.indeterminate;
-            } else if (currentState == buttonState.indeterminate) {
-              currentState = buttonState.unchecked;
+            if (boolButtonState == false) {
+              boolButtonState = true;
+            } else {
+              boolButtonState = false;
             }
-            widget.onChanged();
           });
+          widget.onChanged();
         },
         child: Center(
           child: AutoSizeText(
@@ -64,7 +58,9 @@ class _TristateState extends State<TristateButton> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.black,
-              fontSize: widget.minfontSize ?? 20.0, // Use the provided font size or default to 16.0
+              fontSize:
+                  widget.minfontSize ??
+                  20.0, // Use the provided font size or default to 16.0
               fontWeight: FontWeight.bold,
             ),
             maxLines: 2,
