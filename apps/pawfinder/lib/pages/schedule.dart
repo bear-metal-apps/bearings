@@ -1,10 +1,10 @@
-import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beariscope_scouter/custom_widgets/int_textbox.dart';
+import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 
 class SchedulePage extends ConsumerStatefulWidget {
   const SchedulePage({super.key});
@@ -29,6 +29,10 @@ String stringTextboxTestValue = '';
 
 //etc. for other custom widgets
 bool boolTextboxTestValue = false;
+
+String selectedDropdownValue = 'Option 1';
+
+const List<String> stringDropdownOptions = <String>['Option 1', 'Option 2', 'Option 3'];
 
 class SchedulePageState extends ConsumerState<SchedulePage> {
   @override
@@ -76,11 +80,19 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           onChanged: () => stringTextboxTestValue = StringTextbox.value,
         ),
         // Example usage of BoolButton
-        BoolButton(
-          dataName: 'Demo Bool Button',
-          xLength: 300,
-          yLength: 100,
-          onChanged: () => boolTextboxTestValue = BoolButton.value,
+        
+        Dropdown(
+          title: 'Dropdown Title',
+          value: selectedDropdownValue,
+          items: stringDropdownOptions,
+          backgroundColor: Colors.white,
+          xValue: 300,
+          yValue: 100,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedDropdownValue = newValue!;
+            });
+          },
         ),
       ],
     );
