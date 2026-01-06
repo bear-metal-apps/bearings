@@ -14,53 +14,32 @@ class SchedulePage extends ConsumerStatefulWidget {
 enum EventTypes { strat, match, all }
 
 class SchedulePageState extends ConsumerState<SchedulePage> {
+  String searchedText = "";
   EventTypes selectedItem = EventTypes.all;
   List<Event> events = [
-    Event(time: '2:45', name: "Match 16", eventType: EventTypes.all, commonPhrases: ['Match','Strat', '2:45']),
-    Event(time: '3:00', name: "Match 17", eventType: EventTypes.all, commonPhrases: ['Match','Strat', '3:00']),
-    Event(time: '3:15', name: "Match 18", eventType: EventTypes.all, commonPhrases: ['Match','Strat', '3:15']),
-    Event(time: '3:30', name: "Match 19", eventType: EventTypes.all, commonPhrases: ['Match','Strat', '3:30']),
-    Event(time: '3:45', name: "Match 20", eventType: EventTypes.all, commonPhrases: ['Match','Strat', '3:45']),
-    Event(time: '4:00', name: "Match 21", eventType: EventTypes.match, commonPhrases: ['Match','Strat', '4:00']),
-    Event(time: '4:15', name: "Match 22", eventType: EventTypes.strat, commonPhrases: ['Match','Strat', '4:15']),
-    Event(time: '4:30', name: "Match 23", eventType: EventTypes.all, commonPhrases: ['Match','Strat', '4:30']),
+    Event(time: '2:45', name: "Match 16", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(time: '3:00', name: "Match 17", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(time: '3:15', name: "Match 18", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(time: '3:30', name: "Match 19", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(time: '3:45', name: "Match 20", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(time: '4:00', name: "Match 21", eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '4:15', name: "Match 22", eventType: EventTypes.strat, commonPhrases: ['Match','Strat']),
+    Event(time: '4:30', name: "Match 23", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(time: '4:45', name: "Lunch", eventType: EventTypes.all),
 
   ];
+
   List<Widget> createTiles(){
-    List<Widget> list = [
-      SearchBar(
-        leading: Icon(Icons.search),
-        onChanged: (text) {},
-        trailing: [
-          PopupMenuButton(
-            initialValue: selectedItem,
-            onSelected: (EventTypes item) {
-              setState(() {
-                selectedItem = item;
-              });
-            },
-            itemBuilder: (BuildContext context) =>
-            <PopupMenuEntry<EventTypes>>[
-              const PopupMenuItem<EventTypes>(
-                value: EventTypes.match,
-                child: Text('Match'),
-              ),
-              const PopupMenuItem<EventTypes>(
-                value: EventTypes.strat,
-                child: Text('Strat'),
-              ),
-              const PopupMenuItem<EventTypes>(
-                value: EventTypes.all,
-                child: Text('All'),
-              ),
-            ],
-            child: Icon(Icons.filter),
-          ),
-        ],
-      )
-    ];
+    List<Widget> list = [];
     for(var event in events) {
-      if (event.eventType == selectedItem || selectedItem == EventTypes.all) {
+      var searched = false;
+      for (var string in event.commonPhrases){
+        if(string.contains(searchedText)){
+          searched = true;
+          break;
+        }
+      }
+      if ((event.eventType == selectedItem || selectedItem == EventTypes.all) && (searched || event.name.contains(searchedText) || event.time.contains(searchedText))) {
         list.add(ListTile(
           leading: Icon(Icons.check_circle),
           title: Text(event.name),
@@ -87,9 +66,50 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
   
   @override
   Widget build(BuildContext context) {
+    List<Widget> cards = createTiles();
     return ListView(
       padding: EdgeInsets.all(4.0),
-      children:  createTiles(),
+      children:  [
+        SearchBar(
+          leading: Icon(Icons.search),
+          onChanged: (text) {
+            setState(() {
+              searchedText = text;
+              cards = createTiles();
+            });
+          },
+          trailing: [
+            PopupMenuButton(
+              initialValue: selectedItem,
+              onSelected: (EventTypes item) {
+                setState(() {
+                  selectedItem = item;
+                  cards = createTiles();
+                });
+              },
+              itemBuilder: (BuildContext context) =>
+              <PopupMenuEntry<EventTypes>>[
+                const PopupMenuItem<EventTypes>(
+                  value: EventTypes.match,
+                  child: Text('Match'),
+                ),
+                const PopupMenuItem<EventTypes>(
+                  value: EventTypes.strat,
+                  child: Text('Strat'),
+                ),
+                const PopupMenuItem<EventTypes>(
+                  value: EventTypes.all,
+                  child: Text('All'),
+                ),
+              ],
+              child: Icon(Icons.filter),
+            ),
+          ],
+        ),
+        Column(
+          children: cards,
+        )
+      ],
     );
   }
 }
@@ -106,7 +126,7 @@ class Event {
     required this.name,
     required this.eventType,
     this.tbaMatchKey = "",
-    required this.commonPhrases,
+    this.commonPhrases = const [],
   });
 }
 
