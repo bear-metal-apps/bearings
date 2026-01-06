@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +5,7 @@ class Dropdown extends StatefulWidget {
   final String title;
   final String? value;
   final List<String> items;
-  final Function(String?)? onChanged;
+  final Function(String?)? uponChanged;
   final double xValue;
   final double yValue;
   final Color backgroundColor;
@@ -18,7 +16,7 @@ class Dropdown extends StatefulWidget {
     required this.items,
     required this.xValue,
     required this.yValue,
-    this.onChanged,
+    this.uponChanged,
     super.key,
   });
 
@@ -37,9 +35,6 @@ class _DropdownState extends State<Dropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final List<MenuEntry> dropdownMenuEntries = UnmodifiableListView<MenuEntry>(
-      widget.items.map((String value) => DropdownMenuEntry<String>(value: value, label: value)).toList(),
-    );
     return SizedBox(
       width: widget.xValue,
       height: widget.yValue,
@@ -72,13 +67,7 @@ class _DropdownState extends State<Dropdown> {
                     child: Text(value),
                   ))
               .toList(),
-          onChanged: (String? newValue) {
-            if (newValue == null) return;
-            setState(() {
-              dropdownValue = newValue;
-            });
-            if (widget.onChanged != null) widget.onChanged!(newValue);
-          },
+          onChanged: widget.uponChanged,
           hint: AutoSizeText(
             widget.title,
             style: TextStyle(fontSize: 16, color: Colors.black),
