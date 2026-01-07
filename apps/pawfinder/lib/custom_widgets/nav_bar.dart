@@ -101,14 +101,14 @@ class NavBarState extends State<NavBar> {
                 },
                 //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
-              ListTile(
-                leading: Icon(Icons.satellite_alt),
-                title: Text("Pits"),
-                onTap: () {
-                  widget.router.go('/Pits');
-                },
-                //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.satellite_alt),
+              //   title: Text("Pits"),
+              //   onTap: () {
+              //     widget.router.go('/Pits');
+              //   },
+              //   //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
+              // ),
               Divider(),
               Text("Users"),
               Column(children: userButtons),
