@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../pages/user.dart';
-
+//67 is so tuff boiiii
 class NavBar extends StatefulWidget {
   final Widget page;
   final String title;
