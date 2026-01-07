@@ -38,24 +38,26 @@ class MyApp extends StatelessWidget {
           GoRoute(path: '/', builder: (context, state) => const SchedulePage()),
           ShellRoute(
             builder: (context, state, page) {
-              return NavBar(page: page, title: "Stage", router: MyApp.router);
+              return MatchNavBar(page: page, router: router);
             },
             routes: [
               GoRoute(
                 path: '/Match',
                 builder: (context, state) => const MatchPage(),
-              ),
-              GoRoute(
-                path: '/Match/Auto',
-                builder: (context, state) => const AutoPage(),
-              ),
-              GoRoute(
-                path: '/Match/Tele',
-                builder: (context, state) => const TelePage(),
-              ),
-              GoRoute(
-                path: '/Match/End',
-                builder: (context, state) => const EndPage(),
+                routes: [
+                  GoRoute(
+                    path: 'Auto',
+                    builder: (context, state) => const AutoPage(),
+                  ),
+                  GoRoute(
+                    path: 'Tele',
+                    builder: (context, state) => const TelePage(),
+                  ),
+                  GoRoute(
+                    path: 'End',
+                    builder: (context, state) => const EndPage(),
+                  ),
+                ]
               ),
             ],
           ),

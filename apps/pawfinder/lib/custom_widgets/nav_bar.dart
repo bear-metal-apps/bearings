@@ -125,25 +125,86 @@ class NavBarState extends State<NavBar> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class MatchNavBar extends StatefulWidget {
+  final Widget page;
+  final GoRouter router;
+  final bool devMode;
+
+  const MatchNavBar({
+    super.key,
+    required this.page,
+    required this.router,
+    this.devMode = false,
+  });
+
+  @override
+  State<StatefulWidget> createState() {
+    return MatchNavBarState();
+  }
+}
+
+class MatchNavBarState extends State<MatchNavBar> {
+  final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
+
+  int _currentIndex(BuildContext context) {
+  final location = GoRouterState.of(context).uri.toString();
+
+    if (location.startsWith('/Strat')) return 1;
+    if (location.startsWith('/User')) return 2;
+
+    return 0; // Schedule
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> userButtons = [];
+    users.forEach((element) {
+      userButtons.add(
+        ListTile(
+          leading: Icon(element.icon),
+          title: Text(element.name),
+          onTap: () {
+            currentUser = element.name;
+            widget.router.go('/User');
+          },
+        ),
+      );
+      int _currentIndex(BuildContext context) {
+        final location = GoRouterState.of(context).uri.toString();
+
+        if (location.startsWith('/Strat')) return 1;
+        if (location.startsWith('/User')) return 2;
+
+        // default: Schedule
+        return 0;
+      }
+    });
+
+    return Scaffold(
+      body: widget.page,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex(context),
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              widget.router.go('/Auto');
-              break;
-            case 1:
-              widget.router.go('/Tele');
-              break;
-            case 2:
-              widget.router.go('/Endgame');
-              break;
-          }
-        },
-        items: const [
+          currentIndex: _currentIndex(context),
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                widget.router.go('/Match/Auto');
+                break;
+              case 1:
+                widget.router.go('/Match/Tele');
+                break;
+              case 2:
+                widget.router.go('/Match/End');
+                break;
+            }
+          },
+          items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.bolt),
-                label: "Auto"
+              icon: Icon(Icons.bolt),
+              label: "Auto"
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.stacked_bar_chart_sharp),
@@ -153,7 +214,7 @@ class NavBarState extends State<NavBar> {
               icon: Icon(Icons.view_array),
               label: "Endgame"
           ),
-      ],
+        ],
       )
     );
   }
