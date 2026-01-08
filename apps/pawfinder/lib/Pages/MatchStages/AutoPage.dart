@@ -1,16 +1,16 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TelePage extends ConsumerStatefulWidget {
-  const TelePage({super.key});
+class AutoPage extends ConsumerStatefulWidget {
+  const AutoPage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return TelePageState();
+    return AutoPageState();
   }
 }
 
-class TelePageState extends ConsumerState<TelePage> {
+class AutoPageState extends ConsumerState<AutoPage> {
   @override
   Widget build(BuildContext context) {
     throw UnimplementedError();
