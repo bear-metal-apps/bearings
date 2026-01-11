@@ -1,15 +1,10 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:js_interop';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../pages/user.dart';
-import 'nav_bar.dart';
 
 class MatchWidget extends StatefulWidget {
   final File json;
