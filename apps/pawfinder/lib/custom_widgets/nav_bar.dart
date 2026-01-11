@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../pages/user.dart';
-//67 is so tuff boiiii
+
 class NavBar extends StatefulWidget {
   final Widget page;
   final String title;
@@ -50,16 +50,6 @@ class NavBarState extends State<NavBar> {
         ),
       );
     }
-      int _currentIndex(BuildContext context) {
-        final location = GoRouterState.of(context).uri.toString();
-
-        if (location.startsWith('/Strat')) return 1;
-        if (location.startsWith('/User')) return 2;
-
-        // default: Schedule
-        return 0;
-      }
-    });
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: widget.page,
@@ -78,7 +68,7 @@ class NavBarState extends State<NavBar> {
                 leading: Icon(Icons.calendar_month),
                 title: Text("Schedule"),
                 onTap: () {
-                  widget.router.go('/Schedule');
+                  widget.router.go('/');
                 },
               ),
               Divider(),
@@ -149,7 +139,7 @@ class MatchNavBarState extends State<MatchNavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
   int _currentIndex(BuildContext context) {
-  final location = GoRouterState.of(context).uri.toString();
+    final location = GoRouterState.of(context).uri.toString();
 
     if (location.startsWith('/Strat')) return 1;
     if (location.startsWith('/User')) return 2;
@@ -183,8 +173,8 @@ class MatchNavBarState extends State<MatchNavBar> {
     });
 
     return Scaffold(
-      body: widget.page,
-      bottomNavigationBar: BottomNavigationBar(
+        body: widget.page,
+        bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex(context),
           onTap: (index) {
             switch (index) {
@@ -200,20 +190,20 @@ class MatchNavBarState extends State<MatchNavBar> {
             }
           },
           items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.bolt),
-              label: "Auto"
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.stacked_bar_chart_sharp),
-              label: "Tele"
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.view_array),
-              label: "Endgame"
-          ),
-        ],
-      )
+            BottomNavigationBarItem(
+                icon: Icon(Icons.bolt),
+                label: "Auto"
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.stacked_bar_chart_sharp),
+                label: "Tele"
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.view_array),
+                label: "Endgame"
+            ),
+          ],
+        )
     );
   }
 }
