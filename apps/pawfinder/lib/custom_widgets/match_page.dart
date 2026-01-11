@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:js_interop';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../pages/user.dart';
+import 'nav_bar.dart';
 
 class MatchWidget extends StatefulWidget {
   final File json;
@@ -34,9 +36,9 @@ class MatchWidgetState extends State<MatchWidget> {
 
     double ultimateHeight = MediaQuery.of(context).size.height;
     double ultimateWidth = MediaQuery.of(context).size.width;
-    PageConfig page = MatchConfig.fromJson(json).pages.first;
+    PageConfig page = MatchConfig.fromJson(json).pages[widget.pageIndex];
     double horizontalStep = (ultimateWidth /page.width);
-    double verticalStep = (ultimateHeight /page.height);
+    double verticalStep = ((ultimateHeight) /page.height);
     List<Widget> matchPage = [];
     for(var data in page.components){
           switch (data.type){
@@ -73,7 +75,7 @@ class MatchWidgetState extends State<MatchWidget> {
             }
           }
     }
-    return Column(
+    return Stack(
       children: matchPage,
     );
   }
