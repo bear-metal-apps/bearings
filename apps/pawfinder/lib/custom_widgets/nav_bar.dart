@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../pages/user.dart';
-//67 is so tuff boiiii
+
 class NavBar extends StatefulWidget {
   final Widget page;
   final String title;
@@ -50,16 +50,6 @@ class NavBarState extends State<NavBar> {
         ),
       );
     }
-      int _currentIndex(BuildContext context) {
-        final location = GoRouterState.of(context).uri.toString();
-
-        if (location.startsWith('/Strat')) return 1;
-        if (location.startsWith('/User')) return 2;
-
-        // default: Schedule
-        return 0;
-      }
-    });
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: widget.page,
@@ -78,7 +68,7 @@ class NavBarState extends State<NavBar> {
                 leading: Icon(Icons.calendar_month),
                 title: Text("Schedule"),
                 onTap: () {
-                  widget.router.go('/Schedule');
+                  widget.router.go('/');
                 },
               ),
               Divider(),
