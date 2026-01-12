@@ -1,15 +1,15 @@
-import 'package:beariscope_scouter/Pages/Schedule.dart';
-import 'package:beariscope_scouter/Pages/Strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
+import 'package:beariscope_scouter/page/match.dart';
+import 'package:beariscope_scouter/page/schedule.dart';
+import 'package:beariscope_scouter/page/strat.dart';
+import 'package:beariscope_scouter/page/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'Pages/Match.dart';
-import 'Pages/MatchStages/AutoPage.dart';
-import 'Pages/MatchStages/EndPage.dart';
-import 'Pages/MatchStages/TelePage.dart';
-import 'Pages/User.dart';
+import 'page/match_stages/auto_page.dart';
+import 'page/match_stages/end_page.dart';
+import 'page/match_stages/tele_page.dart';
 
 void main() {
   runApp(
