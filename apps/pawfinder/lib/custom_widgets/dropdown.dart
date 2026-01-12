@@ -23,7 +23,9 @@ class Dropdown extends StatefulWidget {
   @override
   State<Dropdown> createState() => _DropdownState();
 }
+
 typedef MenuEntry = DropdownMenuEntry<String>;
+
 class _DropdownState extends State<Dropdown> {
   late String dropdownValue;
 
@@ -62,10 +64,10 @@ class _DropdownState extends State<Dropdown> {
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
           items: widget.items
-              .map((String value) => DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  ))
+              .map(
+                (String value) =>
+                    DropdownMenuItem<String>(value: value, child: Text(value)),
+              )
               .toList(),
           onChanged: widget.uponChanged,
           hint: AutoSizeText(

@@ -13,7 +13,7 @@ class NumberButton extends StatefulWidget {
   const NumberButton({
     super.key,
     required this.onChanged,
-    required this.backgroundColor,
+    this.backgroundColor,
     required this.dataName,
     required this.xLength,
     required this.yLength,
@@ -47,7 +47,7 @@ class _NumberButtonState extends State<NumberButton> {
           });
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: widget.backgroundColor,
+          backgroundColor: widget.backgroundColor ?? Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),

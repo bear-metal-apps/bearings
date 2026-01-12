@@ -95,8 +95,9 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             yLength: 100,
             minfontSize: 20,
             onChanged: () => boolTextboxTestValue = BoolButton.value,
+            visualFeedback: true,
           ),
-          Padding(padding:  EdgeInsets.all(20)),
+          Padding(padding: EdgeInsets.all(20)),
           CustomSegmentedButton(
             segments: ['Option 1', 'Option 2', 'Option 3'],
             onChanged: (int newIndex) {
@@ -108,8 +109,78 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             xLength: 300,
             yLength: 100,
           ),
-          Padding(padding:  EdgeInsets.all(20)),
-          
+          Padding(padding: EdgeInsets.all(20)),
+
+          Dropdown(
+            title: 'Dropdown Title',
+            value: selectedDropdownValue,
+            items: stringDropdownOptions,
+            backgroundColor: Colors.white,
+            xValue: 300,
+            yValue: 100,
+            uponChanged: (String? newValue) {
+              setState(() {
+                selectedDropdownValue = newValue!;
+              });
+            },
+          ),
+          NumberButton(
+            dataName: 'Demo Button',
+            backgroundColor: Colors.yellow,
+            xLength: 300,
+            yLength: 200,
+            textAlignment: Alignment.bottomCenter,
+            onChanged: () =>
+                numericalButtonTestValue = NumberButton.currentVariable,
+          ),
+          // Example usage of TristateButton
+          TristateButton(
+            dataName: 'Demo Tristate',
+            xLength: 100,
+            yLength: 100,
+            minfontSize: 20,
+            onChanged: () => tristateButtonTestValue = currentState,
+          ),
+          // Example usage of IntTextbox
+          IntTextbox(
+            dataName: 'Demo Int Textbox',
+            fillColor: Colors.red,
+            outlineColor: Colors.black,
+            xLength: 300,
+            yLength: 100,
+            onChanged: () => intTextboxTestValue = IntTextbox.value,
+          ),
+          StringTextbox(
+            dataName: 'Demo String Textbox',
+            fillColor: Colors.blue,
+            outlineColor: Colors.black,
+            xLength: 300,
+            yLength: 100,
+            onChanged: () => stringTextboxTestValue = StringTextbox.value,
+          ),
+          // Example usage of BoolButton
+          BoolButton(
+            dataName: 'Demo Bool Button',
+            xLength: 200,
+            yLength: 100,
+            minfontSize: 20,
+            onChanged: () => boolTextboxTestValue = BoolButton.value,
+            visualFeedback: true,
+          ),
+          Padding(padding: EdgeInsets.all(20)),
+          CustomSegmentedButton(
+            segments: ['Option 1', 'Option 2', 'Option 3'],
+            onChanged: (int newIndex) {
+              setState(() {
+                selectedSegmentedButtonValue = selectedSegment;
+              });
+            },
+            selectedColor: Colors.blueGrey,
+            xLength: 300,
+            yLength: 100,
+          ),
+          Padding(padding: EdgeInsets.all(20)),
+
           Dropdown(
             title: 'Dropdown Title',
             value: selectedDropdownValue,

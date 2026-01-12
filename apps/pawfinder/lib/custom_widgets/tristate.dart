@@ -64,7 +64,9 @@ class _TristateState extends State<TristateButton> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.black,
-              fontSize: widget.minfontSize ?? 20.0, // Use the provided font size or default to 16.0
+              fontSize:
+                  widget.minfontSize ??
+                  20.0, // Use the provided font size or default to 16.0
               fontWeight: FontWeight.bold,
             ),
             maxLines: 2,

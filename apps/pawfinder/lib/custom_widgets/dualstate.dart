@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // Select between two states: checked, unchecked
 enum dualButtonState { unchecked, checked }
@@ -60,7 +61,9 @@ class _TristateState extends State<DualstateButton> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.black,
-              fontSize: widget.minfontSize ?? 20.0, // Use the provided font size or default to 16.0
+              fontSize:
+                  widget.minfontSize ??
+                  20.0, // Use the provided font size or default to 16.0
               fontWeight: FontWeight.bold,
             ),
             maxLines: 2,
