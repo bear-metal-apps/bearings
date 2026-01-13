@@ -62,7 +62,7 @@ class NavBarState extends State<NavBar> {
                 leading: Icon(Icons.calendar_month),
                 title: Text("Schedule"),
                 onTap: () {
-                  widget.router.go('/Schedule');
+                  widget.router.go('/');
                 },
               ),
               Divider(),
