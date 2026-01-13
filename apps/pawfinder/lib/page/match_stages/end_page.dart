@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,6 @@ class EndPage extends ConsumerStatefulWidget {
 class EndPageState extends ConsumerState<EndPage> {
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return Center(child: Text("end page"));
   }
 }
