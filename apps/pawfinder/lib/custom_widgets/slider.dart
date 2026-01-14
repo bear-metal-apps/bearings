@@ -52,7 +52,7 @@ class _CustomSliderState extends State<CustomSlider> {
                 ? widget.segmentLength!.toDouble()
                 : null,
             onChanged: (value) {
-              widget.onChanged?.call(value);
+              widget.onChanged.call(value);
               setState(() {
                 sliderValue = value;
               });

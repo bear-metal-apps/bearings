@@ -26,6 +26,7 @@ class NavBar extends StatefulWidget {
 class NavBarState extends State<NavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
+  // ignore: unused_element
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
 
@@ -161,6 +162,7 @@ class MatchNavBarState extends State<MatchNavBar> {
           },
         ),
       );
+      // ignore: unused_element
       int currentIndex(BuildContext context) {
         final location = GoRouterState.of(context).uri.toString();
 

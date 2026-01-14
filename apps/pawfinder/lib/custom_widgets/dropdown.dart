@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:pressable_flutter/pressable_flutter.dart';
 
 class Dropdown extends StatefulWidget {
   final String title;
@@ -39,9 +40,10 @@ class _DropdownState extends State<Dropdown> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.xValue,
-      height: widget.yValue,        
+      height: widget.yValue,
 
-    child: DropdownButtonFormField<String>(
+      child: Pressable(
+        child: DropdownButtonFormField<String>(
           borderRadius: BorderRadius.circular(10),
           initialValue: dropdownValue,
           isExpanded: true,
@@ -74,6 +76,7 @@ class _DropdownState extends State<Dropdown> {
             maxLines: 1,
           ),
         ),
-      );
+      ),
+    );
   }
 }

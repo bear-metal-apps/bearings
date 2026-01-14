@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pressable_flutter/pressable_flutter.dart';
 
 class CustomSegmentedButton extends StatefulWidget {
   final List<String> segments;
@@ -30,29 +31,31 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
     return SizedBox(
       width: widget.xLength,
       height: widget.yLength,
-      child: ToggleButtons(
-        isSelected: List.generate(
-          widget.segments.length,
-          (index) => selectedSegment == widget.segments[index],
+      child: Pressable(
+        child: ToggleButtons(
+          isSelected: List.generate(
+            widget.segments.length,
+            (index) => selectedSegment == widget.segments[index],
+          ),
+          onPressed: (value) {
+            selectedSegment = widget.segments[value];
+            widget.onChanged(value);
+          },
+          color: Colors.black,
+          selectedColor: Colors.white,
+          fillColor: widget.selectedColor,
+          borderColor: Colors.grey,
+          selectedBorderColor: Colors.grey,
+          borderRadius: BorderRadius.circular(8.0),
+          children: widget.segments
+              .map(
+                (segment) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Text(segment),
+                ),
+              )
+              .toList(),
         ),
-        onPressed: (value) {
-          selectedSegment = widget.segments[value];
-          widget.onChanged(value);
-        },
-        color: Colors.black,
-        selectedColor: Colors.white,
-        fillColor: widget.selectedColor,
-        borderColor: Colors.grey,
-        selectedBorderColor: Colors.grey,
-        borderRadius: BorderRadius.circular(8.0),
-        children: widget.segments
-            .map(
-              (segment) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Text(segment),
-              ),
-            )
-            .toList(),
       ),
     );
   }
