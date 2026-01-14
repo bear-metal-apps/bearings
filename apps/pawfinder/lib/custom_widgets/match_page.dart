@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
+import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/text_box.dart';
+import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:flutter/material.dart';
 
 
 class MatchWidget extends StatefulWidget {
-  final File json;
+  final Map<String, dynamic> json;
   final int pageIndex;
 
   const MatchWidget({
@@ -23,52 +26,115 @@ class MatchWidget extends StatefulWidget {
 }
 
 class MatchWidgetState extends State<MatchWidget> {
+  List<Widget> matchPage = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    Map<String,dynamic> json = jsonDecode(widget.json.readAsStringSync());
-
-
     double ultimateHeight = MediaQuery.of(context).size.height;
     double ultimateWidth = MediaQuery.of(context).size.width;
-    PageConfig page = MatchConfig.fromJson(json).pages[widget.pageIndex];
+    PageConfig page = MatchConfig.fromJson(widget.json).pages[widget.pageIndex];
     double horizontalStep = (ultimateWidth /page.width);
-    double verticalStep = ((ultimateHeight) /page.height);
-    List<Widget> matchPage = [];
+    double verticalStep = ((ultimateHeight-130)/page.height);
     for(var data in page.components){
-          switch (data.type){
-            case "int_button":{
-              matchPage.add(
-                Positioned(
-                  top: data.layout.y * verticalStep,
-                  left: data.layout.x * horizontalStep,
-                  child:
-                    NumberButton(
-                        onChanged: (){
+      switch (data.type){
+        case "int_button":{
+          matchPage.add(
+              Positioned(
+                top: data.layout.y * verticalStep,
+                left: data.layout.x * horizontalStep,
+                child:
+                NumberButton(
+                    onChanged: (){
 
-                        },
-                        backgroundColor: Colors.white,
-                        dataName: data.fieldId,
-                        xLength: data.layout.w * horizontalStep,
-                        yLength: data.layout.h * verticalStep
-                    ),
-                )
-              );
-              break;
-            }
-            case "toggle_button":{
-              break;
-            }
-            case "text_box":{
-              break;
-            }
-            case "dropdown":{
-              break;
-            }
-            case "tristate":{
-              break;
-            }
-          }
+                    },
+                    backgroundColor: Colors.white,
+                    dataName: data.fieldId,
+                    xLength: data.layout.w * horizontalStep,
+                    yLength: data.layout.h * verticalStep
+                ),
+              )
+          );
+          break;
+        }
+        case "toggle_button":{
+          matchPage.add(
+              Positioned(
+                top: data.layout.y * verticalStep,
+                left: data.layout.x * horizontalStep,
+                child:
+                BoolButton(
+                    onChanged: (){
+
+                    },
+                    dataName: data.fieldId,
+                    xLength: data.layout.w * horizontalStep,
+                    yLength: data.layout.h * verticalStep
+                ),
+              )
+          );
+          break;
+        }
+        case "text_box":{
+          matchPage.add(
+              Positioned(
+                top: data.layout.y * verticalStep,
+                left: data.layout.x * horizontalStep,
+                child:
+                StringTextbox(
+                    onChanged: (){
+
+                    },
+                    dataName: data.fieldId,
+                    xLength: data.layout.w * horizontalStep,
+                    yLength: data.layout.h * verticalStep
+                ),
+              )
+          );
+          break;
+        }
+        case "dropdown":{
+          matchPage.add(
+              Positioned(
+                top: data.layout.y * verticalStep,
+                left: data.layout.x * horizontalStep,
+                child:
+                Dropdown(
+                  title: '',
+                  backgroundColor: Colors.blueAccent,
+                  value: '',
+                  items: [],
+                  xValue: data.layout.w*horizontalStep,
+                  yValue: data.layout.h*verticalStep,
+
+                ),
+              )
+          );
+          break;
+        }
+        case "tristate":{
+          matchPage.add(
+              Positioned(
+                top: data.layout.y * verticalStep,
+                left: data.layout.x * horizontalStep,
+                child:
+                TristateButton(
+                    onChanged: (){
+
+                    },
+                    dataName: data.fieldId,
+                    xLength: data.layout.w * horizontalStep,
+                    yLength: data.layout.h * verticalStep
+                ),
+              )
+          );
+          break;
+        }
+      }
     }
     return Stack(
       children: matchPage,

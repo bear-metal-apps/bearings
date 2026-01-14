@@ -1,5 +1,7 @@
+import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../pages/user.dart';
 
@@ -51,7 +53,7 @@ class NavBarState extends State<NavBar> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title),toolbarHeight: MediaQuery.of(context).size.height * 3/32),
       body: widget.page,
       drawer: Drawer(
         width: 250.0,
@@ -79,7 +81,10 @@ class NavBarState extends State<NavBar> {
                 onTap: () {
                   widget.router.go('/Match');
                 },
-                //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
+                onLongPress: (){
+                  loadUiConfig();
+                },
+                // trailing: uiLoading? LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20) : null,
               ),
               ListTile(
                 leading: Icon(Icons.linear_scale),
@@ -174,7 +179,10 @@ class MatchNavBarState extends State<MatchNavBar> {
 
     return Scaffold(
       body: widget.page,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar:SizedBox(
+        height: MediaQuery.of(context).size.height * 3/32,
+        child:
+      BottomNavigationBar(
           currentIndex: _currentIndex(context),
           onTap: (index) {
             switch (index) {
@@ -203,6 +211,7 @@ class MatchNavBarState extends State<MatchNavBar> {
               label: "Endgame"
           ),
         ],
+      )
       )
     );
   }

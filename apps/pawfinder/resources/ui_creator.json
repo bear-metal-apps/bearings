@@ -1,6 +1,6 @@
 {
   "meta": {
-    "season" : 2025,
+    "season": 2025,
     "author": "bear_metal",
     "version": 1,
     "type": "match"
@@ -360,7 +360,7 @@
         },
         {
           "fieldId": "played_defense",
-          "type": "toggle_switch",
+          "type": "toggle_button",
           "layout": {
             "x": 1,
             "y": 1,

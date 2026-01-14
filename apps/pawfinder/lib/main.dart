@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import 'custom_widgets/match_page.dart';
 import 'custom_widgets/nav_bar.dart';
 import 'pages/match.dart';
 import 'pages/match_stages/auto_page.dart';
@@ -15,9 +21,66 @@ void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+Future<Map<String, dynamic>> loadUiConfig() async {
+  final jsonString = await rootBundle.loadString('resources/ui_creator.json');
+  return jsonDecode(jsonString);
+}
+final List<FutureBuilder> matchPages = [
+  FutureBuilder(
+    future: loadUiConfig(),
+    builder: (context, snapshot) {
+      if (snapshot.hasData && snapshot.data != null) {
+        return MatchWidget(
+          json: snapshot.data!,
+          pageIndex: 0,
+        );
+      } else if (snapshot.hasError) {
+        return Center(child: Text("404 - UI not loaded"));
+      }
+      return LoadingAnimationWidget.staggeredDotsWave(
+        color: Colors.greenAccent,
+        size: 20,
+      );
+    },
+  ),
+  FutureBuilder(
+    future: loadUiConfig(),
+    builder: (context, snapshot) {
+      if (snapshot.hasData && snapshot.data != null) {
+        return MatchWidget(
+          json: snapshot.data!,
+          pageIndex: 1,
+        );
+      } else if (snapshot.hasError) {
+        return Center(child: Text("404 - UI not loaded"));
+      }
+      return LoadingAnimationWidget.staggeredDotsWave(
+        color: Colors.greenAccent,
+        size: 20,
+      );
+    },
+  ),
+  FutureBuilder(
+    future: loadUiConfig(),
+    builder: (context, snapshot) {
+      if (snapshot.hasData && snapshot.data != null) {
+        return MatchWidget(
+          json: snapshot.data!,
+          pageIndex: 2,
+        );
+      } else if (snapshot.hasError) {
+        return Center(child: Text("404 - UI not loaded"));
+      }
+      return LoadingAnimationWidget.staggeredDotsWave(
+        color: Colors.greenAccent,
+        size: 20,
+      );
+    },
+  ),
+];
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   static final GoRouter router = GoRouter(
     initialLocation: "/",
     routes: [
@@ -47,17 +110,17 @@ class MyApp extends StatelessWidget {
                 routes: [
                   GoRoute(
                     path: 'Auto',
-                    builder: (context, state) => const AutoPage(),
+                    builder: (context, state) => matchPages[0]
                   ),
                   GoRoute(
                     path: 'Tele',
-                    builder: (context, state) => const TelePage(),
+                    builder: (context, state) => matchPages[1]
                   ),
                   GoRoute(
                     path: 'End',
-                    builder: (context, state) => const EndPage(),
+                    builder: (context, state) => matchPages[2]
                   ),
-                ]
+                ],
               ),
             ],
           ),
