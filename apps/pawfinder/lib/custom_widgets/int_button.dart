@@ -6,13 +6,13 @@ class NumberButton extends StatefulWidget {
   final Color? backgroundColor;
   final Alignment textAlignment;
   final String dataName;
-  final VoidCallback onChanged;
+  final Function(int)? onChanged;
   final double xLength;
   final double yLength;
 
   const NumberButton({
     super.key,
-    required this.onChanged,
+    this.onChanged,
     this.backgroundColor,
     required this.dataName,
     required this.xLength,
@@ -20,19 +20,12 @@ class NumberButton extends StatefulWidget {
     this.textAlignment = Alignment.bottomRight,
   });
 
-  static int get currentVariable => _NumberButtonState.currentVariable;
-
   @override
   State<NumberButton> createState() => _NumberButtonState();
 }
 
 class _NumberButtonState extends State<NumberButton> {
-  static int currentVariable = 0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  int currentVariable = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +36,9 @@ class _NumberButtonState extends State<NumberButton> {
         onPressed: () {
           setState(() {
             currentVariable++;
-            widget.onChanged();
           });
+
+          widget.onChanged?.call(currentVariable);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: widget.backgroundColor ?? Colors.white,
@@ -91,8 +85,9 @@ class _NumberButtonState extends State<NumberButton> {
                   onPressed: () {
                     setState(() {
                       currentVariable--;
-                      widget.onChanged();
                     });
+                    
+                    widget.onChanged?.call(currentVariable);
                   },
                 ),
               ),

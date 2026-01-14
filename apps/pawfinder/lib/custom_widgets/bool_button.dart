@@ -1,15 +1,13 @@
-
 import 'dart:developer';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
-
 class BoolButton extends StatefulWidget {
   final String dataName;
   final double xLength;
   final double yLength;
-  final VoidCallback onChanged;
+  final Function(bool) onChanged;
   final double? minfontSize; // Optional font size parameter
   final bool visualFeedback;
 
@@ -23,14 +21,19 @@ class BoolButton extends StatefulWidget {
     required this.visualFeedback,
   });
 
-  static bool get value => _BoolButtonState.boolButtonState;
-
   @override
   _BoolButtonState createState() => _BoolButtonState();
 }
 
 class _BoolButtonState extends State<BoolButton> {
-  static bool boolButtonState = false;
+  bool boolButtonState = false;
+
+  @override
+  void initState() {
+    super.initState();
+    boolButtonState = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -55,13 +58,9 @@ class _BoolButtonState extends State<BoolButton> {
           ),
           onPressed: () {
             setState(() {
-              if (boolButtonState == false) {
-                boolButtonState = true;
-              } else {
-                boolButtonState = false;
-              }
+              boolButtonState = !boolButtonState;
             });
-            widget.onChanged();
+            widget.onChanged(boolButtonState);
           },
           child: Center(
             child: AutoSizeText(

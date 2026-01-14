@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class Dropdown extends StatefulWidget {
   final String title;
-  final String? value;
+
   final List<String> items;
   final Function(String?)? uponChanged;
   final double xValue;
@@ -12,7 +12,7 @@ class Dropdown extends StatefulWidget {
   const Dropdown({
     required this.title,
     required this.backgroundColor,
-    required this.value,
+
     required this.items,
     required this.xValue,
     required this.yValue,
@@ -32,18 +32,16 @@ class _DropdownState extends State<Dropdown> {
   @override
   void initState() {
     super.initState();
-    dropdownValue = widget.value ?? widget.items.first;
+    dropdownValue = widget.items.first;
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.xValue,
-      height: widget.yValue,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        color: widget.backgroundColor,
-        child: DropdownButtonFormField<String>(
+      height: widget.yValue,        
+
+    child: DropdownButtonFormField<String>(
           borderRadius: BorderRadius.circular(10),
           initialValue: dropdownValue,
           isExpanded: true,
@@ -76,7 +74,6 @@ class _DropdownState extends State<Dropdown> {
             maxLines: 1,
           ),
         ),
-      ),
-    );
+      );
   }
 }

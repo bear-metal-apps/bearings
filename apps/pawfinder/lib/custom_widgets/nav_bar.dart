@@ -150,7 +150,7 @@ class MatchNavBarState extends State<MatchNavBar> {
   @override
   Widget build(BuildContext context) {
     List<Widget> userButtons = [];
-    users.forEach((element) {
+    for (var element in users) {
       userButtons.add(
         ListTile(
           leading: Icon(element.icon),
@@ -161,7 +161,7 @@ class MatchNavBarState extends State<MatchNavBar> {
           },
         ),
       );
-      int _currentIndex(BuildContext context) {
+      int currentIndex(BuildContext context) {
         final location = GoRouterState.of(context).uri.toString();
 
         if (location.startsWith('/Strat')) return 1;
@@ -170,7 +170,7 @@ class MatchNavBarState extends State<MatchNavBar> {
         // default: Schedule
         return 0;
       }
-    });
+    }
 
     return Scaffold(
         body: widget.page,

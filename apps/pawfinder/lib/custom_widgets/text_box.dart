@@ -6,7 +6,7 @@ class StringTextbox extends StatefulWidget {
   final Color? fillColor;
   final Color? outlineColor;
   final String dataName;
-  final VoidCallback onChanged;
+  final Function(String) onChanged;
   final double xLength;
   final double yLength;
 
@@ -19,20 +19,13 @@ class StringTextbox extends StatefulWidget {
     required this.xLength,
     required this.yLength,
   });
-
-  static String get value => _StringTextboxState.value;
-
   @override
   State<StringTextbox> createState() => _StringTextboxState();
 }
 
 class _StringTextboxState extends State<StringTextbox> {
-  static TextEditingController controller = TextEditingController();
-  static late String value;
-  @override
-  void initState() {
-    super.initState();
-  }
+ TextEditingController controller = TextEditingController();
+  String value = '';
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +61,7 @@ class _StringTextboxState extends State<StringTextbox> {
         onChanged: (text) {
           setState(() {
             value = controller.text;
-            widget.onChanged();
+            widget.onChanged(value);
           });
         },
       ),
