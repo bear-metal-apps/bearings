@@ -8,7 +8,7 @@ class TristateButton extends StatefulWidget {
   final String dataName;
   final double xLength;
   final double yLength;
-  final VoidCallback onChanged;
+  final Function(buttonState) onChanged;
   final double? minfontSize; // Optional font size parameter
 
   const TristateButton({
@@ -24,9 +24,10 @@ class TristateButton extends StatefulWidget {
   _TristateState createState() => _TristateState();
 }
 
-buttonState currentState = buttonState.unchecked;
 
 class _TristateState extends State<TristateButton> {
+  buttonState currentState = buttonState.unchecked;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -55,7 +56,7 @@ class _TristateState extends State<TristateButton> {
             } else if (currentState == buttonState.indeterminate) {
               currentState = buttonState.unchecked;
             }
-            widget.onChanged();
+            widget.onChanged(currentState);
           });
         },
         child: Center(

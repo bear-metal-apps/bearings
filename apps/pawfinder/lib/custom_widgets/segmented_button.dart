@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomSegmentedButton extends StatefulWidget {
   final List<String> segments;
-  final ValueChanged<int> onChanged;
+  final Function(int) onChanged;
   final double xLength;
   final double yLength;
   final Color? selectedColor;
@@ -21,8 +21,10 @@ class CustomSegmentedButton extends StatefulWidget {
   @override
   State<CustomSegmentedButton> createState() => _CustomSegmentedButtonState();
 }
-String selectedSegment = '';
+
 class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
+  String selectedSegment = '';
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -33,9 +35,9 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
           widget.segments.length,
           (index) => selectedSegment == widget.segments[index],
         ),
-        onPressed: (index) {
-          selectedSegment = widget.segments[index];
-          widget.onChanged(index);
+        onPressed: (value) {
+          selectedSegment = widget.segments[value];
+          widget.onChanged(value);
         },
         color: Colors.black,
         selectedColor: Colors.white,

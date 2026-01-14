@@ -1,5 +1,6 @@
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:flutter/material.dart';
@@ -17,30 +18,33 @@ class SchedulePage extends ConsumerStatefulWidget {
   }
 }
 
-//example variable that the value of number button will be assigned to
-int numericalButtonTestValue = 0;
-
-//example variable that the value of tristate button will be assigned to
-buttonState tristateButtonTestValue = buttonState.unchecked;
-
-//example variable that the value of int textbox will be assigned to
-int intTextboxTestValue = 0;
-
-//example variable that the value of string textbox will be assigned to
-String stringTextboxTestValue = '';
-
-//etc. for other custom widgets
-bool boolTextboxTestValue = false;
-
-String selectedSegmentedButtonValue = 'Option 1';
-
-String selectedDropdownValue = 'Option 1';
-
-const List<String> stringDropdownOptions = <String>[
-  'Option 1',
-  'Option 2',
-  'Option 3',
-];
+// DELETE BEFORE DEPLOYMENT
+Map<String, dynamic> gameData = {
+  'numberButton1': 0,
+  'numberButton2': 0,
+  'intTextbox1': 0,
+  'intTextbox2': 0,
+  'stringTextbox1': '',
+  'stringTextbox2': '',
+  'selectedSegmentedButton1': '',
+  'selectedSegmentedButton2': '',
+  'selectedDropdown': '',
+  'selectedDropdown2': '',
+  'DropdownOptions': <String>[
+    'Option 1',
+    'Option 2',
+    'Option 3',
+    'Option 4',
+    'Option 5',
+  ],
+  'SegmentedButtonOptions': <String>['Zayden', 'Ben', 'Jack', 'Aadi', 'Aarav'],
+  'slider1': 0.0,
+  'slider2': 0.0,
+  'boolButton1': false,
+  'boolButton2': false,
+  'tristate2': buttonState.unchecked,
+  'tristate1': buttonState.unchecked,
+};
 
 class SchedulePageState extends ConsumerState<SchedulePage> {
   @override
@@ -60,8 +64,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             xLength: 300,
             yLength: 200,
             textAlignment: Alignment.bottomCenter,
-            onChanged: () =>
-                numericalButtonTestValue = NumberButton.currentVariable,
+            onChanged: (value) {
+              gameData['numberButton'] = value;
+              print(gameData['numberButton']);
+            },
           ),
           // Example usage of TristateButton
           TristateButton(
@@ -69,7 +75,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             xLength: 100,
             yLength: 100,
             minfontSize: 20,
-            onChanged: () => tristateButtonTestValue = currentState,
+            onChanged: (value) {
+              gameData['tristate1'] = value;
+              print(gameData['tristate1']);
+            },
           ),
           // Example usage of IntTextbox
           IntTextbox(
@@ -78,7 +87,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             outlineColor: Colors.black,
             xLength: 300,
             yLength: 100,
-            onChanged: () => intTextboxTestValue = IntTextbox.value,
+            onChanged: (value) {
+              gameData['intTextbox1'] = value;
+              print(gameData['intTextbox1']);
+            },
           ),
           StringTextbox(
             dataName: 'Demo String Textbox',
@@ -86,7 +98,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             outlineColor: Colors.black,
             xLength: 300,
             yLength: 100,
-            onChanged: () => stringTextboxTestValue = StringTextbox.value,
+            onChanged: (value) {
+              gameData['stringTextbox1'] = value;
+              print(gameData['stringTextbox1']);
+            },
           ),
           // Example usage of BoolButton
           BoolButton(
@@ -94,15 +109,20 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             xLength: 200,
             yLength: 100,
             minfontSize: 20,
-            onChanged: () => boolTextboxTestValue = BoolButton.value,
+            onChanged: (bool value) {
+              gameData['boolButton1'] = value;
+              print(gameData['boolButton1']);
+            },
             visualFeedback: true,
           ),
           Padding(padding: EdgeInsets.all(20)),
           CustomSegmentedButton(
-            segments: ['Option 1', 'Option 2', 'Option 3'],
+            segments: gameData['SegmentedButtonOptions'],
             onChanged: (int newIndex) {
               setState(() {
-                selectedSegmentedButtonValue = selectedSegment;
+                gameData['selectedSegmentedButton1'] =
+                    gameData['SegmentedButtonOptions'][newIndex];
+                print(gameData['selectedSegmentedButton1']);
               });
             },
             selectedColor: Colors.blueGrey,
@@ -113,25 +133,29 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
 
           Dropdown(
             title: 'Dropdown Title',
-            value: selectedDropdownValue,
-            items: stringDropdownOptions,
+
+            items: gameData['DropdownOptions'],
             backgroundColor: Colors.white,
             xValue: 300,
             yValue: 100,
             uponChanged: (String? newValue) {
               setState(() {
-                selectedDropdownValue = newValue!;
+                gameData['selectedDropdown1'] = newValue!;
+                print(gameData['selectedDropdown1']);
               });
             },
           ),
+
           NumberButton(
             dataName: 'Demo Button',
             backgroundColor: Colors.yellow,
             xLength: 300,
             yLength: 200,
             textAlignment: Alignment.bottomCenter,
-            onChanged: () =>
-                numericalButtonTestValue = NumberButton.currentVariable,
+            onChanged: (value) {
+              gameData['numberButton2'] = value;
+              print(gameData['numberButton2']);
+            },
           ),
           // Example usage of TristateButton
           TristateButton(
@@ -139,7 +163,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             xLength: 100,
             yLength: 100,
             minfontSize: 20,
-            onChanged: () => tristateButtonTestValue = currentState,
+            onChanged: (value) {
+              gameData['tristate2'] = value;
+              print(gameData['tristate2']);
+            },
           ),
           // Example usage of IntTextbox
           IntTextbox(
@@ -148,7 +175,11 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             outlineColor: Colors.black,
             xLength: 300,
             yLength: 100,
-            onChanged: () => intTextboxTestValue = IntTextbox.value,
+            // ignore: avoid_types_as_parameter_names
+            onChanged: (int) {
+              gameData['intTextbox2'] = int;
+              print(gameData['intTextbox2']);
+            },
           ),
           StringTextbox(
             dataName: 'Demo String Textbox',
@@ -156,7 +187,10 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             outlineColor: Colors.black,
             xLength: 300,
             yLength: 100,
-            onChanged: () => stringTextboxTestValue = StringTextbox.value,
+            onChanged: (value) {
+              gameData['stringTextbox2'] = value;
+              print(gameData['stringTextbox2']);
+            },
           ),
           // Example usage of BoolButton
           BoolButton(
@@ -164,15 +198,20 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             xLength: 200,
             yLength: 100,
             minfontSize: 20,
-            onChanged: () => boolTextboxTestValue = BoolButton.value,
+            onChanged: (value) {
+              gameData['boolButton2'] = value;
+              print(gameData['boolButton2']);
+            },
             visualFeedback: true,
           ),
           Padding(padding: EdgeInsets.all(20)),
           CustomSegmentedButton(
-            segments: ['Option 1', 'Option 2', 'Option 3'],
+            segments: gameData['SegmentedButtonOptions'],
             onChanged: (int newIndex) {
               setState(() {
-                selectedSegmentedButtonValue = selectedSegment;
+                gameData['selectedSegmentedButton2'] =
+                    gameData['SegmentedButtonOptions'][newIndex];
+                print(gameData['selectedSegmentedButton2']);
               });
             },
             selectedColor: Colors.blueGrey,
@@ -180,17 +219,40 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
             yLength: 100,
           ),
           Padding(padding: EdgeInsets.all(20)),
-
+          CustomSlider(
+            title: 'Demo Slider',
+            xValue: 300,
+            yValue: 100,
+            minValue: 0,
+            maxValue: 100,
+            segmentLength: 10,
+            onChanged: (value) {
+              gameData['slider1'] = value;
+              print(gameData['slider1']);
+            },
+          ),
+          CustomSlider(
+            title: 'Demo Slider',
+            xValue: 300,
+            yValue: 100,
+            minValue: 0,
+            maxValue: 50,
+            onChanged: (value) {
+              gameData['slider2'] = value;
+              print(gameData['slider2']);
+            },
+          ),
           Dropdown(
             title: 'Dropdown Title',
-            value: selectedDropdownValue,
-            items: stringDropdownOptions,
+
+            items: gameData['DropdownOptions'],
             backgroundColor: Colors.white,
             xValue: 300,
             yValue: 100,
             uponChanged: (String? newValue) {
               setState(() {
-                selectedDropdownValue = newValue!;
+                gameData['selectedDropdown2'] = newValue;
+                print(gameData['selectedDropdown2']);
               });
             },
           ),

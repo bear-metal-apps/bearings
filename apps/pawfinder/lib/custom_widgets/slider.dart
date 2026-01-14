@@ -8,7 +8,7 @@ class CustomSlider extends StatefulWidget {
   final int? segmentLength;
   final int minValue;
   final int maxValue;
-  final Function(double)? onChanged;
+  final Function(double) onChanged;
 
   const CustomSlider({
     required this.onChanged,
