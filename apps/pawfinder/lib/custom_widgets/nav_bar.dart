@@ -28,14 +28,7 @@ class NavBar extends StatefulWidget {
 class NavBarState extends State<NavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
-  int _currentIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
 
-    if (location.startsWith('/Strat')) return 1;
-    if (location.startsWith('/User')) return 2;
-
-    return 0; // Schedule
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,10 +74,7 @@ class NavBarState extends State<NavBar> {
                 onTap: () {
                   widget.router.go('/Match');
                 },
-                onLongPress: (){
-                  loadUiConfig();
-                },
-                // trailing: uiLoading? LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20) : null,
+                //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
               ListTile(
                 leading: Icon(Icons.linear_scale),
@@ -144,7 +134,7 @@ class MatchNavBarState extends State<MatchNavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
   int _currentIndex(BuildContext context) {
-  final location = GoRouterState.of(context).uri.toString();
+    final location = GoRouterState.of(context).uri.toString();
 
     if (location.startsWith('/Strat')) return 1;
     if (location.startsWith('/User')) return 2;
@@ -155,7 +145,7 @@ class MatchNavBarState extends State<MatchNavBar> {
   @override
   Widget build(BuildContext context) {
     List<Widget> userButtons = [];
-    users.forEach((element) {
+    for (var element in users) {
       userButtons.add(
         ListTile(
           leading: Icon(element.icon),
@@ -166,16 +156,8 @@ class MatchNavBarState extends State<MatchNavBar> {
           },
         ),
       );
-      int _currentIndex(BuildContext context) {
-        final location = GoRouterState.of(context).uri.toString();
-
-        if (location.startsWith('/Strat')) return 1;
-        if (location.startsWith('/User')) return 2;
-
-        // default: Schedule
-        return 0;
-      }
-    });
+      // ignore: unused_element
+    }
 
     return Scaffold(
       body: widget.page,
@@ -198,21 +180,20 @@ class MatchNavBarState extends State<MatchNavBar> {
             }
           },
           items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.bolt),
-              label: "Auto"
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.stacked_bar_chart_sharp),
-              label: "Tele"
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.view_array),
-              label: "Endgame"
-          ),
-        ],
-      )
-      )
+            BottomNavigationBarItem(
+                icon: Icon(Icons.bolt),
+                label: "Auto"
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.stacked_bar_chart_sharp),
+                label: "Tele"
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.view_array),
+                label: "Endgame"
+            ),
+          ],
+        )
     );
   }
 }

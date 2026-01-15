@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pressable_flutter/pressable_flutter.dart';
 
 class CustomSegmentedButton extends StatefulWidget {
   final List<String> segments;
-  final ValueChanged<int> onChanged;
+  final Function(int) onChanged;
   final double xLength;
   final double yLength;
   final Color? selectedColor;
@@ -21,36 +22,40 @@ class CustomSegmentedButton extends StatefulWidget {
   @override
   State<CustomSegmentedButton> createState() => _CustomSegmentedButtonState();
 }
-String selectedSegment = '';
+
 class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
+  String selectedSegment = '';
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.xLength,
       height: widget.yLength,
-      child: ToggleButtons(
-        isSelected: List.generate(
-          widget.segments.length,
-          (index) => selectedSegment == widget.segments[index],
+      child: Pressable(
+        child: ToggleButtons(
+          isSelected: List.generate(
+            widget.segments.length,
+            (index) => selectedSegment == widget.segments[index],
+          ),
+          onPressed: (value) {
+            selectedSegment = widget.segments[value];
+            widget.onChanged(value);
+          },
+          color: Colors.black,
+          selectedColor: Colors.white,
+          fillColor: widget.selectedColor,
+          borderColor: Colors.grey,
+          selectedBorderColor: Colors.grey,
+          borderRadius: BorderRadius.circular(8.0),
+          children: widget.segments
+              .map(
+                (segment) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Text(segment),
+                ),
+              )
+              .toList(),
         ),
-        onPressed: (index) {
-          selectedSegment = widget.segments[index];
-          widget.onChanged(index);
-        },
-        color: Colors.black,
-        selectedColor: Colors.white,
-        fillColor: widget.selectedColor,
-        borderColor: Colors.grey,
-        selectedBorderColor: Colors.grey,
-        borderRadius: BorderRadius.circular(8.0),
-        children: widget.segments
-            .map(
-              (segment) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Text(segment),
-              ),
-            )
-            .toList(),
       ),
     );
   }

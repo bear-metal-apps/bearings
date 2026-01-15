@@ -1,9 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:pressable_flutter/pressable_flutter.dart';
 
 class Dropdown extends StatefulWidget {
   final String title;
-  final String? value;
+
   final List<String> items;
   final Function(String?)? uponChanged;
   final double xValue;
@@ -12,7 +13,7 @@ class Dropdown extends StatefulWidget {
   const Dropdown({
     required this.title,
     required this.backgroundColor,
-    required this.value,
+
     required this.items,
     required this.xValue,
     required this.yValue,
@@ -23,14 +24,16 @@ class Dropdown extends StatefulWidget {
   @override
   State<Dropdown> createState() => _DropdownState();
 }
+
 typedef MenuEntry = DropdownMenuEntry<String>;
+
 class _DropdownState extends State<Dropdown> {
   late String dropdownValue;
 
   @override
   void initState() {
     super.initState();
-    dropdownValue = widget.value ?? widget.items.first;
+    dropdownValue = widget.items.first;
   }
 
   @override
@@ -38,9 +41,8 @@ class _DropdownState extends State<Dropdown> {
     return SizedBox(
       width: widget.xValue,
       height: widget.yValue,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        color: widget.backgroundColor,
+
+      child: Pressable(
         child: DropdownButtonFormField<String>(
           borderRadius: BorderRadius.circular(10),
           initialValue: dropdownValue,
@@ -62,10 +64,10 @@ class _DropdownState extends State<Dropdown> {
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
           items: widget.items
-              .map((String value) => DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  ))
+              .map(
+                (String value) =>
+                    DropdownMenuItem<String>(value: value, child: Text(value)),
+              )
               .toList(),
           onChanged: widget.uponChanged,
           hint: AutoSizeText(

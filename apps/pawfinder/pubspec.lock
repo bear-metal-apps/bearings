@@ -360,6 +360,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pressable_flutter:
+    dependency: "direct main"
+    description:
+      name: pressable_flutter
+      sha256: a0ec033a9cb499c1a189368c1298de2d4a69f9f602f2d40b6c93cf3d472ac378
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   riverpod:
     dependency: transitive
     description:
