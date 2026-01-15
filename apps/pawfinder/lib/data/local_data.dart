@@ -3,12 +3,13 @@ import 'package:path_provider/path_provider.dart';
 
 
 const boxKey = "localData";
-
+const jsonBoxKey = "localDataJson";
 
 Future<void> loadHive() async {
   final dir = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(dir.path);
   await Hive.openBox(boxKey); // so the code doesn't have to use openBox
+  await Hive.openBox(jsonBoxKey);
 }
 
 
