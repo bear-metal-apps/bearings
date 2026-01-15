@@ -49,9 +49,6 @@ class MatchWidgetState extends State<MatchWidget> {
                 left: data.layout.x * horizontalStep,
                 child:
                 NumberButton(
-                    onChanged: (){
-
-                    },
                     backgroundColor: Colors.white,
                     dataName: data.fieldId,
                     xLength: data.layout.w * horizontalStep,
@@ -68,12 +65,12 @@ class MatchWidgetState extends State<MatchWidget> {
                 left: data.layout.x * horizontalStep,
                 child:
                 BoolButton(
-                    onChanged: (){
 
-                    },
                     dataName: data.fieldId,
                     xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep
+                    yLength: data.layout.h * verticalStep,
+                  onChanged: (bool p1) {  },
+                  visualFeedback: true,
                 ),
               )
           );
@@ -86,12 +83,10 @@ class MatchWidgetState extends State<MatchWidget> {
                 left: data.layout.x * horizontalStep,
                 child:
                 StringTextbox(
-                    onChanged: (){
-
-                    },
                     dataName: data.fieldId,
                     xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep
+                    yLength: data.layout.h * verticalStep,
+                  onChanged: (String p1) {  },
                 ),
               )
           );
@@ -106,7 +101,6 @@ class MatchWidgetState extends State<MatchWidget> {
                 Dropdown(
                   title: '',
                   backgroundColor: Colors.blueAccent,
-                  value: '',
                   items: [],
                   xValue: data.layout.w*horizontalStep,
                   yValue: data.layout.h*verticalStep,
@@ -123,12 +117,10 @@ class MatchWidgetState extends State<MatchWidget> {
                 left: data.layout.x * horizontalStep,
                 child:
                 TristateButton(
-                    onChanged: (){
-
-                    },
                     dataName: data.fieldId,
                     xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep
+                    yLength: data.layout.h * verticalStep,
+                  onChanged: (buttonState p1) {  },
                 ),
               )
           );

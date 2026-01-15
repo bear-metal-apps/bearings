@@ -194,6 +194,7 @@ class MatchNavBarState extends State<MatchNavBar> {
             ),
           ],
         )
+    )
     );
   }
 }
