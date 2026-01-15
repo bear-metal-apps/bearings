@@ -1,9 +1,7 @@
-import 'package:beariscope_scouter/page/user.dart';
+import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 
 
 class NavBar extends StatefulWidget {
@@ -29,10 +27,12 @@ class NavBar extends StatefulWidget {
 class NavBarState extends State<NavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
+
+
   @override
   Widget build(BuildContext context) {
     List<Widget> userButtons = [];
-    users.forEach((element) {
+    for (var element in users) {
       userButtons.add(
         ListTile(
           leading: Icon(element.icon),
@@ -43,9 +43,9 @@ class NavBarState extends State<NavBar> {
           },
         ),
       );
-    });
+    }
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title),toolbarHeight: MediaQuery.of(context).size.height * 3/32),
       body: widget.page,
       drawer: Drawer(
         width: 250.0,
@@ -83,14 +83,14 @@ class NavBarState extends State<NavBar> {
                 },
                 //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
-              ListTile(
-                leading: Icon(Icons.satellite_alt),
-                title: Text("Pits"),
-                onTap: () {
-                  widget.router.go('/Pits');
-                },
-                //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.satellite_alt),
+              //   title: Text("Pits"),
+              //   onTap: () {
+              //     widget.router.go('/Pits');
+              //   },
+              //   //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
+              // ),
               Divider(),
               Text("Users"),
               Column(children: userButtons),
@@ -107,6 +107,93 @@ class NavBarState extends State<NavBar> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class MatchNavBar extends StatefulWidget {
+  final Widget page;
+  final GoRouter router;
+  final bool devMode;
+
+  const MatchNavBar({
+    super.key,
+    required this.page,
+    required this.router,
+    this.devMode = false,
+  });
+
+  @override
+  State<StatefulWidget> createState() {
+    return MatchNavBarState();
+  }
+}
+
+class MatchNavBarState extends State<MatchNavBar> {
+  final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
+
+  int _currentIndex(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+
+    if (location.startsWith('/Strat')) return 1;
+    if (location.startsWith('/User')) return 2;
+
+    return 0; // Schedule
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> userButtons = [];
+    for (var element in users) {
+      userButtons.add(
+        ListTile(
+          leading: Icon(element.icon),
+          title: Text(element.name),
+          onTap: () {
+            currentUser = element.name;
+            widget.router.go('/User');
+          },
+        ),
+      );
+      // ignore: unused_element
+    }
+
+    return Scaffold(
+      body: widget.page,
+      bottomNavigationBar:SizedBox(
+        height: MediaQuery.of(context).size.height * 3/32,
+        child:
+      BottomNavigationBar(
+          currentIndex: _currentIndex(context),
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                widget.router.go('/Match/Auto');
+                break;
+              case 1:
+                widget.router.go('/Match/Tele');
+                break;
+              case 2:
+                widget.router.go('/Match/End');
+                break;
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.bolt),
+                label: "Auto"
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.stacked_bar_chart_sharp),
+                label: "Tele"
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.view_array),
+                label: "Endgame"
+            ),
+          ],
+        )
+    )
     );
   }
 }
