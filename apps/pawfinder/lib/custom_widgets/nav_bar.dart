@@ -1,9 +1,9 @@
 import 'package:beariscope_scouter/main.dart';
+import 'package:beariscope_scouter/page/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../pages/user.dart';
 
 class NavBar extends StatefulWidget {
   final Widget page;

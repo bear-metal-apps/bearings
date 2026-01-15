@@ -3,12 +3,20 @@ import 'dart:io';
 
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
+import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
+import 'package:beariscope_scouter/page/match.dart';
+import 'package:beariscope_scouter/page/schedule.dart';
+import 'package:beariscope_scouter/page/strat.dart';
+import 'package:beariscope_scouter/page/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import 'page/match_stages/auto_page.dart';
+import 'page/match_stages/end_page.dart';
+import 'page/match_stages/tele_page.dart';
 import 'custom_widgets/match_page.dart';
 import 'custom_widgets/nav_bar.dart';
 import 'pages/match.dart';
@@ -18,7 +26,11 @@ import 'pages/match_stages/tele_page.dart';
 import 'pages/user.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    const ProviderScope(
+      child: MyApp()
+    )
+  );
 }
 
 Future<Map<String, dynamic>> loadUiConfig() async {
@@ -133,6 +145,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Paw-Finder',
+      routerConfig: router,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -151,7 +164,6 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      routerConfig: router,
     );
   }
 }
