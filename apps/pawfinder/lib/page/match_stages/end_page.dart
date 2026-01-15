@@ -15,13 +15,6 @@ class EndPage extends ConsumerStatefulWidget {
 class EndPageState extends ConsumerState<EndPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, 
-        children: [
-
-        ]
-      ))
-    );
+    return Center(child: Text("end page"));
   }
 }
