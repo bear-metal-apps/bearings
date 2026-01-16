@@ -3,6 +3,11 @@ import 'dart:convert';
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
+import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/page/match.dart';
+import 'package:beariscope_scouter/page/schedule.dart';
+import 'package:beariscope_scouter/page/strat.dart';
+import 'package:beariscope_scouter/page/user.dart';
 import 'package:beariscope_scouter/pages/match.dart';
 import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +19,12 @@ import 'custom_widgets/match_page.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  loadHive();
+  runApp(
+    const ProviderScope(
+      child: MyApp()
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
