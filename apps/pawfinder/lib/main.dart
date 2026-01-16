@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
 import 'package:beariscope_scouter/pages/match.dart';
-import 'package:beariscope_scouter/pages/schedule.dart';
-import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +12,6 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'custom_widgets/match_page.dart';
-import 'custom_widgets/nav_bar.dart';
-import 'pages/match.dart';
-import 'pages/match_stages/auto_page.dart';
-import 'pages/match_stages/end_page.dart';
-import 'pages/match_stages/tele_page.dart';
-import 'pages/user.dart';
 
 void main() {
   runApp(

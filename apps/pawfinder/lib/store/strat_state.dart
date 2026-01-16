@@ -1,7 +1,6 @@
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 part 'strat_state.g.dart';
