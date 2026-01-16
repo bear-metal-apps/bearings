@@ -1,4 +1,5 @@
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
+import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/page/match.dart';
 import 'package:beariscope_scouter/page/schedule.dart';
 import 'package:beariscope_scouter/page/strat.dart';
@@ -12,6 +13,7 @@ import 'page/match_stages/end_page.dart';
 import 'page/match_stages/tele_page.dart';
 
 void main() {
+  loadHive();
   runApp(
     const ProviderScope(
       child: MyApp()
