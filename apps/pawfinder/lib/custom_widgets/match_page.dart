@@ -120,7 +120,7 @@ class MatchWidgetState extends State<MatchWidget> {
                     dataName: data.fieldId,
                     xLength: data.layout.w * horizontalStep,
                     yLength: data.layout.h * verticalStep,
-                  onChanged: (buttonState p1) {  },
+                  onChanged: (int p1) {  },
                 ),
               )
           );
