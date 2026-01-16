@@ -72,33 +72,54 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
     }
     return list;
   }
-  
-  @override
-  void initState() {
-    super.initState();
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Text(
-            'Schedule Page',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          TristateButton(
-            dataName: 'dataName',
-            xLength: 300,
-            yLength: 100,
-            initialState: 0,
-            onChanged: (int value) {
-              // Handle the value change here
-              print('TristateButton changed to state: $value');
-            },
-          ),
-        ],
-      ),
+    List<Widget> cards = createTiles();
+    return ListView(
+      padding: EdgeInsets.all(4.0),
+      children:  [
+        SearchBar(
+          leading: Icon(Icons.search),
+          onChanged: (text) {
+            setState(() {
+              searchedText = text;
+              cards = createTiles();
+            });
+          },
+          trailing: [
+            PopupMenuButton(
+              initialValue: selectedItem,
+              onSelected: (EventTypes item) {
+                setState(() {
+                  selectedItem = item;
+                  cards = createTiles();
+                });
+              },
+              itemBuilder: (BuildContext context) =>
+              <PopupMenuEntry<EventTypes>>[
+                const PopupMenuItem<EventTypes>(
+                  value: EventTypes.match,
+                  child: Text('Match'),
+                ),
+                const PopupMenuItem<EventTypes>(
+                  value: EventTypes.strat,
+                  child: Text('Strat'),
+                ),
+                const PopupMenuItem<EventTypes>(
+                  value: EventTypes.all,
+                  child: Text('All'),
+                ),
+              ],
+              child: Icon(Icons.filter),
+            ),
+          ],
+        ),
+        Column(
+          children: cards,
+        )
+      ],
     );
   }
 }
