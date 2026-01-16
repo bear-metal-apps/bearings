@@ -1,7 +1,8 @@
+import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../pages/user.dart';
+
 
 class NavBar extends StatefulWidget {
   final Widget page;
@@ -26,15 +27,7 @@ class NavBar extends StatefulWidget {
 class NavBarState extends State<NavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
-  // ignore: unused_element
-  int _currentIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
 
-    if (location.startsWith('/Strat')) return 1;
-    if (location.startsWith('/User')) return 2;
-
-    return 0; // Schedule
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +45,7 @@ class NavBarState extends State<NavBar> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title),toolbarHeight: MediaQuery.of(context).size.height * 3/32),
       body: widget.page,
       drawer: Drawer(
         width: 250.0,
@@ -163,15 +156,6 @@ class MatchNavBarState extends State<MatchNavBar> {
         ),
       );
       // ignore: unused_element
-      int currentIndex(BuildContext context) {
-        final location = GoRouterState.of(context).uri.toString();
-
-        if (location.startsWith('/Strat')) return 1;
-        if (location.startsWith('/User')) return 2;
-
-        // default: Schedule
-        return 0;
-      }
     }
 
     return Scaffold(

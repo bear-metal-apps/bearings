@@ -12,6 +12,8 @@ dependencies:
 
     flutter_riverpod: ^2.1.5
     go_router: ^17.0.0
+    riverpod_annotation:
+
 
     http: ^1.6.0
     uuid: ^4.5.1
@@ -20,6 +22,9 @@ dependencies:
       sdk: flutter
     audioplayers: ^6.5.1
     cupertino_icons: ^1.0.8
+    hive_ce: ^2.15.1
+    hive_ce_flutter: ^2.3.3
+    graphql_flutter: ^5.2.1
     loading_animation_widget: ^1.3.0
     auto_size_text: ^3.0.0
     syncfusion_flutter_sliders: ^32.1.21
@@ -29,6 +34,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  build_runner:
+  riverpod_generator:
+  hive_ce_generator: ^1.9.2
 
 flutter:
   uses-material-design: true
+  assets:
+  - resources/ui_creator.json
+
+
