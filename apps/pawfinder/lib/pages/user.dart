@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UserPage extends ConsumerStatefulWidget {
@@ -24,5 +22,6 @@ class User {
   final IconData icon;
   const User({required this.name, this.icon = Icons.person});
 }
+
 
 String currentUser = "";
