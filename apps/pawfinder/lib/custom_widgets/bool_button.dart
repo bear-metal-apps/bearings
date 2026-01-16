@@ -1,4 +1,3 @@
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
@@ -10,9 +9,11 @@ class BoolButton extends StatefulWidget {
   final Function(bool) onChanged;
   final double? minfontSize; // Optional font size parameter
   final bool visualFeedback;
+  final bool? initialValue;
 
   const BoolButton({
     super.key,
+    this.initialValue,
     this.minfontSize,
     required this.dataName,
     required this.xLength,
@@ -26,7 +27,7 @@ class BoolButton extends StatefulWidget {
 }
 
 class _BoolButtonState extends State<BoolButton> {
-  bool boolButtonState = false;
+  late bool boolButtonState = widget.initialValue ?? false;
 
   @override
   Widget build(BuildContext context) {

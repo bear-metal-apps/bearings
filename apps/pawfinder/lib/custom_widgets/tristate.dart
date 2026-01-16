@@ -2,18 +2,16 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
-// Select between three states: checked, unchecked, indeterminate
-enum buttonState { unchecked, checked, indeterminate }
-
 class TristateButton extends StatefulWidget {
   final String dataName;
   final double xLength;
   final double yLength;
-  final Function(buttonState) onChanged;
+  final Function(int) onChanged;
   final double? minfontSize; // Optional font size parameter
-
+  final int? initialState;
   const TristateButton({
     super.key,
+    this.initialState,
     this.minfontSize,
     required this.dataName,
     required this.xLength,
@@ -26,8 +24,8 @@ class TristateButton extends StatefulWidget {
 }
 
 class _TristateState extends State<TristateButton> {
-  buttonState currentState = buttonState.unchecked;
-
+  late int currentState =
+      widget.initialState ?? 0; // 0: unchecked, 1: checked, 2: indeterminate
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -40,22 +38,28 @@ class _TristateState extends State<TristateButton> {
               borderRadius: BorderRadius.circular(8.0),
             ),
             foregroundColor: Colors.black,
-            backgroundColor: (currentState == buttonState.unchecked
+            backgroundColor: (currentState == 0
                 ? Colors.red
-                : currentState == buttonState.checked
+                : currentState == 1
                 ? Colors.green
-                : currentState == buttonState.indeterminate
+                : currentState == 2
                 ? Colors.yellow
                 : Colors.grey),
           ),
           onPressed: () {
             setState(() {
-              if (currentState == buttonState.unchecked) {
-                currentState = buttonState.checked;
-              } else if (currentState == buttonState.checked) {
-                currentState = buttonState.indeterminate;
-              } else if (currentState == buttonState.indeterminate) {
-                currentState = buttonState.unchecked;
+              switch (currentState) {
+                case 0:
+                  currentState = 1;
+                  break;
+                case 1:
+                  currentState = 2;
+                  break;
+                case 2:
+                  currentState = 0;
+                  break;
+                default:
+                  break;
               }
               widget.onChanged(currentState);
             });

@@ -175,37 +175,34 @@ class MatchNavBarState extends State<MatchNavBar> {
     }
 
     return Scaffold(
-        body: widget.page,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex(context),
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                widget.router.go('/Match/Auto');
-                break;
-              case 1:
-                widget.router.go('/Match/Tele');
-                break;
-              case 2:
-                widget.router.go('/Match/End');
-                break;
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.bolt),
-                label: "Auto"
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.stacked_bar_chart_sharp),
-                label: "Tele"
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.view_array),
-                label: "Endgame"
-            ),
-          ],
-        )
+      body: widget.page,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex(context),
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              widget.router.go('/Match/Auto');
+              break;
+            case 1:
+              widget.router.go('/Match/Tele');
+              break;
+            case 2:
+              widget.router.go('/Match/End');
+              break;
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: "Auto"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart_sharp),
+            label: "Tele",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.view_array),
+            label: "Endgame",
+          ),
+        ],
+      ),
     );
   }
 }

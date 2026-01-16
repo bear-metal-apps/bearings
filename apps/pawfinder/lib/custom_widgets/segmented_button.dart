@@ -8,9 +8,11 @@ class CustomSegmentedButton extends StatefulWidget {
   final double yLength;
   final Color? selectedColor;
   final Color? unselectedColor;
+  final int? initialIndex;
 
   const CustomSegmentedButton({
     super.key,
+    this.initialIndex,
     required this.segments,
     required this.onChanged,
     required this.xLength,
@@ -25,6 +27,13 @@ class CustomSegmentedButton extends StatefulWidget {
 
 class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
   String selectedSegment = '';
+  late int selectedIndex = widget.initialIndex ?? 0;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedSegment = widget.segments[selectedIndex];
+  }
 
   @override
   Widget build(BuildContext context) {

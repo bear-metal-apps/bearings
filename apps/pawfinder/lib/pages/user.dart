@@ -23,5 +23,4 @@ class User {
   const User({required this.name, this.icon = Icons.person});
 }
 
-
 String currentUser = "";

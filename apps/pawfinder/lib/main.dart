@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
                     path: 'End',
                     builder: (context, state) => const EndPage(),
                   ),
-                ]
+                ],
               ),
             ],
           ),
