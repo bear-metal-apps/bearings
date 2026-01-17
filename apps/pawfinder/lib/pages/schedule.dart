@@ -17,7 +17,11 @@ class SchedulePage extends ConsumerStatefulWidget {
 
 // DELETE BEFORE DEPLOYMENT
 Map<String, dynamic> gameData = {'example': 67};
-
+enum EventTypes {
+  match,
+  strat,
+  all
+}
 class SchedulePageState extends ConsumerState<SchedulePage> {
   String searchedText = "";
   EventTypes selectedItem = EventTypes.all;
