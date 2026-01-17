@@ -10,9 +10,12 @@ class NumberButton extends StatefulWidget {
   final Function(int)? onChanged;
   final double xLength;
   final double yLength;
-
+  final bool? negativeAllowed;
+  final int? initialValue;
   const NumberButton({
     super.key,
+    this.initialValue,
+    this.negativeAllowed,
     this.onChanged,
     this.backgroundColor,
     required this.dataName,
@@ -26,7 +29,7 @@ class NumberButton extends StatefulWidget {
 }
 
 class _NumberButtonState extends State<NumberButton> {
-  int currentVariable = 0;
+  late int currentVariable = widget.initialValue ?? 0;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +89,16 @@ class _NumberButtonState extends State<NumberButton> {
                     icon: const Icon(Icons.remove, color: Colors.black),
                     onPressed: () {
                       setState(() {
-                        currentVariable--;
+                        if (widget.negativeAllowed == null) {
+                          widget.negativeAllowed == true;
+                        }
+                        if (widget.negativeAllowed == true) {
+                          currentVariable--;
+                        } else {
+                          if (currentVariable > 0) {
+                            currentVariable--;
+                          }
+                        }
                       });
 
                       widget.onChanged?.call(currentVariable);

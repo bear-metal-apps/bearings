@@ -1,14 +1,10 @@
-import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
+import 'dart:math';
+
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
-import 'package:beariscope_scouter/custom_widgets/slider.dart';
-import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:beariscope_scouter/custom_widgets/int_textbox.dart';
-import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
-import 'package:beariscope_scouter/custom_widgets/segmented_button.dart';
 
 class SchedulePage extends ConsumerStatefulWidget {
   const SchedulePage({super.key});
@@ -20,34 +16,12 @@ class SchedulePage extends ConsumerStatefulWidget {
 }
 
 // DELETE BEFORE DEPLOYMENT
-Map<String, dynamic> gameData = {
-  'numberButton1': 0,
-  'numberButton2': 0,
-  'intTextbox1': 0,
-  'intTextbox2': 0,
-  'stringTextbox1': '',
-  'stringTextbox2': '',
-  'selectedSegmentedButton1': '',
-  'selectedSegmentedButton2': '',
-  'selectedDropdown': '',
-  'selectedDropdown2': '',
-  'DropdownOptions': <String>[
-    'Option 1',
-    'Option 2',
-    'Option 3',
-    'Option 4',
-    'Option 5',
-  ],
-  'SegmentedButtonOptions': <String>['Zayden', 'Ben', 'Jack', 'Aadi', 'Aarav'],
-  'slider1': 0.0,
-  'slider2': 0.0,
-  'boolButton1': false,
-  'boolButton2': false,
-  'tristate2': buttonState.unchecked,
-  'tristate1': buttonState.unchecked,
-};
-enum EventTypes { strat, match, all }
-
+Map<String, dynamic> gameData = {'example': 67};
+enum EventTypes {
+  match,
+  strat,
+  all
+}
 class SchedulePageState extends ConsumerState<SchedulePage> {
   String searchedText = "";
   EventTypes selectedItem = EventTypes.all;
@@ -100,56 +74,31 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
   }
   
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> cards = createTiles();
-    return ListView(
-      padding: EdgeInsets.all(4.0),
-      children:  [
-        SearchBar(
-          leading: Icon(Icons.search),
-          onChanged: (text) {
-            setState(() {
-              searchedText = text;
-              cards = createTiles();
-            });
-          },
-          trailing: [
-            PopupMenuButton(
-              initialValue: selectedItem,
-              onSelected: (EventTypes item) {
-                setState(() {
-                  selectedItem = item;
-                  cards = createTiles();
-                });
-              },
-              itemBuilder: (BuildContext context) =>
-              <PopupMenuEntry<EventTypes>>[
-                const PopupMenuItem<EventTypes>(
-                  value: EventTypes.match,
-                  child: Text('Match'),
-                ),
-                const PopupMenuItem<EventTypes>(
-                  value: EventTypes.strat,
-                  child: Text('Strat'),
-                ),
-                const PopupMenuItem<EventTypes>(
-                  value: EventTypes.all,
-                  child: Text('All'),
-                ),
-              ],
-              child: Icon(Icons.filter),
-            ),
-          ],
-        ),
-        Column(
-          children: cards,
-        )
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Text(
+            'Schedule Page',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          TristateButton(
+            dataName: 'dataName',
+            xLength: 300,
+            yLength: 100,
+            initialState: 0,
+            onChanged: (int value) {
+              // Handle the value change here
+              print('TristateButton changed to state: $value');
+            },
+          ),
+        ],
+      ),
     );
   }
 }
