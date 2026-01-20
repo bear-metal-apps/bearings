@@ -9,9 +9,11 @@ class IntTextbox extends StatefulWidget {
   final Function(int) onChanged;
   final double xLength;
   final double yLength;
+  final int? initialValue;
 
   const IntTextbox({
     super.key,
+    this.initialValue,
     this.fillColor,
     required this.onChanged,
     this.outlineColor,
@@ -26,7 +28,7 @@ class IntTextbox extends StatefulWidget {
 
 class _IntTextboxState extends State<IntTextbox> {
   TextEditingController controller = TextEditingController();
-  int value = 0;
+  late int value = widget.initialValue ?? 0;
 
   @override
   Widget build(BuildContext context) {

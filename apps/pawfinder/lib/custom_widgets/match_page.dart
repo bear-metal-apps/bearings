@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
@@ -10,7 +7,6 @@ import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce/hive.dart';
-
 
 class MatchWidget extends StatefulWidget {
   final Map<String, dynamic> json;
@@ -36,18 +32,15 @@ class MatchWidgetState extends State<MatchWidget> {
     double horizontalStep = (ultimateWidth / page.width);
     double verticalStep = ((ultimateHeight - 130) / page.height);
 
-
     for (var data in page.components) {
       final dataBoxKey = "MATCH_${"eventkey"}_${data.fieldId}";
 
       print(dataBox.get(dataBoxKey));
       print(dataBoxKey);
-      
 
       switch (data.type) {
         case "int_button":
           {
-            
             matchPage.add(
               Positioned(
                 top: data.layout.y * verticalStep,

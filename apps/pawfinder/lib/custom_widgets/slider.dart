@@ -8,6 +8,7 @@ class CustomSlider extends StatefulWidget {
   final int? segmentLength;
   final int minValue;
   final int maxValue;
+  final double? initialValue;
   final Function(double) onChanged;
 
   const CustomSlider({
@@ -18,6 +19,7 @@ class CustomSlider extends StatefulWidget {
     this.segmentLength,
     required this.minValue,
     required this.maxValue,
+    this.initialValue,
     super.key,
   });
   @override
@@ -25,7 +27,7 @@ class CustomSlider extends StatefulWidget {
 }
 
 class _CustomSliderState extends State<CustomSlider> {
-  double sliderValue = 0;
+  late double sliderValue = widget.initialValue ?? 0;
   @override
   Widget build(BuildContext context) {
     return Column(
