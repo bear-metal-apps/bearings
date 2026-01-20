@@ -4,7 +4,7 @@ import 'package:path_provider/path_provider.dart';
 
 
 const boxKey = "localData";
-const jsonBoxKey = "localDataJson";
+const jsonBoxKey = "localDataJson"; /* Contains all saved JSONs */
 
 Future<void> loadHive() async {
   final dir = await getApplicationDocumentsDirectory();
