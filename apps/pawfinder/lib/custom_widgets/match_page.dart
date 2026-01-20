@@ -1,13 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
+import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+import 'package:hive_ce/hive.dart';
+
 
 List<List<Widget>> matchPages = [];
 
@@ -21,6 +26,7 @@ void loadUI(BuildContext context) async {
   for (var pageIndex = 0; pageIndex != page.length - 1; pageIndex++) {
     matchPages.insert(pageIndex, []);
     for (var data in page[pageIndex].components) {
+      final dataBoxKey = "MATCH_${"eventkey"}_${data.fieldId}";
       double horizontalStep = (ultimateWidth / page[pageIndex].width);
       double verticalStep = ((ultimateHeight - 130) / page[pageIndex].height);
       switch (data.type) {
@@ -35,6 +41,7 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  onChanged: (value) => dataBox.put(dataBoxKey, value)
                 ),
               ),
             );
@@ -50,7 +57,7 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  onChanged: (bool p1) {},
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                   visualFeedback: true,
                 ),
               ),
@@ -67,7 +74,7 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  onChanged: (String p1) {},
+                    onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );
@@ -101,7 +108,7 @@ void loadUI(BuildContext context) async {
                     dataName: data.fieldId,
                     xLength: data.layout.w * horizontalStep,
                     yLength: data.layout.h * verticalStep,
-                  onChanged: (int p1) {  },
+                    onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );

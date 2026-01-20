@@ -185,7 +185,6 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
     return list;
   }
 
-
   @override
   Widget build(BuildContext context) {
     List<Widget> cards = createTiles();
