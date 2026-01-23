@@ -1,10 +1,14 @@
 
+import 'dart:convert';
+
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
+import 'package:beariscope_scouter/pages/match.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce/hive.dart';
 
@@ -31,12 +35,13 @@ class MatchWidgetState extends State<MatchWidget> {
     PageConfig page = MatchConfig.fromJson(widget.json).pages[widget.pageIndex];
     double horizontalStep = (ultimateWidth / page.width);
     double verticalStep = ((ultimateHeight - 130) / page.height);
+    
+    MatchIdentity exampleMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0);
+
+    //print(jsonEncode(generateMatchJsonHive(MatchConfig.fromJson(widget.json), exampleMatchIdentity).toJson()));
 
     for (var data in page.components) {
-      final dataBoxKey = "MATCH_${"eventkey"}_${data.fieldId}";
-
-      print(dataBox.get(dataBoxKey));
-      print(dataBoxKey);
+      final dataBoxKey = matchDataKey(exampleMatchIdentity, page.sectionId, data.fieldId);
 
       switch (data.type) {
         case "int_button":
@@ -50,6 +55,7 @@ class MatchWidgetState extends State<MatchWidget> {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  initialValue: dataBox.get(dataBoxKey),
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
@@ -66,6 +72,7 @@ class MatchWidgetState extends State<MatchWidget> {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  initialValue: dataBox.get(dataBoxKey),
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                   visualFeedback: true,
                 ),
@@ -83,6 +90,7 @@ class MatchWidgetState extends State<MatchWidget> {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
@@ -99,6 +107,8 @@ class MatchWidgetState extends State<MatchWidget> {
                   title: '',
                   backgroundColor: Colors.blueAccent,
                   items: [],
+                  // TODO get initial value whatever
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                   xValue: data.layout.w * horizontalStep,
                   yValue: data.layout.h * verticalStep,
                 ),
@@ -116,6 +126,7 @@ class MatchWidgetState extends State<MatchWidget> {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  initialState: dataBox.get(dataBoxKey),
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
