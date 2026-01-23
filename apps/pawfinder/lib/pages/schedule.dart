@@ -26,48 +26,91 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
   String searchedText = "";
   EventTypes selectedItem = EventTypes.all;
   List<Event> events = [
-    Event(time: '2:45', name: "Match 16", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:00', name: "Match 17", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:15', name: "Match 18", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:30', name: "Match 19", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:45', name: "Match 20", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '4:00', name: "Match 21", eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
-    Event(time: '4:15', name: "Match 22", eventType: EventTypes.strat, commonPhrases: ['Match','Strat']),
-    Event(time: '4:30', name: "Match 23", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
+    Event(
+      time: '2:45',
+      name: "Match 16",
+      eventType: EventTypes.all,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '3:00',
+      name: "Match 17",
+      eventType: EventTypes.all,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '3:15',
+      name: "Match 18",
+      eventType: EventTypes.all,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '3:30',
+      name: "Match 19",
+      eventType: EventTypes.all,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '3:45',
+      name: "Match 20",
+      eventType: EventTypes.all,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '4:00',
+      name: "Match 21",
+      eventType: EventTypes.match,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '4:15',
+      name: "Match 22",
+      eventType: EventTypes.strat,
+      commonPhrases: ['Match', 'Strat'],
+    ),
+    Event(
+      time: '4:30',
+      name: "Match 23",
+      eventType: EventTypes.all,
+      commonPhrases: ['Match', 'Strat'],
+    ),
     Event(time: '4:45', name: "Lunch", eventType: EventTypes.all),
-
   ];
 
-  List<Widget> createTiles(){
+  List<Widget> createTiles() {
     List<Widget> list = [];
-    for(var event in events) {
+    for (var event in events) {
       var searched = false;
-      for (var string in event.commonPhrases){
-        if(string.contains(searchedText)){
+      for (var string in event.commonPhrases) {
+        if (string.contains(searchedText)) {
           searched = true;
           break;
         }
       }
-      if ((event.eventType == selectedItem || selectedItem == EventTypes.all) && (searched || event.name.contains(searchedText) || event.time.contains(searchedText))) {
-        list.add(ListTile(
-          leading: Icon(Icons.check_circle),
-          title: Text(event.name),
-          subtitle: Text(event.time),
-          onTap: () {
-
-
-          },
-          trailing: TextButton.icon(
-            onPressed: () {
-              if (event.eventType == EventTypes.match || event.eventType == EventTypes.all) {
-                MyApp.router.go("/Match/Auto");
-              } else if (event.eventType == EventTypes.strat) {
-                MyApp.router.go("/Strat");
-              }
-            },
-            label: Icon(Icons.open_in_full_outlined),
+      
+      if ((event.eventType == selectedItem || selectedItem == EventTypes.all) &&
+          (searched ||
+              event.name.contains(searchedText) ||
+              event.time.contains(searchedText))) {
+        list.add(
+          ListTile(
+            leading: Icon(Icons.check_circle),
+            title: Text(event.name),
+            subtitle: Text(event.time),
+            onTap: () {},
+            trailing: TextButton.icon(
+              onPressed: () {
+                if (event.eventType == EventTypes.match ||
+                    event.eventType == EventTypes.all) {
+                  MyApp.router.go("/Match/Auto");
+                } else if (event.eventType == EventTypes.strat) {
+                  MyApp.router.go("/Strat");
+                }
+              },
+              label: Icon(Icons.open_in_full_outlined),
+            ),
           ),
-        ));
+        );
       }
     }
     return list;
@@ -118,4 +161,3 @@ class Event {
     this.commonPhrases = const [],
   });
 }
-
