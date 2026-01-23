@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'dart:convert';
+
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
+import 'package:beariscope_scouter/pages/match.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
@@ -15,8 +19,10 @@ import 'package:hive_ce/hive.dart';
 
 
 List<List<Widget>> matchPages = [];
+Box dataBox = Hive.box(boxKey);
 
 void loadUI(BuildContext context) async {
+  MatchIdentity exampleMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0);
   double ultimateHeight = MediaQuery.of(context).size.height;
   double ultimateWidth = MediaQuery.of(context).size.width;
   final json = jsonDecode(
@@ -42,6 +48,7 @@ void loadUI(BuildContext context) async {
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
                   onChanged: (value) => dataBox.put(dataBoxKey, value)
+                  initialValue: dataBox.get(dataBoxKey),
                 ),
               ),
             );
@@ -57,6 +64,7 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  initialValue: dataBox.get(dataBoxKey),
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                   visualFeedback: true,
                 ),
@@ -74,7 +82,7 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );
@@ -90,6 +98,8 @@ void loadUI(BuildContext context) async {
                   title: '',
                   backgroundColor: Colors.blueAccent,
                   items: [],
+                  // TODO get initial value whatever
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                   xValue: data.layout.w * horizontalStep,
                   yValue: data.layout.h * verticalStep,
                 ),
@@ -103,12 +113,12 @@ void loadUI(BuildContext context) async {
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
-                child:
-                TristateButton(
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
+                child: TristateButton(
+                  dataName: data.fieldId,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep,
+                  initialState: dataBox.get(dataBoxKey),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );
