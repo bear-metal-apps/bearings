@@ -7,111 +7,91 @@ import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path/path.dart';
 
+List<List<Widget>> matchPages = [];
 
-class MatchWidget extends StatefulWidget {
-  final Map<String, dynamic> json;
-  final int pageIndex;
-
-  const MatchWidget({
-    super.key,
-    required this.json,
-    required this.pageIndex
-  });
-
-  @override
-  State<StatefulWidget> createState() {
-    return MatchWidgetState();
-  }
-}
-
-class MatchWidgetState extends State<MatchWidget> {
-  List<Widget> matchPage = [];
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double ultimateHeight = MediaQuery.of(context).size.height;
-    double ultimateWidth = MediaQuery.of(context).size.width;
-    PageConfig page = MatchConfig.fromJson(widget.json).pages[widget.pageIndex];
-    double horizontalStep = (ultimateWidth /page.width);
-    double verticalStep = ((ultimateHeight-130)/page.height);
-    for(var data in page.components){
-      switch (data.type){
-        case "int_button":{
-          matchPage.add(
+void loadUI(BuildContext context) async{
+  double ultimateHeight = MediaQuery.of(context).size.height;
+  double ultimateWidth = MediaQuery.of(context).size.width;
+  final json = jsonDecode(await rootBundle.loadString('resources/ui_creator.json'));
+  List<PageConfig> page = MatchConfig.fromJson(json).pages;
+  for (var pageIndex = 0; pageIndex != page.length - 1; pageIndex++) {
+    matchPages.insert(pageIndex, []);
+    for (var data in page[pageIndex].components) {
+      double horizontalStep = (ultimateWidth / page[pageIndex].width);
+      double verticalStep = ((ultimateHeight - 130) / page[pageIndex].height);
+      switch (data.type) {
+        case "int_button":
+          {
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
-                child:
-                NumberButton(
-                    backgroundColor: Colors.white,
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep
+                child: NumberButton(
+                  backgroundColor: Colors.white,
+                  dataName: data.fieldId,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep,
                 ),
-              )
-          );
-          break;
-        }
-        case "toggle_button":{
-          matchPage.add(
+              ),
+            );
+            break;
+          }
+        case "toggle_button":
+          {
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
-                child:
-                BoolButton(
-
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                  onChanged: (bool p1) {  },
+                child: BoolButton(
+                  dataName: data.fieldId,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep,
+                  onChanged: (bool p1) {},
                   visualFeedback: true,
                 ),
-              )
-          );
-          break;
-        }
-        case "text_box":{
-          matchPage.add(
+              ),
+            );
+            break;
+          }
+        case "text_box":
+          {
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
-                child:
-                StringTextbox(
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                  onChanged: (String p1) {  },
+                child: StringTextbox(
+                  dataName: data.fieldId,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep,
+                  onChanged: (String p1) {},
                 ),
-              )
-          );
-          break;
-        }
-        case "dropdown":{
-          matchPage.add(
+              ),
+            );
+            break;
+          }
+        case "dropdown":
+          {
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
-                child:
-                Dropdown(
+                child: Dropdown(
                   title: '',
                   backgroundColor: Colors.blueAccent,
                   items: [],
-                  xValue: data.layout.w*horizontalStep,
-                  yValue: data.layout.h*verticalStep,
-
+                  xValue: data.layout.w * horizontalStep,
+                  yValue: data.layout.h * verticalStep,
                 ),
-              )
-          );
-          break;
-        }
-        case "tristate":{
-          matchPage.add(
+              ),
+            );
+            break;
+          }
+        case "tristate":
+          {
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -122,17 +102,22 @@ class MatchWidgetState extends State<MatchWidget> {
                     yLength: data.layout.h * verticalStep,
                   onChanged: (int p1) {  },
                 ),
-              )
-          );
-          break;
-        }
+              ),
+            );
+            break;
+          }
+        default:
+          {
+            print("non-existent");
+          }
       }
     }
-    return Stack(
-      children: matchPage,
-    );
   }
 }
+
+
+
+
 
 
 //CHAT GPT - WILL REMOVE LATER
@@ -140,10 +125,7 @@ class MatchConfig {
   final Meta meta;
   final List<PageConfig> pages;
 
-  MatchConfig({
-    required this.meta,
-    required this.pages,
-  });
+  MatchConfig({required this.meta, required this.pages});
 
   factory MatchConfig.fromJson(Map<String, dynamic> json) {
     return MatchConfig(
@@ -159,6 +141,7 @@ class MatchConfig {
     'pages': pages.map((e) => e.toJson()).toList(),
   };
 }
+
 class Meta {
   final int season;
   final String author;
@@ -188,6 +171,7 @@ class Meta {
     'type': type,
   };
 }
+
 class PageConfig {
   final String sectionId;
   final String title;
@@ -223,6 +207,7 @@ class PageConfig {
     'components': components.map((e) => e.toJson()).toList(),
   };
 }
+
 class ComponentConfig {
   final String fieldId;
   final String type;
@@ -252,32 +237,18 @@ class ComponentConfig {
     'parameters': parameters,
   };
 }
+
 class Layout {
   final num x;
   final num y;
   final num w;
   final num h;
 
-  Layout({
-    required this.x,
-    required this.y,
-    required this.w,
-    required this.h,
-  });
+  Layout({required this.x, required this.y, required this.w, required this.h});
 
   factory Layout.fromJson(Map<String, dynamic> json) {
-    return Layout(
-      x: json['x'],
-      y: json['y'],
-      w: json['w'],
-      h: json['h'],
-    );
+    return Layout(x: json['x'], y: json['y'], w: json['w'], h: json['h']);
   }
 
-  Map<String, dynamic> toJson() => {
-    'x': x,
-    'y': y,
-    'w': w,
-    'h': h,
-  };
+  Map<String, dynamic> toJson() => {'x': x, 'y': y, 'w': w, 'h': h};
 }
