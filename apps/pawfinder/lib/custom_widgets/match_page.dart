@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';

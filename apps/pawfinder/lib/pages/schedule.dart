@@ -2,6 +2,7 @@ import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SchedulePage extends ConsumerStatefulWidget {
   const SchedulePage({super.key});
@@ -39,21 +40,21 @@ Map<String, dynamic> gameData = {
   'tristate2': buttonState.unchecked,
   'tristate1': buttonState.unchecked,
 };
-enum EventTypes { strat, match, all }
+enum EventTypes { strat, match, misc, all }
 
 class SchedulePageState extends ConsumerState<SchedulePage> {
   String searchedText = "";
   EventTypes selectedItem = EventTypes.all;
   List<Event> events = [
-    Event(time: '2:45', name: "Match 16", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:00', name: "Match 17", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:15', name: "Match 18", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:30', name: "Match 19", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '3:45', name: "Match 20", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '4:00', name: "Match 21", eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
-    Event(time: '4:15', name: "Match 22", eventType: EventTypes.strat, commonPhrases: ['Match','Strat']),
-    Event(time: '4:30', name: "Match 23", eventType: EventTypes.all, commonPhrases: ['Match','Strat']),
-    Event(time: '4:45', name: "Lunch", eventType: EventTypes.all),
+    Event(time: '2:45', name: "Match 16", matchID: 16, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '3:00', name: "Match 17", matchID: 17, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '3:15', name: "Match 18", matchID: 18, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '3:30', name: "Match 19", matchID: 19, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '3:45', name: "Match 20", matchID: 20, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '4:00', name: "Match 21", matchID: 21, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '4:15', name: "Match 22", matchID: 22, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '4:30', name: "Match 23", matchID: 23, eventType: EventTypes.match, commonPhrases: ['Match','Strat']),
+    Event(time: '4:45', name: "Lunch", eventType: EventTypes.misc),
 
   ];
 
@@ -72,19 +73,16 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           leading: Icon(Icons.check_circle),
           title: Text(event.name),
           subtitle: Text(event.time),
-          onTap: () {
-
-
-          },
-          trailing: TextButton.icon(
+          onTap: () {},
+          trailing: IconButton(
+            icon: Icon(Icons.open_in_full_outlined),
             onPressed: () {
-              if (event.eventType == EventTypes.match || event.eventType == EventTypes.all) {
-                MyApp.router.go("/Match/Auto");
+              if (event.eventType == EventTypes.match) {
+                context.push("/Match/Auto", extra: event.matchID);
               } else if (event.eventType == EventTypes.strat) {
                 MyApp.router.go("/Strat");
               }
             },
-            label: Icon(Icons.open_in_full_outlined),
           ),
         ));
       }
@@ -150,6 +148,7 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
 class Event {
   final String time;
   final String name;
+  final int matchID;
   EventTypes eventType;
   String tbaMatchKey;
   final List<String> commonPhrases;
@@ -157,9 +156,9 @@ class Event {
   Event({
     required this.time,
     required this.name,
+    this.matchID = 0,
     required this.eventType,
     this.tbaMatchKey = "",
     this.commonPhrases = const [],
   });
 }
-
