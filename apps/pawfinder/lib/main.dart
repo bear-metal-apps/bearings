@@ -49,16 +49,19 @@ class MyApp extends StatelessWidget {
             builder: (context, state) => const MatchPage(),
             routes: [
               GoRoute(
-                  path: 'Auto',
-                  builder: (context, state) => Stack(children: matchPages[0],)
+                path: 'Auto',
+                builder: (context, state) {
+                  final matchNumber = state.extra as String;
+                  return Stack(children: matchPages[0]);
+                },
               ),
               GoRoute(
-                  path: 'Tele',
-                  builder: (context, state) => Stack(children: matchPages[1],)
+                path: 'Tele',
+                builder: (context, state) => Stack(children: matchPages[1]),
               ),
               GoRoute(
-                  path: 'End',
-                  builder: (context, state) => Stack(children: matchPages[2],)
+                path: 'End',
+                builder: (context, state) => Stack(children: matchPages[2]),
               ),
             ],
           ),

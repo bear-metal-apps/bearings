@@ -2,7 +2,9 @@ import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
+import 'package:beariscope_scouter/main.dart';
+import 'package:beariscope_scouter/custom_widgets/match_page.dart';
+import 'package:beariscope_scouter/pages/schedule.dart';
 
 class NavBar extends StatefulWidget {
   final Widget page;
