@@ -2,9 +2,7 @@ import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:beariscope_scouter/main.dart';
-import 'package:beariscope_scouter/custom_widgets/match_page.dart';
-import 'package:beariscope_scouter/pages/schedule.dart';
+import '../pages/schedule.dart';
 
 class NavBar extends StatefulWidget {
   final Widget page;
@@ -29,8 +27,6 @@ class NavBar extends StatefulWidget {
 class NavBarState extends State<NavBar> {
   final List<User> users = [User(name: 'BenD'), User(name: 'MatthewS')];
 
-
-
   @override
   Widget build(BuildContext context) {
     List<Widget> userButtons = [];
@@ -47,7 +43,10 @@ class NavBarState extends State<NavBar> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: widget.appBar ,toolbarHeight: MediaQuery.of(context).size.height * 3/32),
+      appBar: AppBar(
+        title: widget.appBar,
+        toolbarHeight: MediaQuery.of(context).size.height * 3 / 32,
+      ),
       body: widget.page,
       drawer: Drawer(
         width: 250.0,
@@ -117,13 +116,15 @@ class MatchNavBar extends StatefulWidget {
   final Widget page;
   final GoRouter router;
   final bool devMode;
+  MatchInformation matchInformation;
 
-  const MatchNavBar({
+  MatchNavBar({
     super.key,
     required this.page,
     required this.router,
     this.devMode = false,
-  });
+    MatchInformation? matchInformation,
+  }) : matchInformation = matchInformation ?? MatchInformation();
 
   @override
   State<StatefulWidget> createState() {
@@ -141,6 +142,25 @@ class MatchNavBarState extends State<MatchNavBar> {
     if (location.startsWith('/User')) return 2;
 
     return 0; // Schedule
+  }
+
+  String returnPosition() {
+    switch (widget.matchInformation.position) {
+      case Positions.red1:
+        return 'Red 1';
+      case Positions.red2:
+        return 'Red 2';
+      case Positions.red3:
+        return 'Red 3';
+      case Positions.blue1:
+        return 'Blue 1';
+      case Positions.blue2:
+        return 'Blue 2';
+      case Positions.blue3:
+        return 'Blue 3';
+      case Positions.none:
+        return 'N/A';
+    }
   }
 
   @override
@@ -161,16 +181,17 @@ class MatchNavBarState extends State<MatchNavBar> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Row(
-        children: [
-          Text( "Match ${''}"),
-          VerticalDivider(),
-          Text("Position ${''}"),
-          VerticalDivider(),
-          Text("Robot ${''}"),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Text("Match ${widget.matchInformation.matchID}"),
+            VerticalDivider(),
+            Text(returnPosition()),
+            VerticalDivider(),
+            Text("Robot ${widget.matchInformation.robot}"),
           ],
         ),
-          toolbarHeight: MediaQuery.of(context).size.height * 3/32
+        toolbarHeight: MediaQuery.of(context).size.height * 3 / 32,
       ),
       drawer: Drawer(
         width: 250.0,

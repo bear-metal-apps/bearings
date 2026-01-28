@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
