@@ -2,7 +2,6 @@ import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-
 part 'strat_state.g.dart';
 
 mixin StratNotifier {
@@ -63,5 +62,3 @@ class RigidityNotifier extends _$RigidityNotifier with StratNotifier {
     state = list;
   }
 }
-
-

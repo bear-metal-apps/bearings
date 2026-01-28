@@ -11,10 +11,12 @@ import 'package:path/path.dart';
 
 List<List<Widget>> matchPages = [];
 
-void loadUI(BuildContext context) async{
+void loadUI(BuildContext context) async {
   double ultimateHeight = MediaQuery.of(context).size.height;
   double ultimateWidth = MediaQuery.of(context).size.width;
-  final json = jsonDecode(await rootBundle.loadString('resources/ui_creator.json'));
+  final json = jsonDecode(
+    await rootBundle.loadString('resources/ui_creator.json'),
+  );
   List<PageConfig> page = MatchConfig.fromJson(json).pages;
   for (var pageIndex = 0; pageIndex != page.length - 1; pageIndex++) {
     matchPages.insert(pageIndex, []);
@@ -113,11 +115,6 @@ void loadUI(BuildContext context) async{
     }
   }
 }
-
-
-
-
-
 
 //CHAT GPT - WILL REMOVE LATER
 class MatchConfig {
