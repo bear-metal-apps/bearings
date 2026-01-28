@@ -64,24 +64,27 @@ class UserPageState extends ConsumerState<UserPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
-                
               ],
             ),
           ),
-          Expanded(
-                  child: SizedBox(
-                    height: 200,
-                    child: CarouselView(
-                      itemExtent: 200,
-                      children: [
-                        Icon(Icons.image, size: 50),
-                        Icon(Icons.image, size: 50),
-                        Icon(Icons.image, size: 50),
-                        Icon(Icons.image, size: 50),
-                      ],
-                    ),
-                  ),
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Expanded(
+              child: SizedBox(
+                height: 200,
+                child: CarouselView(
+                  itemExtent: 200,
+                  children: [
+                    Icon(Icons.image, size: 50),
+                    Icon(Icons.image, size: 50),
+                    Icon(Icons.image, size: 50),
+                    Icon(Icons.image, size: 50),
+                  ],
                 ),
+              ),
+            ),
+          ),
+
           Padding(
             padding: EdgeInsets.only(
               left: 20.0,

@@ -6,14 +6,14 @@ import 'package:go_router/go_router.dart';
 
 class NavBar extends StatefulWidget {
   final Widget page;
-  final String title;
+  final Widget appBar;
   final GoRouter router;
   final bool devMode;
 
   const NavBar({
     super.key,
     required this.page,
-    required this.title,
+    required this.appBar,
     required this.router,
     this.devMode = false,
   });
@@ -45,7 +45,7 @@ class NavBarState extends State<NavBar> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title),toolbarHeight: MediaQuery.of(context).size.height * 3/32),
+      appBar: AppBar(title: widget.appBar ,toolbarHeight: MediaQuery.of(context).size.height * 3/32),
       body: widget.page,
       drawer: Drawer(
         width: 250.0,
@@ -159,6 +159,77 @@ class MatchNavBarState extends State<MatchNavBar> {
     }
 
     return Scaffold(
+      appBar: AppBar(title: Row(
+        children: [
+          Text( "Match ${''}"),
+          VerticalDivider(),
+          Text("Position ${''}"),
+          VerticalDivider(),
+          Text("Robot ${''}"),
+          ],
+        ),
+          toolbarHeight: MediaQuery.of(context).size.height * 3/32
+      ),
+      drawer: Drawer(
+        width: 250.0,
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.all(6.0),
+          child: ListView(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Text("Paw Finder", textScaler: TextScaler.linear(1.2)),
+              ),
+              ListTile(
+                leading: Icon(Icons.calendar_month),
+                title: Text("Schedule"),
+                onTap: () {
+                  widget.router.go('/');
+                },
+              ),
+              Divider(),
+              Text("Scouting"),
+              ListTile(
+                leading: Icon(Icons.timer),
+                title: Text("Match"),
+                onTap: () {
+                  widget.router.go('/Match');
+                },
+                //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
+              ),
+              ListTile(
+                leading: Icon(Icons.linear_scale),
+                title: Text("Strat"),
+                onTap: () {
+                  widget.router.go('/Strat');
+                },
+                //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
+              ),
+              // ListTile(
+              //   leading: Icon(Icons.satellite_alt),
+              //   title: Text("Pits"),
+              //   onTap: () {
+              //     widget.router.go('/Pits');
+              //   },
+              //   //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
+              // ),
+              Divider(),
+              Text("Users"),
+              Column(children: userButtons),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: OutlinedButton(
+                  onPressed: () {
+                    print('Syncing');
+                  },
+                  child: Text('Sync'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: widget.page,
       bottomNavigationBar:SizedBox(
         height: MediaQuery.of(context).size.height * 3/32,

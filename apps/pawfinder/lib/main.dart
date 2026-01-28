@@ -10,77 +10,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
 import 'custom_widgets/match_page.dart';
 
 void main() {
-  runApp(
-    const ProviderScope(
-      child: MyApp()
-    )
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
-
-Future<Map<String, dynamic>> loadUiConfig() async {
-  final jsonString = await rootBundle.loadString('resources/ui_creator.json');
-  return jsonDecode(jsonString);
-}
-final List<FutureBuilder> matchPages = [
-  FutureBuilder(
-    future: loadUiConfig(),
-    builder: (context, snapshot) {
-      if (snapshot.hasData && snapshot.data != null) {
-        return MatchWidget(
-          json: snapshot.data!,
-          pageIndex: 0,
-        );
-      } else if (snapshot.hasError) {
-        return Center(child: Text("404 - UI not loaded"));
-      }
-      return LoadingAnimationWidget.staggeredDotsWave(
-        color: Colors.greenAccent,
-        size: 20,
-      );
-    },
-  ),
-  FutureBuilder(
-    future: loadUiConfig(),
-    builder: (context, snapshot) {
-      if (snapshot.hasData && snapshot.data != null) {
-        return MatchWidget(
-          json: snapshot.data!,
-          pageIndex: 1,
-        );
-      } else if (snapshot.hasError) {
-        return Center(child: Text("404 - UI not loaded"));
-      }
-      return LoadingAnimationWidget.staggeredDotsWave(
-        color: Colors.greenAccent,
-        size: 20,
-      );
-    },
-  ),
-  FutureBuilder(
-    future: loadUiConfig(),
-    builder: (context, snapshot) {
-      if (snapshot.hasData && snapshot.data != null) {
-        return MatchWidget(
-          json: snapshot.data!,
-          pageIndex: 2,
-        );
-      } else if (snapshot.hasError) {
-        return Center(child: Text("404 - UI not loaded"));
-      }
-      return LoadingAnimationWidget.staggeredDotsWave(
-        color: Colors.greenAccent,
-        size: 20,
-      );
-    },
-  ),
-];
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   static final GoRouter router = GoRouter(
     initialLocation: "/",
     routes: [
@@ -88,7 +26,7 @@ class MyApp extends StatelessWidget {
         builder: (context, state, child) {
           return NavBar(
             page: child,
-            title: "Current Page",
+            appBar: Text("Current Page"),
             router: MyApp.router,
           );
         },
@@ -99,28 +37,28 @@ class MyApp extends StatelessWidget {
             builder: (context, state) => const StratPage(),
           ),
           GoRoute(path: '/', builder: (context, state) => const SchedulePage()),
-          ShellRoute(
-            builder: (context, state, page) {
-              return MatchNavBar(page: page, router: router);
-            },
+        ],
+      ),
+      ShellRoute(
+        builder: (context, state, page) {
+          return MatchNavBar(page: page, router: router);
+        },
+        routes: [
+          GoRoute(
+            path: '/Match',
+            builder: (context, state) => const MatchPage(),
             routes: [
               GoRoute(
-                path: '/Match',
-                builder: (context, state) => const MatchPage(),
-                routes: [
-                  GoRoute(
-                    path: 'Auto',
-                    builder: (context, state) => matchPages[0]
-                  ),
-                  GoRoute(
-                    path: 'Tele',
-                    builder: (context, state) => matchPages[1]
-                  ),
-                  GoRoute(
-                    path: 'End',
-                    builder: (context, state) => matchPages[2]
-                  ),
-                ],
+                  path: 'Auto',
+                  builder: (context, state) => Stack(children: matchPages[0],)
+              ),
+              GoRoute(
+                  path: 'Tele',
+                  builder: (context, state) => Stack(children: matchPages[1],)
+              ),
+              GoRoute(
+                  path: 'End',
+                  builder: (context, state) => Stack(children: matchPages[2],)
               ),
             ],
           ),
@@ -131,6 +69,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    loadUI(context);
     return MaterialApp.router(
       title: 'Paw-Finder',
       routerConfig: router,

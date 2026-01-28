@@ -1,30 +1,36 @@
 import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:path/path.dart';
 
-  EventTypes selectedItem = EventTypes.all;
-  List<Widget> createTiles(){
-    List<Widget> list = [];
-    for(var event in events) {
-      var searched = false;
-      for (var string in event.commonPhrases){
-        if(string.contains(searchController.text)){
-          searched = true;
-          break;
-        }
+import '../custom_widgets/match_page.dart';
+
+EventTypes selectedItem = EventTypes.all;
+List<Widget> createTiles() {
+  List<Widget> list = [];
+  for (var event in events) {
+    var searched = false;
+    for (var string in event.commonPhrases) {
+      if (string.contains(searchController.text)) {
+        searched = true;
+        break;
       }
-      if ((event.eventType == selectedItem || selectedItem == EventTypes.all) && (searched || event.name.contains(searchController.text) || event.time.contains(searchController.text))) {
-        list.add(ListTile(
+    }
+    if ((event.eventType == selectedItem || selectedItem == EventTypes.all) &&
+        (searched ||
+            event.name.contains(searchController.text) ||
+            event.time.contains(searchController.text))) {
+      list.add(
+        ListTile(
           leading: Icon(Icons.check_circle),
           title: Text(event.name),
           subtitle: Text(event.time),
-          onTap: () {
-
-
-          },
+          onTap: () {},
           trailing: TextButton.icon(
             onPressed: () {
-              if (event.eventType == EventTypes.match || event.eventType == EventTypes.all) {
+              if (event.eventType == EventTypes.match ||
+                  event.eventType == EventTypes.all) {
                 MyApp.router.go("/Match/Auto");
               } else if (event.eventType == EventTypes.strat) {
                 MyApp.router.go("/Strat");
@@ -32,12 +38,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
             },
             label: Icon(Icons.open_in_full_outlined),
           ),
-        ));
-      }
+        ),
+      );
     }
-    return list;
   }
-
+  return list;
+}
 
 enum EventTypes { match, strat, all }
 
@@ -149,17 +155,22 @@ class MatchPageState extends ConsumerState<MatchPage> {
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
         children: [
-          SearchBar(controller: searchController, hintText: "Search matches...", onChanged: (value) {
-            setState(() {
-              searchList = createTiles().cast<ListTile>();
-              createTiles();
-            });
-          },),
+          SearchBar(
+            controller: searchController,
+            hintText: "Search matches...",
+            onChanged: (value) {
+              setState(() {
+                searchList = createTiles().cast<ListTile>();
+                createTiles();
+              });
+            },
+          ),
           Padding(padding: EdgeInsets.all(8.0)),
           SegmentedButton<String>(
             style: ButtonStyle(
@@ -249,7 +260,6 @@ class MatchPageState extends ConsumerState<MatchPage> {
                     });
                   },
                 ),
-                
               ],
             ),
           ),
@@ -260,7 +270,6 @@ class MatchPageState extends ConsumerState<MatchPage> {
             itemCount: createTiles().length,
             itemBuilder: (context, index) {
               return createTiles()[index];
-              
             },
           ),
         ],
