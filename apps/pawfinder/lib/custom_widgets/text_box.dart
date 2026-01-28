@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 // String textbox widget.
@@ -24,7 +23,7 @@ class StringTextbox extends StatefulWidget {
 }
 
 class _StringTextboxState extends State<StringTextbox> {
- TextEditingController controller = TextEditingController();
+  TextEditingController controller = TextEditingController();
   String value = '';
 
   @override
@@ -41,19 +40,31 @@ class _StringTextboxState extends State<StringTextbox> {
           labelStyle: TextStyle(color: widget.outlineColor ?? Colors.black),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: widget.outlineColor ?? Colors.black, width: 1.0),
+            borderSide: BorderSide(
+              color: widget.outlineColor ?? Colors.black,
+              width: 1.0,
+            ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: widget.outlineColor ?? Colors.red, width: 1.0),
+            borderSide: BorderSide(
+              color: widget.outlineColor ?? Colors.red,
+              width: 1.0,
+            ),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: widget.outlineColor ?? Colors.black, width: 1.0),
+            borderSide: BorderSide(
+              color: widget.outlineColor ?? Colors.black,
+              width: 1.0,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: widget.outlineColor ?? Colors.black, width: 1.0),
+            borderSide: BorderSide(
+              color: widget.outlineColor ?? Colors.black,
+              width: 1.0,
+            ),
           ),
           contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),
