@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
@@ -5,28 +6,47 @@ import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
+import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
+import 'package:beariscope_scouter/pages/match.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:path/path.dart';
+import 'package:hive_ce/hive.dart';
 
-List<List<Widget>> matchPages = [];
+class MatchWidget extends StatefulWidget {
+  final Map<String, dynamic> json;
+  final int pageIndex;
 
-void loadUI(BuildContext context) async {
-  double ultimateHeight = MediaQuery.of(context).size.height;
-  double ultimateWidth = MediaQuery.of(context).size.width;
-  final json = jsonDecode(
-    await rootBundle.loadString('resources/ui_creator.json'),
-  );
-  List<PageConfig> page = MatchConfig.fromJson(json).pages;
-  for (var pageIndex = 0; pageIndex != page.length - 1; pageIndex++) {
-    matchPages.insert(pageIndex, []);
-    for (var data in page[pageIndex].components) {
-      double horizontalStep = (ultimateWidth / page[pageIndex].width);
-      double verticalStep = ((ultimateHeight - 130) / page[pageIndex].height);
+  const MatchWidget({super.key, required this.json, required this.pageIndex});
+
+  @override
+  State<StatefulWidget> createState() {
+    return MatchWidgetState();
+  }
+}
+
+class MatchWidgetState extends State<MatchWidget> {
+  List<Widget> matchPage = [];
+  Box dataBox = Hive.box(boxKey);
+
+  @override
+  Widget build(BuildContext context) {
+    double ultimateHeight = MediaQuery.of(context).size.height;
+    double ultimateWidth = MediaQuery.of(context).size.width;
+    PageConfig page = MatchConfig.fromJson(widget.json).pages[widget.pageIndex];
+    double horizontalStep = (ultimateWidth / page.width);
+    double verticalStep = ((ultimateHeight - 130) / page.height);
+    
+    MatchIdentity exampleMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0);
+
+    //print(jsonEncode(generateMatchJsonHive(MatchConfig.fromJson(widget.json), exampleMatchIdentity).toJson()));
+
+    for (var data in page.components) {
+      final dataBoxKey = matchDataKey(exampleMatchIdentity, page.sectionId, data.fieldId);
+
       switch (data.type) {
         case "int_button":
           {
-            matchPages[pageIndex].add(
+            matchPage.add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -35,6 +55,8 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
+                  initialValue: dataBox.get(dataBoxKey),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );
@@ -42,7 +64,7 @@ void loadUI(BuildContext context) async {
           }
         case "toggle_button":
           {
-            matchPages[pageIndex].add(
+            matchPage.add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -50,7 +72,8 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  onChanged: (bool p1) {},
+                  initialValue: dataBox.get(dataBoxKey),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                   visualFeedback: true,
                 ),
               ),
@@ -59,15 +82,15 @@ void loadUI(BuildContext context) async {
           }
         case "text_box":
           {
-            matchPages[pageIndex].add(
+            matchPage.add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
                 child: StringTextbox(
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep,
-                  onChanged: (String p1) {},
+                  yLength: data.layout.h * verticalStep,                  
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );
@@ -75,7 +98,7 @@ void loadUI(BuildContext context) async {
           }
         case "dropdown":
           {
-            matchPages[pageIndex].add(
+            matchPage.add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -83,6 +106,8 @@ void loadUI(BuildContext context) async {
                   title: '',
                   backgroundColor: Colors.blueAccent,
                   items: [],
+                  // TODO get initial value whatever
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                   xValue: data.layout.w * horizontalStep,
                   yValue: data.layout.h * verticalStep,
                 ),
@@ -92,7 +117,7 @@ void loadUI(BuildContext context) async {
           }
         case "tristate":
           {
-            matchPages[pageIndex].add(
+            matchPage.add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -100,18 +125,16 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  onChanged: (buttonState p1) {},
+                  initialState: dataBox.get(dataBoxKey),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
             );
             break;
           }
-        default:
-          {
-            print("non-existent");
-          }
       }
     }
+    return Stack(children: matchPage);
   }
 }
 

@@ -6,18 +6,21 @@ class Dropdown extends StatefulWidget {
   final String title;
 
   final List<String> items;
-  final Function(String?)? uponChanged;
+  final Function(String?)? onChanged;
   final double xValue;
   final double yValue;
   final Color backgroundColor;
+  final int? initialIndex;
+
   const Dropdown({
+    this.initialIndex,
     required this.title,
     required this.backgroundColor,
 
     required this.items,
     required this.xValue,
     required this.yValue,
-    this.uponChanged,
+    this.onChanged,
     super.key,
   });
 
@@ -45,7 +48,9 @@ class _DropdownState extends State<Dropdown> {
       child: Pressable(
         child: DropdownButtonFormField<String>(
           borderRadius: BorderRadius.circular(10),
-          initialValue: dropdownValue,
+          initialValue: widget.initialIndex != null
+              ? widget.items[widget.initialIndex!]
+              : dropdownValue,
           isExpanded: true,
           dropdownColor: widget.backgroundColor,
           style: TextStyle(color: Colors.black),
@@ -69,7 +74,7 @@ class _DropdownState extends State<Dropdown> {
                     DropdownMenuItem<String>(value: value, child: Text(value)),
               )
               .toList(),
-          onChanged: widget.uponChanged,
+          onChanged: widget.onChanged,
           hint: AutoSizeText(
             widget.title,
             style: TextStyle(fontSize: 16, color: Colors.black),

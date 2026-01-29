@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
@@ -11,10 +12,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'custom_widgets/match_page.dart';
-import 'package:beariscope_scouter/pages/schedule.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  loadHive();
+  runApp(
+    const ProviderScope(
+      child: MyApp()
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {

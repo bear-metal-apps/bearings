@@ -8,6 +8,7 @@ class StringTextbox extends StatefulWidget {
   final Function(String) onChanged;
   final double xLength;
   final double yLength;
+  final String? initialString;
 
   const StringTextbox({
     super.key,
@@ -17,6 +18,7 @@ class StringTextbox extends StatefulWidget {
     required this.dataName,
     required this.xLength,
     required this.yLength,
+    this.initialString,
   });
   @override
   State<StringTextbox> createState() => _StringTextboxState();
@@ -24,7 +26,7 @@ class StringTextbox extends StatefulWidget {
 
 class _StringTextboxState extends State<StringTextbox> {
   TextEditingController controller = TextEditingController();
-  String value = '';
+  late String value = widget.initialString ?? '';
 
   @override
   Widget build(BuildContext context) {
