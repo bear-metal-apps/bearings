@@ -16,7 +16,7 @@ class SchedulePage extends ConsumerStatefulWidget {
 }
 
 // DELETE BEFORE DEPLOYMENT
-Map<String, dynamic> gameData = {'example': 67};
+Map<String, dynamic> gameData = {'example': 00};
 enum EventTypes {
   match,
   strat,
@@ -115,7 +115,7 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
     }
     return list;
   }
-  
+
   @override
   void initState() {
     super.initState();
@@ -146,9 +146,22 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
   }
 }
 
+class MatchInformation {
+  final int matchID;
+  final Positions position;
+  final int robot;
+
+  MatchInformation({
+    this.matchID = 0,
+    this.position = Positions.none,
+    this.robot = 0,
+  });
+}
+
 class Event {
   final String time;
   final String name;
+  MatchInformation? matchInformation;
   EventTypes eventType;
   String tbaMatchKey;
   final List<String> commonPhrases;
@@ -156,6 +169,7 @@ class Event {
   Event({
     required this.time,
     required this.name,
+    this.matchInformation,
     required this.eventType,
     this.tbaMatchKey = "",
     this.commonPhrases = const [],

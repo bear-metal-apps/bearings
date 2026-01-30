@@ -89,8 +89,7 @@ class MatchWidgetState extends State<MatchWidget> {
                 child: StringTextbox(
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep,
-                  
+                  yLength: data.layout.h * verticalStep,                  
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),

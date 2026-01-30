@@ -1,3 +1,4 @@
 {
-  "cmake.sourceDirectory": "C:/dev/pawfinder2/linux/flutter"
+  "cmake.sourceDirectory": "C:/dev/pawfinder2/linux/flutter",
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
