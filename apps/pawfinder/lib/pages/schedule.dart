@@ -1,10 +1,17 @@
 import 'dart:math';
 
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
+import 'package:beariscope_scouter/custom_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/slider.dart';
+import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:beariscope_scouter/custom_widgets/int_textbox.dart';
+import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
+import 'package:beariscope_scouter/custom_widgets/segmented_button.dart';
 
 class SchedulePage extends ConsumerStatefulWidget {
   const SchedulePage({super.key});
@@ -87,7 +94,7 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
           break;
         }
       }
-      
+
       if ((event.eventType == selectedItem || selectedItem == EventTypes.all) &&
           (searched ||
               event.name.contains(searchedText) ||
@@ -114,11 +121,6 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
       }
     }
     return list;
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
