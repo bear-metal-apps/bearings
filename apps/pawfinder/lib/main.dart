@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
