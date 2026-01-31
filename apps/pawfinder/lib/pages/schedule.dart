@@ -24,7 +24,6 @@ class SchedulePage extends ConsumerStatefulWidget {
 }
 
 // DELETE BEFORE DEPLOYMENT
-Map<String, dynamic> gameData = {'example': 67};
 enum EventTypes {
   match,
   strat,
@@ -55,8 +54,8 @@ Map<String, dynamic> gameData = {
   'slider2': 0.0,
   'boolButton1': false,
   'boolButton2': false,
-  'tristate2': buttonState.unchecked,
-  'tristate1': buttonState.unchecked,
+  'tristate2': 0,
+  'tristate1': 1,
 };
 
 enum Positions { red1, red2, red3, blue1, blue2, blue3, none }

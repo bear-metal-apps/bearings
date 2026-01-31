@@ -50,7 +50,7 @@ void loadUI(BuildContext context) async {
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
                   onChanged: (value) => dataBox.put(dataBoxKey, value)
-                  initialValue: dataBox.get(dataBoxKey),
+                  // initialValue: dataBox.get(dataBoxKey),
                 ),
               ),
             );
@@ -133,6 +133,7 @@ void loadUI(BuildContext context) async {
       }
     }
   }
+  print("Auto:${matchPages[0]} \n Tele:${matchPages[1]} \n End:${matchPages[2]}");
 }
 
 //CHAT GPT - WILL REMOVE LATER
