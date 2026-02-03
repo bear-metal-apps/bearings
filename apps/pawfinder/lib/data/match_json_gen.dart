@@ -5,7 +5,7 @@ import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/pages/match.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
-typedef MatchIdentity = ({String eventKey, int matchNumber, bool isRedAlliance, int position});
+typedef MatchIdentity = ({String eventKey, int matchNumber, bool isRedAlliance, int position, int robotNum});
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
   return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity.isRedAlliance}_${identity.position}_${sectionId}_$fieldId";

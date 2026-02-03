@@ -1,3 +1,5 @@
+import 'package:beariscope_scouter/custom_widgets/match_page.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -116,15 +118,15 @@ class MatchNavBar extends StatefulWidget {
   final Widget page;
   final GoRouter router;
   final bool devMode;
-  MatchInformation matchInformation;
+  final MatchIdentity matchIdentity;
 
   MatchNavBar({
     super.key,
     required this.page,
     required this.router,
     this.devMode = false,
-    MatchInformation? matchInformation,
-  }) : matchInformation = matchInformation ?? MatchInformation();
+    required this.matchIdentity
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -145,22 +147,10 @@ class MatchNavBarState extends State<MatchNavBar> {
   }
 
   String returnPosition() {
-    switch (widget.matchInformation.position) {
-      case Positions.red1:
-        return 'Red 1';
-      case Positions.red2:
-        return 'Red 2';
-      case Positions.red3:
-        return 'Red 3';
-      case Positions.blue1:
-        return 'Blue 1';
-      case Positions.blue2:
-        return 'Blue 2';
-      case Positions.blue3:
-        return 'Blue 3';
-      case Positions.none:
-        return 'N/A';
+    if(widget.matchIdentity.isRedAlliance){
+      return "Red ${widget.matchIdentity.position + 1}";
     }
+    return "Blue ${widget.matchIdentity.position + 1}";
   }
 
   @override
@@ -179,16 +169,15 @@ class MatchNavBarState extends State<MatchNavBar> {
       );
       // ignore: unused_element
     }
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
-            Text("Match ${widget.matchInformation.matchID}"),
+            Text("Match ${widget.matchIdentity.matchNumber}"),
             VerticalDivider(),
             Text(returnPosition()),
             VerticalDivider(),
-            Text("Robot ${widget.matchInformation.robot}"),
+            Text("Robot ${widget.matchIdentity.robotNum}"),
           ],
         ),
         toolbarHeight: MediaQuery.of(context).size.height * 3 / 32,
@@ -259,13 +248,13 @@ class MatchNavBarState extends State<MatchNavBar> {
         onTap: (index) {
           switch (index) {
             case 0:
-              widget.router.go('/Match/Auto');
+              context.push("/Match/Auto", extra: widget.matchIdentity);
               break;
             case 1:
-              widget.router.go('/Match/Tele');
+              context.push("/Match/Tele", extra: widget.matchIdentity);
               break;
             case 2:
-              widget.router.go('/Match/End');
+              context.push("/Match/End", extra: widget.matchIdentity);
               break;
           }
         },

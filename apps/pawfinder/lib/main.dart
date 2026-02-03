@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
@@ -18,9 +19,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'custom_widgets/match_page.dart';
 import 'custom_widgets/nav_bar.dart';
 import 'pages/match.dart';
-import 'pages/match_stages/auto_page.dart';
-import 'pages/match_stages/end_page.dart';
-import 'pages/match_stages/tele_page.dart';
 import 'pages/user.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
 
@@ -58,14 +56,11 @@ class MyApp extends StatelessWidget {
       ),
       ShellRoute(
         builder: (context, state, page) {
-          final MatchInformation matchInformation =
-              state.extra is MatchInformation
-              ? state.extra as MatchInformation
-              : MatchInformation();
+          final MatchIdentity matchIdentity = currentMatchIdentity;
           return MatchNavBar(
             page: page,
             router: router,
-            matchInformation: matchInformation,
+            matchIdentity: matchIdentity
           );
         },
         routes: [

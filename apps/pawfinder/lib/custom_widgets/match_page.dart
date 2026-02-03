@@ -22,9 +22,9 @@ import 'package:hive_ce/hive.dart';
 
 List<List<Widget>> matchPages = [];
 Box dataBox = Hive.box(boxKey);
+MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
 
 void loadUI(BuildContext context) async {
-  MatchIdentity exampleMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0);
   double ultimateHeight = MediaQuery.of(context).size.height;
   double ultimateWidth = MediaQuery.of(context).size.width;
   final json = jsonDecode(
