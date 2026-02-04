@@ -1,11 +1,13 @@
-import 'dart:convert';
-
 import 'package:beariscope_scouter/custom_widgets/match_page.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/pages/match.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
-typedef MatchIdentity = ({String eventKey, int matchNumber, bool isRedAlliance, int position});
+typedef MatchIdentity = ({
+  String eventKey,
+  int matchNumber,
+  bool isRedAlliance,
+  int position,
+});
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
   return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity.isRedAlliance}_${identity.position}_${sectionId}_$fieldId";
@@ -47,22 +49,16 @@ class SectionJsonData {
   final String sectionId;
   final Map<String, dynamic> fields;
 
-  SectionJsonData({
-    required this.sectionId,
-    required this.fields,
-  });
+  SectionJsonData({required this.sectionId, required this.fields});
 
   factory SectionJsonData.fromJson(Map<String, dynamic> json) {
     return SectionJsonData(
       sectionId: json['sectionId'],
-      fields: Map<String, dynamic>.from(json['fields'] ?? {})
+      fields: Map<String, dynamic>.from(json['fields'] ?? {}),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'sectionId': sectionId,
-    'fields': fields,
-  };
+  Map<String, dynamic> toJson() => {'sectionId': sectionId, 'fields': fields};
 }
 
 class MetaJsonData {
@@ -133,33 +129,32 @@ SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
     sectionJsonData.fields[data.fieldId] = dataValue;
   }
 
-
   return sectionJsonData;
 }
 
-MetaJsonData generateMetaJsonHive(Meta config) => 
-  MetaJsonData(
-    season: config.season,
-    author: config.author,
-    type: config.type,
-    version: config.version,
-  );
-
+MetaJsonData generateMetaJsonHive(Meta config) => MetaJsonData(
+  season: config.season,
+  author: config.author,
+  type: config.type,
+  version: config.version,
+);
 
 /// Uses the MatchConfig, and looks up hive data for necessary values.
-MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) => 
-  MatchJsonData(
-    meta: generateMetaJsonHive(config.meta),
-    sections: config.pages.map((e) => generateSectionJsonHive(e, info)).toList(),
-  );
-
+MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) =>
+    MatchJsonData(
+      meta: generateMetaJsonHive(config.meta),
+      sections: config.pages
+          .map((e) => generateSectionJsonHive(e, info))
+          .toList(),
+    );
 
 /// Loads the MatchJsonData into the appropriate hive keys using eventKey.
 void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
   Box dataBox = Hive.box(boxKey);
 
   for (final section in data.sections) {
-    section.fields.forEach((k, v) =>
-      dataBox.put(matchDataKey(info, section.sectionId, k), v));
+    section.fields.forEach(
+      (k, v) => dataBox.put(matchDataKey(info, section.sectionId, k), v),
+    );
   }
 }
