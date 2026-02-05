@@ -7,14 +7,12 @@ import '../pages/schedule.dart';
 class NavBar extends StatefulWidget {
   final Widget page;
   final Widget appBar;
-  final GoRouter router;
   final bool devMode;
 
   const NavBar({
     super.key,
     required this.page,
     required this.appBar,
-    required this.router,
     this.devMode = false,
   });
 
@@ -37,7 +35,7 @@ class NavBarState extends State<NavBar> {
           title: Text(element.name),
           onTap: () {
             currentUser = element.name;
-            widget.router.go('/User');
+            context.go('/user');
           },
         ),
       );
@@ -63,7 +61,7 @@ class NavBarState extends State<NavBar> {
                 leading: Icon(Icons.calendar_month),
                 title: Text("Schedule"),
                 onTap: () {
-                  widget.router.go('/');
+                  context.go('/schedule');
                 },
               ),
               Divider(),
@@ -72,7 +70,7 @@ class NavBarState extends State<NavBar> {
                 leading: Icon(Icons.timer),
                 title: Text("Match"),
                 onTap: () {
-                  widget.router.go('/Match');
+                  context.go('/match');
                 },
                 //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
@@ -80,7 +78,7 @@ class NavBarState extends State<NavBar> {
                 leading: Icon(Icons.linear_scale),
                 title: Text("Strat"),
                 onTap: () {
-                  widget.router.go('/Strat');
+                  context.go('/strat');
                 },
                 //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
@@ -88,7 +86,7 @@ class NavBarState extends State<NavBar> {
               //   leading: Icon(Icons.satellite_alt),
               //   title: Text("Pits"),
               //   onTap: () {
-              //     widget.router.go('/Pits');
+              //     context.go('/Pits');
               //   },
               //   //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               // ),
@@ -114,14 +112,12 @@ class NavBarState extends State<NavBar> {
 
 class MatchNavBar extends StatefulWidget {
   final Widget page;
-  final GoRouter router;
   final bool devMode;
   MatchInformation matchInformation;
 
   MatchNavBar({
     super.key,
     required this.page,
-    required this.router,
     this.devMode = false,
     MatchInformation? matchInformation,
   }) : matchInformation = matchInformation ?? MatchInformation();
@@ -138,8 +134,8 @@ class MatchNavBarState extends State<MatchNavBar> {
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
 
-    if (location.startsWith('/Strat')) return 1;
-    if (location.startsWith('/User')) return 2;
+    if (location.startsWith('/strat')) return 1;
+    if (location.startsWith('/user')) return 2;
 
     return 0; // Schedule
   }
@@ -173,7 +169,7 @@ class MatchNavBarState extends State<MatchNavBar> {
           title: Text(element.name),
           onTap: () {
             currentUser = element.name;
-            widget.router.go('/User');
+            context.go('/user');
           },
         ),
       );
@@ -208,7 +204,7 @@ class MatchNavBarState extends State<MatchNavBar> {
                 leading: Icon(Icons.calendar_month),
                 title: Text("Schedule"),
                 onTap: () {
-                  widget.router.go('/');
+                  context.go('/');
                 },
               ),
               Divider(),
@@ -217,7 +213,7 @@ class MatchNavBarState extends State<MatchNavBar> {
                 leading: Icon(Icons.timer),
                 title: Text("Match"),
                 onTap: () {
-                  widget.router.go('/Match');
+                  context.go('/match');
                 },
                 //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
@@ -225,7 +221,7 @@ class MatchNavBarState extends State<MatchNavBar> {
                 leading: Icon(Icons.linear_scale),
                 title: Text("Strat"),
                 onTap: () {
-                  widget.router.go('/Strat');
+                  context.go('/strat');
                 },
                 //trailing: LoadingAnimationWidget.staggeredDotsWave(color: Colors.greenAccent, size: 20),
               ),
@@ -259,13 +255,13 @@ class MatchNavBarState extends State<MatchNavBar> {
         onTap: (index) {
           switch (index) {
             case 0:
-              widget.router.go('/Match/Auto');
+              context.go('/match/auto');
               break;
             case 1:
-              widget.router.go('/Match/Tele');
+              context.go('/match/tele');
               break;
             case 2:
-              widget.router.go('/Match/End');
+              context.go('/match/end');
               break;
           }
         },

@@ -1,4 +1,3 @@
-import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -163,9 +162,9 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
               icon: Icon(Icons.open_in_full_outlined),
               onPressed: () {
                 if (event.eventType == EventTypes.match) {
-                  context.push("/Match/Auto", extra: event.matchInformation);
+                  context.push("/match/auto", extra: event.matchInformation);
                 } else if (event.eventType == EventTypes.strat) {
-                  MyApp.router.go("/Strat");
+                  context.go("/strat");
                 }
               },
             ),
