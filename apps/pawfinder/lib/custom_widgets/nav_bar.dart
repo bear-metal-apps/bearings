@@ -55,7 +55,7 @@ class NavBarState extends State<NavBar> {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: Text("Paw Finder", textScaler: TextScaler.linear(1.2)),
+                child: Text("Pawfinder", textScaler: TextScaler.linear(1.2)),
               ),
               ListTile(
                 leading: Icon(Icons.calendar_month),
@@ -198,13 +198,13 @@ class MatchNavBarState extends State<MatchNavBar> {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: Text("Paw Finder", textScaler: TextScaler.linear(1.2)),
+                child: Text("Pawfinder", textScaler: TextScaler.linear(1.2)),
               ),
               ListTile(
                 leading: Icon(Icons.calendar_month),
                 title: Text("Schedule"),
                 onTap: () {
-                  context.go('/');
+                  context.go('/schedule');
                 },
               ),
               Divider(),
