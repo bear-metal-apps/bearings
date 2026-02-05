@@ -41,8 +41,8 @@ class StratPageState extends ConsumerState<StratPage> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
 
-    final driverSkill = ref.watch(driverSkillNotifierProvider.notifier);
-    final rigidity = ref.watch(rigidityNotifierProvider.notifier);
+    final driverSkill = ref.watch(driverSkillProvider.notifier);
+    final rigidity = ref.watch(rigidityProvider.notifier);
 
     return Scaffold(
       body: SingleChildScrollView(

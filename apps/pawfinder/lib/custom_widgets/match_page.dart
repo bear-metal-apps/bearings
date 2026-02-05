@@ -1,10 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-import 'dart:convert';
-import 'dart:io';
-
-import 'dart:convert';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
@@ -13,16 +7,13 @@ import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/pages/match.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path/path.dart';
 import 'package:hive_ce/hive.dart';
-
 
 List<List<Widget>> matchPages = [];
 Box dataBox = Hive.box(boxKey);
-MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
+// MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
 
 void loadUI(BuildContext context) async {
   double ultimateHeight = MediaQuery.of(context).size.height;
@@ -49,7 +40,7 @@ void loadUI(BuildContext context) async {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  onChanged: (value) => dataBox.put(dataBoxKey, value)
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
                   // initialValue: dataBox.get(dataBoxKey),
                 ),
               ),
@@ -133,7 +124,9 @@ void loadUI(BuildContext context) async {
       }
     }
   }
-  print("Auto:${matchPages[0]} \n Tele:${matchPages[1]} \n End:${matchPages[2]}");
+  print(
+    "Auto:${matchPages[0]} \n Tele:${matchPages[1]} \n End:${matchPages[2]}",
+  );
 }
 
 //CHAT GPT - WILL REMOVE LATER

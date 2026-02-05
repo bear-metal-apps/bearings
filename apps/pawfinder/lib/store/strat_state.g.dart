@@ -6,38 +6,110 @@ part of 'strat_state.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$driverSkillNotifierHash() =>
-    r'5ab2b5d6ac7b40c1ebb57085771ea00afbf44812';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [DriverSkillNotifier].
 @ProviderFor(DriverSkillNotifier)
-final driverSkillNotifierProvider =
-    AutoDisposeNotifierProvider<DriverSkillNotifier, List<String>>.internal(
-      DriverSkillNotifier.new,
-      name: r'driverSkillNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$driverSkillNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
+final driverSkillProvider = DriverSkillNotifierProvider._();
+
+final class DriverSkillNotifierProvider
+    extends $NotifierProvider<DriverSkillNotifier, List<String>> {
+  DriverSkillNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'driverSkillProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$driverSkillNotifierHash();
+
+  @$internal
+  @override
+  DriverSkillNotifier create() => DriverSkillNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<String>>(value),
     );
+  }
+}
 
-typedef _$DriverSkillNotifier = AutoDisposeNotifier<List<String>>;
-String _$rigidityNotifierHash() => r'20a4bbe259588f9b6f72ba53e35a6fb20cb4fc4a';
+String _$driverSkillNotifierHash() =>
+    r'03caaae47658770785f45489135c7a3b815c9af7';
 
-/// See also [RigidityNotifier].
+abstract class _$DriverSkillNotifier extends $Notifier<List<String>> {
+  List<String> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<List<String>, List<String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<String>, List<String>>,
+              List<String>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(RigidityNotifier)
-final rigidityNotifierProvider =
-    AutoDisposeNotifierProvider<RigidityNotifier, List<String>>.internal(
-      RigidityNotifier.new,
-      name: r'rigidityNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$rigidityNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final rigidityProvider = RigidityNotifierProvider._();
 
-typedef _$RigidityNotifier = AutoDisposeNotifier<List<String>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class RigidityNotifierProvider
+    extends $NotifierProvider<RigidityNotifier, List<String>> {
+  RigidityNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rigidityProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rigidityNotifierHash();
+
+  @$internal
+  @override
+  RigidityNotifier create() => RigidityNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<String>>(value),
+    );
+  }
+}
+
+String _$rigidityNotifierHash() => r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
+
+abstract class _$RigidityNotifier extends $Notifier<List<String>> {
+  List<String> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<List<String>, List<String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<String>, List<String>>,
+              List<String>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

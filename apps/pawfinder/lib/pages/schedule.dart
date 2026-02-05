@@ -10,13 +10,7 @@ import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:beariscope_scouter/custom_widgets/int_textbox.dart';
-import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
-import 'package:beariscope_scouter/custom_widgets/segmented_button.dart';
 import 'package:go_router/go_router.dart';
-import 'package:beariscope_scouter/custom_widgets/int_textbox.dart';
-import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
-import 'package:beariscope_scouter/custom_widgets/segmented_button.dart';
 
 class SchedulePage extends ConsumerStatefulWidget {
   const SchedulePage({super.key});
@@ -28,12 +22,7 @@ class SchedulePage extends ConsumerStatefulWidget {
 }
 
 // DELETE BEFORE DEPLOYMENT
-enum EventTypes {
-  match,
-  strat,
-  misc,
-  all
-}
+enum EventTypes { match, strat, misc, all }
 
 Map<String, dynamic> gameData = {
   'numberButton1': 0,
@@ -150,9 +139,9 @@ class SchedulePageState extends ConsumerState<SchedulePage> {
               icon: Icon(Icons.open_in_full_outlined),
               onPressed: () {
                 if (event.eventType == EventTypes.match) {
-                  context.push("/Match/Auto", extra: event.matchIdentity);
+                  context.push("/match/auto", extra: event.matchIdentity);
                 } else if (event.eventType == EventTypes.strat) {
-                  MyApp.router.go("/Strat");
+                  context.go("/strat");
                 }
               },
             ),
