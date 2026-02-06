@@ -12,7 +12,7 @@ typedef MatchIdentity = ({
 });
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
-  return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity.isRedAlliance}_${identity.position}_${sectionId}_$fieldId";
+  return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity.isRedAlliance}_${identity.position}_${identity.robotNum}_${sectionId}_$fieldId";
 }
 
 /*

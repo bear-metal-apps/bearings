@@ -244,13 +244,13 @@ class MatchNavBarState extends State<MatchNavBar> {
         onTap: (index) {
           switch (index) {
             case 0:
-              context.go("/Match/Auto", extra: widget.matchIdentity);
+              context.go("/match/auto", extra: widget.matchIdentity);
               break;
             case 1:
-              context.push("/Match/Tele", extra: widget.matchIdentity);
+              context.push("/match/tele", extra: widget.matchIdentity);
               break;
             case 2:
-              context.push("/Match/End", extra: widget.matchIdentity);
+              context.push("/match/end", extra: widget.matchIdentity);
               break;
           }
         },

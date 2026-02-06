@@ -13,9 +13,13 @@ import 'package:libkoala/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-void main() {
-  loadHive();
-  runApp(const ProviderScope(child: MyApp()));
+Future<void> main() async {
+  await loadHive();
+  runApp(
+    const ProviderScope(
+      child: MyApp()
+    )
+  );
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -51,7 +55,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       ShellRoute(
         builder: (context, state, page) {
-          final MatchIdentity matchIdentity = currentMatchIdentity;
+          final MatchIdentity matchIdentity = state.extra as MatchIdentity;
           return MatchNavBar(
             page: page,
             matchIdentity: matchIdentity
@@ -124,10 +128,9 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    loadUI(context);
-
     final router = ref.watch(routerProvider);
-
+    // final matchpages = ref.watch(matchPagesProvider);
+    loadUI(context);
     return MaterialApp.router(
       title: 'Pawfinder',
       routerConfig: router,
