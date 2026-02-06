@@ -148,7 +148,7 @@ class MatchPageState extends ConsumerState<MatchPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    ref.read(matchPagesProvider.notifier).loadUI(context);
+    ref.read(matchPagesProvider.notifier).loadUI(context as BuildContext);
   }
 
   @override

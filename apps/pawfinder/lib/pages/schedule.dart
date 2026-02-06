@@ -52,68 +52,70 @@ Map<String, dynamic> gameData = {
 };
 
 
+List<Event> events = [
+  Event(
+    time: '2:45',
+    name: "Match 16",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 16, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '3:00',
+    name: "Match 17",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 17, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '3:15',
+    name: "Match 18",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 18, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '3:30',
+    name: "Match 19",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 19, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '3:45',
+    name: "Match 20",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 20, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '4:00',
+    name: "Match 21",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 21, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '4:15',
+    name: "Match 22",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 22, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(
+    time: '4:30',
+    name: "Match 23",
+    matchIdentity: (eventKey: "eventKey", matchNumber: 23, isRedAlliance: false, position: 0, robotNum: 0),
+    eventType: EventTypes.match,
+    commonPhrases: ['Match', 'Strat'],
+  ),
+  Event(time: '4:45', name: "Lunch", eventType: EventTypes.misc),
+];
+
 class SchedulePageState extends ConsumerState<SchedulePage> {
   String searchedText = "";
   EventTypes selectedItem = EventTypes.all;
-  List<Event> events = [
-    Event(
-      time: '2:45',
-      name: "Match 16",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 16, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '3:00',
-      name: "Match 17",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 17, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '3:15',
-      name: "Match 18",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 18, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '3:30',
-      name: "Match 19",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 19, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '3:45',
-      name: "Match 20",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 20, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '4:00',
-      name: "Match 21",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 21, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '4:15',
-      name: "Match 22",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 22, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(
-      time: '4:30',
-      name: "Match 23",
-      matchIdentity: (eventKey: "eventKey", matchNumber: 23, isRedAlliance: false, position: 0, robotNum: 0),
-      eventType: EventTypes.match,
-      commonPhrases: ['Match', 'Strat'],
-    ),
-    Event(time: '4:45', name: "Lunch", eventType: EventTypes.misc),
-  ];
+
 
   List<Widget> createTiles() {
     List<Widget> list = [];

@@ -4,9 +4,9 @@ import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
-import 'package:beariscope_scouter/pages/match.dart';
+import 'package:beariscope_scouter/pages/match_setup.dart';
 import 'package:beariscope_scouter/pages/user.dart';
-import 'package:beariscope_scouter/custom_widgets/match_page.dart';
+import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:beariscope_scouter/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:libkoala/providers/auth_provider.dart';
@@ -15,11 +15,7 @@ import 'package:go_router/go_router.dart';
 
 Future<void> main() async {
   await loadHive();
-  runApp(
-    const ProviderScope(
-      child: MyApp()
-    )
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -48,37 +44,32 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const StratPage(),
           ),
           GoRoute(
-            path: '/schedule',
+            path: '/',
             builder: (context, state) => const SchedulePage(),
+          ),
+          GoRoute(
+            path: '/match',
+            builder: (context, state) => const MatchSetUpPage(),
           ),
         ],
       ),
       ShellRoute(
         builder: (context, state, page) {
           final MatchIdentity matchIdentity = state.extra as MatchIdentity;
-          return MatchNavBar(
-            page: page,
-            matchIdentity: matchIdentity
-          );
+          return MatchNavBar(page: page, matchIdentity: matchIdentity);
         },
         routes: [
           GoRoute(
-            path: '/match',
-            builder: (context, state) => const MatchSetUpPage(),
-            routes: [
-              GoRoute(
-                path: 'auto',
-                builder: (context, state) => MatchPage(index: 0),
-              ),
-              GoRoute(
-                path: 'tele',
-                builder: (context, state) => MatchPage(index: 0),
-              ),
-              GoRoute(
-                path: 'end',
-                builder: (context, state) => MatchPage(index: 0),
-              ),
-            ],
+            path: '/auto',
+            builder: (context, state) => MatchPage(index: 0),
+          ),
+          GoRoute(
+            path: '/tele',
+            builder: (context, state) => MatchPage(index: 1),
+          ),
+          GoRoute(
+            path: '/end',
+            builder: (context, state) => MatchPage(index: 2),
           ),
         ],
       ),
@@ -100,7 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // if on welcome and authed then leave
       if (auth == AuthStatus.authenticated) {
         if (location == '/welcome' || location == '/splash') {
-          return '/schedule';
+          return '/';
         }
       }
 

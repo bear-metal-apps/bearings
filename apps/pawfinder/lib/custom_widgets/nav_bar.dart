@@ -1,4 +1,4 @@
-import 'package:beariscope_scouter/custom_widgets/match_page.dart';
+import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/pages/user.dart';
 import 'package:flutter/material.dart';
@@ -244,13 +244,13 @@ class MatchNavBarState extends State<MatchNavBar> {
         onTap: (index) {
           switch (index) {
             case 0:
-              context.go("/match/auto", extra: widget.matchIdentity);
+              context.go("/auto", extra: widget.matchIdentity);
               break;
             case 1:
-              context.push("/match/tele", extra: widget.matchIdentity);
+              context.go("/tele", extra: widget.matchIdentity);
               break;
             case 2:
-              context.push("/match/end", extra: widget.matchIdentity);
+              context.go("/end", extra: widget.matchIdentity);
               break;
           }
         },

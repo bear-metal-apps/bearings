@@ -1,49 +1,14 @@
 import 'package:beariscope_scouter/main.dart';
+import 'package:beariscope_scouter/pages/schedule.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:path/path.dart';
 
-import '../custom_widgets/match_page.dart';
+import 'match_page.dart';
 
 EventTypes selectedItem = EventTypes.all;
-List<Widget> createTiles() {
-  List<Widget> list = [];
-  for (var event in events) {
-    var searched = false;
-    for (var string in event.commonPhrases) {
-      if (string.contains(searchController.text)) {
-        searched = true;
-        break;
-      }
-    }
-    if ((event.eventType == selectedItem || selectedItem == EventTypes.all) &&
-        (searched ||
-            event.name.contains(searchController.text) ||
-            event.time.contains(searchController.text))) {
-      list.add(
-        ListTile(
-          leading: Icon(Icons.check_circle),
-          title: Text(event.name),
-          subtitle: Text(event.time),
-          onTap: () {},
-          trailing: TextButton.icon(
-            onPressed: () {
-              if (event.eventType == EventTypes.match ||
-                  event.eventType == EventTypes.all) {
-                MyApp.router.go("/Match/Auto");
-              } else if (event.eventType == EventTypes.strat) {
-                MyApp.router.go("/Strat");
-              }
-            },
-            label: Icon(Icons.open_in_full_outlined),
-          ),
-        ),
-      );
-    }
-  }
-  return list;
-}
 
 enum EventTypes { match, strat, all }
 
@@ -63,66 +28,15 @@ class Event {
   });
 }
 
-class MatchPage extends ConsumerStatefulWidget {
-  const MatchPage({super.key});
+class MatchSetUpPage extends ConsumerStatefulWidget {
+  const MatchSetUpPage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return MatchPageState();
+    return MatchSetUpPageState();
   }
 }
 
-List<Event> events = [
-  Event(
-    time: '2:45',
-    name: "Match 16",
-    eventType: EventTypes.all,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '3:00',
-    name: "Match 17",
-    eventType: EventTypes.all,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '3:15',
-    name: "Match 18",
-    eventType: EventTypes.all,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '3:30',
-    name: "Match 19",
-    eventType: EventTypes.all,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '3:45',
-    name: "Match 20",
-    eventType: EventTypes.all,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '4:00',
-    name: "Match 21",
-    eventType: EventTypes.match,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '4:15',
-    name: "Match 22",
-    eventType: EventTypes.strat,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(
-    time: '4:30',
-    name: "Match 23",
-    eventType: EventTypes.all,
-    commonPhrases: ['Match', 'Strat'],
-  ),
-  Event(time: '4:45', name: "Lunch", eventType: EventTypes.all),
-];
 Set<String> _selectedAllianceSegment = {'red'};
 Set<String> _selectedPositionSegment = {'pos1'};
 Map<String, bool> filterValues = {
@@ -141,7 +55,44 @@ Map<String, bool> filterValues = {
 };
 TextEditingController searchController = TextEditingController();
 
-class MatchPageState extends ConsumerState<MatchPage> {
+class MatchSetUpPageState extends ConsumerState<MatchSetUpPage> {
+  EventTypes scoutType = EventTypes.match;
+  List<Widget> createTiles(BuildContext context) {
+    List<Widget> list = [];
+    for (var event in events) {
+      var searched = false;
+      for (var string in event.commonPhrases) {
+        if (string.contains(searchController.text)) {
+          searched = true;
+          break;
+        }
+      }
+      if ((event.eventType == selectedItem || selectedItem == EventTypes.all) &&
+          (searched ||
+              event.name.contains(searchController.text) ||
+              event.time.contains(searchController.text))) {
+        list.add(
+          ListTile(
+            leading: Icon(Icons.check_circle),
+            title: Text(event.name),
+            subtitle: Text(event.time),
+            trailing: IconButton(
+              icon: Icon(Icons.open_in_full_outlined),
+              onPressed: () {
+                if (scoutType == EventTypes.match) {
+                  context.push("/auto", extra: event.matchIdentity);
+                } else if (scoutType == EventTypes.strat) {
+                  context.go("/strat");
+                }
+              },
+            ),
+          ),
+        );
+      }
+    }
+    return list;
+  }
+
   List<ListTile>? searchList = events.map((event) {
     return ListTile(
       leading: Icon(Icons.check_circle),
@@ -166,8 +117,8 @@ class MatchPageState extends ConsumerState<MatchPage> {
             hintText: "Search matches...",
             onChanged: (value) {
               setState(() {
-                searchList = createTiles().cast<ListTile>();
-                createTiles();
+                searchList = createTiles(context).cast<ListTile>();
+                createTiles(context);
               });
             },
           ),
@@ -208,11 +159,17 @@ class MatchPageState extends ConsumerState<MatchPage> {
               ButtonSegment<String>(value: 'pos1', label: Text('Position 1')),
               ButtonSegment<String>(value: 'pos2', label: Text('Position 2')),
               ButtonSegment<String>(value: 'pos3', label: Text('Position 3')),
+              ButtonSegment<String>(value: 'strat', label: Text('Strat')),
             ],
             selected: _selectedPositionSegment,
             onSelectionChanged: (Set<String> newSelection) {
               setState(() {
                 _selectedPositionSegment = newSelection;
+                if(newSelection.contains('strat')){
+                  scoutType = EventTypes.strat;
+                }else{
+                  scoutType = EventTypes.match;
+                }
               });
             },
             // Handle selection change
@@ -267,9 +224,9 @@ class MatchPageState extends ConsumerState<MatchPage> {
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: createTiles().length,
+            itemCount: createTiles(context).length,
             itemBuilder: (context, index) {
-              return createTiles()[index];
+              return createTiles(context)[index];
             },
           ),
         ],
@@ -277,6 +234,3 @@ class MatchPageState extends ConsumerState<MatchPage> {
     );
   }
 }
-
-
-//diddy kong racing
