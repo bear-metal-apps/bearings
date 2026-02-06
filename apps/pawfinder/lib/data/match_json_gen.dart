@@ -1,5 +1,6 @@
 import 'package:beariscope_scouter/custom_widgets/match_page.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/ui_json_serialization.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
 

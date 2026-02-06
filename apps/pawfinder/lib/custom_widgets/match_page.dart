@@ -12,259 +12,157 @@ import 'package:hive_ce/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 
+import '../data/ui_json_serialization.dart';
+
 Box dataBox = Hive.box(boxKey);
+Future<Map<String, dynamic>> loadUiConfig() async {
+  final jsonString = await rootBundle.loadString('resources/ui_creator.json');
+  return jsonDecode(jsonString);
+}
 // MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
 // class matchPagesProvider extends ChangeNotifier {
 //
 // }
-List<List<Widget>> matchPages = [];
+final matchPagesProvider =
+AsyncNotifierProvider<MatchPagesNotifier, List<List<Widget>>>(
+  MatchPagesNotifier.new,
+);
 
-Future<List<List<Widget>>> loadUI(BuildContext context) async {
-    // List<List<Widget>> matchPages = [];
-    double ultimateHeight = MediaQuery.of(context).size.height;
-    double ultimateWidth = MediaQuery.of(context).size.width;
-    final json = jsonDecode(
-      await rootBundle.loadString('resources/ui_creator.json'),
-    );
-    List<PageConfig> page = MatchConfig.fromJson(json).pages;
-    for (var pageIndex = 0; pageIndex != page.length - 1; pageIndex++) {
-      matchPages.insert(pageIndex, []);
-      for (var data in page[pageIndex].components) {
-        final dataBoxKey = "MATCH_${"eventkey"}_${data.fieldId}";
-        double horizontalStep = (ultimateWidth / page[pageIndex].width);
-        double verticalStep = ((ultimateHeight - 130) / page[pageIndex].height);
-        switch (data.type) {
-          case "int_button":
-            {
-              matchPages[pageIndex].add(
-                Positioned(
-                  top: data.layout.y * verticalStep,
-                  left: data.layout.x * horizontalStep,
-                  child: NumberButton(
-                    backgroundColor: Colors.white,
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
-                    // initialValue: dataBox.get(dataBoxKey),
-                  ),
-                ),
+class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
+  @override
+  Future<List<List<Widget>>> build() async {
+    // Provider starts empty until load() is called
+    return [];
+  }
+
+  Future<void> loadUI(BuildContext context) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final mediaQuery = MediaQuery.of(context);
+      final ultimateHeight = mediaQuery.size.height;
+      final ultimateWidth = mediaQuery.size.width;
+
+      final json = jsonDecode(
+        await rootBundle.loadString('resources/ui_creator.json'),
+      );
+
+      final pages = MatchConfig.fromJson(json).pages;
+      final List<List<Widget>> matchPages = [];
+
+      for (int index = 0; index < pages.length; index++) {
+        matchPages.add([]);
+
+        final page = pages[index];
+        final horizontalStep = ultimateWidth / page.width;
+        final verticalStep = (ultimateHeight - 130) / page.height;
+
+        for (final data in page.components) {
+          final dataBoxKey = "MATCH_eventkey_${data.fieldId}";
+
+          Widget widget;
+
+          switch (data.type) {
+            case "int_button":
+              widget = NumberButton(
+                backgroundColor: Colors.white,
+                dataName: data.fieldId,
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
-            }
-          case "toggle_button":
-            {
-              matchPages[pageIndex].add(
-                Positioned(
-                  top: data.layout.y * verticalStep,
-                  left: data.layout.x * horizontalStep,
-                  child: BoolButton(
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                    initialValue: dataBox.get(dataBoxKey),
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
-                    visualFeedback: true,
-                  ),
-                ),
+
+            case "toggle_button":
+              widget = BoolButton(
+                dataName: data.fieldId,
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                initialValue: dataBox.get(dataBoxKey),
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                visualFeedback: true,
               );
               break;
-            }
-          case "text_box":
-            {
-              matchPages[pageIndex].add(
-                Positioned(
-                  top: data.layout.y * verticalStep,
-                  left: data.layout.x * horizontalStep,
-                  child: StringTextbox(
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
-                  ),
-                ),
+
+            case "text_box":
+              widget = StringTextbox(
+                dataName: data.fieldId,
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
-            }
-          case "dropdown":
-            {
-              matchPages[pageIndex].add(
-                Positioned(
-                  top: data.layout.y * verticalStep,
-                  left: data.layout.x * horizontalStep,
-                  child: Dropdown(
-                    title: '',
-                    backgroundColor: Colors.blueAccent,
-                    items: [],
-                    // TODO get initial value whatever
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
-                    xValue: data.layout.w * horizontalStep,
-                    yValue: data.layout.h * verticalStep,
-                  ),
-                ),
+
+            case "dropdown":
+              widget = Dropdown(
+                title: '',
+                backgroundColor: Colors.blueAccent,
+                items: [],
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                xValue: data.layout.w * horizontalStep,
+                yValue: data.layout.h * verticalStep,
               );
               break;
-            }
-          case "tristate":
-            {
-              matchPages[pageIndex].add(
-                Positioned(
-                  top: data.layout.y * verticalStep,
-                  left: data.layout.x * horizontalStep,
-                  child: TristateButton(
-                    dataName: data.fieldId,
-                    xLength: data.layout.w * horizontalStep,
-                    yLength: data.layout.h * verticalStep,
-                    initialState: dataBox.get(dataBoxKey),
-                    onChanged: (value) => dataBox.put(dataBoxKey, value),
-                  ),
-                ),
+
+            case "tristate":
+              widget = TristateButton(
+                dataName: data.fieldId,
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                initialState: dataBox.get(dataBoxKey),
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
-            }
-          default:
-            {
-              print("non-existent");
-            }
+
+            default:
+              continue;
+          }
+
+          matchPages[index].add(
+            Positioned(
+              top: data.layout.y * verticalStep,
+              left: data.layout.x * horizontalStep,
+              child: widget,
+            ),
+          );
         }
       }
-    }
-   return matchPages;
+
+      return matchPages;
+    });
   }
+}
+
+class MatchPage extends ConsumerStatefulWidget {
+  final index;
+  const MatchPage({
+    super.key,
+    required this.index,
+  });
+
+  @override
+  ConsumerState<MatchPage> createState() => MatchPageState();
+}
+
+class MatchPageState extends ConsumerState<MatchPage> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ref.read(matchPagesProvider.notifier).loadUI(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pagesAsync = ref.watch(matchPagesProvider);
+
+    return pagesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text(err.toString())),
+      data: (pages) => Stack(children: pages[widget.index])
+    );
+  }
+}
 
 
 // Box dataBox = Hive.box(boxKey);
 // MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
-
-//CHAT GPT - WILL REMOVE LATER
-class MatchConfig {
-  final Meta meta;
-  final List<PageConfig> pages;
-
-  MatchConfig({required this.meta, required this.pages});
-
-  factory MatchConfig.fromJson(Map<String, dynamic> json) {
-    return MatchConfig(
-      meta: Meta.fromJson(json['meta']),
-      pages: (json['pages'] as List)
-          .map((e) => PageConfig.fromJson(e))
-          .toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'meta': meta.toJson(),
-    'pages': pages.map((e) => e.toJson()).toList(),
-  };
-}
-
-class Meta {
-  final int season;
-  final String author;
-  final int version;
-  final String type;
-
-  Meta({
-    required this.season,
-    required this.author,
-    required this.version,
-    required this.type,
-  });
-
-  factory Meta.fromJson(Map<String, dynamic> json) {
-    return Meta(
-      season: json['season'],
-      author: json['author'],
-      version: json['version'],
-      type: json['type'],
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'season': season,
-    'author': author,
-    'version': version,
-    'type': type,
-  };
-}
-
-class PageConfig {
-  final String sectionId;
-  final String title;
-  final num width;
-  final num height;
-  final List<ComponentConfig> components;
-
-  PageConfig({
-    required this.sectionId,
-    required this.title,
-    required this.width,
-    required this.height,
-    required this.components,
-  });
-
-  factory PageConfig.fromJson(Map<String, dynamic> json) {
-    return PageConfig(
-      sectionId: json['sectionId'],
-      title: json['title'],
-      width: json['width'],
-      height: json['height'],
-      components: (json['components'] as List)
-          .map((e) => ComponentConfig.fromJson(e))
-          .toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'sectionId': sectionId,
-    'title': title,
-    'width': width,
-    'height': height,
-    'components': components.map((e) => e.toJson()).toList(),
-  };
-}
-
-class ComponentConfig {
-  final String fieldId;
-  final String type;
-  final Layout layout;
-  final Map<String, dynamic> parameters;
-
-  ComponentConfig({
-    required this.fieldId,
-    required this.type,
-    required this.layout,
-    required this.parameters,
-  });
-
-  factory ComponentConfig.fromJson(Map<String, dynamic> json) {
-    return ComponentConfig(
-      fieldId: json['fieldId'],
-      type: json['type'],
-      layout: Layout.fromJson(json['layout']),
-      parameters: Map<String, dynamic>.from(json['parameters'] ?? {}),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'fieldId': fieldId,
-    'type': type,
-    'layout': layout.toJson(),
-    'parameters': parameters,
-  };
-}
-
-class Layout {
-  final num x;
-  final num y;
-  final num w;
-  final num h;
-
-  Layout({required this.x, required this.y, required this.w, required this.h});
-
-  factory Layout.fromJson(Map<String, dynamic> json) {
-    return Layout(x: json['x'], y: json['y'], w: json['w'], h: json['h']);
-  }
-
-  Map<String, dynamic> toJson() => {'x': x, 'y': y, 'w': w, 'h': h};
-}

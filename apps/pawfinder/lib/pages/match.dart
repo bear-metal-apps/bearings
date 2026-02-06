@@ -5,23 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MatchPage extends ConsumerStatefulWidget {
-  const MatchPage({super.key});
+class MatchSetUpPage extends ConsumerStatefulWidget {
+  const MatchSetUpPage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return MatchPageState();
+    return MatchSetUpPageState();
   }
 }
 
-class MatchPageState extends ConsumerState<MatchPage> {
+class MatchSetUpPageState extends ConsumerState<MatchSetUpPage> {
   @override
   Widget build(BuildContext context) {
     return Center(child: Text("Match Page"));
   }
 }
 
-Future<Map<String, dynamic>> loadUiConfig() async {
-  final jsonString = await rootBundle.loadString('resources/ui_creator.json');
-  return jsonDecode(jsonString);
-}

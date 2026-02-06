@@ -64,19 +64,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/match',
-            builder: (context, state) => const MatchPage(),
+            builder: (context, state) => const MatchSetUpPage(),
             routes: [
               GoRoute(
                 path: 'auto',
-                builder: (context, state) => Stack(children: matchPages[0]),
+                builder: (context, state) => MatchPage(index: 0),
               ),
               GoRoute(
                 path: 'tele',
-                builder: (context, state) => Stack(children: matchPages[1]),
+                builder: (context, state) => MatchPage(index: 0),
               ),
               GoRoute(
                 path: 'end',
-                builder: (context, state) => Stack(children: matchPages[2]),
+                builder: (context, state) => MatchPage(index: 0),
               ),
             ],
           ),
@@ -129,8 +129,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    // final matchpages = ref.watch(matchPagesProvider);
-    loadUI(context);
     return MaterialApp.router(
       title: 'Pawfinder',
       routerConfig: router,
