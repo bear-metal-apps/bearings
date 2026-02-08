@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beariscope_scouter/custom_widgets/big_int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/int_button.dart';
@@ -46,12 +47,29 @@ void loadUI(BuildContext context) async {
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
-                  // initialValue: dataBox.get(dataBoxKey),
+                  initialValue: dataBox.get(dataBoxKey),
                 ),
               ),
             );
             break;
           }
+        case "big_int_button": {
+          matchPages[pageIndex].add(
+            Positioned(
+              top: data.layout.y * verticalStep,
+              left: data.layout.x * horizontalStep,
+              child: BigNumberButton(
+                backgroundColor: Colors.white,
+                dataName: data.fieldId,
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                initialValue: dataBox.get(dataBoxKey),
+              ),
+            ),
+          );
+          break;
+        }
         case "toggle_button":
           {
             matchPages[pageIndex].add(

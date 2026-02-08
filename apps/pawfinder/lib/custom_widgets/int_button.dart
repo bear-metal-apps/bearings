@@ -10,18 +10,21 @@ class NumberButton extends StatefulWidget {
   final Function(int)? onChanged;
   final double xLength;
   final double yLength;
-  final bool? negativeAllowed;
-  final int? initialValue;
+  final bool negativeAllowed;
+  final int initialValue;
+  final int step;
+
   const NumberButton({
     super.key,
-    this.initialValue,
-    this.negativeAllowed,
+    this.initialValue = 0,
+    this.negativeAllowed = true,
     this.onChanged,
     this.backgroundColor,
     required this.dataName,
     required this.xLength,
     required this.yLength,
     this.textAlignment = Alignment.bottomRight,
+    this.step = 1
   });
 
   @override
@@ -29,7 +32,7 @@ class NumberButton extends StatefulWidget {
 }
 
 class _NumberButtonState extends State<NumberButton> {
-  late int currentVariable = widget.initialValue ?? 0;
+  late int currentVariable = widget.initialValue;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +43,7 @@ class _NumberButtonState extends State<NumberButton> {
         child: ElevatedButton(
           onPressed: () {
             setState(() {
-              currentVariable++;
+              currentVariable += widget.step;
             });
 
             widget.onChanged?.call(currentVariable);
@@ -89,14 +92,11 @@ class _NumberButtonState extends State<NumberButton> {
                     icon: const Icon(Icons.remove, color: Colors.black),
                     onPressed: () {
                       setState(() {
-                        if (widget.negativeAllowed == null) {
-                          widget.negativeAllowed == true;
-                        }
                         if (widget.negativeAllowed == true) {
-                          currentVariable--;
+                          currentVariable -= widget.step;
                         } else {
                           if (currentVariable > 0) {
-                            currentVariable--;
+                            currentVariable-= widget.step;
                           }
                         }
                       });
