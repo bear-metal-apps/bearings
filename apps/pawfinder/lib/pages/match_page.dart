@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart';
 
 import '../data/ui_json_serialization.dart';
 
@@ -148,7 +147,7 @@ class MatchPageState extends ConsumerState<MatchPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    ref.read(matchPagesProvider.notifier).loadUI(context as BuildContext);
+    ref.read(matchPagesProvider.notifier).loadUI(context);
   }
 
   @override
