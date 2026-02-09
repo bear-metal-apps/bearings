@@ -11,10 +11,32 @@ import 'package:flutter/material.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/device_info_provider.dart';
 
 void main() {
   loadHive();
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        auth0ConfigProvider.overrideWith((ref) {
+          return const Auth0Config(
+            domain: 'bearmetal2046.us.auth0.com',
+            clientId: 'fKM2govQm439bV3jL4lCmtA0yjO9tgsO',
+            audience: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            redirectUris: {
+              DeviceOS.ios: 'org.tahomarobotics.beariscope_scouter://callback',
+              DeviceOS.macos: 'org.tahomarobotics.beariscope_scouter://callback',
+              DeviceOS.android: 'org.tahomarobotics.beariscope_scouter://callback',
+              DeviceOS.windows: 'http://localhost:4000/auth',
+              DeviceOS.linux: 'http://localhost:4000/auth',
+            },
+            storageKeyPrefix: 'beariscope_',
+          );
+        }),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 final routerProvider = Provider<GoRouter>((ref) {

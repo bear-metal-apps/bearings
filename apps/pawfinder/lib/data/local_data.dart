@@ -9,6 +9,7 @@ Future<void> loadHive() async {
   await Hive.initFlutter(dir.path);
   await Hive.openBox(boxKey); // so the code doesn't have to use openBox
   await Hive.openBox(jsonBoxKey);
+  await Hive.openBox('api_cache'); // sticking this here because this is the hive spot ig -jack
 }
 
 /*
