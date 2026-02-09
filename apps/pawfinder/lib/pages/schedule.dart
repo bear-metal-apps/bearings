@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:beariscope_scouter/custom_widgets/int_button.dart';
-import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
-import 'package:beariscope_scouter/custom_widgets/int_button.dart';
-import 'package:beariscope_scouter/custom_widgets/slider.dart';
-import 'package:beariscope_scouter/custom_widgets/text_box.dart';
-import 'package:beariscope_scouter/custom_widgets/tristate.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/main.dart';
 import 'package:flutter/material.dart';

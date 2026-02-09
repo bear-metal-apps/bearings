@@ -111,7 +111,9 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    ref.read(matchPagesProvider.notifier).loadUI(context);
+    Future.microtask(() {
+      ref.read(matchPagesProvider.notifier).loadUI(context);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authProvider).trySilentLogin();
     });

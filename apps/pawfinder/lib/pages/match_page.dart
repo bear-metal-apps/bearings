@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
-import 'package:beariscope_scouter/custom_widgets/dropdown.dart';
-import 'package:beariscope_scouter/custom_widgets/int_button.dart';
-import 'package:beariscope_scouter/custom_widgets/text_box.dart';
-import 'package:beariscope_scouter/custom_widgets/tristate.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/dropdown.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +35,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
   }
 
   Future<void> loadUI(BuildContext context) async {
+    print("please work");
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
@@ -144,11 +145,6 @@ class MatchPage extends ConsumerStatefulWidget {
 }
 
 class MatchPageState extends ConsumerState<MatchPage> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    ref.read(matchPagesProvider.notifier).loadUI(context);
-  }
 
   @override
   Widget build(BuildContext context) {
