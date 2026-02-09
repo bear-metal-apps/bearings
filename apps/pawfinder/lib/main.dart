@@ -25,8 +25,10 @@ void main() {
             audience: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
             redirectUris: {
               DeviceOS.ios: 'org.tahomarobotics.beariscope_scouter://callback',
-              DeviceOS.macos: 'org.tahomarobotics.beariscope_scouter://callback',
-              DeviceOS.android: 'org.tahomarobotics.beariscope_scouter://callback',
+              DeviceOS.macos:
+                  'org.tahomarobotics.beariscope_scouter://callback',
+              DeviceOS.android:
+                  'org.tahomarobotics.beariscope_scouter://callback',
               DeviceOS.windows: 'http://localhost:4000/auth',
               DeviceOS.linux: 'http://localhost:4000/auth',
             },
