@@ -1,0 +1,221 @@
+{
+  "meta": {
+    "season": 2026,
+    "author": "bear_metal",
+    "version": 1,
+    "type": "match"
+  },
+  "pages": [
+    {
+      "sectionId": "auto",
+      "title": "Autos",
+      "width": 4,
+      "height": 5.5,
+      "components": [
+        {
+          "fieldId": "a_stop",
+          "type": "toggle_button",
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 2,
+            "h": 1
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "q1",
+          "type": "toggle_button",
+          "layout": {
+            "x": 0,
+            "y": 1,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "q2",
+          "type": "toggle_button",
+          "layout": {
+            "x": 1,
+            "y": 1,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "q3",
+          "type": "toggle_button",
+          "layout": {
+            "x": ,
+            "y": 1.5,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "q4",
+          "type": "toggle_button",
+          "layout": {
+            "x": 1,
+            "y": 1.5,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "trench",
+          "type": "toggle_button",
+          "layout": {
+            "x": 0,
+            "y": 2,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "bump",
+          "type": "toggle_button",
+          "layout": {
+            "x": 1,
+            "y": 2,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "fuel_accuracy",
+          "type": "slider",
+          "layout": {
+            "x": 0,
+            "y": 2.5,
+            "w": 4,
+            "h": 1
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "hub_scored",
+          "type": "big_int_button",
+          "layout": {
+            "x": 0,
+            "y": 3.5,
+            "w": 1,
+            "h": 2
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "left_climb",
+          "type": "toggle_button",
+          "layout": {
+            "x": 2,
+            "y": 0,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "right_climb",
+          "type": "toggle_button",
+          "layout": {
+            "x": 3,
+            "y": 0,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "l1_climb",
+          "type": "vertical_enum",
+          "layout": {
+            "x": 2,
+            "y": 0.5,
+            "w": 2,
+            "h": 1.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "outpost_collect",
+          "type": "toggle_button",
+          "layout": {
+            "x": 2,
+            "y": 2,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "depot_collect",
+          "type": "toggle_button",
+          "layout": {
+            "x": 3,
+            "y": 2,
+            "w": 1,
+            "h": 0.5
+          },
+          "parameters": {}
+        },
+        {
+          "fieldId": "passed",
+          "type": "big_int_button",
+          "layout": {
+            "x": 2,
+            "y": 3.5,
+            "w": 1,
+            "h": 2
+          },
+          "parameters": {}
+        }
+      ]
+    },
+    {
+      "sectionId": "tele",
+      "title": "Tele",
+      "width": 10,
+      "height": 10,
+      "components": [
+        {
+          "fieldId": "",
+          "type": "",
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "parameters": {}
+        }
+      ]
+    },
+    {
+      "sectionId": "endgame",
+      "title": "End",
+      "width": 3,
+      "height": 3,
+      "components": [
+        {
+          "fieldId": "",
+          "type": "",
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "parameters": {}
+        }
+      ]
+    }
+  ]
+}

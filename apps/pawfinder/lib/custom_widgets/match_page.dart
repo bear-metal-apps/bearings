@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:beariscope_scouter/custom_widgets/bool_button.dart';
@@ -8,46 +7,36 @@ import 'package:beariscope_scouter/custom_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/pages/match.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_ce/hive.dart';
 
-class MatchWidget extends StatefulWidget {
-  final Map<String, dynamic> json;
-  final int pageIndex;
+List<List<Widget>> matchPages = [];
+Box dataBox = Hive.box(boxKey);
 
-  const MatchWidget({super.key, required this.json, required this.pageIndex});
-
-  @override
-  State<StatefulWidget> createState() {
-    return MatchWidgetState();
-  }
-}
-
-class MatchWidgetState extends State<MatchWidget> {
-  List<Widget> matchPage = [];
-  Box dataBox = Hive.box(boxKey);
-
-  @override
-  Widget build(BuildContext context) {
-    double ultimateHeight = MediaQuery.of(context).size.height;
-    double ultimateWidth = MediaQuery.of(context).size.width;
-    PageConfig page = MatchConfig.fromJson(widget.json).pages[widget.pageIndex];
-    double horizontalStep = (ultimateWidth / page.width);
-    double verticalStep = ((ultimateHeight - 130) / page.height);
-    
-    MatchIdentity exampleMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0);
-
-    insertMatchJsonToHive(generateMatchJsonHive(MatchConfig.fromJson(widget.json), exampleMatchIdentity), exampleMatchIdentity);
-
-
-    for (var data in page.components) {
-      final dataBoxKey = matchDataKey(exampleMatchIdentity, page.sectionId, data.fieldId);
-
+void loadUI(BuildContext context) async {
+  MatchIdentity exampleMatchIdentity = (
+    eventKey: "eventKey",
+    matchNumber: 0,
+    isRedAlliance: false,
+    position: 0,
+  );
+  double ultimateHeight = MediaQuery.of(context).size.height;
+  double ultimateWidth = MediaQuery.of(context).size.width;
+  final json = jsonDecode(
+    await rootBundle.loadString('resources/ui_creator.json'),
+  );
+  List<PageConfig> page = MatchConfig.fromJson(json).pages;
+  for (var pageIndex = 0; pageIndex != page.length - 1; pageIndex++) {
+    matchPages.insert(pageIndex, []);
+    for (var data in page[pageIndex].components) {
+      final dataBoxKey = "MATCH_${"eventkey"}_${data.fieldId}";
+      double horizontalStep = (ultimateWidth / page[pageIndex].width);
+      double verticalStep = ((ultimateHeight - 130) / page[pageIndex].height);
       switch (data.type) {
         case "int_button":
           {
-            matchPage.add(
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -56,8 +45,8 @@ class MatchWidgetState extends State<MatchWidget> {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  initialValue: dataBox.get(dataBoxKey),
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
+                  // initialValue: dataBox.get(dataBoxKey),
                 ),
               ),
             );
@@ -65,7 +54,7 @@ class MatchWidgetState extends State<MatchWidget> {
           }
         case "toggle_button":
           {
-            matchPage.add(
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -83,7 +72,7 @@ class MatchWidgetState extends State<MatchWidget> {
           }
         case "text_box":
           {
-            matchPage.add(
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -91,7 +80,6 @@ class MatchWidgetState extends State<MatchWidget> {
                   dataName: data.fieldId,
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                 ),
               ),
@@ -100,7 +88,7 @@ class MatchWidgetState extends State<MatchWidget> {
           }
         case "dropdown":
           {
-            matchPage.add(
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -119,7 +107,7 @@ class MatchWidgetState extends State<MatchWidget> {
           }
         case "tristate":
           {
-            matchPage.add(
+            matchPages[pageIndex].add(
               Positioned(
                 top: data.layout.y * verticalStep,
                 left: data.layout.x * horizontalStep,
@@ -134,10 +122,16 @@ class MatchWidgetState extends State<MatchWidget> {
             );
             break;
           }
+        default:
+          {
+            print("non-existent");
+          }
       }
     }
-    return Stack(children: matchPage);
   }
+  print(
+    "Auto:${matchPages[0]} \n Tele:${matchPages[1]} \n End:${matchPages[2]}",
+  );
 }
 
 //CHAT GPT - WILL REMOVE LATER

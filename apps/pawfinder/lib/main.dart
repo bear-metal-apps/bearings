@@ -1,100 +1,136 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/pages/schedule.dart';
+import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
 import 'package:beariscope_scouter/pages/match.dart';
 import 'package:beariscope_scouter/pages/user.dart';
+import 'package:beariscope_scouter/custom_widgets/match_page.dart';
+import 'package:beariscope_scouter/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:libkoala/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-import 'custom_widgets/match_page.dart';
 
 void main() {
   loadHive();
-  runApp(
-    const ProviderScope(
-      child: MyApp()
-    )
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  static final GoRouter router = GoRouter(
-    initialLocation: "/",
+final routerProvider = Provider<GoRouter>((ref) {
+  final authStatus = ref.watch(authStatusProvider.notifier);
+
+  return GoRouter(
+    initialLocation: '/splash',
+    refreshListenable: authStatus,
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomePage(),
+      ),
       ShellRoute(
         builder: (context, state, child) {
-          return NavBar(
-            page: child,
-            title: "Current Page",
-            router: MyApp.router,
-          );
+          return NavBar(page: child, appBar: const Text("Current Page"));
         },
         routes: [
-          GoRoute(path: '/User', builder: (context, state) => const UserPage()),
+          GoRoute(path: '/user', builder: (context, state) => const UserPage()),
           GoRoute(
-            path: '/Strat',
+            path: '/strat',
             builder: (context, state) => const StratPage(),
           ),
-          GoRoute(path: '/', builder: (context, state) => const SchedulePage()),
-          ShellRoute(
-            builder: (context, state, page) {
-              return MatchNavBar(page: page, router: router);
-            },
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const SchedulePage(),
+          ),
+        ],
+      ),
+      ShellRoute(
+        builder: (context, state, page) {
+          final MatchInformation matchInformation =
+              state.extra is MatchInformation
+              ? state.extra as MatchInformation
+              : MatchInformation();
+          return MatchNavBar(page: page, matchInformation: matchInformation);
+        },
+        routes: [
+          GoRoute(
+            path: '/match',
+            builder: (context, state) => const MatchPage(),
             routes: [
               GoRoute(
-                path: '/Match',
-                builder: (context, state) => const MatchPage(),
-                routes: [
-                  GoRoute(
-                    path: 'Auto',
-                    builder: (context, state) => matchPages[0]
-                  ),
-                  GoRoute(
-                    path: 'Tele',
-                    builder: (context, state) => matchPages[1]
-                  ),
-                  GoRoute(
-                    path: 'End',
-                    builder: (context, state) => matchPages[2]
-                  ),
-                ],
+                path: 'auto',
+                builder: (context, state) => Stack(children: matchPages[0]),
+              ),
+              GoRoute(
+                path: 'tele',
+                builder: (context, state) => Stack(children: matchPages[1]),
+              ),
+              GoRoute(
+                path: 'end',
+                builder: (context, state) => Stack(children: matchPages[2]),
               ),
             ],
           ),
         ],
       ),
     ],
+    redirect: (context, state) {
+      final auth = ref.read(authStatusProvider);
+      final location = state.matchedLocation;
+
+      // splash while authing
+      if (auth == AuthStatus.authenticating) {
+        return location == '/splash' ? null : '/splash';
+      }
+
+      // go to welcome if not authed
+      if (auth == AuthStatus.unauthenticated) {
+        return location == '/welcome' ? null : '/welcome';
+      }
+
+      // if on welcome and authed then leave
+      if (auth == AuthStatus.authenticated) {
+        if (location == '/welcome' || location == '/splash') {
+          return '/schedule';
+        }
+      }
+
+      return null;
+    },
   );
-  // This widget is the root of your application.
+});
+
+class MyApp extends ConsumerStatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider).trySilentLogin();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    loadUI(context);
+
+    final router = ref.watch(routerProvider);
+
     return MaterialApp.router(
-      title: 'Paw-Finder',
+      title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
     );
