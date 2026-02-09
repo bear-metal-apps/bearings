@@ -38,7 +38,8 @@ class MatchWidgetState extends State<MatchWidget> {
     
     MatchIdentity exampleMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0);
 
-    //print(jsonEncode(generateMatchJsonHive(MatchConfig.fromJson(widget.json), exampleMatchIdentity).toJson()));
+    insertMatchJsonToHive(generateMatchJsonHive(MatchConfig.fromJson(widget.json), exampleMatchIdentity), exampleMatchIdentity);
+
 
     for (var data in page.components) {
       final dataBoxKey = matchDataKey(exampleMatchIdentity, page.sectionId, data.fieldId);
