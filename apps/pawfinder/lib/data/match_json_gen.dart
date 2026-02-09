@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:beariscope_scouter/custom_widgets/match_page.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:hive_ce_flutter/adapters.dart';
@@ -161,4 +163,23 @@ void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
       (k, v) => dataBox.put(matchDataKey(info, section.sectionId, k), v),
     );
   }
+}
+
+/// Saves the MatchJsonData to Hive.
+void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
+  Box dataBox = Hive.box(boxKey);
+
+  dataBox.put("${identityDataKey(info)}_JSON", jsonEncode(data.toJson()));
+}
+
+MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
+  Box dataBox = Hive.box(boxKey);
+
+  String? jsonRaw = dataBox.get("${identityDataKey(info)}_JSON");
+  if (jsonRaw == null) {
+    return null;
+  }
+
+  Map<String, dynamic> json = jsonDecode(jsonRaw);
+  return MatchJsonData.fromJson(json);
 }
