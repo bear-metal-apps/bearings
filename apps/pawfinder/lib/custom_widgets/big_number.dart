@@ -1,6 +1,3 @@
-
-
-import 'package:beariscope_scouter/custom_widgets/int_button.dart';
 import 'package:flutter/material.dart';
 
 
@@ -49,12 +46,14 @@ class _BigNumberWidget extends State<BigNumberWidget> {
           width: widget.xLength,
           height: widget.yLength - 40,
           child: GridView(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent:(widget.xLength-40)/8 ),
             children: [
               for (final x in widget.buttons) 
                 SizedBox(
-                  width: 50,
-                  height: 50,
+                  width: widget.xLength/3,
+                  height: (widget.xLength-40)/3,
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {

@@ -44,11 +44,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const StratPage(),
           ),
           GoRoute(
-            path: '/',
+            path: '/schedule',
             builder: (context, state) => const SchedulePage(),
           ),
           GoRoute(
-            path: '/match',
+            path: '/',
             builder: (context, state) => const MatchSetUpPage(),
           ),
         ],

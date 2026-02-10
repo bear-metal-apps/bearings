@@ -121,7 +121,7 @@ class MatchNavBar extends StatefulWidget {
     super.key,
     required this.page,
     this.devMode = false,
-    required this.matchIdentity
+    required this.matchIdentity,
   });
 
   @override
@@ -143,7 +143,7 @@ class MatchNavBarState extends State<MatchNavBar> {
   }
 
   String returnPosition() {
-    if(widget.matchIdentity.isRedAlliance){
+    if (widget.matchIdentity.isRedAlliance) {
       return "Red ${widget.matchIdentity.position + 1}";
     }
     return "Blue ${widget.matchIdentity.position + 1}";

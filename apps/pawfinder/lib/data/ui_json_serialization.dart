@@ -91,18 +91,21 @@ class ComponentConfig {
   final String type;
   final Layout layout;
   final Map<String, dynamic> parameters;
+  final String alias;
 
   ComponentConfig({
     required this.fieldId,
     required this.type,
     required this.layout,
     required this.parameters,
+    required this.alias
   });
 
   factory ComponentConfig.fromJson(Map<String, dynamic> json) {
     return ComponentConfig(
       fieldId: json['fieldId'],
       type: json['type'],
+      alias: json['alias'],
       layout: Layout.fromJson(json['layout']),
       parameters: Map<String, dynamic>.from(json['parameters'] ?? {}),
     );

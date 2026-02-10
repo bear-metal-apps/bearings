@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:beariscope_scouter/custom_widgets/big_number.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/int_textbox.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
@@ -35,7 +38,6 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
   }
 
   Future<void> loadUI(BuildContext context) async {
-    print("please work");
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
@@ -61,21 +63,33 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
           final dataBoxKey = "MATCH_eventkey_${data.fieldId}";
 
           Widget widget;
-
           switch (data.type) {
+            case 'volumetric_button':
+              print("big butt");
+              widget = BigNumberWidget(
+                  buttons: [
+                    1,5,
+                    10,-1,
+                    -5,-10
+                  ],
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.w * verticalStep,
+                  text: data.alias
+              );
+              break;
             case "int_button":
               widget = NumberButton(
                 backgroundColor: Colors.white,
-                dataName: data.fieldId,
+                dataName: data.alias,
                 xLength: data.layout.w * horizontalStep,
                 yLength: data.layout.h * verticalStep,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
 
-            case "toggle_button":
+            case "toggle_switch":
               widget = BoolButton(
-                dataName: data.fieldId,
+                dataName: data.alias,
                 xLength: data.layout.w * horizontalStep,
                 yLength: data.layout.h * verticalStep,
                 initialValue: dataBox.get(dataBoxKey),
@@ -86,7 +100,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
 
             case "text_box":
               widget = StringTextbox(
-                dataName: data.fieldId,
+                dataName: data.alias,
                 xLength: data.layout.w * horizontalStep,
                 yLength: data.layout.h * verticalStep,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
@@ -97,27 +111,42 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = Dropdown(
                 title: '',
                 backgroundColor: Colors.blueAccent,
-                items: [],
+                items: ["please","work"],
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 xValue: data.layout.w * horizontalStep,
                 yValue: data.layout.h * verticalStep,
               );
               break;
-
             case "tristate":
               widget = TristateButton(
-                dataName: data.fieldId,
+                dataName: data.alias,
                 xLength: data.layout.w * horizontalStep,
                 yLength: data.layout.h * verticalStep,
                 initialState: dataBox.get(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
-
+            case "checkbox":
+              widget = BoolButton(
+                  dataName: data.alias,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.w * verticalStep,
+                  visualFeedback: true,
+                  onChanged: (value) => dataBox.put(dataBoxKey, value)
+              );
+              break;
+            case "slider":
+              widget = CustomSlider(
+                  onChanged: (value)  => dataBox.put(dataBoxKey, value),
+                  title: data.alias,
+                  xValue: data.layout.w * horizontalStep,
+                  yValue: data.layout.w * verticalStep,
+                  minValue: 0,
+                  maxValue: 10);
+              break;
             default:
               continue;
           }
-
           matchPages[index].add(
             Positioned(
               top: data.layout.y * verticalStep,
@@ -127,7 +156,6 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
           );
         }
       }
-
       return matchPages;
     });
   }

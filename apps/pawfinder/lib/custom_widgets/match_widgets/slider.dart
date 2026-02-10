@@ -30,38 +30,27 @@ class _CustomSliderState extends State<CustomSlider> {
   late double sliderValue = widget.initialValue ?? 0;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.title,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          height: widget.yValue,
-          width: widget.xValue,
-          child: SfSlider(
+    return SizedBox(
+      width: widget.xValue,
+      height: widget.yValue,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Slider(
             min: widget.minValue.toDouble(),
             max: widget.maxValue.toDouble(),
             value: sliderValue,
-            interval: (widget.segmentLength != null)
-                ? widget.segmentLength!.toDouble()
-                : null,
-            showTicks: true,
-            showLabels: true,
-            enableTooltip: true,
-            stepSize: (widget.segmentLength != null)
-                ? widget.segmentLength!.toDouble()
-                : null,
             onChanged: (value) {
-              widget.onChanged.call(value);
-              setState(() {
-                sliderValue = value;
-              });
+              widget.onChanged(value);
+              setState(() => sliderValue = value);
             },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
