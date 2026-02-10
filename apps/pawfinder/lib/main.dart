@@ -1,16 +1,18 @@
+import 'package:beariscope_scouter/custom_widgets/match_page.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/pages/schedule.dart';
+import 'package:beariscope_scouter/pages/flow/config_page.dart';
+import 'package:beariscope_scouter/pages/flow/match_select_page.dart';
+import 'package:beariscope_scouter/pages/flow/scout_page.dart';
+import 'package:beariscope_scouter/pages/flow/scouting_shell.dart';
+import 'package:beariscope_scouter/pages/flow/settings_page.dart';
+import 'package:beariscope_scouter/pages/flow/strat_shell.dart';
 import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
-import 'package:beariscope_scouter/custom_widgets/nav_bar.dart';
-import 'package:beariscope_scouter/pages/match.dart';
-import 'package:beariscope_scouter/pages/user.dart';
-import 'package:beariscope_scouter/custom_widgets/match_page.dart';
 import 'package:beariscope_scouter/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
-import 'package:libkoala/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/auth_provider.dart';
 import 'package:libkoala/providers/device_info_provider.dart';
 
 void main() {
@@ -56,48 +58,55 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/welcome',
         builder: (context, state) => const WelcomePage(),
       ),
+      GoRoute(
+        path: '/config',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: ConfigPage()),
+        routes: [
+          GoRoute(
+            path: 'settings',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: SettingsPage()),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/scout',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: ScoutPage()),
+      ),
+      GoRoute(
+        path: '/match-select',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: MatchSelectPage()),
+      ),
       ShellRoute(
         builder: (context, state, child) {
-          return NavBar(page: child, appBar: const Text("Current Page"));
+          return ScoutingShell(child: child);
         },
         routes: [
-          GoRoute(path: '/user', builder: (context, state) => const UserPage()),
           GoRoute(
-            path: '/strat',
-            builder: (context, state) => const StratPage(),
+            path: '/match/auto',
+            builder: (context, state) => Stack(children: matchPages[0]),
           ),
           GoRoute(
-            path: '/schedule',
-            builder: (context, state) => const SchedulePage(),
+            path: '/match/tele',
+            builder: (context, state) => Stack(children: matchPages[1]),
+          ),
+          GoRoute(
+            path: '/match/end',
+            builder: (context, state) => Stack(children: matchPages[2]),
           ),
         ],
       ),
       ShellRoute(
-        builder: (context, state, page) {
-          final MatchInformation matchInformation =
-              state.extra is MatchInformation
-              ? state.extra as MatchInformation
-              : MatchInformation();
-          return MatchNavBar(page: page, matchInformation: matchInformation);
+        builder: (context, state, child) {
+          return StratShell(child: child);
         },
         routes: [
           GoRoute(
-            path: '/match',
-            builder: (context, state) => const MatchPage(),
-            routes: [
-              GoRoute(
-                path: 'auto',
-                builder: (context, state) => Stack(children: matchPages[0]),
-              ),
-              GoRoute(
-                path: 'tele',
-                builder: (context, state) => Stack(children: matchPages[1]),
-              ),
-              GoRoute(
-                path: 'end',
-                builder: (context, state) => Stack(children: matchPages[2]),
-              ),
-            ],
+            path: '/strat',
+            builder: (context, state) => const StratPage(),
           ),
         ],
       ),
@@ -116,10 +125,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/welcome' ? null : '/welcome';
       }
 
-      // if on welcome and authed then leave
+      // if on welcome/splash and authed then go to config
       if (auth == AuthStatus.authenticated) {
         if (location == '/welcome' || location == '/splash') {
-          return '/schedule';
+          return '/config';
         }
       }
 
@@ -155,6 +164,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
     );
