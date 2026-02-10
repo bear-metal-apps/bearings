@@ -9,6 +9,8 @@ class BigNumberWidget extends StatefulWidget {
   final Color? backgroundColor;
   final String text;
   final int? initialValue;
+  final Function(int)? onChanged;
+
   const BigNumberWidget({
     super.key,
     this.backgroundColor,
@@ -17,6 +19,7 @@ class BigNumberWidget extends StatefulWidget {
     required this.yLength,
     required this.text,
     this.initialValue,
+    required this.onChanged,
   });
 
 
@@ -48,17 +51,15 @@ class _BigNumberWidget extends State<BigNumberWidget> {
           child: GridView(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent:(widget.xLength-40)/8 ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent:(widget.xLength-40)/8 ),
             children: [
               for (final x in widget.buttons) 
-                SizedBox(
-                  width: widget.xLength/3,
-                  height: (widget.xLength-40)/3,
-                  child: ElevatedButton(
+                ElevatedButton(
                     onPressed: () {
                       setState(() {
                         currentValue += x;
                       });
+                      widget.onChanged?.call(x);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: widget.backgroundColor ?? Colors.white,
@@ -68,7 +69,7 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                     ),
                     child: Text(x > 0 ? "+$x" : x.toString()),
                   )
-                )
+
             ]
         )),
         

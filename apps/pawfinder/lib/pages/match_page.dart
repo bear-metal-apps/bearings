@@ -65,7 +65,6 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
           Widget widget;
           switch (data.type) {
             case 'volumetric_button':
-              print("big butt");
               widget = BigNumberWidget(
                   buttons: [
                     1,5,
@@ -73,8 +72,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                     -5,-10
                   ],
                   xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.w * verticalStep,
+                  yLength: data.layout.h * verticalStep,
                   text: data.alias
+                  onChanged: (value) => dataBox.put(dataBoxKey, value)
               );
               break;
             case "int_button":
@@ -130,7 +130,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = BoolButton(
                   dataName: data.alias,
                   xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.w * verticalStep,
+                  yLength: data.layout.h * verticalStep,
                   visualFeedback: true,
                   onChanged: (value) => dataBox.put(dataBoxKey, value)
               );
@@ -140,7 +140,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   onChanged: (value)  => dataBox.put(dataBoxKey, value),
                   title: data.alias,
                   xValue: data.layout.w * horizontalStep,
-                  yValue: data.layout.w * verticalStep,
+                  yValue: data.layout.h * verticalStep,
                   minValue: 0,
                   maxValue: 10);
               break;
