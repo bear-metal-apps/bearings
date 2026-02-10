@@ -4,31 +4,32 @@ import 'package:beariscope_scouter/custom_widgets/big_number.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
-import 'package:beariscope_scouter/custom_widgets/match_widgets/int_textbox.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_ce/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../data/ui_json_serialization.dart';
 
 Box dataBox = Hive.box(boxKey);
+
 Future<Map<String, dynamic>> loadUiConfig() async {
   final jsonString = await rootBundle.loadString('resources/ui_creator.json');
   return jsonDecode(jsonString);
 }
+
 // MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
 // class matchPagesProvider extends ChangeNotifier {
 //
 // }
 final matchPagesProvider =
-AsyncNotifierProvider<MatchPagesNotifier, List<List<Widget>>>(
-  MatchPagesNotifier.new,
-);
+    AsyncNotifierProvider<MatchPagesNotifier, List<List<Widget>>>(
+      MatchPagesNotifier.new,
+    );
 
 class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
   @override
@@ -66,15 +67,11 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
           switch (data.type) {
             case 'volumetric_button':
               widget = BigNumberWidget(
-                  buttons: [
-                    1,5,
-                    10,-1,
-                    -5,-10
-                  ],
-                  xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep,
-                  text: data.alias,
-                  onChanged: (value) => dataBox.put(dataBoxKey, value)
+                buttons: [1, 5, 10, -1, -5, -10],
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                text: data.alias,
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
             case "int_button":
@@ -129,21 +126,22 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
             case "checkbox":
               widget = BoolButton(
-                  dataName: data.alias,
-                  xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep,
-                  visualFeedback: true,
-                  onChanged: (value) => dataBox.put(dataBoxKey, value)
+                dataName: data.alias,
+                xLength: data.layout.w * horizontalStep,
+                yLength: data.layout.h * verticalStep,
+                visualFeedback: true,
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
             case "slider":
               widget = CustomSlider(
-                  onChanged: (value)  => dataBox.put(dataBoxKey, value),
-                  title: data.alias,
-                  xValue: data.layout.w * horizontalStep,
-                  yValue: data.layout.h * verticalStep,
-                  minValue: 0,
-                  maxValue: 10);
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                title: data.alias,
+                xValue: data.layout.w * horizontalStep,
+                yValue: data.layout.h * verticalStep,
+                minValue: 0,
+                maxValue: 10,
+              );
               break;
             default:
               continue;
@@ -164,17 +162,14 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
 
 class MatchPage extends ConsumerStatefulWidget {
   final index;
-  const MatchPage({
-    super.key,
-    required this.index,
-  });
+
+  const MatchPage({super.key, required this.index});
 
   @override
   ConsumerState<MatchPage> createState() => MatchPageState();
 }
 
 class MatchPageState extends ConsumerState<MatchPage> {
-
   @override
   Widget build(BuildContext context) {
     final pagesAsync = ref.watch(matchPagesProvider);
@@ -182,11 +177,10 @@ class MatchPageState extends ConsumerState<MatchPage> {
     return pagesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text(err.toString())),
-      data: (pages) => Stack(children: pages[widget.index])
+      data: (pages) => Stack(children: pages[widget.index]),
     );
   }
 }
-
 
 // Box dataBox = Hive.box(boxKey);
 // MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);

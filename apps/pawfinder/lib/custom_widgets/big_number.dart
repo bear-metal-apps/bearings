@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class BigNumberWidget extends StatefulWidget {
   final double xLength;
   final double yLength;
@@ -22,7 +20,6 @@ class BigNumberWidget extends StatefulWidget {
     required this.onChanged,
   });
 
-
   @override
   State<BigNumberWidget> createState() => _BigNumberWidget();
 }
@@ -35,26 +32,30 @@ class _BigNumberWidget extends State<BigNumberWidget> {
     return SizedBox(
       width: widget.xLength,
       height: widget.yLength,
-      child: Column(children: [
-        Text(
-          "${widget.text}: $currentValue",
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black
-          )
-        ),
-        SizedBox(
-          width: widget.xLength,
-          height: widget.yLength - 40,
-          child: GridView(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent:(widget.xLength-40)/8 ),
-            children: [
-              for (final x in widget.buttons) 
-                ElevatedButton(
+      child: Column(
+        children: [
+          Text(
+            "${widget.text}: $currentValue",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            width: widget.xLength,
+            height: widget.yLength - 40,
+            child: GridView(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisExtent: (widget.xLength - 40) / 8,
+              ),
+              children: [
+                for (final x in widget.buttons)
+                  ElevatedButton(
                     onPressed: () {
                       setState(() {
                         currentValue += x;
@@ -68,11 +69,12 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                       ),
                     ),
                     child: Text(x > 0 ? "+$x" : x.toString()),
-                  )
-
-            ]
-        )),
-        
-    ]));
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

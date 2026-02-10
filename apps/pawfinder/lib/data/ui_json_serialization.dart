@@ -98,7 +98,7 @@ class ComponentConfig {
     required this.type,
     required this.layout,
     required this.parameters,
-    required this.alias
+    required this.alias,
   });
 
   factory ComponentConfig.fromJson(Map<String, dynamic> json) {

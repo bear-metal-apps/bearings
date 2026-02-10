@@ -28,7 +28,7 @@ dependencies:
   libkoala:
     git:
       url: https://github.com/bear-metal-apps/libkoala.git
-      ref: v3.0.0
+      ref: v4.0.0
 
 dev_dependencies:
   flutter_test:

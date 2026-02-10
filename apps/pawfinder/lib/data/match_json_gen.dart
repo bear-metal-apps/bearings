@@ -1,5 +1,5 @@
-import 'package:beariscope_scouter/pages/match_page.dart';
 import 'dart:convert';
+
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/ui_json_serialization.dart';
 import 'package:hive_ce_flutter/adapters.dart';
@@ -10,11 +10,12 @@ typedef MatchIdentity = ({
   int matchNumber,
   bool isRedAlliance,
   int position,
-  int robotNum
+int robotNum
 });
 
 String identityDataKey(MatchIdentity identity) {
-  return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity.isRedAlliance}_${identity.position}";
+  return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity
+      .isRedAlliance}_${identity.position}";
 }
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
