@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/custom_widgets/big_number.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +14,13 @@ class UserPage extends ConsumerStatefulWidget {
 class UserPageState extends ConsumerState<UserPage> {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Welcome Back, $currentUser"));
+    return Center(child: Column(
+      children: [
+        Text("Welcome Back, $currentUser"),
+        BigNumberWidget(buttons: [
+          5, 1, 2, -3
+        ], xLength: 200, yLength: 200, text: "poo",)
+      ]));
   }
 }
 

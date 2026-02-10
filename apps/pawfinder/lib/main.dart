@@ -82,6 +82,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final auth = ref.read(authStatusProvider);
       final location = state.matchedLocation;
 
+      /*
       // splash while authing
       if (auth == AuthStatus.authenticating) {
         return location == '/splash' ? null : '/splash';
@@ -91,13 +92,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (auth == AuthStatus.unauthenticated) {
         return location == '/welcome' ? null : '/welcome';
       }
+      */
 
       // if on welcome and authed then leave
-      if (auth == AuthStatus.authenticated) {
+      //if (auth == AuthStatus.authenticated) {
         if (location == '/welcome' || location == '/splash') {
           return '/schedule';
         }
-      }
+      //}
 
       return null;
     },
