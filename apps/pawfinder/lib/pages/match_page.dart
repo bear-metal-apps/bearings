@@ -73,7 +73,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   ],
                   xLength: data.layout.w * horizontalStep,
                   yLength: data.layout.h * verticalStep,
-                  text: data.alias
+                  text: data.alias,
                   onChanged: (value) => dataBox.put(dataBoxKey, value)
               );
               break;
@@ -109,9 +109,10 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
 
             case "dropdown":
               widget = Dropdown(
-                title: '',
+                title: data.alias,
                 backgroundColor: Colors.blueAccent,
-                items: ["please","work"],
+                items: ["please", "work"],
+                // items: data.parameters["options"] as List<>,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 xValue: data.layout.w * horizontalStep,
                 yValue: data.layout.h * verticalStep,

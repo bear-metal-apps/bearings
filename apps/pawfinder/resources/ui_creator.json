@@ -75,7 +75,13 @@
             "w": 4,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "options" : [
+              "Successful",
+              "Attempted",
+              "Not Attempted"
+            ]
+          }
         },
         {
           "alias": "Q1",
@@ -183,7 +189,15 @@
             "w": 4,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "options" : [
+              "P1",
+              "P2",
+              "P3",
+              "P4",
+              "P5"
+            ]
+          }
         },
         {
           "alias": "collided",
@@ -397,7 +411,13 @@
             "w": 6,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+              "options" : [
+                "L1",
+                "L2",
+                "L3"
+              ]
+          }
         },
         {
           "alias": "On Shift Defense",
@@ -445,7 +465,13 @@
             "w": 2,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "options" : [
+              "Left",
+              "Center",
+              "Right"
+            ]
+          }
         }
       ]
     }
