@@ -74,7 +74,13 @@
             "w": 4,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "options" : [
+              "Successful",
+              "Attempted",
+              "Not Attempted"
+            ]
+          }
         },
         {
           "alias": "Q1",
@@ -182,7 +188,15 @@
             "w": 4,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "options" : [
+              "P1",
+              "P2",
+              "P3",
+              "P4",
+              "P5"
+            ]
+          }
         },
         {
           "alias": "collided",
@@ -397,7 +411,7 @@
             "h": 1
           },
           "parameters": {
-            "values": [
+            "options": [
               "poop",
               "didy"
             ]
@@ -449,7 +463,13 @@
             "w": 2,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "options" : [
+              "Left",
+              "Center",
+              "Right"
+            ]
+          }
         }
       ]
     }

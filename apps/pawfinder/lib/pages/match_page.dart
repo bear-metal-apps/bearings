@@ -105,13 +105,13 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
 
             case "dropdown":
-            List<String> items = data.parameters["values"] as List<String>;
+            List<dynamic> items = data.parameters["options"];
             int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
 
               widget = Dropdown(
-                title: '',
+                title: data.alias,
                 backgroundColor: Colors.blueAccent,
-                items: items,
+                items: items.map((x) => x.toString()).toList(), // darts type system is really weird
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 initialIndex: initialIndex == -1 ? null : initialIndex,
                 xValue: data.layout.w * horizontalStep,
