@@ -396,7 +396,12 @@
             "w": 6,
             "h": 1
           },
-          "parameters": {}
+          "parameters": {
+            "values": [
+              "poop",
+              "didy"
+            ]
+          }
         },
         {
           "alias": "On Shift Defense",

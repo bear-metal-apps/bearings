@@ -114,7 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final auth = ref.read(authStatusProvider);
       final location = state.matchedLocation;
-
+      
       // if on welcome/splash and authed then go to config
       if (auth == AuthStatus.authenticated) {
         if (location == '/welcome' || location == '/splash') {

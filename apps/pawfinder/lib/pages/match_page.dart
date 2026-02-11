@@ -105,11 +105,15 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
 
             case "dropdown":
+            List<String> items = data.parameters["values"] as List<String>;
+            int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
+
               widget = Dropdown(
                 title: '',
                 backgroundColor: Colors.blueAccent,
-                items: ["please", "work"],
+                items: items,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
+                initialIndex: initialIndex == -1 ? null : initialIndex,
                 xValue: data.layout.w * horizontalStep,
                 yValue: data.layout.h * verticalStep,
               );
