@@ -411,10 +411,11 @@
             "h": 1
           },
           "parameters": {
-            "options": [
-              "poop",
-              "didy"
-            ]
+              "options" : [
+                "L1",
+                "L2",
+                "L3"
+              ]
           }
         },
         {
