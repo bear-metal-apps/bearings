@@ -115,6 +115,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       final auth = ref.read(authStatusProvider);
       final location = state.matchedLocation;
 
+      // splash while authing
+      if (auth == AuthStatus.authenticating) {
+        return location == '/splash' ? null : '/splash';
+      }
+
+      // go to welcome if not authed
+      if (auth == AuthStatus.unauthenticated) {
+        return location == '/welcome' ? null : '/welcome';
+      }
+
       // if on welcome/splash and authed then go to config
       if (auth == AuthStatus.authenticated) {
         if (location == '/welcome' || location == '/splash') {
