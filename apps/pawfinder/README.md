@@ -2,7 +2,6 @@
 This is 2046 Bear Metal's fully custom scouting app. This year we moved towards flutter so that scouting wouldn't have to be done via android. This in-addition to being multiplatform also allowed us to bring together a overall better design of our app, as well as gave us the opportunity to add further complexities and make our app adaptable year by year.
 
 ## If you haven't checked out our..
-- [Scouting Server](https://github.com/bear-metal-apps/honeycomb)
 - [Viewer App](https://github.com/bear-metal-apps/beariscope)
 - [Custom Library](https://github.com/bear-metal-apps/libkoala)
 
