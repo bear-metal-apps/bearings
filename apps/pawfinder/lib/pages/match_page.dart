@@ -4,6 +4,7 @@ import 'package:beariscope_scouter/custom_widgets/match_widgets/2026_specifc/big
 import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/int_textbox.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
@@ -87,7 +88,13 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
-
+            case "int_text_box":
+              widget = IntTextbox(
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
+                  dataName: data.alias,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep
+              );
             case "toggle_switch":
               widget = BoolButton(
                 dataName: data.alias,
