@@ -58,10 +58,12 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
           borderRadius: BorderRadius.circular(8.0),
           children: widget.segments
               .map(
-                (segment) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Text(segment),
-                ),
+                (segment) =>
+                    // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                //   child:
+                  Text(segment)
+                // ),
               )
               .toList(),
         ),

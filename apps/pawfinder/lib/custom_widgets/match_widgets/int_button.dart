@@ -57,18 +57,18 @@ class _NumberButtonState extends State<NumberButton> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
-                child: Text(
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
+              //   child:
+          Text(
                   '${widget.dataName}: $currentVariable',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                 ),
-              ),
+              // ),
               Align(
                 alignment: widget.textAlignment,
                 child: Container(
@@ -86,7 +86,6 @@ class _NumberButtonState extends State<NumberButton> {
                   child: IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    iconSize: 24,
                     icon: const Icon(Icons.remove, color: Colors.black),
                     onPressed: () {
                       setState(() {
