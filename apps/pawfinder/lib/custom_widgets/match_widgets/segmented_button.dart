@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -37,18 +39,16 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
-      child: Pressable(
-        child: ToggleButtons(
+    return ToggleButtons(
           isSelected: List.generate(
             widget.segments.length,
             (index) => selectedSegment == widget.segments[index],
           ),
           onPressed: (value) {
-            selectedSegment = widget.segments[value];
-            widget.onChanged(value);
+            setState(() {
+              selectedSegment = widget.segments[value];
+              widget.onChanged(value);
+            });
           },
           color: Colors.black,
           selectedColor: Colors.white,
@@ -59,15 +59,16 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
           children: widget.segments
               .map(
                 (segment) =>
-                    // Padding(
-                //   padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                //   child:
-                  Text(segment)
-                // ),
+                    SizedBox(
+                        height: widget.yLength,
+                        width: (widget.xLength/(widget.segments.length)),
+                        child: Center(
+                            child: Text(segment)
+                        )
+                    )
               )
               .toList(),
-        ),
-      ),
-    );
+        );
+      // ),
   }
 }

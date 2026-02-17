@@ -5,6 +5,7 @@ import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart
 import 'package:beariscope_scouter/custom_widgets/match_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/int_textbox.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/segmented_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
@@ -155,6 +156,17 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 yValue: data.layout.h * verticalStep,
                 minValue: 0,
                 maxValue: 10,
+              );
+              break;
+            case "segmented_button":
+              List<dynamic> items = data.parameters["options"];
+              int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
+              widget = CustomSegmentedButton(
+                  segments: items.map((x) => x.toString()).toList(),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
+                  // initialIndex: initialIndex,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep
               );
               break;
             case "Nxt":

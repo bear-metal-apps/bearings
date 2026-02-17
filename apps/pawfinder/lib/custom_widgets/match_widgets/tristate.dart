@@ -9,7 +9,7 @@ class TristateButton extends StatefulWidget {
   final Function(int) onChanged;
   // final double? minfontSize; // Optional font size parameter
   final int? initialState;
-  const TristateButton({
+  const  TristateButton({
     super.key,
     this.initialState,
     // this.minfontSize,

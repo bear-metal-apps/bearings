@@ -67,7 +67,7 @@
         {
           "alias": "Climb",
           "fieldId": "climb_l1",
-          "type": "dropdown",
+          "type": "segmented_button",
           "layout": {
             "x": 4,
             "y": 1,
@@ -181,7 +181,7 @@
         {
           "alias": "Start Pos",
           "fieldId": "start_positions",
-          "type": "dropdown",
+          "type": "segmented_button",
           "layout": {
             "x": 4,
             "y": 0,
@@ -391,7 +391,7 @@
         {
           "alias": "Climb",
           "fieldId": "climb",
-          "type": "dropdown",
+          "type": "segmented_button",
           "layout": {
             "x": 0,
             "y": 0,
@@ -445,7 +445,7 @@
         {
           "alias": "Climb Pos",
           "fieldId": "climb_location",
-          "type": "dropdown",
+          "type": "segmented_button",
           "layout": {
             "x": 4,
             "y": 2,
