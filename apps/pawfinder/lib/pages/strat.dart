@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
+import '../providers/scouting_providers.dart';
+
 class StratPage extends ConsumerStatefulWidget {
   const StratPage({super.key});
 
@@ -129,10 +131,14 @@ class StratPageState extends ConsumerState<StratPage> {
                     ],
                   ),
                 ),
-                //createList("Rigidity", _rigidity),
-                //createList("'i forgot' - Ben", _iForgot),
               ],
             ),
+            ElevatedButton(
+                onPressed: (){
+                  ref.read(scoutingSessionProvider.notifier).nextMatch();
+                },
+                child: Text("Next Match")
+            )
           ],
         ),
       ),
