@@ -7,12 +7,12 @@ class TristateButton extends StatefulWidget {
   final double xLength;
   final double yLength;
   final Function(int) onChanged;
-  final double? minfontSize; // Optional font size parameter
+  // final double? minfontSize; // Optional font size parameter
   final int? initialState;
-  const TristateButton({
+  const  TristateButton({
     super.key,
     this.initialState,
-    this.minfontSize,
+    // this.minfontSize,
     required this.dataName,
     required this.xLength,
     required this.yLength,
@@ -70,9 +70,9 @@ class _TristateState extends State<TristateButton> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
-                fontSize:
-                    widget.minfontSize ??
-                    20.0, // Use the provided font size or default to 16.0
+                // fontSize:
+                    // widget.minfontSize ??
+                    // 20.0, // Use the provided font size or default to 16.0
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 2,

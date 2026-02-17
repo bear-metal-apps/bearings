@@ -7,14 +7,12 @@ class BoolButton extends StatefulWidget {
   final double xLength;
   final double yLength;
   final Function(bool) onChanged;
-  final double? minfontSize; // Optional font size parameter
   final bool visualFeedback;
   final bool? initialValue;
 
   const BoolButton({
     super.key,
     this.initialValue,
-    this.minfontSize,
     required this.dataName,
     required this.xLength,
     required this.yLength,
@@ -55,14 +53,11 @@ class _BoolButtonState extends State<BoolButton> {
             widget.onChanged(boolButtonState);
           },
           child: Center(
-            child: AutoSizeText(
+            child: Text(
               widget.dataName,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
-                fontSize:
-                    widget.minfontSize ??
-                    20.0, // Use the provided font size or default to 16.0
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 2,

@@ -38,9 +38,9 @@ class DriverSkillNotifier extends _$DriverSkillNotifier with StratNotifier {
 }
 
 @riverpod
-class RigidityNotifier extends _$RigidityNotifier with StratNotifier {
+class DefensiveSkillNotifier extends _$DefensiveSkillNotifier with StratNotifier {
   @override
-  List<String> build() => box.get('rigidity') ?? ["2000", "1000", "2046"];
+  List<String> build() => box.get('defensiveskill') ?? ["2000", "1000", "2046"];
 
   @override
   void reorder(int oldIndex, int newIndex) {
@@ -49,7 +49,34 @@ class RigidityNotifier extends _$RigidityNotifier with StratNotifier {
     }
     final String item = state.removeAt(oldIndex);
     state.insert(newIndex, item);
-    box.put('rigidity', state);
+    box.put('defensiveskill', state);
+  }
+
+  @override
+  List<String> get() {
+    return state;
+  }
+
+  @override
+  void set(List<String> list) {
+    state = list;
+  }
+}
+
+
+@riverpod
+class MechanicalStabilityNotifier extends _$MechanicalStabilityNotifier with StratNotifier {
+  @override
+  List<String> build() => box.get('mechanicalStability') ?? ["2000", "1000", "2046"];
+
+  @override
+  void reorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final String item = state.removeAt(oldIndex);
+    state.insert(newIndex, item);
+    box.put('mechanicalStability', state);
   }
 
   @override

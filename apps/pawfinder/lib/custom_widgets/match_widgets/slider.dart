@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class CustomSlider extends StatefulWidget {
   final String title;
@@ -9,6 +10,7 @@ class CustomSlider extends StatefulWidget {
   final int maxValue;
   final double? initialValue;
   final Function(double) onChanged;
+  final bool isVertical;
 
   const CustomSlider({
     required this.onChanged,
@@ -19,6 +21,7 @@ class CustomSlider extends StatefulWidget {
     required this.minValue,
     required this.maxValue,
     this.initialValue,
+    this.isVertical = false,
     super.key,
   });
   @override
@@ -29,27 +32,59 @@ class _CustomSliderState extends State<CustomSlider> {
   late double sliderValue = widget.initialValue ?? 0;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.xValue,
-      height: widget.yValue,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.title,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Slider(
-            min: widget.minValue.toDouble(),
-            max: widget.maxValue.toDouble(),
-            value: sliderValue,
-            onChanged: (value) {
-              widget.onChanged(value);
-              setState(() => sliderValue = value);
-            },
-          ),
-        ],
-      ),
-    );
+    if (widget.isVertical) {
+      return SizedBox(
+        width: widget.xValue,
+        height: widget.yValue,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SfSlider.vertical(
+              min: widget.minValue.toDouble(),
+              max: widget.maxValue.toDouble(),
+              value: sliderValue,
+              onChanged: (value) {
+                widget.onChanged(value);
+                setState(() => sliderValue = value);
+              },
+              interval: 1.0,
+              showTicks: true,
+              showLabels: true,
+              // enableTooltip: true,
+            ),
+          ],
+        ),
+      );
+    }
+      return SizedBox(
+        width: widget.xValue,
+        height: widget.yValue,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SfSlider(
+              min: widget.minValue.toDouble(),
+              max: widget.maxValue.toDouble(),
+              value: sliderValue,
+              onChanged: (value) {
+                widget.onChanged(value);
+                setState(() => sliderValue = value);
+              },
+              interval: 1.0,
+              showTicks: true,
+              showLabels: true,
+              // enableTooltip: true,
+            ),
+          ],
+        ),
+      );
   }
 }
