@@ -62,6 +62,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
         actions: [
           ElevatedButton(
             onPressed: () {
+              //I think there's something I need to add around this
               ref.watch(honeycombClientProvider).post("/scout/ingest", data: dataToUpload);
             },
             child: Icon(

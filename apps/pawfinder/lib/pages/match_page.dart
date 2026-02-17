@@ -10,6 +10,7 @@ import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,11 +27,7 @@ Future<Map<String, dynamic>> loadUiConfig() async {
   return jsonDecode(jsonString);
 }
 
-// MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
-// class matchPagesProvider extends ChangeNotifier {
-//
-// }
-final matchPagesProvider =
+  final matchPagesProvider =
     AsyncNotifierProvider<MatchPagesNotifier, List<List<Widget>>>(
       MatchPagesNotifier.new,
     );
@@ -53,8 +50,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
       final json = jsonDecode(
         await rootBundle.loadString('resources/ui_creator.json'),
       );
-
-      final pages = MatchConfig.fromJson(json).pages;
+      final matchConfig = MatchConfig.fromJson(json);
+      final pages = matchConfig.pages;
       final List<List<Widget>> matchPages = [];
 
       for (int index = 0; index < pages.length; index++) {
@@ -175,6 +172,11 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   width: data.layout.w * horizontalStep,
                   child: ElevatedButton(
                   onPressed: (){
+                    MatchIdentity? matchIdentity = ref.read(scoutingSessionProvider.notifier).createMatchIdentity();
+                    if(matchIdentity != null){
+                      dataToUpload.add(generateMatchJsonHive(matchConfig, matchIdentity));
+                    }
+
                     ref.read(scoutingSessionProvider.notifier).nextMatch();
                     context.go('/match/auto');
                   },
