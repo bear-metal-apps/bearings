@@ -80,24 +80,24 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
               children: [
                 Text(
                   session.event?.name ?? '',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Position: ${position.displayName}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 Text(
                   'Scout: ${session.scout?.name ?? "—"}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
 
                 const SizedBox(height: 48),
 
                 Text(
                   'Match Number',
-                  style: Theme.of(context).textTheme.labelLarge,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 ConstrainedBox(

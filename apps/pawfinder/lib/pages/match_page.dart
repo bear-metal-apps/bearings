@@ -1,9 +1,11 @@
 import 'dart:convert';
 
-import 'package:beariscope_scouter/custom_widgets/big_number.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/2026_specifc/big_number.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/bool_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/dropdown.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/int_textbox.dart';
+import 'package:beariscope_scouter/custom_widgets/match_widgets/segmented_button.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
@@ -11,9 +13,11 @@ import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 
 import '../data/ui_json_serialization.dart';
+import '../providers/scouting_providers.dart';
 
 Box dataBox = Hive.box(boxKey);
 
@@ -67,7 +71,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
           switch (data.type) {
             case 'volumetric_button':
               widget = BigNumberWidget(
-                buttons: [1, 5, 10, -1, -5, -10],
+                buttons: [
+                  1, 5, -1, -5,
+                ],
                 xLength: data.layout.w * horizontalStep,
                 yLength: data.layout.h * verticalStep,
                 text: data.alias,
@@ -83,7 +89,13 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
-
+            case "int_text_box":
+              widget = IntTextbox(
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
+                  dataName: data.alias,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep
+              );
             case "toggle_switch":
               widget = BoolButton(
                 dataName: data.alias,
@@ -105,12 +117,15 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
 
             case "dropdown":
+            List<dynamic> items = data.parameters["options"];
+            int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
+
               widget = Dropdown(
                 title: data.alias,
                 backgroundColor: Colors.blueAccent,
-                items: ["please", "work"],
-                // items: data.parameters["options"] as List<>,
+                items: items.map((x) => x.toString()).toList(), // darts type system is really weird
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
+                initialIndex: initialIndex == -1 ? null : initialIndex,
                 xValue: data.layout.w * horizontalStep,
                 yValue: data.layout.h * verticalStep,
               );
@@ -141,6 +156,30 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 yValue: data.layout.h * verticalStep,
                 minValue: 0,
                 maxValue: 10,
+              );
+              break;
+            case "segmented_button":
+              List<dynamic> items = data.parameters["options"];
+              int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
+              widget = CustomSegmentedButton(
+                  segments: items.map((x) => x.toString()).toList(),
+                  onChanged: (value) => dataBox.put(dataBoxKey, value),
+                  // initialIndex: initialIndex,
+                  xLength: data.layout.w * horizontalStep,
+                  yLength: data.layout.h * verticalStep
+              );
+              break;
+            case "Nxt":
+              widget = SizedBox(
+                  height: data.layout.h * verticalStep,
+                  width: data.layout.w * horizontalStep,
+                  child: ElevatedButton(
+                  onPressed: (){
+                    ref.read(scoutingSessionProvider.notifier).nextMatch();
+                    context.go('/match/auto');
+                  },
+                  child: Text("Next Match")
+                  )
               );
               break;
             default:

@@ -56,7 +56,7 @@ class _DropdownState extends State<Dropdown> {
           style: TextStyle(color: Colors.black),
           decoration: InputDecoration(
             label: widget.title.isNotEmpty
-                ? AutoSizeText(
+                ? Text(
                     widget.title,
                     style: TextStyle(fontSize: 16, color: Colors.black),
                     maxLines: 1,

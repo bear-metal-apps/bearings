@@ -44,31 +44,31 @@ class _StringTextboxState extends State<StringTextbox> {
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
               color: widget.outlineColor ?? Colors.black,
-              width: 1.0,
+              // width: 1.0
             ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
               color: widget.outlineColor ?? Colors.red,
-              width: 1.0,
+              // width: 1.0,
             ),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
               color: widget.outlineColor ?? Colors.black,
-              width: 1.0,
+              // width: 1.0,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
               color: widget.outlineColor ?? Colors.black,
-              width: 1.0,
+              // width: 1.0,
             ),
           ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          // contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),
         controller: controller,
         onChanged: (text) {
