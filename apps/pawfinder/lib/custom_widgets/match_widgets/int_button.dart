@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -60,23 +61,20 @@ class _NumberButtonState extends State<NumberButton> {
               // Padding(
               //   padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
               //   child:
-          Text(
+                Text(
                   '${widget.dataName}: $currentVariable',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall
                 ),
               // ),
               Align(
                 alignment: widget.textAlignment,
                 child: Container(
-                  margin: const EdgeInsets.only(
-                    right: 1.0,
-                    left: 1.0,
-                    bottom: 8.0,
-                  ),
+                  // margin: const EdgeInsets.only(
+                  //   right: 1.0,
+                  //   left: 1.0,
+                  //   bottom: 8.0,
+                  // ),
                   width: 56,
                   height: 36,
                   decoration: BoxDecoration(
@@ -100,7 +98,6 @@ class _NumberButtonState extends State<NumberButton> {
                           }
                         }
                       });
-
                       widget.onChanged?.call(currentVariable);
                     },
                   ),
