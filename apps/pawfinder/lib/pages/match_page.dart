@@ -74,8 +74,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 buttons: [
                   1, 5, -1, -5,
                 ],
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 text: data.alias,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
@@ -84,8 +84,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = NumberButton(
                 backgroundColor: Colors.white,
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
@@ -93,14 +93,14 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = IntTextbox(
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                   dataName: data.alias,
-                  xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep
+                  width: data.layout.w * horizontalStep,
+                  height: data.layout.h * verticalStep
               );
             case "toggle_switch":
               widget = BoolButton(
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 initialValue: dataBox.get(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 visualFeedback: true,
@@ -110,8 +110,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
             case "text_box":
               widget = StringTextbox(
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
@@ -126,15 +126,15 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 items: items.map((x) => x.toString()).toList(), // darts type system is really weird
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 initialIndex: initialIndex == -1 ? null : initialIndex,
-                xValue: data.layout.w * horizontalStep,
-                yValue: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
               );
               break;
             case "tristate":
               widget = TristateButton(
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 initialState: dataBox.get(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
@@ -142,8 +142,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
             case "checkbox":
               widget = BoolButton(
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 visualFeedback: true,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
@@ -152,8 +152,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = CustomSlider(
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 title: data.alias,
-                xValue: data.layout.w * horizontalStep,
-                yValue: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 minValue: 0,
                 maxValue: 10,
               );
@@ -165,8 +165,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   segments: items.map((x) => x.toString()).toList(),
                   onChanged: (value) => dataBox.put(dataBoxKey, value),
                   // initialIndex: initialIndex,
-                  xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep
+                  width: data.layout.w * horizontalStep,
+                  height: data.layout.h * verticalStep
               );
               break;
             case "Nxt":

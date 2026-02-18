@@ -4,8 +4,8 @@ import 'package:pressable_flutter/pressable_flutter.dart';
 
 class TristateButton extends StatefulWidget {
   final String dataName;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final Function(int) onChanged;
   // final double? minfontSize; // Optional font size parameter
   final int? initialState;
@@ -14,8 +14,8 @@ class TristateButton extends StatefulWidget {
     this.initialState,
     // this.minfontSize,
     required this.dataName,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     required this.onChanged,
   });
 
@@ -29,8 +29,8 @@ class _TristateState extends State<TristateButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: Pressable(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(

@@ -7,8 +7,8 @@ class IntTextbox extends StatefulWidget {
   final Color? outlineColor;
   final String dataName;
   final Function(int) onChanged;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final int? initialValue;
 
   const IntTextbox({
@@ -18,8 +18,8 @@ class IntTextbox extends StatefulWidget {
     required this.onChanged,
     this.outlineColor,
     required this.dataName,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
   });
 
   @override
@@ -33,8 +33,8 @@ class _IntTextboxState extends State<IntTextbox> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: TextField(
         cursorColor: widget.outlineColor ?? Colors.black,
         decoration: InputDecoration(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BigNumberWidget extends StatefulWidget {
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final List<int> buttons;
   final Color? backgroundColor;
   final String text;
@@ -13,8 +13,8 @@ class BigNumberWidget extends StatefulWidget {
     super.key,
     this.backgroundColor,
     required this.buttons,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     required this.text,
     this.initialValue,
     required this.onChanged,
@@ -30,8 +30,8 @@ class _BigNumberWidget extends State<BigNumberWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;

@@ -9,8 +9,8 @@ class NumberButton extends StatefulWidget {
   final Alignment textAlignment;
   final String dataName;
   final Function(int)? onChanged;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final bool? negativeAllowed;
   final int? initialValue;
 
@@ -21,8 +21,8 @@ class NumberButton extends StatefulWidget {
     this.onChanged,
     this.backgroundColor,
     required this.dataName,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     this.textAlignment = Alignment.bottomRight,
   });
 
@@ -36,8 +36,8 @@ class _NumberButtonState extends State<NumberButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: Pressable(
         child: ElevatedButton(
           onPressed: () {

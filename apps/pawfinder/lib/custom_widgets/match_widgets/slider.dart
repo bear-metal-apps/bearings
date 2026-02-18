@@ -3,8 +3,8 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class CustomSlider extends StatefulWidget {
   final String title;
-  final double xValue;
-  final double yValue;
+  final double width;
+  final double height;
   final int? segmentLength;
   final int minValue;
   final int maxValue;
@@ -15,8 +15,8 @@ class CustomSlider extends StatefulWidget {
   const CustomSlider({
     required this.onChanged,
     required this.title,
-    required this.xValue,
-    required this.yValue,
+    required this.width,
+    required this.height,
     this.segmentLength,
     required this.minValue,
     required this.maxValue,
@@ -34,8 +34,8 @@ class _CustomSliderState extends State<CustomSlider> {
   Widget build(BuildContext context) {
     if (widget.isVertical) {
       return SizedBox(
-        width: widget.xValue,
-        height: widget.yValue,
+        width: widget.width,
+        height: widget.height,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,8 +61,8 @@ class _CustomSliderState extends State<CustomSlider> {
       );
     }
       return SizedBox(
-        width: widget.xValue,
-        height: widget.yValue,
+        width: widget.width,
+        height: widget.height,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
