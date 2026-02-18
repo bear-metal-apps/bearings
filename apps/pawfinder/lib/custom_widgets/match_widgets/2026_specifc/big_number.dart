@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// width/height, The constraints for the widget in order to plug into the app (logic pixels)
+///buttons, the possible buttons that can be used to change the widget value by the value
+///backgroundColor, The background color, I know legitimately crazy
+///dataName, The Title text given for the widget to label the value
+///initialValue, the value it is initially saved as, important for match rotation
+///onChanged, the lambda for the app to access the value of the widget
 class BigNumberWidget extends StatefulWidget {
   final double width;
   final double height;
   final List<int> buttons;
   final Color? backgroundColor;
-  final String text;
+  final String dataName;
   final int? initialValue;
   final Function(int)? onChanged;
 
@@ -15,7 +21,7 @@ class BigNumberWidget extends StatefulWidget {
     required this.buttons,
     required this.width,
     required this.height,
-    required this.text,
+    required this.dataName,
     this.initialValue,
     required this.onChanged,
   });
@@ -51,7 +57,7 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      "${widget.text}: $currentValue",
+                      "${widget.dataName}: $currentValue",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 24,

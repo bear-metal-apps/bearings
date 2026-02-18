@@ -76,7 +76,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 ],
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
-                text: data.alias,
+                dataName: data.alias,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
@@ -135,7 +135,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
-                initialState: dataBox.get(dataBoxKey),
+                initialValue: dataBox.get(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
