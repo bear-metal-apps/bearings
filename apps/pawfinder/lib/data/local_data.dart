@@ -61,4 +61,5 @@ void savePersistentData() {
 
 */
 
-List<MatchJsonData> dataToUpload = [];
+List<Map<String, dynamic>> dataToUpload = [];
+String dataToUploadName = "";
