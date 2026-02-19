@@ -61,13 +61,13 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
           onPressed: () => context.go('/scout'),
         ),
         title: const Text('Select Match'),
+        actionsPadding: EdgeInsets.only(right: 16),
         actions: [
-          ElevatedButton(
+          FilledButton.tonal(
             onPressed: () {
               //I think there's something I need to add around this
 
               final data = {
-                "uploadBatchId": dataToUploadName,
                 "entries": dataToUpload
               };
               ref.watch(honeycombClientProvider).post("/scout/ingest", data: jsonEncode(data));
