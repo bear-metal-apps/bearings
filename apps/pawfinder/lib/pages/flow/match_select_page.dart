@@ -1,8 +1,12 @@
+import 'dart:convert';
+
+import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/api_provider.dart';
 
 class MatchSelectPage extends ConsumerStatefulWidget {
   const MatchSelectPage({super.key});
@@ -57,6 +61,24 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
           onPressed: () => context.go('/scout'),
         ),
         title: const Text('Select Match'),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              //I think there's something I need to add around this
+
+              final data = {
+                "uploadBatchId": dataToUploadName,
+                "entries": dataToUpload
+              };
+              ref.watch(honeycombClientProvider).post("/scout/ingest", data: jsonEncode(data));
+              dataToUpload = [];
+              dataToUploadName = "";
+            },
+            child: Icon(
+                Icons.upload
+            ),
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),

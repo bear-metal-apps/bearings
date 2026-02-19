@@ -1,4 +1,6 @@
+import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
+import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -136,6 +138,13 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     if (state.matchNumber != null && state.matchNumber! > 1) {
       state = state.copyWith(matchNumber: state.matchNumber! - 1);
     }
+  }
+
+  MatchIdentity? createMatchIdentity(){
+    if(state.position != null && state.matchNumber != null && state.event != null){
+    return (postion: state.position!, matchNumber: state.matchNumber!, event: state.event!);
+    }
+    return null;
   }
 
   void exitToScoutSelect() {

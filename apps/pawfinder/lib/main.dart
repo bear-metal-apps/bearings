@@ -9,6 +9,7 @@ import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/pages/welcome_page.dart';
+import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +46,6 @@ Future<void> main() async {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authStatus = ref.watch(authStatusProvider.notifier);
-
   return GoRouter(
     initialLocation: '/splash',
     refreshListenable: authStatus,

@@ -2,20 +2,18 @@ import 'dart:convert';
 
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/ui_json_serialization.dart';
+import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
 
 typedef MatchIdentity = ({
-  String eventKey,
+  ScoutingEvent event,
   int matchNumber,
-  bool isRedAlliance,
-  int position,
-int robotNum
+  ScoutPosition postion,
 });
 
 String identityDataKey(MatchIdentity identity) {
-  return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity
-      .isRedAlliance}_${identity.position}";
+  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.postion.name}";
 }
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {

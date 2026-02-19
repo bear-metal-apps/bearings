@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -59,3 +60,6 @@ void savePersistentData() {
 }
 
 */
+
+List<Map<String, dynamic>> dataToUpload = [];
+String dataToUploadName = "";
