@@ -3,9 +3,12 @@
 
 import 'dart:convert';
 
+import 'package:beariscope_scouter/pages/match_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import '../data/local_data.dart';
 import '../data/match_json_gen.dart';
@@ -35,7 +38,6 @@ class UploadButtonState extends ConsumerState<UploadButton>{
 
           List<Map<String,dynamic>> uploadingData = [];
           String dataToUploadName = "";
-
           dataToUpload.forEach((MatchIdentity element){
             uploadingData.add(generateMatchJsonHive(
                 matchConfig,

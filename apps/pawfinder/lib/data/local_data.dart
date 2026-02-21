@@ -63,5 +63,5 @@ void savePersistentData() {
 
 */
 
-List<MatchIdentity> dataToUpload = [];
+List<MatchIdentity> dataToUpload = Hive.box(boxKey).get("data_to_upload") as List<MatchIdentity>;
 List <Scout?> scoutsToUpload = [];

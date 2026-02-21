@@ -177,7 +177,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                       dataToUpload.add(matchIdentity);
                       scoutsToUpload.add(
                       ref.read(scoutingSessionProvider.notifier).getScout()
-                    );
+                      );
+                      Hive.box(boxKey).put("data_to_upload", dataToUpload);
                     }
                     ref.read(scoutingSessionProvider.notifier).nextMatch();
                     context.go('/match/auto');
