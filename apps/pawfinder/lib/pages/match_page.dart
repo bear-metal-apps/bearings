@@ -173,12 +173,14 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = SizedBox(
                   height: data.layout.h * verticalStep,
                   width: data.layout.w * horizontalStep,
-                  child: ElevatedButton(
-                  onPressed: (){
-                    ref.read(scoutingSessionProvider.notifier).nextMatch();
-                    context.go('/match/auto');
-                  },
-                  child: Text("Next Match")
+                  child: Builder(
+                    builder: (ctx) => ElevatedButton(
+                      onPressed: (){
+                        ref.read(scoutingSessionProvider.notifier).nextMatch();
+                        ctx.go('/match/auto');
+                      },
+                      child: Text("Next Match")
+                    )
                   )
               );
               break;
