@@ -174,10 +174,11 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   onPressed: (){
                     MatchIdentity? matchIdentity = ref.read(scoutingSessionProvider.notifier).createMatchIdentity();
                     if(matchIdentity != null){
-                      dataToUpload.add(generateMatchJsonHive(matchConfig, matchIdentity).toJson());
-                      dataToUploadName = "$dataToUploadName MATCH: ${matchIdentity.matchNumber}";
+                      dataToUpload.add(matchIdentity);
+                      scoutsToUpload.add(
+                      ref.read(scoutingSessionProvider.notifier).getScout()
+                    );
                     }
-
                     ref.read(scoutingSessionProvider.notifier).nextMatch();
                     context.go('/match/auto');
                   },

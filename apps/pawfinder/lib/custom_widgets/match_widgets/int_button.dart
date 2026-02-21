@@ -58,23 +58,14 @@ class _NumberButtonState extends State<NumberButton> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
-              //   child:
                 Text(
                   '${widget.dataName}: $currentVariable',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall
                 ),
-              // ),
               Align(
                 alignment: widget.textAlignment,
                 child: Container(
-                  // margin: const EdgeInsets.only(
-                  //   right: 1.0,
-                  //   left: 1.0,
-                  //   bottom: 8.0,
-                  // ),
                   width: 56,
                   height: 36,
                   decoration: BoxDecoration(

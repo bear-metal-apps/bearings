@@ -124,6 +124,10 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     state = state.copyWith(scout: scout);
   }
 
+  Scout? getScout(){
+    return state.scout;
+  }
+
   void setMatchNumber(int matchNumber) {
     state = state.copyWith(matchNumber: matchNumber);
   }
@@ -141,8 +145,8 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
   }
 
   MatchIdentity? createMatchIdentity(){
-    if(state.position != null && state.matchNumber != null && state.event != null){
-    return (postion: state.position!, matchNumber: state.matchNumber!, event: state.event!);
+    if(state.position != null && state.matchNumber != null && state.event != null && state.scout != null){
+    return (postion: state.position!, matchNumber: state.matchNumber!, event: state.event!, scout: state.scout!);
     }
     return null;
   }

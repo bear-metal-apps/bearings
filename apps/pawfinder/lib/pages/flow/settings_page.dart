@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,12 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+          title: const Text('Settings'),
+          actions: [
+            UploadButton()
+          ],
+      ),
       body: ListView(
         children: [
           ListTile(

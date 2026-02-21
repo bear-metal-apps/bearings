@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +79,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
         title: const Text('Select Comp and Position'),
         actionsPadding: EdgeInsets.only(right: 8),
         actions: [
+          UploadButton(),
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Settings',

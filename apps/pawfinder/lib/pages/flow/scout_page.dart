@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,9 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
           onPressed: () => context.go('/config'),
         ),
         title: const Text('Select Scout'),
+        actions: [
+          UploadButton()
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),

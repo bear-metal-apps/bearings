@@ -10,10 +10,11 @@ typedef MatchIdentity = ({
   ScoutingEvent event,
   int matchNumber,
   ScoutPosition postion,
+  Scout scout
 });
 
 String identityDataKey(MatchIdentity identity) {
-  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.postion.name}";
+  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.postion.name}_${identity.scout.name}";
 }
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
@@ -73,12 +74,14 @@ class MetaJsonData {
   final String author;
   final int version;
   final String type;
+  final String scoutName;
 
   MetaJsonData({
     required this.season,
     required this.author,
     required this.version,
     required this.type,
+    required this.scoutName
   });
 
   factory MetaJsonData.fromJson(Map<String, dynamic> json) {
@@ -87,6 +90,7 @@ class MetaJsonData {
       author: json['author'],
       version: json['version'],
       type: json['type'],
+      scoutName: json['scout']
     );
   }
 
@@ -139,17 +143,18 @@ SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
   return sectionJsonData;
 }
 
-MetaJsonData generateMetaJsonHive(Meta config) => MetaJsonData(
+MetaJsonData generateMetaJsonHive(Meta config, Scout scout) => MetaJsonData(
   season: config.season,
   author: config.author,
   type: config.type,
   version: config.version,
+  scoutName: scout.name
 );
 
 /// Uses the MatchConfig, and looks up hive data for necessary values.
-MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) =>
+MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info, Scout scout) =>
     MatchJsonData(
-      meta: generateMetaJsonHive(config.meta),
+      meta: generateMetaJsonHive(config.meta, scout),
       sections: config.pages
           .map((e) => generateSectionJsonHive(e, info))
           .toList(),
