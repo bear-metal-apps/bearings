@@ -65,6 +65,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
           onPressed: () => context.go('/scout'),
         ),
         title: const Text('Select Match'),
+        actionsPadding: EdgeInsets.only(right: 16),
         actions: [
           UploadButton(),
         ],
