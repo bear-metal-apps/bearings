@@ -264,7 +264,6 @@ class MatchPageState extends ConsumerState<MatchPage> {
           ref.read(matchPagesProvider.notifier).loadUI(context);
         }
       },
-      fireImmediately: true,
     );
     final pagesAsync = ref.watch(matchPagesProvider);
 
