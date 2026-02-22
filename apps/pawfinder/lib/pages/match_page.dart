@@ -250,18 +250,22 @@ class MatchPage extends ConsumerStatefulWidget {
 class MatchPageState extends ConsumerState<MatchPage> {
   @override
   Widget build(BuildContext context) {
-    ref.listen<ScoutingSession>(scoutingSessionProvider, (previous, next) {
-      final prevEvent = previous?.event?.key;
-      final nextEvent = next.event?.key;
-      final prevPos = previous?.position?.name;
-      final nextPos = next.position?.name;
-      if (prevEvent != nextEvent ||
-          prevPos != nextPos ||
-          previous?.matchNumber != next.matchNumber) {
-        if (!mounted) return;
-        ref.read(matchPagesProvider.notifier).loadUI(context);
-      }
-    });
+    ref.listen<ScoutingSession>(
+      scoutingSessionProvider,
+      (previous, next) {
+        final prevEvent = previous?.event?.key;
+        final nextEvent = next.event?.key;
+        final prevPos = previous?.position?.name;
+        final nextPos = next.position?.name;
+        if (prevEvent != nextEvent ||
+            prevPos != nextPos ||
+            previous?.matchNumber != next.matchNumber) {
+          if (!mounted) return;
+          ref.read(matchPagesProvider.notifier).loadUI(context);
+        }
+      },
+      fireImmediately: true,
+    );
     final pagesAsync = ref.watch(matchPagesProvider);
 
     return pagesAsync.when(
