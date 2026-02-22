@@ -29,6 +29,18 @@ class _StringTextboxState extends State<StringTextbox> {
   late String value = widget.initialString ?? '';
 
   @override
+  void initState() {
+    super.initState();
+    controller.text = value;
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.xLength,
