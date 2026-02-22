@@ -79,7 +79,7 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                           setState(() {
                             currentValue += value;
                           });
-                          widget.onChanged?.call(value);
+                          widget.onChanged?.call(currentValue);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: widget.backgroundColor ?? Colors.white,

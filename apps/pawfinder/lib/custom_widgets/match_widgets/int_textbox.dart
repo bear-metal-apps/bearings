@@ -31,6 +31,18 @@ class _IntTextboxState extends State<IntTextbox> {
   late int value = widget.initialValue ?? 0;
 
   @override
+  void initState() {
+    super.initState();
+    controller.text = value.toString();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.xLength,
