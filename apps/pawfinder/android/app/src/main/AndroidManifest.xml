@@ -1,4 +1,9 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="org.tahomarobotics.beariscope_scouter">
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    >
+    
     <application
         android:label="beariscope_scouter"
         android:name="${applicationName}"
