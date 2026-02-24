@@ -39,6 +39,27 @@ enum ScoutPosition {
   }
 
   String get allianceKey => isRed ? 'red' : 'blue';
+
+  int get posIndex {
+    switch (this) {
+      case red1:
+        return 0;
+      case red2:
+        return 1;
+      case red3:
+        return 2;
+      case blue1:
+        return 3;
+      case blue2:
+        return 4;
+      case blue3:
+        return 5;
+      case redStrat:
+        return 6;
+      case blueStrat:
+        return 7;
+    }
+  }
 }
 
 class ScoutingEvent {

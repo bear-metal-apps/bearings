@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:pressable_flutter/pressable_flutter.dart';
 
 class CustomSegmentedButton extends StatefulWidget {
   final List<String> segments;

@@ -15,6 +15,7 @@ class ConfigPage extends ConsumerStatefulWidget {
 class _ConfigPageState extends ConsumerState<ConfigPage> {
   ScoutingEvent? _selectedEvent;
   ScoutPosition? _selectedPosition;
+  final _customKeyController = TextEditingController();
 
   @override
   void initState() {
@@ -28,6 +29,33 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _customKeyController.dispose();
+    super.dispose();
+  }
+
+  void _applyCustomKey() {
+    final raw = _customKeyController.text.trim();
+    if (raw.isEmpty) return;
+
+    final year = raw.length >= 4
+        ? (int.tryParse(raw.substring(0, 4)) ?? DateTime
+        .now()
+        .year)
+        : DateTime
+        .now()
+        .year;
+
+    final customEvent = ScoutingEvent(
+      key: raw,
+      name: raw,
+      year: year,
+    );
+    setState(() => _selectedEvent = customEvent);
+    ref.read(scoutingSessionProvider.notifier).setEvent(customEvent);
   }
 
   Future<void> _showPasswordDialog(BuildContext context) async {
@@ -116,8 +144,22 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                 ),
                 const SizedBox(height: 8),
                 eventsAsync.when(
-                  data: (events) => DropdownButtonFormField<ScoutingEvent>(
-                    initialValue: _selectedEvent,
+                  data: (events) {
+                    final inList = _selectedEvent != null &&
+                        events
+                            .where((e) => e == _selectedEvent)
+                            .length == 1;
+
+                    final displayEvents = (inList || _selectedEvent == null)
+                        ? events
+                        : [_selectedEvent!, ...events];
+
+                    return DropdownButtonFormField<ScoutingEvent>(
+                      initialValue: _selectedEvent != null && displayEvents
+                          .where((e) => e == _selectedEvent)
+                          .length == 1
+                          ? _selectedEvent
+                          : null,
                     padding: EdgeInsets.all(4),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -134,7 +176,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                       ),
                       hintText: 'Select a competition',
                     ),
-                    items: events
+                      items: displayEvents
                         .map(
                           (e) =>
                               DropdownMenuItem(value: e, child: Text(e.name)),
@@ -148,12 +190,50 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                             .setEvent(event);
                       }
                     },
-                  ),
+                    );
+                  },
                   loading: () => const LinearProgressIndicator(),
                   error: (err, _) => _ErrorRetry(
                     message: 'Failed to load competitions',
                     onRetry: () => ref.invalidate(eventsProvider),
                   ),
+                ),
+
+                const SizedBox(height: 16),
+                Text(
+                  'Or enter event key manually',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _customKeyController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          hintText: 'e.g. 2026waahs',
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 14,
+                          ),
+                        ),
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _applyCustomKey(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton.tonal(
+                      onPressed: _applyCustomKey,
+                      child: const Text('Apply'),
+                    ),
+                  ],
                 ),
 
                 const Spacer(),

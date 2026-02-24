@@ -1,7 +1,11 @@
+import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
+import 'package:beariscope_scouter/data/upload_queue.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_ce/hive.dart';
 
 class ScoutingShell extends ConsumerWidget {
   final Widget child;
@@ -12,8 +16,29 @@ class ScoutingShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
+    final queueNotifier = ref.read(uploadQueueProvider.notifier);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
+
+    // always contains the correct team even when navigating via prev/next.
+    ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_,
+        next,) {
+      final team = next.when(
+        data: (t) => t,
+        loading: () => null,
+        error: (_, __) => null,
+      );
+      if (team == null) return;
+      final identity = notifier.createMatchIdentity();
+      if (identity == null) return;
+      Hive.box(boxKey).put(matchTeamKey(identity), team);
+    });
+
+    final teamAsync = ref.watch(teamNumberForSessionProvider);
+    final teamLabel = teamAsync.maybeWhen(
+      data: (t) => t != null ? ' · $t' : '',
+      orElse: () => '',
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -53,18 +78,33 @@ class ScoutingShell extends ConsumerWidget {
             Text('Match $matchNumber'),
             const VerticalDivider(),
             Text(position?.displayName ?? ''),
+            if (teamLabel.isNotEmpty) Text(teamLabel),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
-            onPressed: matchNumber > 1 ? () => notifier.previousMatch() : null,
+            onPressed: matchNumber > 1
+                ? () {
+              final identity = notifier.createMatchIdentity();
+              if (identity != null) {
+                queueNotifier.addIfNotPresent(identity);
+              }
+              notifier.previousMatch();
+            }
+                : null,
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
             tooltip: 'Next Match',
-            onPressed: () => notifier.nextMatch(),
+            onPressed: () {
+              final identity = notifier.createMatchIdentity();
+              if (identity != null) {
+                queueNotifier.addIfNotPresent(identity);
+              }
+              notifier.nextMatch();
+            },
           ),
         ],
       ),

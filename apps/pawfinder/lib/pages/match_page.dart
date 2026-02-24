@@ -11,6 +11,8 @@ import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
+import 'package:beariscope_scouter/data/upload_queue.dart';
+import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +35,15 @@ Future<Map<String, dynamic>> loadUiConfig() async {
     );
 
 class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
+  String _buildDataKey(String sectionId, String fieldId) {
+    final identity =
+    ref.read(scoutingSessionProvider.notifier).createMatchIdentity();
+    if (identity != null) return matchDataKey(identity, sectionId, fieldId);
+    final s = ref.read(scoutingSessionProvider);
+    return 'MATCH_${s.event?.key ?? 'unknown'}_${s.matchNumber ?? 0}_${s
+        .position?.name ?? 'unknown'}_unknown_${sectionId}_$fieldId';
+  }
+
   @override
   Future<List<List<Widget>>> build() async {
     // Provider starts empty until load() is called
@@ -62,43 +73,50 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
         final verticalStep = (ultimateHeight - 130) / page.height;
 
         for (final data in page.components) {
-          final dataBoxKey = "MATCH_eventkey_${data.fieldId}";
+          final dataBoxKey = _buildDataKey(page.sectionId, data.fieldId);
+          final storedValue = dataBox.get(dataBoxKey);
 
           Widget widget;
           switch (data.type) {
             case 'volumetric_button':
               widget = BigNumberWidget(
-                buttons: [
-                  1, 5, -1, -5,
-                ],
+                key: ValueKey(dataBoxKey),
+                buttons: [1, 5, -1, -5],
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 dataName: data.alias,
+                initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
             case "int_button":
               widget = NumberButton(
+                key: ValueKey(dataBoxKey),
                 backgroundColor: Colors.white,
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
+                initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
             case "int_text_box":
               widget = IntTextbox(
-                  onChanged: (value) => dataBox.put(dataBoxKey, value),
-                  dataName: data.alias,
-                  width: data.layout.w * horizontalStep,
-                  height: data.layout.h * verticalStep
-              );
-            case "toggle_switch":
-              widget = BoolButton(
+                key: ValueKey(dataBoxKey),
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
-                initialValue: dataBox.get(dataBoxKey),
+                initialValue: storedValue is int ? storedValue : null,
+              );
+              break;
+            case "toggle_switch":
+              widget = BoolButton(
+                key: ValueKey(dataBoxKey),
+                dataName: data.alias,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
+                initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 visualFeedback: true,
               );
@@ -106,18 +124,21 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
 
             case "text_box":
               widget = StringTextbox(
+                key: ValueKey(dataBoxKey),
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
+                initialString: storedValue is String ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
 
             case "dropdown":
             List<dynamic> items = data.parameters["options"];
-            int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
+            int initialIndex = items.indexOf(storedValue);
 
               widget = Dropdown(
+                key: ValueKey(dataBoxKey),
                 title: data.alias,
                 backgroundColor: Colors.blueAccent,
                 items: items.map((x) => x.toString()).toList(), // darts type system is really weird
@@ -129,41 +150,57 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
             case "tristate":
               widget = TristateButton(
+                key: ValueKey(dataBoxKey),
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
-                initialValue: dataBox.get(dataBoxKey),
+                initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
             case "checkbox":
               widget = BoolButton(
+                key: ValueKey(dataBoxKey),
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 visualFeedback: true,
+                initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
             case "slider":
+              final double? sliderValue =
+                  storedValue is num ? storedValue.toDouble() : null;
               widget = CustomSlider(
+                key: ValueKey(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 title: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 minValue: 0,
                 maxValue: 10,
+                initialValue: sliderValue,
               );
               break;
             case "segmented_button":
               List<dynamic> items = data.parameters["options"];
-              int initialIndex = items.indexOf(dataBox.get(dataBoxKey));
+              int? initialIndex;
+              if (storedValue is int) {
+                initialIndex = storedValue >= 0 && storedValue < items.length
+                    ? storedValue
+                    : null;
+              } else if (storedValue is String) {
+                final idx = items.indexOf(storedValue);
+                initialIndex = idx >= 0 ? idx : null;
+              }
               widget = CustomSegmentedButton(
-                  segments: items.map((x) => x.toString()).toList(),
-                  onChanged: (value) => dataBox.put(dataBoxKey, value),
-                  // initialIndex: initialIndex,
-                  width: data.layout.w * horizontalStep,
-                  height: data.layout.h * verticalStep
+                key: ValueKey(dataBoxKey),
+                segments: items.map((x) => x.toString()).toList(),
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                initialIndex: initialIndex,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
               );
               break;
             case "Nxt":
@@ -172,11 +209,13 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 width: data.layout.w * horizontalStep,
                 child: ElevatedButton(
                   onPressed: () {
-                    MatchIdentity? matchIdentity = ref
+                    final matchIdentity = ref
                         .read(scoutingSessionProvider.notifier)
                         .createMatchIdentity();
                     if (matchIdentity != null) {
-                      dataToUpload.add(matchIdentity);
+                      ref
+                          .read(uploadQueueProvider.notifier)
+                          .addIfNotPresent(matchIdentity);
                     }
                     ref.read(scoutingSessionProvider.notifier).nextMatch();
                     context.go('/match/auto');
@@ -213,13 +252,41 @@ class MatchPage extends ConsumerStatefulWidget {
 
 class MatchPageState extends ConsumerState<MatchPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(matchPagesProvider.notifier).loadUI(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ref.listen<ScoutingSession>(
+      scoutingSessionProvider,
+      (previous, next) {
+        final prevEvent = previous?.event?.key;
+        final nextEvent = next.event?.key;
+        final prevPos = previous?.position?.name;
+        final nextPos = next.position?.name;
+        if (prevEvent != nextEvent ||
+            prevPos != nextPos ||
+            previous?.matchNumber != next.matchNumber) {
+          if (!mounted) return;
+          ref.read(matchPagesProvider.notifier).loadUI(context);
+        }
+      },
+    );
     final pagesAsync = ref.watch(matchPagesProvider);
 
     return pagesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text(err.toString())),
-      data: (pages) => Stack(children: pages[widget.index]),
+      data: (pages) {
+        if (pages.isEmpty || widget.index >= pages.length) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Stack(children: pages[widget.index]);
+      },
     );
   }
 }

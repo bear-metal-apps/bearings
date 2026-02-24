@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
@@ -8,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/api_provider.dart';
-
-import '../../data/ui_json_serialization.dart';
+import 'package:hive_ce/hive.dart';
 
 class MatchSelectPage extends ConsumerStatefulWidget {
   const MatchSelectPage({super.key});
@@ -46,6 +42,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
+    final teamAsync = ref.watch(teamNumberForSessionProvider);
 
     if (session.event == null ||
         session.position == null ||
@@ -91,6 +88,40 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                 Text(
                   'Scout: ${session.scout?.name ?? "—"}',
                   style: Theme.of(context).textTheme.headlineSmall,
+                ),
+
+                const SizedBox(height: 16),
+                teamAsync.when(
+                  data: (team) =>
+                      Text(
+                        team != null ? 'Team: $team' : 'Team: —',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(
+                          color: team != null
+                              ? Theme
+                              .of(context)
+                              .colorScheme
+                              .primary
+                              : null,
+                        ),
+                      ),
+                  loading: () =>
+                  const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  error: (_, _) =>
+                      Text(
+                        'Team: —',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headlineSmall,
+                      ),
                 ),
 
                 const SizedBox(height: 48),
@@ -164,6 +195,23 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                             ref
                                 .read(scoutingSessionProvider.notifier)
                                 .setMatchNumber(_matchNumber!);
+
+                            final identity = ref
+                                .read(scoutingSessionProvider.notifier)
+                                .createMatchIdentity();
+                            if (identity != null) {
+                              final team = teamAsync.when(
+                                data: (t) => t,
+                                loading: () => null,
+                                error: (_, __) => null,
+                              );
+                              if (team != null) {
+                                Hive.box(boxKey).put(
+                                  matchTeamKey(identity),
+                                  team,
+                                );
+                              }
+                            }
 
                             if (position.isStrategy) {
                               context.go('/strat');
