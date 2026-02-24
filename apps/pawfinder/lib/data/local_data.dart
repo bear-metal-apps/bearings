@@ -2,8 +2,6 @@ import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../models/scouting_session.dart';
-
 const boxKey = "localData";
 const jsonBoxKey = "localDataJson"; /* Contains all saved JSONs */
 
@@ -63,5 +61,4 @@ void savePersistentData() {
 
 */
 
-List<MatchIdentity> dataToUpload = Hive.box(boxKey).get("data_to_upload") as List<MatchIdentity>;
-List <Scout?> scoutsToUpload = [];
+List<MatchIdentity> dataToUpload = [];

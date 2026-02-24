@@ -168,23 +168,21 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
             case "Nxt":
               widget = SizedBox(
-                  height: data.layout.h * verticalStep,
-                  width: data.layout.w * horizontalStep,
-                  child: ElevatedButton(
-                  onPressed: (){
-                    MatchIdentity? matchIdentity = ref.read(scoutingSessionProvider.notifier).createMatchIdentity();
-                    if(matchIdentity != null){
+                height: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                child: ElevatedButton(
+                  onPressed: () {
+                    MatchIdentity? matchIdentity = ref
+                        .read(scoutingSessionProvider.notifier)
+                        .createMatchIdentity();
+                    if (matchIdentity != null) {
                       dataToUpload.add(matchIdentity);
-                      scoutsToUpload.add(
-                      ref.read(scoutingSessionProvider.notifier).getScout()
-                      );
-                      Hive.box(boxKey).put("data_to_upload", dataToUpload);
                     }
                     ref.read(scoutingSessionProvider.notifier).nextMatch();
                     context.go('/match/auto');
                   },
-                  child: Text("Next Match")
-                  )
+                  child: Text("Next Match"),
+                ),
               );
               break;
             default:

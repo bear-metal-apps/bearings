@@ -1,19 +1,14 @@
 
 
-
 import 'dart:convert';
 
-import 'package:beariscope_scouter/pages/match_page.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_ce/hive.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import '../data/local_data.dart';
 import '../data/match_json_gen.dart';
 import '../data/ui_json_serialization.dart';
-import '../models/scouting_session.dart';
 
 
 class UploadButton extends ConsumerStatefulWidget{
@@ -25,41 +20,54 @@ class UploadButton extends ConsumerStatefulWidget{
   }
 }
 
-class UploadButtonState extends ConsumerState<UploadButton>{
+class UploadButtonState extends ConsumerState<UploadButton> {
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton.tonal(
+      onPressed: dataToUpload.isEmpty
+          ? null
+          : () async {
+              final pendingIdentities = List<MatchIdentity>.from(dataToUpload);
+              dataToUpload = [];
 
-    @override
-    Widget build(BuildContext context) {
-      return ElevatedButton(
-        onPressed: () async {
-          final json = jsonDecode(
-            await rootBundle.loadString('resources/ui_creator.json'),
-          );
-          final matchConfig = MatchConfig.fromJson(json);
+              try {
+                final json = jsonDecode(
+                  await rootBundle.loadString('resources/ui_creator.json'),
+                );
+                final matchConfig = MatchConfig.fromJson(json);
 
-          List<Map<String,dynamic>> uploadingData = [];
-          String dataToUploadName = "";
-          dataToUpload.forEach((MatchIdentity element){
-            uploadingData.add(generateMatchJsonHive(
-                matchConfig,
-                element,
-                scoutsToUpload[dataToUpload.indexOf(element)] ?? Scout(name: 'NoScout', uuid: '')
-            ).toJson());
-            dataToUploadName = "$dataToUploadName MATCH: ${element.matchNumber}";
-          });
+                final entries = pendingIdentities
+                    .map((identity) =>
+                        generateMatchJsonHive(matchConfig, identity).toJson())
+                    .toList();
 
-          final data = {
-            "uploadBatchId": dataToUploadName,
-            "entries": uploadingData
-          };
+                await ref
+                    .read(honeycombClientProvider)
+                    .post('/scout/ingest', data: {'entries': entries});
 
-          await ref.watch(honeycombClientProvider).post("/scout/ingest", data: jsonEncode(data));
-          dataToUpload = [];
-          dataToUploadName = "";
-        },
-        child: Icon(
-            Icons.upload
-        ),
-      );
-    }
-
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Uploaded ${entries.length} entr${entries.length == 1 ? 'y' : 'ies'} successfully',
+                      ),
+                    ),
+                  );
+                }
+              } catch (e) {
+                dataToUpload = pendingIdentities;
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Upload failed: $e'),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.error,
+                    ),
+                  );
+                }
+              }
+            },
+      child: const Icon(Icons.upload),
+    );
+  }
 }

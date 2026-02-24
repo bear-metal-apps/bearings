@@ -71,34 +71,35 @@ class SectionJsonData {
 
 class MetaJsonData {
   final int season;
-  final String author;
   final int version;
   final String type;
-  final String scoutName;
+  final String event;
+  final String scoutedBy;
 
   MetaJsonData({
     required this.season,
-    required this.author,
     required this.version,
     required this.type,
-    required this.scoutName
+    required this.event,
+    required this.scoutedBy,
   });
 
   factory MetaJsonData.fromJson(Map<String, dynamic> json) {
     return MetaJsonData(
       season: json['season'],
-      author: json['author'],
       version: json['version'],
       type: json['type'],
-      scoutName: json['scout']
+      event: json['event']?.toString() ?? '',
+      scoutedBy: json['scoutedBy']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
     'season': season,
-    'author': author,
     'version': version,
     'type': type,
+    'event': event,
+    'scoutedBy': scoutedBy,
   };
 }
 
@@ -143,18 +144,19 @@ SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
   return sectionJsonData;
 }
 
-MetaJsonData generateMetaJsonHive(Meta config, Scout scout) => MetaJsonData(
-  season: config.season,
-  author: config.author,
-  type: config.type,
-  version: config.version,
-  scoutName: scout.name
-);
+MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) =>
+    MetaJsonData(
+      season: config.season,
+      type: config.type,
+      version: config.version,
+      event: info.event.key,
+      scoutedBy: info.scout.name,
+    );
 
 /// Uses the MatchConfig, and looks up hive data for necessary values.
-MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info, Scout scout) =>
+MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) =>
     MatchJsonData(
-      meta: generateMetaJsonHive(config.meta, scout),
+      meta: generateMetaJsonHive(config.meta, info),
       sections: config.pages
           .map((e) => generateSectionJsonHive(e, info))
           .toList(),
