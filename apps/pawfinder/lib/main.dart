@@ -16,6 +16,7 @@ import 'package:libkoala/providers/auth_provider.dart';
 import 'package:libkoala/providers/device_info_provider.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await loadHive();
   runApp(
     ProviderScope(
@@ -45,7 +46,6 @@ Future<void> main() async {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authStatus = ref.watch(authStatusProvider.notifier);
-
   return GoRouter(
     initialLocation: '/splash',
     refreshListenable: authStatus,

@@ -10,6 +10,8 @@ import 'package:beariscope_scouter/custom_widgets/match_widgets/slider.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/text_box.dart';
 import 'package:beariscope_scouter/custom_widgets/match_widgets/tristate.dart';
 import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:beariscope_scouter/data/match_json_gen.dart';
+import 'package:beariscope_scouter/data/upload_queue.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,22 +29,19 @@ Future<Map<String, dynamic>> loadUiConfig() async {
   return jsonDecode(jsonString);
 }
 
-// MatchIdentity currentMatchIdentity = (eventKey: "eventKey", matchNumber: 0, isRedAlliance: false, position: 0, robotNum: 0);
-// class matchPagesProvider extends ChangeNotifier {
-//
-// }
-final matchPagesProvider =
+  final matchPagesProvider =
     AsyncNotifierProvider<MatchPagesNotifier, List<List<Widget>>>(
       MatchPagesNotifier.new,
     );
 
 class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
-  String _buildDataKey(String fieldId) {
-    final session = ref.read(scoutingSessionProvider);
-    final eventKey = session.event?.key ?? 'unknown_event';
-    final matchNumber = session.matchNumber?.toString() ?? 'unknown_match';
-    final positionKey = session.position?.name ?? 'unknown_position';
-    return 'MATCH_${eventKey}_${matchNumber}_${positionKey}_$fieldId';
+  String _buildDataKey(String sectionId, String fieldId) {
+    final identity =
+    ref.read(scoutingSessionProvider.notifier).createMatchIdentity();
+    if (identity != null) return matchDataKey(identity, sectionId, fieldId);
+    final s = ref.read(scoutingSessionProvider);
+    return 'MATCH_${s.event?.key ?? 'unknown'}_${s.matchNumber ?? 0}_${s
+        .position?.name ?? 'unknown'}_unknown_${sectionId}_$fieldId';
   }
 
   @override
@@ -62,8 +61,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
       final json = jsonDecode(
         await rootBundle.loadString('resources/ui_creator.json'),
       );
-
-      final pages = MatchConfig.fromJson(json).pages;
+      final matchConfig = MatchConfig.fromJson(json);
+      final pages = matchConfig.pages;
       final List<List<Widget>> matchPages = [];
 
       for (int index = 0; index < pages.length; index++) {
@@ -74,7 +73,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
         final verticalStep = (ultimateHeight - 130) / page.height;
 
         for (final data in page.components) {
-          final dataBoxKey = _buildDataKey(data.fieldId);
+          final dataBoxKey = _buildDataKey(page.sectionId, data.fieldId);
           final storedValue = dataBox.get(dataBoxKey);
 
           Widget widget;
@@ -82,12 +81,10 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
             case 'volumetric_button':
               widget = BigNumberWidget(
                 key: ValueKey(dataBoxKey),
-                buttons: [
-                  1, 5, -1, -5,
-                ],
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
-                text: data.alias,
+                buttons: [1, 5, -1, -5],
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
+                dataName: data.alias,
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
@@ -97,8 +94,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 key: ValueKey(dataBoxKey),
                 backgroundColor: Colors.white,
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
@@ -108,8 +105,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 key: ValueKey(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 initialValue: storedValue is int ? storedValue : null,
               );
               break;
@@ -117,8 +114,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = BoolButton(
                 key: ValueKey(dataBoxKey),
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 visualFeedback: true,
@@ -129,8 +126,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = StringTextbox(
                 key: ValueKey(dataBoxKey),
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 initialString: storedValue is String ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
@@ -147,17 +144,17 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 items: items.map((x) => x.toString()).toList(), // darts type system is really weird
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 initialIndex: initialIndex == -1 ? null : initialIndex,
-                xValue: data.layout.w * horizontalStep,
-                yValue: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
               );
               break;
             case "tristate":
               widget = TristateButton(
                 key: ValueKey(dataBoxKey),
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
-                initialState: storedValue is int ? storedValue : null,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
+                initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
               );
               break;
@@ -165,8 +162,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = BoolButton(
                 key: ValueKey(dataBoxKey),
                 dataName: data.alias,
-                xLength: data.layout.w * horizontalStep,
-                yLength: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 visualFeedback: true,
                 initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
@@ -179,8 +176,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 key: ValueKey(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 title: data.alias,
-                xValue: data.layout.w * horizontalStep,
-                yValue: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
                 minValue: 0,
                 maxValue: 10,
                 initialValue: sliderValue,
@@ -198,27 +195,33 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialIndex = idx >= 0 ? idx : null;
               }
               widget = CustomSegmentedButton(
-                  key: ValueKey(dataBoxKey),
-                  segments: items.map((x) => x.toString()).toList(),
-                  onChanged: (value) => dataBox.put(dataBoxKey, value),
-                  initialIndex: initialIndex,
-                  xLength: data.layout.w * horizontalStep,
-                  yLength: data.layout.h * verticalStep
+                key: ValueKey(dataBoxKey),
+                segments: items.map((x) => x.toString()).toList(),
+                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                initialIndex: initialIndex,
+                width: data.layout.w * horizontalStep,
+                height: data.layout.h * verticalStep,
               );
               break;
             case "Nxt":
               widget = SizedBox(
-                  height: data.layout.h * verticalStep,
-                  width: data.layout.w * horizontalStep,
-                  child: Builder(
-                    builder: (ctx) => ElevatedButton(
-                      onPressed: (){
-                        ref.read(scoutingSessionProvider.notifier).nextMatch();
-                        ctx.go('/match/auto');
-                      },
-                      child: Text("Next Match")
-                    )
-                  )
+                height: data.layout.h * verticalStep,
+                width: data.layout.w * horizontalStep,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final matchIdentity = ref
+                        .read(scoutingSessionProvider.notifier)
+                        .createMatchIdentity();
+                    if (matchIdentity != null) {
+                      ref
+                          .read(uploadQueueProvider.notifier)
+                          .addIfNotPresent(matchIdentity);
+                    }
+                    ref.read(scoutingSessionProvider.notifier).nextMatch();
+                    context.go('/match/auto');
+                  },
+                  child: Text("Next Match"),
+                ),
               );
               break;
             default:
@@ -249,6 +252,14 @@ class MatchPage extends ConsumerStatefulWidget {
 
 class MatchPageState extends ConsumerState<MatchPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(matchPagesProvider.notifier).loadUI(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     ref.listen<ScoutingSession>(
       scoutingSessionProvider,
@@ -270,7 +281,12 @@ class MatchPageState extends ConsumerState<MatchPage> {
     return pagesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text(err.toString())),
-      data: (pages) => Stack(children: pages[widget.index]),
+      data: (pages) {
+        if (pages.isEmpty || widget.index >= pages.length) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Stack(children: pages[widget.index]);
+      },
     );
   }
 }

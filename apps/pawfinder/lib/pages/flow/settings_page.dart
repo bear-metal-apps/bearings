@@ -1,6 +1,8 @@
+import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -9,7 +11,12 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+          title: const Text('Settings'),
+          actions: [
+            UploadButton()
+          ],
+      ),
       body: ListView(
         children: [
           ListTile(
@@ -18,6 +25,10 @@ class SettingsPage extends ConsumerWidget {
             subtitle: const Text('Sign out of your account'),
             onTap: () => _showSignOutDialog(context, ref),
           ),
+          ListTile(
+            title: Text("Delete Cache"),
+            // onLongPress: () => Hive.deleteFromDisk(),TODO get a Dialogue for this
+          )
         ],
       ),
     );

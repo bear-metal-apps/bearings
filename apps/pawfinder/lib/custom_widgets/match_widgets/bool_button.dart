@@ -4,8 +4,8 @@ import 'package:pressable_flutter/pressable_flutter.dart';
 
 class BoolButton extends StatefulWidget {
   final String dataName;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final Function(bool) onChanged;
   final bool visualFeedback;
   final bool? initialValue;
@@ -14,8 +14,8 @@ class BoolButton extends StatefulWidget {
     super.key,
     this.initialValue,
     required this.dataName,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     required this.onChanged,
     required this.visualFeedback,
   });
@@ -30,8 +30,8 @@ class _BoolButtonState extends State<BoolButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: Pressable(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -44,7 +44,7 @@ class _BoolButtonState extends State<BoolButton> {
                 ? Colors.red
                 : Colors.green,
             padding: EdgeInsets.all(16.0),
-            minimumSize: Size(widget.xLength, widget.yLength),
+            minimumSize: Size(widget.width, widget.height),
           ),
           onPressed: () {
             setState(() {

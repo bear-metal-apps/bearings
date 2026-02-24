@@ -1,13 +1,10 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:pressable_flutter/pressable_flutter.dart';
 
 class CustomSegmentedButton extends StatefulWidget {
   final List<String> segments;
   final Function(int) onChanged;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final Color? selectedColor;
   final Color? unselectedColor;
   final int? initialIndex;
@@ -17,8 +14,8 @@ class CustomSegmentedButton extends StatefulWidget {
     this.initialIndex,
     required this.segments,
     required this.onChanged,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     this.selectedColor = Colors.blue,
     this.unselectedColor = Colors.white,
   });
@@ -60,8 +57,8 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
               .map(
                 (segment) =>
                     SizedBox(
-                        height: widget.yLength,
-                        width: (widget.xLength/(widget.segments.length)),
+                        height: widget.height,
+                        width: (widget.width/(widget.segments.length)),
                         child: Center(
                             child: Text(segment)
                         )

@@ -7,8 +7,8 @@ class Dropdown extends StatefulWidget {
 
   final List<String> items;
   final Function(String?)? onChanged;
-  final double xValue;
-  final double yValue;
+  final double width;
+  final double height;
   final Color backgroundColor;
   final int? initialIndex;
 
@@ -18,8 +18,8 @@ class Dropdown extends StatefulWidget {
     required this.backgroundColor,
 
     required this.items,
-    required this.xValue,
-    required this.yValue,
+    required this.width,
+    required this.height,
     this.onChanged,
     super.key,
   });
@@ -42,8 +42,8 @@ class _DropdownState extends State<Dropdown> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xValue,
-      height: widget.yValue,
+      width: widget.width,
+      height: widget.height,
 
       child: Pressable(
         child: DropdownButtonFormField<String>(

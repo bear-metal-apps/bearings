@@ -2,20 +2,27 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
+///width/height, The constraints for the widget in order to plug into the app (logic pixels)
+///backgroundColors, The possible background colors,
+///text, The Title text given for the widget to label the value
+///initialValue, the value it is initially saved as, important for match rotation
+///onChanged, the lambda for the app to access the value of the widget
+///
 class TristateButton extends StatefulWidget {
   final String dataName;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final Function(int) onChanged;
   // final double? minfontSize; // Optional font size parameter
-  final int? initialState;
+  final int? initialValue;
+
   const  TristateButton({
     super.key,
-    this.initialState,
+    this.initialValue,
     // this.minfontSize,
     required this.dataName,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     required this.onChanged,
   });
 
@@ -25,12 +32,12 @@ class TristateButton extends StatefulWidget {
 
 class _TristateState extends State<TristateButton> {
   late int currentState =
-      widget.initialState ?? 0; // 0: unchecked, 1: checked, 2: indeterminate
+      widget.initialValue ?? 0; // 0: unchecked, 1: checked, 2: indeterminate
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: Pressable(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(

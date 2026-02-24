@@ -2,25 +2,27 @@ import 'dart:convert';
 
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/ui_json_serialization.dart';
+import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
 
 typedef MatchIdentity = ({
-  String eventKey,
+  ScoutingEvent event,
   int matchNumber,
-  bool isRedAlliance,
-  int position,
-int robotNum
+  ScoutPosition postion,
+  Scout scout
 });
 
 String identityDataKey(MatchIdentity identity) {
-  return "MATCH_${identity.eventKey}_${identity.matchNumber}_${identity
-      .isRedAlliance}_${identity.position}";
+  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.postion.name}_${identity.scout.name}";
 }
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
   return "${identityDataKey(identity)}_${sectionId}_$fieldId";
 }
+
+String matchTeamKey(MatchIdentity identity) =>
+    '${identityDataKey(identity)}_team';
 
 /*
 class FieldJsonData {
@@ -72,53 +74,75 @@ class SectionJsonData {
 
 class MetaJsonData {
   final int season;
-  final String author;
   final int version;
   final String type;
+  final String event;
+  final String scoutedBy;
 
   MetaJsonData({
     required this.season,
-    required this.author,
     required this.version,
     required this.type,
+    required this.event,
+    required this.scoutedBy,
   });
 
   factory MetaJsonData.fromJson(Map<String, dynamic> json) {
     return MetaJsonData(
       season: json['season'],
-      author: json['author'],
       version: json['version'],
       type: json['type'],
+      event: json['event']?.toString() ?? '',
+      scoutedBy: json['scoutedBy']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
     'season': season,
-    'author': author,
     'version': version,
     'type': type,
+    'event': event,
+    'scoutedBy': scoutedBy,
   };
 }
 
 class MatchJsonData {
   final MetaJsonData meta;
+  final int? teamNumber;
+  final int matchNumber;
+  final int pos;
   final List<SectionJsonData> sections;
 
-  MatchJsonData({required this.meta, required this.sections});
+  MatchJsonData({
+    required this.meta,
+    required this.matchNumber,
+    required this.pos,
+    required this.sections,
+    this.teamNumber,
+  });
 
   factory MatchJsonData.fromJson(Map<String, dynamic> json) {
     return MatchJsonData(
       meta: MetaJsonData.fromJson(json['meta']),
+      teamNumber: json['teamNumber'] as int?,
+      matchNumber: (json['matchNumber'] as int?) ?? 0,
+      pos: (json['pos'] as int?) ?? 0,
       sections: (json['sections'] as List)
           .map((e) => SectionJsonData.fromJson(e))
           .toList(),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'meta': meta.toJson(),
-    'sections': sections.map((e) => e.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{
+      'meta': meta.toJson(),
+      'matchNumber': matchNumber,
+      'pos': pos,
+      'sections': sections.map((e) => e.toJson()).toList(),
+    };
+    if (teamNumber != null) map['teamNumber'] = teamNumber;
+    return map;
+  }
 }
 
 /// Uses the PageConfig, and looks up hive data for necessary values.
@@ -141,21 +165,31 @@ SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
   return sectionJsonData;
 }
 
-MetaJsonData generateMetaJsonHive(Meta config) => MetaJsonData(
-  season: config.season,
-  author: config.author,
-  type: config.type,
-  version: config.version,
-);
+MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) =>
+    MetaJsonData(
+      season: config.season,
+      type: config.type,
+      version: config.version,
+      event: info.event.key,
+      scoutedBy: info.scout.name,
+    );
 
 /// Uses the MatchConfig, and looks up hive data for necessary values.
-MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) =>
-    MatchJsonData(
-      meta: generateMetaJsonHive(config.meta),
-      sections: config.pages
-          .map((e) => generateSectionJsonHive(e, info))
-          .toList(),
-    );
+MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
+  final box = Hive.box(boxKey);
+  final rawTeam = box.get(matchTeamKey(info));
+  final teamNumber = rawTeam is int ? rawTeam : null;
+
+  return MatchJsonData(
+    meta: generateMetaJsonHive(config.meta, info),
+    teamNumber: teamNumber,
+    matchNumber: info.matchNumber,
+    pos: info.postion.posIndex,
+    sections: config.pages
+        .map((e) => generateSectionJsonHive(e, info))
+        .toList(),
+  );
+}
 
 /// Loads the MatchJsonData into the appropriate hive keys using MatchIdentity.
 void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {

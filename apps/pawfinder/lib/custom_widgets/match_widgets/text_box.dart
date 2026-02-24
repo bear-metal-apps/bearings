@@ -6,8 +6,8 @@ class StringTextbox extends StatefulWidget {
   final Color? outlineColor;
   final String dataName;
   final Function(String) onChanged;
-  final double xLength;
-  final double yLength;
+  final double width;
+  final double height;
   final String? initialString;
 
   const StringTextbox({
@@ -16,8 +16,8 @@ class StringTextbox extends StatefulWidget {
     required this.onChanged,
     this.outlineColor,
     required this.dataName,
-    required this.xLength,
-    required this.yLength,
+    required this.width,
+    required this.height,
     this.initialString,
   });
   @override
@@ -43,8 +43,8 @@ class _StringTextboxState extends State<StringTextbox> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.xLength,
-      height: widget.yLength,
+      width: widget.width,
+      height: widget.height,
       child: TextField(
         cursorColor: Colors.black,
         decoration: InputDecoration(

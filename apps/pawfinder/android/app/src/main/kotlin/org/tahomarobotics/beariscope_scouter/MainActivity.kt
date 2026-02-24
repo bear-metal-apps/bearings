@@ -1,4 +1,4 @@
-package com.example.beariscope_scouter
+package org.tahomarobotics.beariscope_scouter
 
 import io.flutter.embedding.android.FlutterActivity
 

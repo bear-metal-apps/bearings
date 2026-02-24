@@ -1,4 +1,6 @@
+import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -122,6 +124,10 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     state = state.copyWith(scout: scout);
   }
 
+  Scout? getScout(){
+    return state.scout;
+  }
+
   void setMatchNumber(int matchNumber) {
     state = state.copyWith(matchNumber: matchNumber);
   }
@@ -138,6 +144,13 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     }
   }
 
+  MatchIdentity? createMatchIdentity(){
+    if(state.position != null && state.matchNumber != null && state.event != null && state.scout != null){
+    return (postion: state.position!, matchNumber: state.matchNumber!, event: state.event!, scout: state.scout!);
+    }
+    return null;
+  }
+
   void exitToScoutSelect() {
     state = ScoutingSession(
       event: state.event,
@@ -150,3 +163,29 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     state = const ScoutingSession();
   }
 }
+
+//gives the tean number based on the schedule
+final teamNumberForSessionProvider = FutureProvider<int?>((ref) async {
+  final session = ref.watch(scoutingSessionProvider);
+  final event = session.event;
+  final position = session.position;
+  final matchNumber = session.matchNumber;
+
+  if (event == null ||
+      position == null ||
+      matchNumber == null ||
+      position.isStrategy) {
+    return null;
+  }
+
+  try {
+    final matches = await ref.watch(matchesProvider(event.key).future);
+    final match = matches.firstWhere(
+          (m) => m.compLevel == 'qm' && m.matchNumber == matchNumber,
+      orElse: () => throw StateError('Match $matchNumber not found'),
+    );
+    return int.tryParse(match.teamNumberAt(position));
+  } catch (_) {
+    return null;
+  }
+});
