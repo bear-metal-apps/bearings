@@ -42,18 +42,10 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
     if (raw.isEmpty) return;
 
     final year = raw.length >= 4
-        ? (int.tryParse(raw.substring(0, 4)) ?? DateTime
-        .now()
-        .year)
-        : DateTime
-        .now()
-        .year;
+        ? (int.tryParse(raw.substring(0, 4)) ?? DateTime.now().year)
+        : DateTime.now().year;
 
-    final customEvent = ScoutingEvent(
-      key: raw,
-      name: raw,
-      year: year,
-    );
+    final customEvent = ScoutingEvent(key: raw, name: raw, year: year);
     setState(() => _selectedEvent = customEvent);
     ref.read(scoutingSessionProvider.notifier).setEvent(customEvent);
   }
@@ -145,51 +137,53 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                 const SizedBox(height: 8),
                 eventsAsync.when(
                   data: (events) {
-                    final inList = _selectedEvent != null &&
-                        events
-                            .where((e) => e == _selectedEvent)
-                            .length == 1;
+                    final inList =
+                        _selectedEvent != null &&
+                        events.where((e) => e == _selectedEvent).length == 1;
 
                     final displayEvents = (inList || _selectedEvent == null)
                         ? events
                         : [_selectedEvent!, ...events];
 
                     return DropdownButtonFormField<ScoutingEvent>(
-                      initialValue: _selectedEvent != null && displayEvents
-                          .where((e) => e == _selectedEvent)
-                          .length == 1
+                      initialValue:
+                          _selectedEvent != null &&
+                              displayEvents
+                                      .where((e) => e == _selectedEvent)
+                                      .length ==
+                                  1
                           ? _selectedEvent
                           : null,
-                    padding: EdgeInsets.all(4),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
+                      padding: EdgeInsets.all(4),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
                         ),
+                        hintText: 'Select a competition',
                       ),
-                      hintText: 'Select a competition',
-                    ),
                       items: displayEvents
-                        .map(
-                          (e) =>
-                              DropdownMenuItem(value: e, child: Text(e.name)),
-                        )
-                        .toList(),
-                    onChanged: (event) {
-                      setState(() => _selectedEvent = event);
-                      if (event != null) {
-                        ref
-                            .read(scoutingSessionProvider.notifier)
-                            .setEvent(event);
-                      }
-                    },
+                          .map(
+                            (e) =>
+                                DropdownMenuItem(value: e, child: Text(e.name)),
+                          )
+                          .toList(),
+                      onChanged: (event) {
+                        setState(() => _selectedEvent = event);
+                        if (event != null) {
+                          ref
+                              .read(scoutingSessionProvider.notifier)
+                              .setEvent(event);
+                        }
+                      },
                     );
                   },
                   loading: () => const LinearProgressIndicator(),
@@ -202,10 +196,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                 const SizedBox(height: 16),
                 Text(
                   'Or enter event key manually',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
                 Row(
