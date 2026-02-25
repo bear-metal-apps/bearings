@@ -58,11 +58,11 @@ class _NumberButtonState extends State<NumberButton> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-                Text(
-                  '${widget.dataName}: $currentVariable',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleSmall
-                ),
+              Text(
+                '${widget.dataName}: $currentVariable',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               Align(
                 alignment: widget.textAlignment,
                 child: Container(

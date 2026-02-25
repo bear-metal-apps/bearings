@@ -29,19 +29,19 @@ Future<Map<String, dynamic>> loadUiConfig() async {
   return jsonDecode(jsonString);
 }
 
-  final matchPagesProvider =
+final matchPagesProvider =
     AsyncNotifierProvider<MatchPagesNotifier, List<List<Widget>>>(
       MatchPagesNotifier.new,
     );
 
 class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
   String _buildDataKey(String sectionId, String fieldId) {
-    final identity =
-    ref.read(scoutingSessionProvider.notifier).createMatchIdentity();
+    final identity = ref
+        .read(scoutingSessionProvider.notifier)
+        .createMatchIdentity();
     if (identity != null) return matchDataKey(identity, sectionId, fieldId);
     final s = ref.read(scoutingSessionProvider);
-    return 'MATCH_${s.event?.key ?? 'unknown'}_${s.matchNumber ?? 0}_${s
-        .position?.name ?? 'unknown'}_unknown_${sectionId}_$fieldId';
+    return 'MATCH_${s.event?.key ?? 'unknown'}_${s.matchNumber ?? 0}_${s.position?.name ?? 'unknown'}_unknown_${sectionId}_$fieldId';
   }
 
   @override
@@ -134,14 +134,16 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
 
             case "dropdown":
-            List<dynamic> items = data.parameters["options"];
-            int initialIndex = items.indexOf(storedValue);
+              List<dynamic> items = data.parameters["options"];
+              int initialIndex = items.indexOf(storedValue);
 
               widget = Dropdown(
                 key: ValueKey(dataBoxKey),
                 title: data.alias,
                 backgroundColor: Colors.blueAccent,
-                items: items.map((x) => x.toString()).toList(), // darts type system is really weird
+                items: items
+                    .map((x) => x.toString())
+                    .toList(), // darts type system is really weird
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
                 initialIndex: initialIndex == -1 ? null : initialIndex,
                 width: data.layout.w * horizontalStep,
@@ -170,8 +172,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               );
               break;
             case "slider":
-              final double? sliderValue =
-                  storedValue is num ? storedValue.toDouble() : null;
+              final double? sliderValue = storedValue is num
+                  ? storedValue.toDouble()
+                  : null;
               widget = CustomSlider(
                 key: ValueKey(dataBoxKey),
                 onChanged: (value) => dataBox.put(dataBoxKey, value),
@@ -261,21 +264,18 @@ class MatchPageState extends ConsumerState<MatchPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<ScoutingSession>(
-      scoutingSessionProvider,
-      (previous, next) {
-        final prevEvent = previous?.event?.key;
-        final nextEvent = next.event?.key;
-        final prevPos = previous?.position?.name;
-        final nextPos = next.position?.name;
-        if (prevEvent != nextEvent ||
-            prevPos != nextPos ||
-            previous?.matchNumber != next.matchNumber) {
-          if (!mounted) return;
-          ref.read(matchPagesProvider.notifier).loadUI(context);
-        }
-      },
-    );
+    ref.listen<ScoutingSession>(scoutingSessionProvider, (previous, next) {
+      final prevEvent = previous?.event?.key;
+      final nextEvent = next.event?.key;
+      final prevPos = previous?.position?.name;
+      final nextPos = next.position?.name;
+      if (prevEvent != nextEvent ||
+          prevPos != nextPos ||
+          previous?.matchNumber != next.matchNumber) {
+        if (!mounted) return;
+        ref.read(matchPagesProvider.notifier).loadUI(context);
+      }
+    });
     final pagesAsync = ref.watch(matchPagesProvider);
 
     return pagesAsync.when(

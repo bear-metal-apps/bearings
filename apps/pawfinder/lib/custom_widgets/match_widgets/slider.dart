@@ -39,10 +39,7 @@ class _CustomSliderState extends State<CustomSlider> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.title,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
             SfSlider.vertical(
               min: widget.minValue.toDouble(),
               max: widget.maxValue.toDouble(),
@@ -60,31 +57,28 @@ class _CustomSliderState extends State<CustomSlider> {
         ),
       );
     }
-      return SizedBox(
-        width: widget.width,
-        height: widget.height,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.title,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SfSlider(
-              min: widget.minValue.toDouble(),
-              max: widget.maxValue.toDouble(),
-              value: sliderValue,
-              onChanged: (value) {
-                widget.onChanged(value);
-                setState(() => sliderValue = value);
-              },
-              interval: 1.0,
-              showTicks: true,
-              showLabels: true,
-              // enableTooltip: true,
-            ),
-          ],
-        ),
-      );
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
+          SfSlider(
+            min: widget.minValue.toDouble(),
+            max: widget.maxValue.toDouble(),
+            value: sliderValue,
+            onChanged: (value) {
+              widget.onChanged(value);
+              setState(() => sliderValue = value);
+            },
+            interval: 1.0,
+            showTicks: true,
+            showLabels: true,
+            // enableTooltip: true,
+          ),
+        ],
+      ),
+    );
   }
 }

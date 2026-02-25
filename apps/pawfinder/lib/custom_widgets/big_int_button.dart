@@ -24,7 +24,7 @@ class BigNumberButton extends StatefulWidget {
     required this.xLength,
     required this.yLength,
     this.textAlignment = Alignment.bottomRight,
-    this.step = 1
+    this.step = 1,
   });
 
   @override
@@ -98,7 +98,7 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                               currentVariable -= 5;
                             } else {
                               if (currentVariable > 0) {
-                                currentVariable-= 5;
+                                currentVariable -= 5;
                               }
                             }
                           });
@@ -167,7 +167,7 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                               currentVariable -= 10;
                             } else {
                               if (currentVariable > 0) {
-                                currentVariable-= 10;
+                                currentVariable -= 10;
                               }
                             }
                           });
@@ -180,7 +180,7 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                 ],
               ),
             ),
-        ]
+          ],
         ),
       ),
     );

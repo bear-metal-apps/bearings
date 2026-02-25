@@ -38,7 +38,8 @@ class DriverSkillNotifier extends _$DriverSkillNotifier with StratNotifier {
 }
 
 @riverpod
-class DefensiveSkillNotifier extends _$DefensiveSkillNotifier with StratNotifier {
+class DefensiveSkillNotifier extends _$DefensiveSkillNotifier
+    with StratNotifier {
   @override
   List<String> build() => box.get('defensiveskill') ?? ["2000", "1000", "2046"];
 
@@ -63,11 +64,12 @@ class DefensiveSkillNotifier extends _$DefensiveSkillNotifier with StratNotifier
   }
 }
 
-
 @riverpod
-class MechanicalStabilityNotifier extends _$MechanicalStabilityNotifier with StratNotifier {
+class MechanicalStabilityNotifier extends _$MechanicalStabilityNotifier
+    with StratNotifier {
   @override
-  List<String> build() => box.get('mechanicalStability') ?? ["2000", "1000", "2046"];
+  List<String> build() =>
+      box.get('mechanicalStability') ?? ["2000", "1000", "2046"];
 
   @override
   void reorder(int oldIndex, int newIndex) {

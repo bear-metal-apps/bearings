@@ -162,9 +162,9 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
 
 class LightSwitch extends ConsumerStatefulWidget {
   bool value;
-  
+
   LightSwitch({super.key, required this.value});
-  
+
   @override
   ConsumerState<LightSwitch> createState() {
     return _LightSwitchState();

@@ -139,7 +139,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 class MyApp extends ConsumerStatefulWidget {
-
   const MyApp({super.key});
 
   @override
@@ -147,7 +146,6 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-
   @override
   void initState() {
     super.initState();

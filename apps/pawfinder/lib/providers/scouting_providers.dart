@@ -124,7 +124,7 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     state = state.copyWith(scout: scout);
   }
 
-  Scout? getScout(){
+  Scout? getScout() {
     return state.scout;
   }
 
@@ -144,9 +144,17 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     }
   }
 
-  MatchIdentity? createMatchIdentity(){
-    if(state.position != null && state.matchNumber != null && state.event != null && state.scout != null){
-    return (postion: state.position!, matchNumber: state.matchNumber!, event: state.event!, scout: state.scout!);
+  MatchIdentity? createMatchIdentity() {
+    if (state.position != null &&
+        state.matchNumber != null &&
+        state.event != null &&
+        state.scout != null) {
+      return (
+        postion: state.position!,
+        matchNumber: state.matchNumber!,
+        event: state.event!,
+        scout: state.scout!,
+      );
     }
     return null;
   }
@@ -181,7 +189,7 @@ final teamNumberForSessionProvider = FutureProvider<int?>((ref) async {
   try {
     final matches = await ref.watch(matchesProvider(event.key).future);
     final match = matches.firstWhere(
-          (m) => m.compLevel == 'qm' && m.matchNumber == matchNumber,
+      (m) => m.compLevel == 'qm' && m.matchNumber == matchNumber,
       orElse: () => throw StateError('Match $matchNumber not found'),
     );
     return int.tryParse(match.teamNumberAt(position));
