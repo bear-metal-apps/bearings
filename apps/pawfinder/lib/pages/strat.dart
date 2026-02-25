@@ -48,7 +48,9 @@ class StratPageState extends ConsumerState<StratPage> {
     final driverSkill = ref.watch(driverSkillProvider.notifier);
     final defensiveSkill = ref.watch(defensiveSkillProvider.notifier);
     final mechanicalStability = ref.watch(mechanicalStabilityProvider.notifier);
-    final defensiveSusceptibility = ref.watch(mechanicalStabilityProvider.notifier);
+    final defensiveSusceptibility = ref.watch(
+      mechanicalStabilityProvider.notifier,
+    );
     double defensiveSlider = 0.0;
     int humanPlayer = 0;
 
@@ -69,8 +71,7 @@ class StratPageState extends ConsumerState<StratPage> {
                   max: 10,
                   value: defensiveSlider,
                   onChanged: (value) {
-                    setState(() => defensiveSlider = value
-                    );
+                    setState(() => defensiveSlider = value);
                   },
                   interval: 1.0,
                   showTicks: true,
@@ -100,9 +101,9 @@ class StratPageState extends ConsumerState<StratPage> {
                       //   padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
                       //   child:
                       Text(
-                          'Human Player: $humanPlayer',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleSmall
+                        'Human Player: $humanPlayer',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                       // ),
                       Align(
@@ -120,9 +121,9 @@ class StratPageState extends ConsumerState<StratPage> {
                             icon: const Icon(Icons.remove, color: Colors.black),
                             onPressed: () {
                               setState(() {
-                                  if (humanPlayer > 0) {
-                                    humanPlayer--;
-                                  }
+                                if (humanPlayer > 0) {
+                                  humanPlayer--;
+                                }
                               });
                             },
                           ),
@@ -134,11 +135,11 @@ class StratPageState extends ConsumerState<StratPage> {
               ],
             ),
             ElevatedButton(
-                onPressed: (){
-                  ref.read(scoutingSessionProvider.notifier).nextMatch();
-                },
-                child: Text("Next Match")
-            )
+              onPressed: () {
+                ref.read(scoutingSessionProvider.notifier).nextMatch();
+              },
+              child: Text("Next Match"),
+            ),
           ],
         ),
       ),

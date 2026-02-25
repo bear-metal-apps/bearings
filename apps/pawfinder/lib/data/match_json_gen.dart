@@ -5,12 +5,11 @@ import 'package:beariscope_scouter/data/ui_json_serialization.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
-
 typedef MatchIdentity = ({
   ScoutingEvent event,
   int matchNumber,
   ScoutPosition postion,
-  Scout scout
+  Scout scout,
 });
 
 String identityDataKey(MatchIdentity identity) {

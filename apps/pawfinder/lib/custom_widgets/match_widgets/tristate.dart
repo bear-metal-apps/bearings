@@ -16,7 +16,7 @@ class TristateButton extends StatefulWidget {
   // final double? minfontSize; // Optional font size parameter
   final int? initialValue;
 
-  const  TristateButton({
+  const TristateButton({
     super.key,
     this.initialValue,
     // this.minfontSize,
@@ -78,8 +78,8 @@ class _TristateState extends State<TristateButton> {
               style: TextStyle(
                 color: Colors.black,
                 // fontSize:
-                    // widget.minfontSize ??
-                    // 20.0, // Use the provided font size or default to 16.0
+                // widget.minfontSize ??
+                // 20.0, // Use the provided font size or default to 16.0
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 2,

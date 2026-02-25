@@ -63,9 +63,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
         ),
         title: const Text('Select Match'),
         actionsPadding: EdgeInsets.only(right: 16),
-        actions: [
-          UploadButton(),
-        ],
+        actions: [UploadButton()],
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -92,36 +90,23 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
 
                 const SizedBox(height: 16),
                 teamAsync.when(
-                  data: (team) =>
-                      Text(
-                        team != null ? 'Team: $team' : 'Team: —',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(
-                          color: team != null
-                              ? Theme
-                              .of(context)
-                              .colorScheme
-                              .primary
-                              : null,
-                        ),
-                      ),
-                  loading: () =>
-                  const SizedBox(
+                  data: (team) => Text(
+                    team != null ? 'Team: $team' : 'Team: —',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: team != null
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  loading: () => const SizedBox(
                     height: 24,
                     width: 24,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  error: (_, _) =>
-                      Text(
-                        'Team: —',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headlineSmall,
-                      ),
+                  error: (_, _) => Text(
+                    'Team: —',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                 ),
 
                 const SizedBox(height: 48),
@@ -206,10 +191,9 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                                 error: (_, __) => null,
                               );
                               if (team != null) {
-                                Hive.box(boxKey).put(
-                                  matchTeamKey(identity),
-                                  team,
-                                );
+                                Hive.box(
+                                  boxKey,
+                                ).put(matchTeamKey(identity), team);
                               }
                             }
 

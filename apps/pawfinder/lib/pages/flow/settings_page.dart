@@ -11,12 +11,7 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('Settings'),
-          actions: [
-            UploadButton()
-          ],
-      ),
+      appBar: AppBar(title: const Text('Settings'), actions: [UploadButton()]),
       body: ListView(
         children: [
           ListTile(
@@ -28,7 +23,7 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             title: Text("Delete Cache"),
             // onLongPress: () => Hive.deleteFromDisk(),TODO get a Dialogue for this
-          )
+          ),
         ],
       ),
     );

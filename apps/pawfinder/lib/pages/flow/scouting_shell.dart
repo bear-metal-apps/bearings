@@ -1,28 +1,37 @@
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/data/upload_queue.dart';
+import 'package:beariscope_scouter/providers/brightness_provider.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 
-class ScoutingShell extends ConsumerWidget {
+import 'package:beariscope_scouter/main.dart';
+
+class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
 
   const ScoutingShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ScoutingShell> createState() => _ScoutingShellState();
+}
+
+class _ScoutingShellState extends ConsumerState<ScoutingShell> {
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
     final queueNotifier = ref.read(uploadQueueProvider.notifier);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
 
+    bool dark = true;
+
     // always contains the correct team even when navigating via prev/next.
-    ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_,
-        next,) {
+    ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_, next) {
       final team = next.when(
         data: (t) => t,
         loading: () => null,
@@ -73,6 +82,7 @@ class ScoutingShell extends ConsumerWidget {
             }
           },
         ),
+
         title: Row(
           children: [
             Text('Match $matchNumber'),
@@ -82,17 +92,20 @@ class ScoutingShell extends ConsumerWidget {
           ],
         ),
         actions: [
+          Text('Dark Mode:'),
+          SizedBox(width: 20),
+          LightSwitch(value: dark),
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
             onPressed: matchNumber > 1
                 ? () {
-              final identity = notifier.createMatchIdentity();
-              if (identity != null) {
-                queueNotifier.addIfNotPresent(identity);
-              }
-              notifier.previousMatch();
-            }
+                    final identity = notifier.createMatchIdentity();
+                    if (identity != null) {
+                      queueNotifier.addIfNotPresent(identity);
+                    }
+                    notifier.previousMatch();
+                  }
                 : null,
           ),
           IconButton(
@@ -108,7 +121,7 @@ class ScoutingShell extends ConsumerWidget {
           ),
         ],
       ),
-      body: child,
+      body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTabIndex(context),
         onTap: (index) {
@@ -144,5 +157,31 @@ class ScoutingShell extends ConsumerWidget {
     if (location.contains('/tele')) return 1;
     if (location.contains('/end')) return 2;
     return 0;
+  }
+}
+
+class LightSwitch extends ConsumerStatefulWidget {
+  bool value;
+
+  LightSwitch({super.key, required this.value});
+
+  @override
+  ConsumerState<LightSwitch> createState() {
+    return _LightSwitchState();
+  }
+}
+
+class _LightSwitchState extends ConsumerState<LightSwitch> {
+  @override
+  Widget build(BuildContext context) {
+    return Switch(
+      value: widget.value,
+      onChanged: (bool value) {
+        setState(() {
+          widget.value = value;
+          ref.read(brightnessNotifierProvider.notifier).changeBrightness(value);
+        });
+      },
+    );
   }
 }

@@ -62,7 +62,6 @@ abstract class _$DriverSkillNotifier extends $Notifier<List<String>> {
   }
 }
 
-
 @ProviderFor(MechanicalStabilityNotifier)
 final mechanicalStabilityProvider = MechanicalStabilityNotifierProvider._();
 
@@ -95,7 +94,8 @@ final class MechanicalStabilityNotifierProvider
   }
 }
 
-String _$mechanicalStabilityNotifierHash() => r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
+String _$mechanicalStabilityNotifierHash() =>
+    r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
 
 abstract class _$MechanicalStabilityNotifier extends $Notifier<List<String>> {
   List<String> build();
@@ -115,23 +115,21 @@ abstract class _$MechanicalStabilityNotifier extends $Notifier<List<String>> {
   }
 }
 
-
-
 @ProviderFor(DefensiveSkillNotifier)
 final defensiveSkillProvider = DefensiveSkillNotifierProvider._();
 
 final class DefensiveSkillNotifierProvider
     extends $NotifierProvider<DefensiveSkillNotifier, List<String>> {
   DefensiveSkillNotifierProvider._()
-      : super(
-    from: null,
-    argument: null,
-    retry: null,
-    name: r'defensiveSkillProvider',
-    isAutoDispose: true,
-    dependencies: null,
-    $allTransitiveDependencies: null,
-  );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'defensiveSkillProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$defensiveSkillNotifierHash();
@@ -149,7 +147,8 @@ final class DefensiveSkillNotifierProvider
   }
 }
 
-String _$defensiveSkillNotifierHash() => r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
+String _$defensiveSkillNotifierHash() =>
+    r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
 
 abstract class _$DefensiveSkillNotifier extends $Notifier<List<String>> {
   List<String> build();
@@ -158,13 +157,13 @@ abstract class _$DefensiveSkillNotifier extends $Notifier<List<String>> {
   void runBuild() {
     final ref = this.ref as $Ref<List<String>, List<String>>;
     final element =
-    ref.element
-    as $ClassProviderElement<
-        AnyNotifier<List<String>, List<String>>,
-        List<String>,
-        Object?,
-        Object?
-    >;
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<String>, List<String>>,
+              List<String>,
+              Object?,
+              Object?
+            >;
     element.handleCreate(ref, build);
   }
 }

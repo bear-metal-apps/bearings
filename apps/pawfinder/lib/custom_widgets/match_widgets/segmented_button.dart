@@ -37,35 +37,32 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
   @override
   Widget build(BuildContext context) {
     return ToggleButtons(
-          isSelected: List.generate(
-            widget.segments.length,
-            (index) => selectedSegment == widget.segments[index],
-          ),
-          onPressed: (value) {
-            setState(() {
-              selectedSegment = widget.segments[value];
-              widget.onChanged(value);
-            });
-          },
-          color: Colors.black,
-          selectedColor: Colors.white,
-          fillColor: widget.selectedColor,
-          borderColor: Colors.grey,
-          selectedBorderColor: Colors.grey,
-          borderRadius: BorderRadius.circular(8.0),
-          children: widget.segments
-              .map(
-                (segment) =>
-                    SizedBox(
-                        height: widget.height,
-                        width: (widget.width/(widget.segments.length)),
-                        child: Center(
-                            child: Text(segment)
-                        )
-                    )
-              )
-              .toList(),
-        );
-      // ),
+      isSelected: List.generate(
+        widget.segments.length,
+        (index) => selectedSegment == widget.segments[index],
+      ),
+      onPressed: (value) {
+        setState(() {
+          selectedSegment = widget.segments[value];
+          widget.onChanged(value);
+        });
+      },
+      color: Colors.black,
+      selectedColor: Colors.white,
+      fillColor: widget.selectedColor,
+      borderColor: Colors.grey,
+      selectedBorderColor: Colors.grey,
+      borderRadius: BorderRadius.circular(8.0),
+      children: widget.segments
+          .map(
+            (segment) => SizedBox(
+              height: widget.height,
+              width: (widget.width / (widget.segments.length)),
+              child: Center(child: Text(segment)),
+            ),
+          )
+          .toList(),
+    );
+    // ),
   }
 }

@@ -81,19 +81,19 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                   itemBuilder: (context, index) {
                     final value = widget.buttons[index];
                     return ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            currentValue += value;
-                          });
-                          widget.onChanged?.call(currentValue);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: widget.backgroundColor ?? Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                      onPressed: () {
+                        setState(() {
+                          currentValue += value;
+                        });
+                        widget.onChanged?.call(currentValue);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.backgroundColor ?? Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: Text(value > 0 ? "+$value" : value.toString())
+                      ),
+                      child: Text(value > 0 ? "+$value" : value.toString()),
                     );
                   },
                 ),
