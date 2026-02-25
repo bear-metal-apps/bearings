@@ -9,6 +9,7 @@ import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
 import 'package:beariscope_scouter/pages/welcome_page.dart';
+import 'package:beariscope_scouter/providers/brightness_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -138,6 +139,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 class MyApp extends ConsumerStatefulWidget {
+
   const MyApp({super.key});
 
   @override
@@ -145,6 +147,7 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+
   @override
   void initState() {
     super.initState();
@@ -168,7 +171,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
+          brightness: ref.watch(brightnessNotifierProvider),
         ),
       ),
     );
