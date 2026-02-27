@@ -53,7 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const SplashScreen(),
+        builder: (context, state) => const SplashScreen()
       ),
       GoRoute(
         path: '/welcome',
@@ -88,15 +88,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/match/auto',
-            builder: (context, state) => const MatchPage(index: 0),
+            pageBuilder: (context, state) => NoTransitionPage<void>(
+              key: state.pageKey,
+              child: const MatchPage(index: 0),
+            ),
           ),
           GoRoute(
             path: '/match/tele',
-            builder: (context, state) => const MatchPage(index: 1),
+            pageBuilder: (context, state) => NoTransitionPage<void>(
+              key: state.pageKey,
+              child: const MatchPage(index: 1),
+            ),
           ),
           GoRoute(
             path: '/match/end',
-            builder: (context, state) => const MatchPage(index: 2),
+            pageBuilder: (context, state) => NoTransitionPage<void>(
+              key: state.pageKey,
+              child: const MatchPage(index: 2),
+            ),
           ),
         ],
       ),
