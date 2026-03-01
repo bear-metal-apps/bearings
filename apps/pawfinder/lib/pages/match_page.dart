@@ -13,6 +13,7 @@ import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
 import 'package:beariscope_scouter/data/upload_queue.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
+import 'package:beariscope_scouter/pages/flow/scouting_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,7 +87,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 height: data.layout.h * verticalStep,
                 dataName: data.alias,
                 initialValue: storedValue is int ? storedValue : null,
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value){
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
               );
               break;
             case "int_button":
@@ -97,13 +103,23 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 initialValue: storedValue is int ? storedValue : null,
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
               );
               break;
             case "int_text_box":
               widget = IntTextbox(
                 key: ValueKey(dataBoxKey),
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
@@ -117,7 +133,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 initialValue: storedValue is bool ? storedValue : null,
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
                 visualFeedback: true,
               );
               break;
@@ -129,7 +150,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 initialString: storedValue is String ? storedValue : null,
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
               );
               break;
 
@@ -144,7 +170,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 items: items
                     .map((x) => x.toString())
                     .toList(), // darts type system is really weird
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
                 initialIndex: initialIndex == -1 ? null : initialIndex,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
@@ -157,7 +188,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 initialValue: storedValue is int ? storedValue : null,
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
               );
               break;
             case "checkbox":
@@ -168,7 +204,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 height: data.layout.h * verticalStep,
                 visualFeedback: true,
                 initialValue: storedValue is bool ? storedValue : null,
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  return dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
               );
               break;
             case "slider":
@@ -177,7 +218,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   : null;
               widget = CustomSlider(
                 key: ValueKey(dataBoxKey),
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
                 title: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
@@ -200,7 +246,12 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               widget = CustomSegmentedButton(
                 key: ValueKey(dataBoxKey),
                 segments: items.map((x) => x.toString()).toList(),
-                onChanged: (value) => dataBox.put(dataBoxKey, value),
+                onChanged: (value) {
+                  dataBox.put(dataBoxKey, value);
+                  if(page.sectionId == 'auto'){
+                    startFlash();
+                  }
+                },
                 initialIndex: initialIndex,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
