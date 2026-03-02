@@ -420,18 +420,6 @@
           "parameters": {}
         },
         {
-          "alias": "Fouls",
-          "fieldId": "fouls",
-          "type": "int_button",
-          "layout": {
-            "x": 4,
-            "y": 1,
-            "w": 2,
-            "h": 1
-          },
-          "parameters": {}
-        },
-        {
           "alias": "Climb Pos",
           "fieldId": "climb_location",
           "type": "segmented_button",
@@ -446,6 +434,25 @@
               "Left",
               "Center",
               "Right"
+            ]
+          }
+        },
+        {
+          "alias": "Preferred Play Style",
+          "fieldId": "play_style",
+          "type": "segmented_button",
+          "layout": {
+            "x": 0,
+            "y": 4,
+            "w": 6,
+            "h": 1
+          },
+          "parameters": {
+            "options" : [
+              "Passing",
+              "Cycling",
+              "Shooting",
+              "Defense"
             ]
           }
         },

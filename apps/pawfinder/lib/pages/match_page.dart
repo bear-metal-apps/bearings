@@ -228,7 +228,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
                 minValue: 0,
-                maxValue: 10,
+                maxValue: 100,
                 initialValue: sliderValue,
               );
               break;

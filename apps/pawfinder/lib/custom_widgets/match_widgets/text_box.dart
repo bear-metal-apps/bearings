@@ -47,6 +47,9 @@ class _StringTextboxState extends State<StringTextbox> {
       height: widget.height,
       child: TextField(
         cursorColor: Colors.black,
+        expands: true,
+        maxLines: null,
+        minLines: null,
         decoration: InputDecoration(
           filled: true,
           fillColor: widget.fillColor ?? Colors.white,

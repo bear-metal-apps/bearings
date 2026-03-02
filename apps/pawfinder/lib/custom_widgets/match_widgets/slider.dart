@@ -48,11 +48,11 @@ class _CustomSliderState extends State<CustomSlider> {
                 widget.onChanged(value);
                 setState(() => sliderValue = value);
               },
-              interval: 1.0,
+              interval: 10.0,
               showTicks: true,
               showLabels: true,
               enableTooltip: true,
-              stepSize: 0.33,
+              stepSize: 0.5,
             ),
           ],
         ),
@@ -73,11 +73,11 @@ class _CustomSliderState extends State<CustomSlider> {
               widget.onChanged(value);
               setState(() => sliderValue = value);
             },
-            interval: 1.0,
+            interval: 5.0,
             showTicks: true,
             showLabels: true,
             enableTooltip: true,
-            stepSize: 1/3,
+            stepSize: 0.5,
           ),
         ],
       ),
