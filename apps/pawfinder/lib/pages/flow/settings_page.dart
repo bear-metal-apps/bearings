@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 
+import '../../data/local_data.dart';
+
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -21,12 +23,43 @@ class SettingsPage extends ConsumerWidget {
             onTap: () => _showSignOutDialog(context, ref),
           ),
           ListTile(
-            title: Text("Delete Cache"),
-            // onLongPress: () => Hive.deleteFromDisk(),TODO get a Dialogue for this
+            leading: const Icon(Icons.delete_outline),
+            title: const Text('Delete Local Data'),
+            subtitle: const Text(
+                'clears all cached match data from this device'),
+            onTap: () => _showDeleteCacheDialog(context),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _showDeleteCacheDialog(BuildContext context) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            title: const Text('Delete Local Data'),
+            content: const Text(
+              'this will delete all locally stored match data, schedule cache, and upload queue. your config (event/position) will be kept.\n\nyou should upload pending matches first.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text(
+                    'Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete ?? false) {
+      await Hive.box(boxKey).clear();
+    }
   }
 
   Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {

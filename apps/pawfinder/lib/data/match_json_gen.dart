@@ -8,12 +8,13 @@ import 'package:hive_ce_flutter/adapters.dart';
 typedef MatchIdentity = ({
   ScoutingEvent event,
   int matchNumber,
-  ScoutPosition postion,
+ScoutPosition position,
   Scout scout,
 });
 
 String identityDataKey(MatchIdentity identity) {
-  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.postion.name}_${identity.scout.name}";
+  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity
+      .position.name}_${identity.scout.name}";
 }
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
@@ -22,38 +23,6 @@ String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
 
 String matchTeamKey(MatchIdentity identity) =>
     '${identityDataKey(identity)}_team';
-
-/*
-class FieldJsonData {
-  final String fieldId;
-  final String displayName;
-  final String dataType;
-  final Map<String, dynamic> parameters;
-
-  FieldJsonData({
-    required this.fieldId,
-    required this.displayName,
-    required this.dataType,
-    required this.parameters,
-  });
-
-  factory FieldJsonData.fromJson(Map<String, dynamic> json) {
-    return FieldJsonData(
-      fieldId: json['fieldId'],
-      displayName: json['displayName'],
-      dataType: json['dataType'],
-      parameters: Map<String, dynamic>.from(json['parameters'] ?? {}),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'fieldId': fieldId,
-    'displayName': displayName,
-    'dataType': dataType,
-    'parameters': parameters,
-  };
-}
-*/
 
 class SectionJsonData {
   final String sectionId;
@@ -144,24 +113,17 @@ class MatchJsonData {
   }
 }
 
-/// Uses the PageConfig, and looks up hive data for necessary values.
+// reads each field value out of hive
 SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
-  SectionJsonData sectionJsonData = SectionJsonData(
-    sectionId: config.sectionId,
-    fields: {},
-  );
+  final section = SectionJsonData(sectionId: config.sectionId, fields: {});
+  final box = Hive.box(boxKey);
 
-  Box dataBox = Hive.box(boxKey);
-
-  for (var data in config.components) {
-    // retrieve the hive data
-    final dataBoxKey = matchDataKey(info, config.sectionId, data.fieldId);
-
-    final dynamic dataValue = dataBox.get(dataBoxKey) ?? 0;
-    sectionJsonData.fields[data.fieldId] = dataValue;
+  for (final data in config.components) {
+    final key = matchDataKey(info, config.sectionId, data.fieldId);
+    section.fields[data.fieldId] = box.get(key) ?? 0;
   }
 
-  return sectionJsonData;
+  return section;
 }
 
 MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) =>
@@ -173,7 +135,7 @@ MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) =>
       scoutedBy: info.scout.name,
     );
 
-/// Uses the MatchConfig, and looks up hive data for necessary values.
+// assembles the full match json from hive for upload
 MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
   final box = Hive.box(boxKey);
   final rawTeam = box.get(matchTeamKey(info));
@@ -183,16 +145,16 @@ MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
     meta: generateMetaJsonHive(config.meta, info),
     teamNumber: teamNumber,
     matchNumber: info.matchNumber,
-    pos: info.postion.posIndex,
+    pos: info.position.posIndex,
     sections: config.pages
         .map((e) => generateSectionJsonHive(e, info))
         .toList(),
   );
 }
 
-/// Loads the MatchJsonData into the appropriate hive keys using MatchIdentity.
+// restores saved match json data back into hive (editing old matches)
 void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
-  Box dataBox = Hive.box(boxKey);
+  final dataBox = Hive.box(boxKey);
 
   for (final section in data.sections) {
     section.fields.forEach(
@@ -201,21 +163,15 @@ void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
   }
 }
 
-/// Saves the MatchJsonData to Hive.
+// saves the full match json snapshot under the identity key
 void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
-  Box dataBox = Hive.box(boxKey);
-
-  dataBox.put("${identityDataKey(info)}_JSON", jsonEncode(data.toJson()));
+  Hive.box(boxKey).put(
+      "${identityDataKey(info)}_JSON", jsonEncode(data.toJson()));
 }
 
 MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
-  Box dataBox = Hive.box(boxKey);
-
-  String? jsonRaw = dataBox.get("${identityDataKey(info)}_JSON");
-  if (jsonRaw == null) {
-    return null;
-  }
-
-  Map<String, dynamic> json = jsonDecode(jsonRaw);
-  return MatchJsonData.fromJson(json);
+  final jsonRaw = Hive.box(boxKey).get(
+      "${identityDataKey(info)}_JSON") as String?;
+  if (jsonRaw == null) return null;
+  return MatchJsonData.fromJson(jsonDecode(jsonRaw));
 }

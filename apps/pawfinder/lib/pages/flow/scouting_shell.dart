@@ -1,14 +1,12 @@
 import 'package:beariscope_scouter/data/local_data.dart';
 import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/data/upload_queue.dart';
 import 'package:beariscope_scouter/providers/brightness_provider.dart';
+import 'package:beariscope_scouter/providers/scouting_flow_provider.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
-
-import 'package:beariscope_scouter/main.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -55,7 +53,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
-    final queueNotifier = ref.read(uploadQueueProvider.notifier);
+    final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
 
@@ -64,7 +62,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
       final team = next.when(
         data: (t) => t,
         loading: () => null,
-        error: (_, __) => null,
+        error: (_, _) => null,
       );
       if (team == null) return;
       final identity = notifier.createMatchIdentity();
@@ -126,25 +124,13 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
             onPressed: matchNumber > 1
-                ? () {
-                    final identity = notifier.createMatchIdentity();
-                    if (identity != null) {
-                      queueNotifier.addIfNotPresent(identity);
-                    }
-                    notifier.previousMatch();
-                  }
+                ? () => flow.previousMatch()
                 : null,
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
             tooltip: 'Next Match',
-            onPressed: () {
-              final identity = notifier.createMatchIdentity();
-              if (identity != null) {
-                queueNotifier.addIfNotPresent(identity);
-              }
-              notifier.nextMatch();
-            },
+            onPressed: () => flow.nextMatch(),
           ),
         ],
       ),
@@ -194,9 +180,9 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
 }
 
 class LightSwitch extends ConsumerStatefulWidget {
-  bool value;
+  final bool value;
 
-  LightSwitch({super.key, required this.value});
+  const LightSwitch({super.key, required this.value});
 
   @override
   ConsumerState<LightSwitch> createState() {
@@ -205,13 +191,21 @@ class LightSwitch extends ConsumerStatefulWidget {
 }
 
 class _LightSwitchState extends ConsumerState<LightSwitch> {
+  late bool _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.value;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Switch(
-      value: widget.value,
+      value: _value,
       onChanged: (bool value) {
         setState(() {
-          widget.value = value;
+          _value = value;
           ref.read(brightnessNotifierProvider.notifier).changeBrightness(value);
         });
       },

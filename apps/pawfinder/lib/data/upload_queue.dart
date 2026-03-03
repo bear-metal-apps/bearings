@@ -9,7 +9,7 @@ import 'package:hive_ce_flutter/adapters.dart';
 Map<String, dynamic> _identityToJson(MatchIdentity id) => {
   'event': id.event.toJson(),
   'matchNumber': id.matchNumber,
-  'position': id.postion.name,
+  'position': id.position.name,
   'scoutName': id.scout.name,
   'scoutUuid': id.scout.uuid,
 };
@@ -20,7 +20,7 @@ MatchIdentity? _identityFromJson(dynamic raw) {
     return (
       event: ScoutingEvent.fromJson(Map<String, dynamic>.from(m['event'])),
       matchNumber: m['matchNumber'] as int,
-      postion: ScoutPosition.values.firstWhere((p) => p.name == m['position']),
+      position: ScoutPosition.values.firstWhere((p) => p.name == m['position']),
       scout: Scout(
         name: m['scoutName'] as String,
         uuid: m['scoutUuid'] as String,

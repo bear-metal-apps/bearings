@@ -1,4 +1,3 @@
-//CHAT GPT - WILL REMOVE LATER
 class MatchConfig {
   final Meta meta;
   final List<PageConfig> pages;

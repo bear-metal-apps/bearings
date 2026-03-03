@@ -18,7 +18,7 @@ import 'package:libkoala/providers/device_info_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await loadHive();
+  await loadStorage();
   runApp(
     ProviderScope(
       overrides: [
@@ -158,10 +158,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(matchPagesProvider.notifier).loadUI(context);
-    });
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authProvider).trySilentLogin();
     });

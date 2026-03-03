@@ -1,3 +1,4 @@
+import 'package:beariscope_scouter/providers/scouting_flow_provider.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ class StratShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
+    final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
 
     return Scaffold(
@@ -55,15 +57,19 @@ class StratShell extends ConsumerWidget {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.skip_previous),
-            tooltip: 'Previous Match',
-            onPressed: matchNumber > 1 ? () => notifier.previousMatch() : null,
-          ),
-          IconButton(
-            icon: const Icon(Icons.skip_next),
-            tooltip: 'Next Match',
-            onPressed: () => notifier.nextMatch(),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.skip_previous),
+                tooltip: 'Previous Match',
+                onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.skip_next),
+                tooltip: 'Next Match',
+                onPressed: () => flow.nextMatch(),
+              ),
+            ],
           ),
         ],
       ),

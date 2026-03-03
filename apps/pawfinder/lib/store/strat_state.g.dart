@@ -9,161 +9,101 @@ part of 'strat_state.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(DriverSkillNotifier)
-final driverSkillProvider = DriverSkillNotifierProvider._();
+@ProviderFor(StratStateNotifier)
+final stratStateProvider = StratStateNotifierFamily._();
 
-final class DriverSkillNotifierProvider
-    extends $NotifierProvider<DriverSkillNotifier, List<String>> {
-  DriverSkillNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'driverSkillProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+final class StratStateNotifierProvider
+    extends $NotifierProvider<StratStateNotifier, StratState> {
+  StratStateNotifierProvider._({
+    required StratStateNotifierFamily super.from,
+    required MatchIdentity super.argument,
+  }) : super(
+         retry: null,
+         name: r'stratStateProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  String debugGetCreateSourceHash() => _$driverSkillNotifierHash();
+  String debugGetCreateSourceHash() => _$stratStateNotifierHash();
+
+  @override
+  String toString() {
+    return r'stratStateProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
-  DriverSkillNotifier create() => DriverSkillNotifier();
+  StratStateNotifier create() => StratStateNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<String> value) {
+  Override overrideWithValue(StratState value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<List<String>>(value),
+      providerOverride: $SyncValueProvider<StratState>(value),
     );
   }
-}
 
-String _$driverSkillNotifierHash() =>
-    r'03caaae47658770785f45489135c7a3b815c9af7';
-
-abstract class _$DriverSkillNotifier extends $Notifier<List<String>> {
-  List<String> build();
-  @$mustCallSuper
   @override
-  void runBuild() {
-    final ref = this.ref as $Ref<List<String>, List<String>>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<List<String>, List<String>>,
-              List<String>,
-              Object?,
-              Object?
-            >;
-    element.handleCreate(ref, build);
+  bool operator ==(Object other) {
+    return other is StratStateNotifierProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
   }
 }
 
-@ProviderFor(MechanicalStabilityNotifier)
-final mechanicalStabilityProvider = MechanicalStabilityNotifierProvider._();
+String _$stratStateNotifierHash() =>
+    r'32b27b4e8d3e284f5f629f28e63b43047209bf21';
 
-final class MechanicalStabilityNotifierProvider
-    extends $NotifierProvider<MechanicalStabilityNotifier, List<String>> {
-  MechanicalStabilityNotifierProvider._()
+final class StratStateNotifierFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          StratStateNotifier,
+          StratState,
+          StratState,
+          StratState,
+          MatchIdentity
+        > {
+  StratStateNotifierFamily._()
     : super(
-        from: null,
-        argument: null,
         retry: null,
-        name: r'mechanicalStabilityProvider',
-        isAutoDispose: true,
+        name: r'stratStateProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
+        isAutoDispose: false,
       );
 
-  @override
-  String debugGetCreateSourceHash() => _$mechanicalStabilityNotifierHash();
+  StratStateNotifierProvider call(MatchIdentity identity) =>
+      StratStateNotifierProvider._(argument: identity, from: this);
 
-  @$internal
   @override
-  MechanicalStabilityNotifier create() => MechanicalStabilityNotifier();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<String> value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<List<String>>(value),
-    );
-  }
+  String toString() => r'stratStateProvider';
 }
 
-String _$mechanicalStabilityNotifierHash() =>
-    r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
+abstract class _$StratStateNotifier extends $Notifier<StratState> {
+  late final _$args = ref.$arg as MatchIdentity;
 
-abstract class _$MechanicalStabilityNotifier extends $Notifier<List<String>> {
-  List<String> build();
+  MatchIdentity get identity => _$args;
+
+  StratState build(MatchIdentity identity);
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<List<String>, List<String>>;
+    final ref = this.ref as $Ref<StratState, StratState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<List<String>, List<String>>,
-              List<String>,
+              AnyNotifier<StratState, StratState>,
+              StratState,
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
-  }
-}
-
-@ProviderFor(DefensiveSkillNotifier)
-final defensiveSkillProvider = DefensiveSkillNotifierProvider._();
-
-final class DefensiveSkillNotifierProvider
-    extends $NotifierProvider<DefensiveSkillNotifier, List<String>> {
-  DefensiveSkillNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'defensiveSkillProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$defensiveSkillNotifierHash();
-
-  @$internal
-  @override
-  DefensiveSkillNotifier create() => DefensiveSkillNotifier();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<String> value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<List<String>>(value),
-    );
-  }
-}
-
-String _$defensiveSkillNotifierHash() =>
-    r'3c35385535abdb4f60221bbbfe45dc6bd8824b70';
-
-abstract class _$DefensiveSkillNotifier extends $Notifier<List<String>> {
-  List<String> build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final ref = this.ref as $Ref<List<String>, List<String>>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<List<String>, List<String>>,
-              List<String>,
-              Object?,
-              Object?
-            >;
-    element.handleCreate(ref, build);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

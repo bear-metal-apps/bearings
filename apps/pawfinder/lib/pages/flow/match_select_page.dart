@@ -43,6 +43,11 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final teamAsync = ref.watch(teamNumberForSessionProvider);
+    final scheduleLastUpdated = ref.watch(scheduleLastUpdatedProvider);
+
+    // warm up the schedule cache in advance so it's ready for scouting
+    final eventKey = session.event?.key;
+    if (eventKey != null) ref.watch(matchesProvider(eventKey));
 
     if (session.event == null ||
         session.position == null ||
@@ -109,7 +114,14 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                   ),
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 16),
+
+                _ScheduleDownloadTile(
+                  eventKey: session.event!.key,
+                  lastUpdated: scheduleLastUpdated,
+                ),
+
+                const SizedBox(height: 32),
 
                 Text(
                   'Match Number',
@@ -188,7 +200,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                               final team = teamAsync.when(
                                 data: (t) => t,
                                 loading: () => null,
-                                error: (_, __) => null,
+                                error: (_, _) => null,
                               );
                               if (team != null) {
                                 Hive.box(
@@ -213,6 +225,103 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ScheduleDownloadTile extends ConsumerStatefulWidget {
+  final String eventKey;
+  final DateTime? lastUpdated;
+
+  const _ScheduleDownloadTile({
+    required this.eventKey,
+    required this.lastUpdated,
+  });
+
+  @override
+  ConsumerState<_ScheduleDownloadTile> createState() =>
+      _ScheduleDownloadTileState();
+}
+
+class _ScheduleDownloadTileState extends ConsumerState<_ScheduleDownloadTile> {
+  bool _downloading = false;
+
+  Future<void> _download() async {
+    setState(() => _downloading = true);
+    try {
+      // invalidate to force a fetch
+      ref.invalidate(eventScheduleProvider(widget.eventKey));
+      await ref.read(eventScheduleProvider(widget.eventKey).future);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Schedule downloaded'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download failed: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final lastUpdated = widget.lastUpdated;
+    final String statusText = lastUpdated != null
+        ? () {
+            final local = lastUpdated.toLocal();
+            final h = local.hour % 12 == 0 ? 12 : local.hour % 12;
+            final m = local.minute.toString().padLeft(2, '0');
+            final ampm = local.hour < 12 ? 'AM' : 'PM';
+            return 'Schedule saved $h:$m $ampm';
+          }()
+        : 'No schedule cached';
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          lastUpdated != null
+              ? Icons.cloud_done_outlined
+              : Icons.cloud_off_outlined,
+          size: 18,
+          color: lastUpdated != null
+              ? theme.colorScheme.primary
+              : theme.colorScheme.error,
+        ),
+        const SizedBox(width: 8),
+        Text(statusText, style: theme.textTheme.bodySmall),
+        const SizedBox(width: 12),
+        _downloading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : OutlinedButton.icon(
+                onPressed: _download,
+                icon: const Icon(Icons.download, size: 16),
+                label: const Text('Refresh'),
+                style: OutlinedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                ),
+              ),
+      ],
     );
   }
 }

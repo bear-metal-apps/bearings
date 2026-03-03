@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -72,18 +71,15 @@ class _TristateState extends State<TristateButton> {
             });
           },
           child: Center(
-            child: AutoSizeText(
-              widget.dataName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.black,
-                // fontSize:
-                // widget.minfontSize ??
-                // 20.0, // Use the provided font size or default to 16.0
-                fontWeight: FontWeight.bold,
+            child: FittedBox(
+              child: Text(
+                widget.dataName,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),

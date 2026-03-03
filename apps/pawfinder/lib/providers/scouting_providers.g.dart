@@ -50,6 +50,83 @@ final class EventsProvider
 
 String _$eventsHash() => r'cb93aaff34eda6618033533b9ce5b9155cf2d761';
 
+@ProviderFor(eventSchedule)
+final eventScheduleProvider = EventScheduleFamily._();
+
+final class EventScheduleProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<EventScheduleData>,
+          EventScheduleData,
+          FutureOr<EventScheduleData>
+        >
+    with
+        $FutureModifier<EventScheduleData>,
+        $FutureProvider<EventScheduleData> {
+  EventScheduleProvider._({
+    required EventScheduleFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'eventScheduleProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$eventScheduleHash();
+
+  @override
+  String toString() {
+    return r'eventScheduleProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<EventScheduleData> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<EventScheduleData> create(Ref ref) {
+    final argument = this.argument as String;
+    return eventSchedule(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EventScheduleProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$eventScheduleHash() => r'fb80c89aebf3592dabe36293ccb6ccd0f9ee9a82';
+
+final class EventScheduleFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<EventScheduleData>, String> {
+  EventScheduleFamily._()
+    : super(
+        retry: null,
+        name: r'eventScheduleProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  EventScheduleProvider call(String eventKey) =>
+      EventScheduleProvider._(argument: eventKey, from: this);
+
+  @override
+  String toString() => r'eventScheduleProvider';
+}
+
 @ProviderFor(matches)
 final matchesProvider = MatchesFamily._();
 
@@ -69,7 +146,7 @@ final class MatchesProvider
   }) : super(
          retry: null,
          name: r'matchesProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -107,7 +184,7 @@ final class MatchesProvider
   }
 }
 
-String _$matchesHash() => r'96b8c5c7fee2a0820ce3be9b2406df4964e2502c';
+String _$matchesHash() => r'8c44709706fb03e2c8c2285cf894fdc14c7b7fc0';
 
 final class MatchesFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<ScoutingMatch>>, String> {
@@ -117,7 +194,7 @@ final class MatchesFamily extends $Family
         name: r'matchesProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   MatchesProvider call(String eventKey) =>
@@ -125,6 +202,167 @@ final class MatchesFamily extends $Family
 
   @override
   String toString() => r'matchesProvider';
+}
+
+@ProviderFor(teamForMatchPosition)
+final teamForMatchPositionProvider = TeamForMatchPositionFamily._();
+
+final class TeamForMatchPositionProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  TeamForMatchPositionProvider._({
+    required TeamForMatchPositionFamily super.from,
+    required (String, int, ScoutPosition) super.argument,
+  }) : super(
+         retry: null,
+         name: r'teamForMatchPositionProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$teamForMatchPositionHash();
+
+  @override
+  String toString() {
+    return r'teamForMatchPositionProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    final argument = this.argument as (String, int, ScoutPosition);
+    return teamForMatchPosition(ref, argument.$1, argument.$2, argument.$3);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TeamForMatchPositionProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$teamForMatchPositionHash() =>
+    r'49c90634e58a41d28ec2e4cd52880db19cd5d497';
+
+final class TeamForMatchPositionFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<String?>,
+          (String, int, ScoutPosition)
+        > {
+  TeamForMatchPositionFamily._()
+    : super(
+        retry: null,
+        name: r'teamForMatchPositionProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  TeamForMatchPositionProvider call(
+    String eventKey,
+    int matchNumber,
+    ScoutPosition position,
+  ) => TeamForMatchPositionProvider._(
+    argument: (eventKey, matchNumber, position),
+    from: this,
+  );
+
+  @override
+  String toString() => r'teamForMatchPositionProvider';
+}
+
+@ProviderFor(allTeamsForMatch)
+final allTeamsForMatchProvider = AllTeamsForMatchFamily._();
+
+final class AllTeamsForMatchProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<ScoutPosition, String>>,
+          Map<ScoutPosition, String>,
+          FutureOr<Map<ScoutPosition, String>>
+        >
+    with
+        $FutureModifier<Map<ScoutPosition, String>>,
+        $FutureProvider<Map<ScoutPosition, String>> {
+  AllTeamsForMatchProvider._({
+    required AllTeamsForMatchFamily super.from,
+    required (String, int) super.argument,
+  }) : super(
+         retry: null,
+         name: r'allTeamsForMatchProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$allTeamsForMatchHash();
+
+  @override
+  String toString() {
+    return r'allTeamsForMatchProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<ScoutPosition, String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<ScoutPosition, String>> create(Ref ref) {
+    final argument = this.argument as (String, int);
+    return allTeamsForMatch(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AllTeamsForMatchProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$allTeamsForMatchHash() => r'36de2ef0628cb20738e3582e01b7c4500aaf76ec';
+
+final class AllTeamsForMatchFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Map<ScoutPosition, String>>,
+          (String, int)
+        > {
+  AllTeamsForMatchFamily._()
+    : super(
+        retry: null,
+        name: r'allTeamsForMatchProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  AllTeamsForMatchProvider call(String eventKey, int matchNumber) =>
+      AllTeamsForMatchProvider._(argument: (eventKey, matchNumber), from: this);
+
+  @override
+  String toString() => r'allTeamsForMatchProvider';
 }
 
 @ProviderFor(scouts)
@@ -199,11 +437,10 @@ final class ScoutingSessionNotifierProvider
 }
 
 String _$scoutingSessionNotifierHash() =>
-    r'a2203eb959137d32792e635e19c1072be45b5f72';
+    r'47cb756b86300e8af796952e1cd08df17b49b00b';
 
 abstract class _$ScoutingSessionNotifier extends $Notifier<ScoutingSession> {
   ScoutingSession build();
-
   @$mustCallSuper
   @override
   void runBuild() {
@@ -219,3 +456,77 @@ abstract class _$ScoutingSessionNotifier extends $Notifier<ScoutingSession> {
     element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(teamNumberForSession)
+final teamNumberForSessionProvider = TeamNumberForSessionProvider._();
+
+final class TeamNumberForSessionProvider
+    extends $FunctionalProvider<AsyncValue<int?>, int?, FutureOr<int?>>
+    with $FutureModifier<int?>, $FutureProvider<int?> {
+  TeamNumberForSessionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'teamNumberForSessionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$teamNumberForSessionHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<int?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<int?> create(Ref ref) {
+    return teamNumberForSession(ref);
+  }
+}
+
+String _$teamNumberForSessionHash() =>
+    r'2ef5e5f3a0be1f951b30dd19250179e2e951e328';
+
+@ProviderFor(allianceTeamsForSession)
+final allianceTeamsForSessionProvider = AllianceTeamsForSessionProvider._();
+
+final class AllianceTeamsForSessionProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<String>>,
+          List<String>,
+          FutureOr<List<String>>
+        >
+    with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
+  AllianceTeamsForSessionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allianceTeamsForSessionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$allianceTeamsForSessionHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<String>> create(Ref ref) {
+    return allianceTeamsForSession(ref);
+  }
+}
+
+String _$allianceTeamsForSessionHash() =>
+    r'546d2f251e6ae58a8e93fc963ec7a755981b9d94';

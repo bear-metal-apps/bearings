@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -75,10 +74,11 @@ class _DropdownState extends State<Dropdown> {
               )
               .toList(),
           onChanged: widget.onChanged,
-          hint: AutoSizeText(
+          hint: Text(
             widget.title,
-            style: TextStyle(fontSize: 16, color: Colors.black),
+            style: const TextStyle(fontSize: 16, color: Colors.black),
             maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
