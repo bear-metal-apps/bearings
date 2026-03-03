@@ -223,9 +223,9 @@
           "fieldId": "under_trench",
           "type": "int_button",
           "layout": {
-            "x": 2,
+            "x": 0,
             "y": 1,
-            "w": 2,
+            "w": 3,
             "h": 1
           },
           "parameters": {}
@@ -235,9 +235,9 @@
           "fieldId": "over_bump",
           "type": "int_button",
           "layout": {
-            "x": 4,
+            "x": 3,
             "y": 1,
-            "w": 2,
+            "w": 3,
             "h": 1
           },
           "parameters": {}
@@ -307,8 +307,8 @@
           "fieldId": "fouls",
           "type": "int_button",
           "layout": {
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 0,
             "w": 2,
             "h": 1
           },
@@ -325,21 +325,6 @@
             "h": 1
           },
           "parameters": {}
-        },
-        {
-          "alias": "Defense",
-          "fieldId": "defense",
-          "type": "int_button",
-          "layout": {
-            "x": 2,
-            "y": 0,
-            "w": 2,
-            "h": 1
-          },
-          "parameters": {
-            "segment_length": 1,
-            "color": "#3b82f6"
-          }
         },
         {
           "alias": "Accuracy",
@@ -372,7 +357,7 @@
             "x": 0,
             "y": 3,
             "w": 6,
-            "h": 2
+            "h": 1
           },
           "parameters": {}
         },
