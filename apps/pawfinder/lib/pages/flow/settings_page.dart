@@ -1,9 +1,9 @@
-import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:libkoala/providers/auth_provider.dart';
+import 'package:pawfinder/custom_widgets/upload_button.dart';
 
 import '../../data/local_data.dart';
 

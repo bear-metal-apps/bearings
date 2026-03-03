@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/data/upload_queue.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/data/upload_queue.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'strat_state.g.dart';

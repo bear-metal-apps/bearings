@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/providers/api_provider.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/models/scouting_session.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scouting_providers.g.dart';

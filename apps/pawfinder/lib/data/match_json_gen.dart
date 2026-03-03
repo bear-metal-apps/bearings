@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/ui_json_serialization.dart';
-import 'package:beariscope_scouter/models/scouting_session.dart';
 import 'package:hive_ce_flutter/adapters.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/ui_json_serialization.dart';
+import 'package:pawfinder/models/scouting_session.dart';
 
 typedef MatchIdentity = ({
   ScoutingEvent event,

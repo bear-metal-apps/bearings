@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/providers/match_config_provider.dart';
-import 'package:beariscope_scouter/store/strat_state.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:libkoala/providers/api_provider.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/providers/match_config_provider.dart';
+import 'package:pawfinder/store/strat_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scout_upload_service.g.dart';

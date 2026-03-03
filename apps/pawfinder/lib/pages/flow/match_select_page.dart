@@ -1,12 +1,12 @@
-import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/custom_widgets/upload_button.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class MatchSelectPage extends ConsumerStatefulWidget {
   const MatchSelectPage({super.key});

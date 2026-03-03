@@ -1,6 +1,6 @@
-import 'package:beariscope_scouter/store/strat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pawfinder/store/strat_state.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../providers/scouting_flow_provider.dart';

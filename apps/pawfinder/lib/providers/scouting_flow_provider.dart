@@ -1,5 +1,5 @@
-import 'package:beariscope_scouter/data/upload_queue.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pawfinder/data/upload_queue.dart';
 
 import 'scouting_providers.dart';
 

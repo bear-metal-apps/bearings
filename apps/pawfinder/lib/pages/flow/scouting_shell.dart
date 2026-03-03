@@ -1,12 +1,12 @@
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/providers/brightness_provider.dart';
-import 'package:beariscope_scouter/providers/scouting_flow_provider.dart';
-import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/providers/scouting_flow_provider.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
