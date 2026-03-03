@@ -51,9 +51,14 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                 widget.onChanged?.call(currentVariable);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: widget.backgroundColor ?? Colors.white,
+                backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 2.0,
+                  ),
                 ),
               ),
               child: Column(
@@ -66,10 +71,10 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                     child: Text(
                       '${widget.dataName}: $currentVariable',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -84,14 +89,14 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                       width: 56,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         iconSize: 24,
-                        icon: const Icon(Icons.remove, color: Colors.black),
+                        icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.onSurface),
                         onPressed: () {
                           setState(() {
                             if (widget.negativeAllowed == true) {
@@ -120,9 +125,14 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                 widget.onChanged?.call(currentVariable);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: widget.backgroundColor ?? Colors.white,
+                backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 2.0,
+                  ),
                 ),
               ),
               child: Column(
@@ -135,10 +145,10 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                     child: Text(
                       '${widget.dataName}: $currentVariable',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -153,14 +163,14 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                       width: 56,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         iconSize: 24,
-                        icon: const Icon(Icons.remove, color: Colors.black),
+                        icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.onSurface),
                         onPressed: () {
                           setState(() {
                             if (widget.negativeAllowed == true) {

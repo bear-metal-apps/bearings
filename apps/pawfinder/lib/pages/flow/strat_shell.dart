@@ -56,6 +56,11 @@ class StratShell extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Theme Settings',
+            onPressed: () => context.push('/strat/settings'),
+          ),
+          IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
             onPressed: matchNumber > 1 ? () => notifier.previousMatch() : null,

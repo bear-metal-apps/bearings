@@ -43,8 +43,12 @@ class _TristateState extends State<TristateButton> {
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2.0,
+              ),
             ),
-            foregroundColor: Colors.black,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             backgroundColor: (currentState == 0
                 ? Colors.red
                 : currentState == 1
@@ -76,11 +80,10 @@ class _TristateState extends State<TristateButton> {
               widget.dataName,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.black,
-                // fontSize:
-                // widget.minfontSize ??
-                // 20.0, // Use the provided font size or default to 16.0
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

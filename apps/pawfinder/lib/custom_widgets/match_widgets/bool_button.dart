@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -38,8 +37,12 @@ class _BoolButtonState extends State<BoolButton> {
             splashFactory: NoSplash.splashFactory,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2.0,
+              ),
             ),
-            foregroundColor: Colors.black,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             backgroundColor: (boolButtonState == false)
                 ? Colors.red
                 : Colors.green,
@@ -57,8 +60,10 @@ class _BoolButtonState extends State<BoolButton> {
               widget.dataName,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.5,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

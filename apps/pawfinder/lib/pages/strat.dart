@@ -1,4 +1,3 @@
-import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
 import 'package:beariscope_scouter/store/strat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,9 +86,14 @@ class StratPageState extends ConsumerState<StratPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                        width: 2.0,
+                      ),
                     ),
                   ),
                   child: Column(
@@ -112,13 +116,13 @@ class StratPageState extends ConsumerState<StratPage> {
                           width: 56,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            icon: const Icon(Icons.remove, color: Colors.black),
+                            icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.onSurface),
                             onPressed: () {
                               setState(() {
                                 if (humanPlayer > 0) {

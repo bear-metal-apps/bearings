@@ -59,10 +59,10 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                     child: Text(
                       "${widget.dataName}: $currentValue",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -88,12 +88,24 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                         widget.onChanged?.call(currentValue);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.backgroundColor ?? Colors.white,
+                        backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                            width: 2.0,
+                          ),
                         ),
                       ),
-                      child: Text(value > 0 ? "+$value" : value.toString()),
+                      child: Text(
+                        value > 0 ? "+$value" : value.toString(),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                     );
                   },
                 ),

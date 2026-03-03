@@ -5,6 +5,7 @@ import 'package:beariscope_scouter/pages/flow/scout_page.dart';
 import 'package:beariscope_scouter/pages/flow/scouting_shell.dart';
 import 'package:beariscope_scouter/pages/flow/settings_page.dart';
 import 'package:beariscope_scouter/pages/flow/strat_shell.dart';
+import 'package:beariscope_scouter/pages/flow/theme_settings_page.dart';
 import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
@@ -98,6 +99,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/match/end',
             builder: (context, state) => const MatchPage(index: 2),
           ),
+          GoRoute(
+            path: '/match/settings',
+            builder: (context, state) => const ThemeSettingsPage(),
+          ),
         ],
       ),
       ShellRoute(
@@ -108,6 +113,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/strat',
             builder: (context, state) => const StratPage(),
+          ),
+          GoRoute(
+            path: '/strat/settings',
+            builder: (context, state) => const ThemeSettingsPage(),
           ),
         ],
       ),
@@ -161,17 +170,50 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final brightness = ref.watch(brightnessNotifierProvider);
 
     return MaterialApp.router(
       title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
+        inputDecorationTheme: const InputDecorationTheme(
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      disabledBorder: InputBorder.none,
+    ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        side: BorderSide.none, // Removes the border side
+      ),
+    ),
         useMaterial3: true,
+        brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
-          brightness: ref.watch(brightnessNotifierProvider),
+          brightness: Brightness.light,
         ),
       ),
+      darkTheme: ThemeData(
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2.0,
+              ),
+            ),
+          ),
+        ),
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
     );
   }
 }

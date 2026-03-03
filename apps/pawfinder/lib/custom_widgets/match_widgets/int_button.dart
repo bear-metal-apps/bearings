@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -48,9 +47,14 @@ class _NumberButtonState extends State<NumberButton> {
             widget.onChanged?.call(currentVariable);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: widget.backgroundColor ?? Colors.white,
+            backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2.0,
+              ),
             ),
           ),
           child: Column(
@@ -61,7 +65,10 @@ class _NumberButtonState extends State<NumberButton> {
               Text(
                 '${widget.dataName}: $currentVariable',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleSmall,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
               ),
               Align(
                 alignment: widget.textAlignment,
@@ -69,13 +76,25 @@ class _NumberButtonState extends State<NumberButton> {
                   width: 56,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: IconButton(
+                  child: IconButton.outlined(
+                    
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size(56, 36),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.remove, color: Colors.black),
+                    icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.onSurface,),
                     onPressed: () {
                       setState(() {
                         if (widget.negativeAllowed == null) {

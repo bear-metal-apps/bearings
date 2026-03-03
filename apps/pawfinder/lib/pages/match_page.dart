@@ -92,7 +92,6 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
             case "int_button":
               widget = NumberButton(
                 key: ValueKey(dataBoxKey),
-                backgroundColor: Colors.white,
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
