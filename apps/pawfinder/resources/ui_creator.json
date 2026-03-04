@@ -243,9 +243,9 @@
           "parameters": {}
         },
         {
-          "alias": "Period started with Full Hopper",
-          "fieldId": "period_started_with_full_hopper",
-          "type": "checkbox",
+          "alias": "Periods started with Full Hopper",
+          "fieldId": "periods_started_with_full_hopper",
+          "type": "int_button",
           "layout": {
             "x": 4,
             "y": 0,
