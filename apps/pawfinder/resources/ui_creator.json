@@ -26,8 +26,8 @@
           }
         },
         {
-          "alias": "Scored",
-          "fieldId": "fuel_scored",
+          "alias": "Shot",
+          "fieldId": "fuel_shot",
           "type": "volumetric_button",
           "layout": {
             "x": 0,
