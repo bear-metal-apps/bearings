@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BrightnessProvider extends Notifier<Brightness> {
   @override
-  Brightness build() => Brightness.dark;
+  Brightness build() => Brightness.light;
 
   void changeBrightness(bool value) =>
-      value == true ? state = Brightness.dark : state = Brightness.light;
+      !value ? state = Brightness.dark : state = Brightness.light;
 }
 
 final brightnessNotifierProvider =

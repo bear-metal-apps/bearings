@@ -16,7 +16,38 @@ class ScoutingShell extends ConsumerStatefulWidget {
   ConsumerState<ScoutingShell> createState() => _ScoutingShellState();
 }
 
-class _ScoutingShellState extends ConsumerState<ScoutingShell> {
+late AnimationController teleFlash;
+
+Future<void> startFlash() async {
+  await Future.delayed(Duration(seconds: 15));
+  teleFlash.forward();
+}
+
+class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTickerProviderStateMixin{
+
+  @override
+  void initState() {
+    super.initState();
+    teleFlash = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        teleFlash.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        teleFlash.forward();
+      }
+    });
+    teleFlash.value = double.infinity;
+    teleFlash.stop();
+  }
+
+  @override
+  void dispose() {
+    teleFlash.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
@@ -42,7 +73,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
 
     final teamAsync = ref.watch(teamNumberForSessionProvider);
     final teamLabel = teamAsync.maybeWhen(
-      data: (t) => t != null ? ' · $t' : '',
+      data: (t) => t != null ? ' · $t' : 'null',
       orElse: () => '',
     );
 
@@ -133,6 +164,8 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
               context.go('/match/auto');
               break;
             case 1:
+              teleFlash.value = double.infinity;
+              teleFlash.stop();
               context.go('/match/tele');
               break;
             case 2:
@@ -140,13 +173,17 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
               break;
           }
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Auto'),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Auto'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart_sharp),
+            icon:
+            FadeTransition(
+                opacity: teleFlash, // Animate the opacity (visibility)
+                child: const Icon(Icons.stacked_bar_chart_sharp)
+            ),
             label: 'Tele',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.view_array),
             label: 'Endgame',
           ),
