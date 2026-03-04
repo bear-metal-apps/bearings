@@ -50,9 +50,9 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
       color: Theme.of(context).colorScheme.onSurface,
       selectedColor: Theme.of(context).colorScheme.onPrimary,
       fillColor: widget.selectedColor,
-      borderColor: Theme.of(context).colorScheme.outline,
-      selectedBorderColor: Theme.of(context).colorScheme.outline,
-      borderWidth: 2.0,
+      borderColor: Colors.white,
+      selectedBorderColor: Colors.white,
+      borderWidth: 1.0,
       borderRadius: BorderRadius.circular(8.0),
       children: widget.segments
           .map(

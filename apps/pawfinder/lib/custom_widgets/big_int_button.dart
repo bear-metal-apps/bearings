@@ -56,8 +56,8 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   side: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                    width: 2.0,
+                    color: Colors.white,
+                    width: 1.0,
                   ),
                 ),
               ),
@@ -130,8 +130,8 @@ class _BigNumberButtonState extends State<BigNumberButton> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   side: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                    width: 2.0,
+                    color: Colors.white,
+                    width: 1.0,
                   ),
                 ),
               ),

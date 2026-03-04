@@ -24,6 +24,8 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
     final queueNotifier = ref.read(uploadQueueProvider.notifier);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
+    final location = GoRouterState.of(context).uri.toString();
+    final isOnSettings = location.startsWith('/match/settings');
 
     // always contains the correct team even when navigating via prev/next.
     ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_, next) {
@@ -90,7 +92,11 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Theme Settings',
-            onPressed: () => context.push('/match/settings'),
+            onPressed: isOnSettings
+                ? null
+                : () => context.go(
+                    '/match/settings?from=${Uri.encodeComponent(location)}',
+                  ),
           ),
           IconButton(
             icon: const Icon(Icons.skip_previous),

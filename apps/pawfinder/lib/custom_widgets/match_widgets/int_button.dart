@@ -52,8 +52,8 @@ class _NumberButtonState extends State<NumberButton> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
               side: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-                width: 2.0,
+                color: Colors.white,
+                width: 1.0,
               ),
             ),
           ),
@@ -77,20 +77,17 @@ class _NumberButtonState extends State<NumberButton> {
                   height: 36,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(20.0),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1.0,
+                    ),
                   ),
-                  child: IconButton.outlined(
-                    
+                  child: IconButton(
+                    iconSize: 24,
                     style: IconButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: Size(56, 36),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
-                          width: 2.0,
-                        ),
-                      ),
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),

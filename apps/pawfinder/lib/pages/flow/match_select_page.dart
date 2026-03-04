@@ -63,7 +63,10 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
         ),
         title: const Text('Select Match'),
         actionsPadding: EdgeInsets.only(right: 16),
-        actions: [UploadButton()],
+        actions: [
+          UploadButton(),
+          
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),

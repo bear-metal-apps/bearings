@@ -97,14 +97,17 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Comp and Position'),
-        actionsPadding: EdgeInsets.only(right: 8),
+        actionsPadding: EdgeInsets.only(right: 8, top: 1),
         actions: [
           UploadButton(),
+          Padding(padding: EdgeInsets.all(5)),
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Settings',
             onPressed: () => _showPasswordDialog(context),
           ),
+          Padding(padding: EdgeInsets.all(2)),
+          
         ],
       ),
       body: Padding(
@@ -233,6 +236,16 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                   width: double.infinity,
                   height: 56,
                   child: FilledButton.icon(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          _selectedEvent != null && _selectedPosition != null
+                          ? WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.primary,
+                            )
+                          : WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.surface,
+                            ),
+                    ),
                     onPressed:
                         _selectedEvent != null && _selectedPosition != null
                         ? () {

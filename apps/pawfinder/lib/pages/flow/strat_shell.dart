@@ -13,6 +13,8 @@ class StratShell extends ConsumerWidget {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
     final matchNumber = session.matchNumber ?? 0;
+    final location = GoRouterState.of(context).uri.toString();
+    final isOnSettings = location.startsWith('/strat/settings');
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +60,11 @@ class StratShell extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Theme Settings',
-            onPressed: () => context.push('/strat/settings'),
+            onPressed: isOnSettings
+                ? null
+                : () => context.go(
+                    '/strat/settings?from=${Uri.encodeComponent(location)}',
+                  ),
           ),
           IconButton(
             icon: const Icon(Icons.skip_previous),

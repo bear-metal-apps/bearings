@@ -3,9 +3,8 @@ import 'package:beariscope_scouter/pages/flow/config_page.dart';
 import 'package:beariscope_scouter/pages/flow/match_select_page.dart';
 import 'package:beariscope_scouter/pages/flow/scout_page.dart';
 import 'package:beariscope_scouter/pages/flow/scouting_shell.dart';
-import 'package:beariscope_scouter/pages/flow/settings_page.dart';
 import 'package:beariscope_scouter/pages/flow/strat_shell.dart';
-import 'package:beariscope_scouter/pages/flow/theme_settings_page.dart';
+import 'package:beariscope_scouter/pages/flow/theme_settings.dart';
 import 'package:beariscope_scouter/pages/match_page.dart';
 import 'package:beariscope_scouter/pages/splash_screen.dart';
 import 'package:beariscope_scouter/pages/strat.dart';
@@ -68,7 +67,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'settings',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: SettingsPage()),
+                const NoTransitionPage(child: ThemeSettingsPage()),
           ),
         ],
       ),
@@ -176,40 +175,18 @@ class _MyAppState extends ConsumerState<MyApp> {
       title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
-        inputDecorationTheme: const InputDecorationTheme(
-      border: InputBorder.none,
-      enabledBorder: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      disabledBorder: InputBorder.none,
-    ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        side: BorderSide.none, // Removes the border side
-      ),
-    ),
         useMaterial3: true,
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Color.fromARGB(255, 0, 76, 255),
           brightness: Brightness.light,
         ),
       ),
       darkTheme: ThemeData(
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-                width: 2.0,
-              ),
-            ),
-          ),
-        ),
         useMaterial3: true,
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: const Color.fromARGB(255, 0, 26, 255),
           brightness: Brightness.dark,
         ),
       ),

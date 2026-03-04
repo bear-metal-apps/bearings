@@ -38,8 +38,8 @@ class _BoolButtonState extends State<BoolButton> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
               side: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-                width: 2.0,
+                color: Colors.white,
+                width: 1.0,
               ),
             ),
             foregroundColor: Theme.of(context).colorScheme.onSurface,

@@ -69,8 +69,8 @@ class _DropdownState extends State<Dropdown> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-                width: 2.0,
+                color: Colors.white,
+                width: 1.0,
               ),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),

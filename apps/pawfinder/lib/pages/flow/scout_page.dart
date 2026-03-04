@@ -104,7 +104,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                               backgroundColor: isSelected
                                   ? Theme.of(
                                       context,
-                                    ).colorScheme.primaryFixedDim
+                                    ).colorScheme.onPrimaryFixedVariant
                                   : Theme.of(
                                       context,
                                     ).colorScheme.primaryContainer,
