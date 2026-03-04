@@ -295,7 +295,7 @@ packages:
     source: hosted
     version: "3.1.0"
   flutter_secure_storage:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_secure_storage
       sha256: da922f2aab2d733db7e011a6bcc4a825b844892d4edd6df83ff156b09a9b2e40
@@ -548,11 +548,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v6.2.1"
-      resolved-ref: "6619724d5f64f2a524159ee4f7c35b8aa1a39a39"
+      ref: "v6.3.0"
+      resolved-ref: f09649a81d7f6ff6e40a48dd57ef036eb3937eac
       url: "https://github.com/bear-metal-apps/libkoala.git"
     source: git
-    version: "6.2.0"
+    version: "6.3.0"
   lints:
     dependency: transitive
     description:
@@ -609,6 +609,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  mobile_scanner:
+    dependency: "direct main"
+    description:
+      name: mobile_scanner
+      sha256: c92c26bf2231695b6d3477c8dcf435f51e28f87b1745966b1fe4c47a286171ce
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.0"
   mockito:
     dependency: transitive
     description:

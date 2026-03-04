@@ -8,13 +8,12 @@ import 'package:pawfinder/models/scouting_session.dart';
 typedef MatchIdentity = ({
   ScoutingEvent event,
   int matchNumber,
-ScoutPosition position,
+  ScoutPosition position,
   Scout scout,
 });
 
 String identityDataKey(MatchIdentity identity) {
-  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity
-      .position.name}_${identity.scout.name}";
+  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.position.name}_${identity.scout.name}";
 }
 
 String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
@@ -165,13 +164,14 @@ void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
 
 // saves the full match json snapshot under the identity key
 void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
-  Hive.box(boxKey).put(
-      "${identityDataKey(info)}_JSON", jsonEncode(data.toJson()));
+  Hive.box(
+    boxKey,
+  ).put("${identityDataKey(info)}_JSON", jsonEncode(data.toJson()));
 }
 
 MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
-  final jsonRaw = Hive.box(boxKey).get(
-      "${identityDataKey(info)}_JSON") as String?;
+  final jsonRaw =
+      Hive.box(boxKey).get("${identityDataKey(info)}_JSON") as String?;
   if (jsonRaw == null) return null;
   return MatchJsonData.fromJson(jsonDecode(jsonRaw));
 }

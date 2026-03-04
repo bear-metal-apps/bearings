@@ -24,21 +24,22 @@ Future<void> startFlash() async {
   teleFlash.forward();
 }
 
-class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTickerProviderStateMixin{
-
+class _ScoutingShellState extends ConsumerState<ScoutingShell>
+    with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    teleFlash = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    )..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        teleFlash.reverse();
-      } else if (status == AnimationStatus.dismissed) {
-        teleFlash.forward();
-      }
-    });
+    teleFlash =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 200),
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            teleFlash.reverse();
+          } else if (status == AnimationStatus.dismissed) {
+            teleFlash.forward();
+          }
+        });
     teleFlash.value = double.infinity;
     teleFlash.stop();
   }
@@ -119,13 +120,10 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
           ],
         ),
         actions: [
-
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
-            onPressed: matchNumber > 1
-                ? () => flow.previousMatch()
-                : null,
+            onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
@@ -155,10 +153,9 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
         items: [
           const BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Auto'),
           BottomNavigationBarItem(
-            icon:
-            FadeTransition(
-                opacity: teleFlash, // Animate the opacity (visibility)
-                child: const Icon(Icons.stacked_bar_chart_sharp)
+            icon: FadeTransition(
+              opacity: teleFlash, // Animate the opacity (visibility)
+              child: const Icon(Icons.stacked_bar_chart_sharp),
             ),
             label: 'Tele',
           ),

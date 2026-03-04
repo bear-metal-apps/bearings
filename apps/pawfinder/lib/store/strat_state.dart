@@ -31,12 +31,12 @@ class StratState {
 
   // empty state for a match that hasn't been filled in yet
   const StratState.empty()
-      : driverSkill = const [],
-        defensiveSkill = const [],
-        defensiveSusceptibility = const [],
-        mechanicalStability = const [],
-        defenseActivityLevel = 0.0,
-        humanPlayerScore = 0;
+    : driverSkill = const [],
+      defensiveSkill = const [],
+      defensiveSusceptibility = const [],
+      mechanicalStability = const [],
+      defenseActivityLevel = 0.0,
+      humanPlayerScore = 0;
 
   StratState copyWith({
     List<String>? driverSkill,
@@ -45,39 +45,36 @@ class StratState {
     List<String>? mechanicalStability,
     double? defenseActivityLevel,
     int? humanPlayerScore,
-  }) =>
-      StratState(
-        driverSkill: driverSkill ?? this.driverSkill,
-        defensiveSkill: defensiveSkill ?? this.defensiveSkill,
-        defensiveSusceptibility: defensiveSusceptibility ??
-            this.defensiveSusceptibility,
-        mechanicalStability: mechanicalStability ?? this.mechanicalStability,
-        defenseActivityLevel: defenseActivityLevel ?? this.defenseActivityLevel,
-        humanPlayerScore: humanPlayerScore ?? this.humanPlayerScore,
-      );
+  }) => StratState(
+    driverSkill: driverSkill ?? this.driverSkill,
+    defensiveSkill: defensiveSkill ?? this.defensiveSkill,
+    defensiveSusceptibility:
+        defensiveSusceptibility ?? this.defensiveSusceptibility,
+    mechanicalStability: mechanicalStability ?? this.mechanicalStability,
+    defenseActivityLevel: defenseActivityLevel ?? this.defenseActivityLevel,
+    humanPlayerScore: humanPlayerScore ?? this.humanPlayerScore,
+  );
 
-  Map<String, dynamic> toJson() =>
-      {
-        'driverSkill': driverSkill,
-        'defensiveSkill': defensiveSkill,
-        'defensiveSusceptibility': defensiveSusceptibility,
-        'mechanicalStability': mechanicalStability,
-        'defenseActivityLevel': defenseActivityLevel,
-        'humanPlayerScore': humanPlayerScore,
-      };
+  Map<String, dynamic> toJson() => {
+    'driverSkill': driverSkill,
+    'defensiveSkill': defensiveSkill,
+    'defensiveSusceptibility': defensiveSusceptibility,
+    'mechanicalStability': mechanicalStability,
+    'defenseActivityLevel': defenseActivityLevel,
+    'humanPlayerScore': humanPlayerScore,
+  };
 
-  factory StratState.fromJson(Map<String, dynamic> json) =>
-      StratState(
-        driverSkill: List<String>.from(json['driverSkill'] ?? []),
-        defensiveSkill: List<String>.from(json['defensiveSkill'] ?? []),
-        defensiveSusceptibility: List<String>.from(
-            json['defensiveSusceptibility'] ?? []),
-        mechanicalStability: List<String>.from(
-            json['mechanicalStability'] ?? []),
-        defenseActivityLevel: (json['defenseActivityLevel'] as num?)
-            ?.toDouble() ?? 0.0,
-        humanPlayerScore: (json['humanPlayerScore'] as num?)?.toInt() ?? 0,
-      );
+  factory StratState.fromJson(Map<String, dynamic> json) => StratState(
+    driverSkill: List<String>.from(json['driverSkill'] ?? []),
+    defensiveSkill: List<String>.from(json['defensiveSkill'] ?? []),
+    defensiveSusceptibility: List<String>.from(
+      json['defensiveSusceptibility'] ?? [],
+    ),
+    mechanicalStability: List<String>.from(json['mechanicalStability'] ?? []),
+    defenseActivityLevel:
+        (json['defenseActivityLevel'] as num?)?.toDouble() ?? 0.0,
+    humanPlayerScore: (json['humanPlayerScore'] as num?)?.toInt() ?? 0,
+  );
 }
 
 // one notifier per match identity — reads/writes to hive on every change

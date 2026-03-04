@@ -31,8 +31,10 @@ DateTime? _readScheduleTimestamp(Box box, String eventKey) {
 List<ScoutingMatch> _parseAndSortMatches(List<dynamic> rawData) {
   final matches = rawData
       .whereType<Map>()
-      .map((e) =>
-      ScoutingMatch.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
+      .map(
+        (e) =>
+            ScoutingMatch.fromJson(e.map((k, v) => MapEntry(k.toString(), v))),
+      )
       .toList();
 
   matches.sort((a, b) {
@@ -108,10 +110,12 @@ Future<List<ScoutingMatch>> matches(Ref ref, String eventKey) async {
 }
 
 @riverpod
-Future<String?> teamForMatchPosition(Ref ref,
-    String eventKey,
-    int matchNumber,
-    ScoutPosition position,) async {
+Future<String?> teamForMatchPosition(
+  Ref ref,
+  String eventKey,
+  int matchNumber,
+  ScoutPosition position,
+) async {
   if (position.isStrategy) return null;
   try {
     final allMatches = await ref.watch(matchesProvider(eventKey).future);
@@ -125,9 +129,11 @@ Future<String?> teamForMatchPosition(Ref ref,
 }
 
 @riverpod
-Future<Map<ScoutPosition, String>> allTeamsForMatch(Ref ref,
-    String eventKey,
-    int matchNumber,) async {
+Future<Map<ScoutPosition, String>> allTeamsForMatch(
+  Ref ref,
+  String eventKey,
+  int matchNumber,
+) async {
   try {
     final allMatches = await ref.watch(matchesProvider(eventKey).future);
     final match = _findMatch(allMatches, matchNumber);
@@ -229,13 +235,15 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
 
   MatchIdentity? createMatchIdentity() {
     final s = state;
-    if (s.position != null && s.matchNumber != null && s.event != null &&
+    if (s.position != null &&
+        s.matchNumber != null &&
+        s.event != null &&
         s.scout != null) {
       return (
-      position: s.position!,
-      matchNumber: s.matchNumber!,
-      event: s.event!,
-      scout: s.scout!,
+        position: s.position!,
+        matchNumber: s.matchNumber!,
+        event: s.event!,
+        scout: s.scout!,
       );
     }
     return null;
@@ -258,7 +266,7 @@ ScoutingMatch? _findMatch(List<ScoutingMatch> matches, int matchNumber) {
   // prefer qual matches
   try {
     return matches.firstWhere(
-          (m) => m.compLevel == 'qm' && m.matchNumber == matchNumber,
+      (m) => m.compLevel == 'qm' && m.matchNumber == matchNumber,
     );
   } catch (_) {}
   try {
@@ -274,7 +282,9 @@ Future<int?> teamNumberForSession(Ref ref) async {
   final position = session.position;
   final matchNumber = session.matchNumber;
 
-  if (event == null || position == null || matchNumber == null ||
+  if (event == null ||
+      position == null ||
+      matchNumber == null ||
       position.isStrategy) {
     return null;
   }

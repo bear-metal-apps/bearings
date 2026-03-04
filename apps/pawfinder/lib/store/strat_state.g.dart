@@ -88,7 +88,6 @@ final class StratStateNotifierFamily extends $Family
 
 abstract class _$StratStateNotifier extends $Notifier<StratState> {
   late final _$args = ref.$arg as MatchIdentity;
-
   MatchIdentity get identity => _$args;
 
   StratState build(MatchIdentity identity);

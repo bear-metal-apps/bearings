@@ -47,10 +47,12 @@ class MatchPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPage(BuildContext context,
-      WidgetRef ref,
-      MatchConfig config,
-      MatchIdentity identity,) {
+  Widget _buildPage(
+    BuildContext context,
+    WidgetRef ref,
+    MatchConfig config,
+    MatchIdentity identity,
+  ) {
     final size = MediaQuery.sizeOf(context);
     final page = config.pages[index];
     final hStep = size.width / page.width;
@@ -240,11 +242,13 @@ class MatchPage extends ConsumerWidget {
           continue;
       }
 
-      positioned.add(Positioned(
-        top: data.layout.y * vStep,
-        left: data.layout.x * hStep,
-        child: widget,
-      ));
+      positioned.add(
+        Positioned(
+          top: data.layout.y * vStep,
+          left: data.layout.x * hStep,
+          child: widget,
+        ),
+      );
     }
 
     return Stack(children: positioned);

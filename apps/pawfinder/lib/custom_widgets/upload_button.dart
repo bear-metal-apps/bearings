@@ -22,10 +22,10 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
       onPressed: queue.isEmpty || _uploading ? null : _upload,
       child: _uploading
           ? const SizedBox(
-        width: 18,
-        height: 18,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      )
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
           : const Icon(Icons.upload),
     );
   }
@@ -41,7 +41,8 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('uploaded $count entr${count == 1 ? "y" : "ies"}')),
+            content: Text('uploaded $count entr${count == 1 ? "y" : "ies"}'),
+          ),
         );
       }
     } catch (e) {
@@ -50,10 +51,7 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('upload failed: $e'),
-            backgroundColor: Theme
-                .of(context)
-                .colorScheme
-                .error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

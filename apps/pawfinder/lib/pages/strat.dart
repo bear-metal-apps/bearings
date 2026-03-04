@@ -33,10 +33,14 @@ class _StratPageState extends ConsumerState<StratPage> {
     final allianceTeamsAsync = ref.watch(allianceTeamsForSessionProvider);
     final size = MediaQuery.sizeOf(context);
 
-    ref.listen<AsyncValue<List<String>>>(
-        allianceTeamsForSessionProvider, (_, next) {
+    ref.listen<AsyncValue<List<String>>>(allianceTeamsForSessionProvider, (
+      _,
+      next,
+    ) {
       final teams = next.maybeWhen(
-          data: (value) => value, orElse: () => const <String>[]);
+        data: (value) => value,
+        orElse: () => const <String>[],
+      );
       final matchNumber = session.matchNumber;
       if (teams.isEmpty || matchNumber == null) return;
 
@@ -55,34 +59,21 @@ class _StratPageState extends ConsumerState<StratPage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: allianceTeamsAsync.when(
-                data: (teams) =>
-                    Text(
-                      teams.isNotEmpty
-                          ? 'Match ${session.matchNumber ??
-                          "?"} · Alliance: ${teams.join(", ")}'
-                          : 'Match ${session.matchNumber ?? "?"}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                loading: () =>
-                    Text(
-                      'Match ${session.matchNumber ?? "?"}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleMedium,
-                    ),
-                error: (e, s) =>
-                    Text(
-                      'Match ${session.matchNumber ?? "?"}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleMedium,
-                    ),
+                data: (teams) => Text(
+                  teams.isNotEmpty
+                      ? 'Match ${session.matchNumber ?? "?"} · Alliance: ${teams.join(", ")}'
+                      : 'Match ${session.matchNumber ?? "?"}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                loading: () => Text(
+                  'Match ${session.matchNumber ?? "?"}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                error: (e, s) => Text(
+                  'Match ${session.matchNumber ?? "?"}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
             ),
 
@@ -134,10 +125,7 @@ class _StratPageState extends ConsumerState<StratPage> {
                   Text(
                     'Human Player: ${strat.humanPlayerScore}',
                     textAlign: TextAlign.center,
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .titleSmall,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Align(
                     alignment: Alignment.bottomRight,
