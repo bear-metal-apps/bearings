@@ -6,7 +6,7 @@ class BrightnessProvider extends Notifier<Brightness> {
   Brightness build() => Brightness.light;
 
   void changeBrightness(bool value) =>
-      !value ? state = Brightness.dark : state = Brightness.light;
+      value ? state = Brightness.dark : state = Brightness.light;
 }
 
 final brightnessNotifierProvider =
