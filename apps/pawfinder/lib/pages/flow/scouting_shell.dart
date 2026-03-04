@@ -8,8 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 
-import 'package:beariscope_scouter/main.dart';
-
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
 
@@ -121,7 +119,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
           ],
         ),
         actions: [
-
+          LightSwitch(value: true),
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
@@ -178,7 +176,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.view_array),
-            label: 'Endgame',
+            label: 'Post-Match',
           ),
         ],
       ),
