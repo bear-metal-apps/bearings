@@ -71,25 +71,6 @@ class StratShell extends ConsumerWidget {
                 tooltip: 'Next Match',
                 onPressed: () => flow.nextMatch(),
               ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Theme Settings',
-            onPressed: isOnSettings
-                ? null
-                : () => context.go(
-                    '/strat/settings?from=${Uri.encodeComponent(location)}',
-                  ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.skip_previous),
-            tooltip: 'Previous Match',
-            onPressed: matchNumber > 1 ? () => notifier.previousMatch() : null,
-          ),
-          IconButton(
-            icon: const Icon(Icons.skip_next),
-            tooltip: 'Next Match',
-            onPressed: () => notifier.nextMatch(),
-          ),
         ],
       ),
     ]));

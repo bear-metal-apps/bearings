@@ -35,7 +35,7 @@ class AboutPage extends StatelessWidget {
                   
                   // App Name
                   Text(
-                    'PawFinder',
+                    'Pawfinder',
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -76,7 +76,7 @@ class AboutPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'PawFinder is a comprehensive FRC scouting application designed to help teams collect, analyze, and utilize match data efficiently. '
+                            'PawFinder is a comprehensive FRC scouting application designed to help teams collect, analyze, and utilize match data efficiently.\n\n'
                             'Built with Flutter for a seamless cross-platform experience.',
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
@@ -98,33 +98,13 @@ class AboutPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Key Features',
+                            'Credits',
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 12),
-                          _buildFeatureItem(
-                            context,
-                            Icons.analytics,
-                            'Match Scouting',
-                            'Collect detailed match data for all teams',
-                          ),
-                          _buildFeatureItem(
-                            context,
-                            Icons.cloud_upload,
-                            'Cloud Sync',
-                            'Seamlessly upload and sync scouting data',
-                          ),
-                          _buildFeatureItem(
-                            context,
-                            Icons.people,
-                            'Multi-Position Support',
-                            'Scout from any alliance position',
-                          ),
-                          _buildFeatureItem(
-                            context,
-                            Icons.calendar_today,
-                            'Event Management',
-                            'Support for multiple competitions',
+                          Text(
+                            'Framework and libraries used:\n- Flutter\n- Riverpod\n- GoRouter\n- Hive\n- Flutter Animate\n\nJack Jorgensen ',
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
                       ),
@@ -143,13 +123,9 @@ class AboutPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          
                           Text(
-                            'Credits',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Made with ❤️ by Bear Metal Apps',
+                            'Made with ❤️ by Bear Metal Apps\nGet back to scouting you lazy bum.',
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                           const SizedBox(height: 8),
@@ -170,51 +146,46 @@ class AboutPage extends StatelessWidget {
                       .fadeIn(delay: 500.ms, duration: 500.ms)
                       .slideX(begin: -0.2, end: 0, delay: 500.ms, duration: 500.ms),
                   
+                  const SizedBox(height: 24),
+                  
+                  // Licenses Button
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => Theme(
+                            data: Theme.of(context),
+                            child: const LicensePage(
+                              applicationName: 'PawFinder',
+                              applicationVersion: '1.0.0',
+                              applicationIcon: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Icon(Icons.pets, size: 48),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.article_outlined),
+                    label: const Text('View Licenses & Credits'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                      .slideY(begin: 0.2, end: 0, delay: 600.ms, duration: 500.ms),
+                  
                   const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildFeatureItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String description,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: Theme.of(context).colorScheme.primary,
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
