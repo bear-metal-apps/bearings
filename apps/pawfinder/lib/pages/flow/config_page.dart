@@ -100,13 +100,8 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
         actionsPadding: EdgeInsets.only(right: 8, top: 1),
         actions: [
           UploadButton(),
-          Padding(padding: EdgeInsets.all(5)),
-          // IconButton(
-          //   icon: const Icon(Icons.settings),
-          //   tooltip: 'Settings',
-          //   onPressed: () => _showPasswordDialog(context),
-          // ),
-          Padding(padding: EdgeInsets.all(2)),
+          const SizedBox(width: 5),
+          const SizedBox(width: 2),
         ],
       ),
       body: Padding(
