@@ -1,9 +1,9 @@
-import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
-import 'package:beariscope_scouter/models/scouting_session.dart';
-import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/upload_button.dart';
+import 'package:pawfinder/models/scouting_session.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class ScoutPage extends ConsumerStatefulWidget {
   const ScoutPage({super.key});

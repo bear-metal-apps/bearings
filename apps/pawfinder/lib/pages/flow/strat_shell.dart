@@ -1,7 +1,8 @@
-import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/providers/scouting_flow_provider.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class StratShell extends ConsumerWidget {
   final Widget child;
@@ -12,6 +13,7 @@ class StratShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
+    final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final location = GoRouterState.of(context).uri.toString();
     final isOnSettings = location.startsWith('/strat/settings');
@@ -57,6 +59,19 @@ class StratShell extends ConsumerWidget {
           ],
         ),
         actions: [
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.skip_previous),
+                tooltip: 'Previous Match',
+                onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.skip_next),
+                tooltip: 'Next Match',
+                onPressed: () => flow.nextMatch(),
+              ),
+            ],
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Theme Settings',

@@ -1,86 +1,18 @@
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
+// the one hive box for all match/strat/queue/schedule data
 const boxKey = "localData";
-const jsonBoxKey = "localDataJson"; /* Contains all saved JSONs */
 
-Future<void> loadHive() async {
+late final SharedPreferences prefs;
+
+Future<void> loadStorage() async {
   final dir = await getApplicationDocumentsDirectory();
-  
-  // Clean up any stuck lock files before initializing
-  await _cleanupStuckLocks(dir.path);
-  
   await Hive.initFlutter(dir.path);
   await Hive.openBox(boxKey); // so the code doesn't have to use openBox
-  await Hive.openBox(jsonBoxKey);
   await Hive.openBox(
     'api_cache',
   ); // sticking this here because this is the hive spot ig -jack
+  prefs = await SharedPreferences.getInstance();
 }
-
-/// Cleans up stuck lock files that may prevent Hive from starting
-Future<void> _cleanupStuckLocks(String dirPath) async {
-  try {
-    final lockFiles = [
-      '$boxKey.lock',
-      '$jsonBoxKey.lock',
-      'api_cache.lock',
-    ];
-    
-    for (final lockFile in lockFiles) {
-      final file = File('$dirPath/$lockFile');
-      if (await file.exists()) {
-        await file.delete();
-      }
-    }
-  } catch (e) {
-    print('Warning: Could not clean up lock files: $e');
-  }
-}
-
-/*
-///
-/// Loads hive_ce data into Riverpod states.
-///
-void loadPersistentData() {
-  Hive.openBox(boxKey)
-    .then((data) {
-      final container = ProviderContainer();
-      List<String>? driverSkillData = data.get('driverSkill');
-
-      if (driverSkillData != null) {
-        print(driverSkillData);
-        final driverSkill = container.read(driverSkillNotifierProvider.notifier);
-        driverSkill.set(["6", "7"]);
-      }
-
-      
-      container.dispose();
-    })
-    .catchError((err) {
-
-    });
-}
-
-///
-/// Reads Riverpod states and saves their datas to hive_ce.
-///
-void savePersistentData() {
-  print("hi");
-  final data = Hive.box(boxKey);
-  final container = ProviderContainer();
-
-  data.clear();
-
-  final driverSkill = container.read(driverSkillNotifierProvider.notifier);
-
-  data.put("driverSkill", driverSkill.get());
-
-  print(data.get("driverSkill"));
-  print(driverSkill.get());
-  
-  container.dispose();
-}
-
-*/

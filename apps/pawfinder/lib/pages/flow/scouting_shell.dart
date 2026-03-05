@@ -1,11 +1,12 @@
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/data/match_json_gen.dart';
-import 'package:beariscope_scouter/data/upload_queue.dart';
-import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/providers/scouting_flow_provider.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -23,21 +24,22 @@ Future<void> startFlash() async {
   teleFlash.forward();
 }
 
-class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTickerProviderStateMixin{
-
+class _ScoutingShellState extends ConsumerState<ScoutingShell>
+    with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    teleFlash = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    )..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        teleFlash.reverse();
-      } else if (status == AnimationStatus.dismissed) {
-        teleFlash.forward();
-      }
-    });
+    teleFlash =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 200),
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            teleFlash.reverse();
+          } else if (status == AnimationStatus.dismissed) {
+            teleFlash.forward();
+          }
+        });
     teleFlash.value = double.infinity;
     teleFlash.stop();
   }
@@ -52,7 +54,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
-    final queueNotifier = ref.read(uploadQueueProvider.notifier);
+    final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
     final location = GoRouterState.of(context).uri.toString();
@@ -132,26 +134,12 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
-            onPressed: matchNumber > 1
-                ? () {
-                    final identity = notifier.createMatchIdentity();
-                    if (identity != null) {
-                      queueNotifier.addIfNotPresent(identity);
-                    }
-                    notifier.previousMatch();
-                  }
-                : null,
+            onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
             tooltip: 'Next Match',
-            onPressed: () {
-              final identity = notifier.createMatchIdentity();
-              if (identity != null) {
-                queueNotifier.addIfNotPresent(identity);
-              }
-              notifier.nextMatch();
-            },
+            onPressed: () => flow.nextMatch(),
           ),
         ],
       ),
@@ -176,10 +164,9 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
         items: [
           const BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Auto'),
           BottomNavigationBarItem(
-            icon:
-            FadeTransition(
-                opacity: teleFlash, // Animate the opacity (visibility)
-                child: const Icon(Icons.stacked_bar_chart_sharp)
+            icon: FadeTransition(
+              opacity: teleFlash, // Animate the opacity (visibility)
+              child: const Icon(Icons.stacked_bar_chart_sharp),
             ),
             label: 'Tele',
           ),
@@ -197,5 +184,39 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
     if (location.contains('/tele')) return 1;
     if (location.contains('/end')) return 2;
     return 0;
+  }
+}
+
+class LightSwitch extends ConsumerStatefulWidget {
+  final bool value;
+
+  const LightSwitch({super.key, required this.value});
+
+  @override
+  ConsumerState<LightSwitch> createState() {
+    return _LightSwitchState();
+  }
+}
+
+class _LightSwitchState extends ConsumerState<LightSwitch> {
+  late bool _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Switch(
+      value: _value,
+      onChanged: (bool value) {
+        setState(() {
+          _value = value;
+          ref.read(brightnessNotifierProvider.notifier).changeBrightness(value);
+        });
+      },
+    );
   }
 }

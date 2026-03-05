@@ -86,6 +86,7 @@ class _DropdownState extends State<Dropdown> {
             widget.title,
             style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
             maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
