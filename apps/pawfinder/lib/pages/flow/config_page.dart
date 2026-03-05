@@ -101,6 +101,10 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
         actions: [
           UploadButton(),
           const SizedBox(width: 5),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/config/settings'),
+          ),
           const SizedBox(width: 2),
         ],
       ),

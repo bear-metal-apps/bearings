@@ -60,7 +60,7 @@ class _BoolButtonState extends State<BoolButton> {
               widget.dataName,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
                 letterSpacing: 0.5,

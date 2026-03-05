@@ -70,7 +70,6 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
         actionsPadding: EdgeInsets.only(right: 16),
         actions: [
           UploadButton(),
-          
         ],
       ),
       body: Padding(

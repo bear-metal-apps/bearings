@@ -123,15 +123,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Theme Settings',
-            onPressed: isOnSettings
-                ? null
-                : () => context.go(
-                    '/match/settings?from=${Uri.encodeComponent(location)}',
-                  ),
-          ),
-          IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
             onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,

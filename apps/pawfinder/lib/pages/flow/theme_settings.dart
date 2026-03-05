@@ -1,8 +1,10 @@
 import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/services/device_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/auth_provider.dart';
+
+const String _signOutPassword = 'johnscout2046';
 
 class ThemeSettingsPage extends ConsumerWidget {
   const ThemeSettingsPage({super.key});
@@ -20,17 +22,7 @@ class ThemeSettingsPage extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            if (from != null && from.isNotEmpty) {
-              context.go(from);
-              return;
-            }
-
-            if (uri.path.startsWith('/strat')) {
-              context.go('/strat');
-              return;
-            }
-
-            context.go('/match/auto');
+            context.pop();
           },
         ),
       ),
@@ -134,11 +126,22 @@ class ThemeSettingsPage extends ConsumerWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Sign Out'),
             subtitle: const Text('Sign out of your account'),
-            onTap: () => _showSignOutDialog(context, ref),
+            onTap: () => _showPasswordDialog(context, ref),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _showPasswordDialog(BuildContext context, WidgetRef ref) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => const _PasswordDialog(),
+    );
+    
+    if (result == true && context.mounted) {
+      _showSignOutDialog(context, ref);
+    }
   }
 
   Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
@@ -146,8 +149,17 @@ class ThemeSettingsPage extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Sign Out'),
-        content: const Text(
-          'Are you sure you want to sign out? DO NOT DO THIS WITHOUT INTERNET',
+        content: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                'Are you sure you want to sign out? You will need to sign in again to access your data.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -163,7 +175,7 @@ class ThemeSettingsPage extends ConsumerWidget {
     );
 
     if (shouldSignOut ?? false) {
-      await ref.read(authProvider).logout();
+      await ref.read(deviceAuthServiceProvider).deprovision();
       if (context.mounted) {
         context.go('/welcome');
       }
@@ -232,6 +244,98 @@ class _ThemePreviewCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+class _PasswordDialog extends StatefulWidget {
+  const _PasswordDialog();
+
+  @override
+  State<_PasswordDialog> createState() => _PasswordDialogState();
+}
+
+class _PasswordDialogState extends State<_PasswordDialog> {
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _verify() {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (_passwordController.text == _signOutPassword) {
+        Navigator.of(context).pop(true);
+      } else {
+        setState(() {
+          _errorMessage = 'Incorrect password';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Verify Password'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.warning,
+              color: Colors.red,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'IMPORTANT: Doing this will sign you out of your account. You will need to sign in again to access your data.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                hintText:
+                    'Additional verification to prevent accidental sign out. Contact anybody in the Apps subteam if you need the password.',
+                errorText: _errorMessage,
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Password is required';
+                }
+                return null;
+              },
+              onChanged: (_) {
+                if (_errorMessage != null) {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: _verify,
+          child: const Text('Verify'),
+        ),
+      ],
     );
   }
 }
