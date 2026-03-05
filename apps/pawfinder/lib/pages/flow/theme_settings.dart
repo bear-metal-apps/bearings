@@ -3,6 +3,7 @@ import 'package:pawfinder/services/device_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 const String _signOutPassword = 'johnscout2046';
 
@@ -34,7 +35,10 @@ class ThemeSettingsPage extends ConsumerWidget {
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
-          ),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms)
+              .slideX(begin: -0.2, end: 0, duration: 500.ms),
           const SizedBox(height: 24),
           Card(
             elevation: 2,
@@ -120,14 +124,20 @@ class ThemeSettingsPage extends ConsumerWidget {
                 ],
               ),
             ),
-          ),
+          )
+              .animate()
+              .fadeIn(delay: 100.ms, duration: 500.ms)
+              .slideY(begin: 0.2, end: 0, delay: 100.ms, duration: 500.ms, curve: Curves.easeOut),
           const SizedBox(height: 24),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign Out'),
             subtitle: const Text('Sign out of your account'),
             onTap: () => _showPasswordDialog(context, ref),
-          ),
+          )
+              .animate()
+              .fadeIn(delay: 200.ms, duration: 500.ms)
+              .slideX(begin: -0.2, end: 0, delay: 200.ms, duration: 500.ms),
         ],
       ),
     );
@@ -239,11 +249,16 @@ class _ThemePreviewCard extends StatelessWidget {
                 Icons.check_circle,
                 size: 20,
                 color: Theme.of(context).colorScheme.primary,
-              ),
+              )
+                  .animate()
+                  .scale(duration: 300.ms, curve: Curves.elasticOut)
+                  .fadeIn(duration: 200.ms),
             ],
           ],
         ),
-      ),
+      )
+          .animate(target: isSelected ? 1 : 0)
+          .scale(begin: Offset(1.0, 1.0), end: Offset(1.05, 1.05), duration: 200.ms),
     );
   }
 }

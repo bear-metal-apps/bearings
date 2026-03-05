@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ScoutPage extends ConsumerStatefulWidget {
   const ScoutPage({super.key});
@@ -67,7 +68,10 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                   onChanged: (value) {
                     setState(() => _searchQuery = value);
                   },
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: -0.2, end: 0, duration: 500.ms, curve: Curves.easeOut),
                 const SizedBox(height: 32),
 
                 Expanded(
@@ -102,9 +106,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                             contentPadding: EdgeInsets.symmetric(horizontal: 4),
                             leading: CircleAvatar(
                               backgroundColor: isSelected
-                                  ? Theme.of(
-                                      context,
-                                    ).colorScheme.primaryFixed
+                                  ? Theme.of( context).colorScheme.primaryContainer.withAlpha(100)
                                   : Theme.of(
                                       context,
                                     ).colorScheme.primaryContainer,
@@ -126,7 +128,16 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                                   .read(scoutingSessionProvider.notifier)
                                   .setScout(scout);
                             },
-                          );
+                          )
+                              .animate()
+                              .fadeIn(delay: (50 * index).ms, duration: 400.ms)
+                              .slideX(
+                                begin: -0.2,
+                                end: 0,
+                                delay: (50 * index).ms,
+                                duration: 400.ms,
+                                curve: Curves.easeOut,
+                              );
                         },
                       );
                     },
@@ -171,7 +182,11 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text('Next'),
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 300.ms, duration: 500.ms)
+                    .slideY(begin: 0.3, end: 0, delay: 300.ms, duration: 500.ms, curve: Curves.easeOut)
+                    .shimmer(delay: 900.ms, duration: 1500.ms, color: Colors.white24),
               ],
             ),
           ),

@@ -9,7 +9,6 @@ import 'package:pawfinder/pages/flow/config_page.dart';
 import 'package:pawfinder/pages/flow/match_select_page.dart';
 import 'package:pawfinder/pages/flow/scout_page.dart';
 import 'package:pawfinder/pages/flow/scouting_shell.dart';
-import 'package:pawfinder/pages/flow/settings_page.dart';
 import 'package:pawfinder/pages/flow/strat_shell.dart';
 import 'package:pawfinder/pages/flow/theme_settings.dart';
 import 'package:pawfinder/pages/match_page.dart';
@@ -44,33 +43,121 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SplashScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
       GoRoute(
         path: '/provision',
-        builder: (context, state) => const ProvisioningPage(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ProvisioningPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.1),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOut,
+                )),
+                child: child,
+              ),
+            );
+          },
+        ),
       ),
       GoRoute(
         path: '/config',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: ConfigPage()),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ConfigPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.1, 0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOut,
+                )),
+                child: child,
+              ),
+            );
+          },
+        ),
         routes: [
           GoRoute(
             path: 'settings',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ThemeSettingsPage()),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const ThemeSettingsPage(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 1),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  )),
+                  child: child,
+                );
+              },
+            ),
           ),
         ],
       ),
       GoRoute(
         path: '/scout',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: ScoutPage()),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ScoutPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.95, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  ),
+                ),
+                child: child,
+              ),
+            );
+          },
+        ),
       ),
       GoRoute(
         path: '/match-select',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: MatchSelectPage()),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const MatchSelectPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.1, 0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOut,
+                )),
+                child: child,
+              ),
+            );
+          },
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) {
