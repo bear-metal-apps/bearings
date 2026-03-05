@@ -149,12 +149,12 @@ class AboutPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Developed with ❤️ for the FRC community',
+                            'Made with ❤️ by Bear Metal Apps',
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '© 2026 PawFinder',
+                            '2046 Bear Metal Robotics',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context)
                                       .colorScheme
