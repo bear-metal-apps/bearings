@@ -71,7 +71,6 @@ class StratShell extends ConsumerWidget {
                 tooltip: 'Next Match',
                 onPressed: () => flow.nextMatch(),
               ),
-            ],
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Theme Settings',
@@ -93,7 +92,6 @@ class StratShell extends ConsumerWidget {
           ),
         ],
       ),
-      body: child,
-    );
+    ]));
   }
 }

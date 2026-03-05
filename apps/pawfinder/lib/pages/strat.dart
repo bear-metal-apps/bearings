@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:beariscope_scouter/store/strat_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pawfinder/store/strat_state.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -45,8 +44,9 @@ class _StratPageState extends ConsumerState<StratPage> {
       final matchNumber = session.matchNumber;
       if (teams.isEmpty || matchNumber == null) return;
 
-      if (_initializedForMatch == matchNumber && strat.driverSkill.isNotEmpty)
+      if (_initializedForMatch == matchNumber && strat.driverSkill.isNotEmpty) {
         return;
+      }
       _initializedForMatch = matchNumber;
       notifier.initFromSchedule(teams);
     });

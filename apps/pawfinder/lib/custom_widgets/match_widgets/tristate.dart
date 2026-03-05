@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -83,7 +84,6 @@ class _TristateState extends State<TristateButton> {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
-                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
 

@@ -1,15 +1,4 @@
-import 'package:beariscope_scouter/data/local_data.dart';
-import 'package:beariscope_scouter/pages/flow/config_page.dart';
-import 'package:beariscope_scouter/pages/flow/match_select_page.dart';
-import 'package:beariscope_scouter/pages/flow/scout_page.dart';
-import 'package:beariscope_scouter/pages/flow/scouting_shell.dart';
-import 'package:beariscope_scouter/pages/flow/strat_shell.dart';
-import 'package:beariscope_scouter/pages/flow/theme_settings.dart';
-import 'package:beariscope_scouter/pages/match_page.dart';
-import 'package:beariscope_scouter/pages/splash_screen.dart';
-import 'package:beariscope_scouter/pages/strat.dart';
-import 'package:beariscope_scouter/pages/welcome_page.dart';
-import 'package:beariscope_scouter/providers/brightness_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +11,7 @@ import 'package:pawfinder/pages/flow/scout_page.dart';
 import 'package:pawfinder/pages/flow/scouting_shell.dart';
 import 'package:pawfinder/pages/flow/settings_page.dart';
 import 'package:pawfinder/pages/flow/strat_shell.dart';
+import 'package:pawfinder/pages/flow/theme_settings.dart';
 import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
