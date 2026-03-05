@@ -11,7 +11,6 @@ import 'package:pawfinder/pages/flow/scout_page.dart';
 import 'package:pawfinder/pages/flow/scouting_shell.dart';
 import 'package:pawfinder/pages/flow/settings_page.dart';
 import 'package:pawfinder/pages/flow/strat_shell.dart';
-import 'package:pawfinder/pages/flow/theme_settings.dart';
 import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
@@ -58,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'settings',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ThemeSettingsPage()),
+                const NoTransitionPage(child: SettingsPage()),
           ),
         ],
       ),
@@ -100,7 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/match/settings',
-            builder: (context, state) => const ThemeSettingsPage(),
+            builder: (context, state) => const SettingsPage(),
           ),
         ],
       ),
@@ -115,7 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/strat/settings',
-            builder: (context, state) => const ThemeSettingsPage(),
+            builder: (context, state) => const SettingsPage(),
           ),
         ],
       ),
