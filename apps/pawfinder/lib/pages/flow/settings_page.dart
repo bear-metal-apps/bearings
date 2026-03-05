@@ -1,0 +1,360 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/services/device_auth_service.dart';
+
+const String _signOutPassword = 'johnscout';
+
+class SettingsPage extends ConsumerWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final brightness = ref.watch(brightnessNotifierProvider);
+    final isDarkMode = brightness == Brightness.dark;
+    final uri = GoRouterState.of(context).uri;
+    final from = uri.queryParameters['from'];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            context.pop();
+          },
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(24.0),
+        children: [
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Theme',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              isDarkMode
+                                  ? 'Dark theme is currently active'
+                                  : 'Light theme is currently active',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 32),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ThemePreviewCard(
+                          title: 'Light',
+                          isSelected: !isDarkMode,
+                          icon: Icons.light_mode,
+                          onTap: () {
+                            ref
+                                .read(brightnessNotifierProvider.notifier)
+                                .changeBrightness(false);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _ThemePreviewCard(
+                          title: 'Dark',
+                          isSelected: isDarkMode,
+                          icon: Icons.dark_mode,
+                          onTap: () {
+                            ref
+                                .read(brightnessNotifierProvider.notifier)
+                                .changeBrightness(true);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          ListTile(
+            leading: const Icon(Icons.link_off),
+            title: const Text('Deprovision Device'),
+            subtitle: const Text('Remove stored credentials from this device'),
+            onTap: () => _showPasswordDialog(
+              context,
+              ref,
+              () => _showDeprovisionDialog(context, ref),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline),
+            title: const Text('Delete Local Data'),
+            subtitle: const Text(
+              'Clears all cached match data from this device',
+            ),
+            onTap: () => _showPasswordDialog(
+              context,
+              ref,
+              () => _showDeleteCacheDialog(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showPasswordDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Function redirect,
+  ) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => const _PasswordDialog(),
+    );
+
+    if (result == true && context.mounted) {
+      redirect();
+    }
+  }
+
+  Future<void> _showDeleteCacheDialog(BuildContext context) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Local Data'),
+        content: const Text(
+          'This will delete all locally stored match data, schedule cache, and upload queue. your config (event/position) will be kept.\n\nYou should upload pending matches first.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete ?? false) {
+      await Hive.box(boxKey).clear();
+    }
+  }
+
+  Future<void> _showDeprovisionDialog(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final shouldDeprovision = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Deprovision Device'),
+        content: const Text(
+          'This will remove all stored credentials from this device. You will need to scan a new QR code from Beariscope to use Pawfinder again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Deprovision',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDeprovision ?? false) {
+      await ref.read(deviceAuthServiceProvider).deprovision();
+      if (context.mounted) {
+        context.go('/provision');
+      }
+    }
+  }
+}
+
+class _ThemePreviewCard extends StatelessWidget {
+  final String title;
+  final bool isSelected;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ThemePreviewCard({
+    required this.title,
+    required this.isSelected,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline,
+            width: isSelected ? 3 : 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 48,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 4),
+              Icon(
+                Icons.check_circle,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PasswordDialog extends StatefulWidget {
+  const _PasswordDialog();
+
+  @override
+  State<_PasswordDialog> createState() => _PasswordDialogState();
+}
+
+class _PasswordDialogState extends State<_PasswordDialog> {
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _verify() {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (_passwordController.text == _signOutPassword) {
+        Navigator.of(context).pop(true);
+      } else {
+        setState(() {
+          _errorMessage = 'Incorrect password';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Verify Password'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                errorText: _errorMessage,
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Password is required';
+                }
+                return null;
+              },
+              onChanged: (_) {
+                if (_errorMessage != null) {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(onPressed: _verify, child: const Text('Verify')),
+      ],
+    );
+  }
+}
