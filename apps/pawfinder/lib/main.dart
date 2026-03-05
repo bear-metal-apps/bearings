@@ -10,6 +10,7 @@ import 'package:pawfinder/pages/flow/match_select_page.dart';
 import 'package:pawfinder/pages/flow/scout_page.dart';
 import 'package:pawfinder/pages/flow/scouting_shell.dart';
 import 'package:pawfinder/pages/flow/strat_shell.dart';
+import 'package:pawfinder/pages/flow/theme_settings.dart';
 import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
