@@ -7,6 +7,7 @@ import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class MatchSelectPage extends ConsumerStatefulWidget {
   const MatchSelectPage({super.key});
@@ -84,16 +85,25 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                   session.event?.name ?? '',
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: -0.3, end: 0, duration: 500.ms, curve: Curves.easeOut),
                 const SizedBox(height: 8),
                 Text(
                   'Position: ${position.displayName}',
                   style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 100.ms, duration: 500.ms)
+                    .slideY(begin: -0.2, end: 0, delay: 100.ms, duration: 500.ms, curve: Curves.easeOut),
                 Text(
                   'Scout: ${session.scout?.name ?? "—"}',
                   style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 150.ms, duration: 500.ms)
+                    .slideY(begin: -0.2, end: 0, delay: 150.ms, duration: 500.ms, curve: Curves.easeOut),
 
                 const SizedBox(height: 16),
                 teamAsync.when(
@@ -104,7 +114,10 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
-                  ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 200.ms, duration: 500.ms)
+                      .slideY(begin: -0.2, end: 0, delay: 200.ms, duration: 500.ms, curve: Curves.easeOut),
                   loading: () => const SizedBox(
                     height: 24,
                     width: 24,
@@ -121,14 +134,20 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                 _ScheduleDownloadTile(
                   eventKey: session.event!.key,
                   lastUpdated: scheduleLastUpdated,
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 300.ms, duration: 500.ms)
+                    .scale(begin: Offset(0.9, 0.9), end: Offset(1.0, 1.0), delay: 300.ms, duration: 500.ms),
 
                 const SizedBox(height: 32),
 
                 Text(
                   'Match Number',
                   style: Theme.of(context).textTheme.titleLarge,
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 400.ms, duration: 500.ms)
+                    .slideY(begin: 0.2, end: 0, delay: 400.ms, duration: 500.ms),
                 const SizedBox(height: 16),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 300),
@@ -181,7 +200,10 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                       }
                     },
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 500.ms, duration: 500.ms)
+                    .slideY(begin: 0.2, end: 0, delay: 500.ms, duration: 500.ms),
 
                 const Spacer(),
 
@@ -221,7 +243,11 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Go'),
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 600.ms, duration: 500.ms)
+                    .slideY(begin: 0.3, end: 0, delay: 600.ms, duration: 500.ms, curve: Curves.easeOut)
+                    .shimmer(delay: 1200.ms, duration: 1500.ms, color: Colors.white24),
               ],
             ),
           ),

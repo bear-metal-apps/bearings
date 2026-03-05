@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/libkoala.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 bool get _scannerSupported =>
     kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
@@ -118,7 +119,10 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
                 'Scan the QR code from Beariscope',
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 600.ms)
+                .slideY(begin: -0.5, end: 0, duration: 500.ms, curve: Curves.easeOut),
           ),
         ),
         Positioned(
@@ -140,19 +144,25 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
                         style: TextStyle(color: colorScheme.onErrorContainer),
                       ),
                     ),
-                  ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 300.ms)
+                      .shake(hz: 4, curve: Curves.easeInOut),
                 ),
               FilledButton.tonal(
                 onPressed: _provisioning ? null : _showPasteDialog,
                 child: const Text("Can't scan? Paste JSON instead"),
-              ),
+              )
+                  .animate()
+                  .fadeIn(delay: 200.ms, duration: 600.ms)
+                  .slideY(begin: 0.5, end: 0, delay: 200.ms, duration: 500.ms, curve: Curves.easeOut),
             ],
           ),
         ),
         if (_provisioning)
           Container(
             color: Colors.black45,
-            child: const Center(
+            child: Center(
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(28),
@@ -165,7 +175,10 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
                     ],
                   ),
                 ),
-              ),
+              )
+                  .animate()
+                  .fadeIn(duration: 300.ms)
+                  .scale(begin: Offset(0.8, 0.8), end: Offset(1.0, 1.0), duration: 300.ms, curve: Curves.easeOut),
             ),
           ),
       ],
@@ -178,19 +191,28 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Icon(Icons.qr_code_scanner, size: 64, color: Colors.grey),
+          const Icon(Icons.qr_code_scanner, size: 64, color: Colors.grey)
+              .animate()
+              .fadeIn(duration: 600.ms)
+              .scale(delay: 100.ms, duration: 500.ms, curve: Curves.easeOutBack),
           const SizedBox(height: 16),
           const Text(
             'Camera scanning is not available on this platform.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15),
-          ),
+          )
+              .animate()
+              .fadeIn(delay: 200.ms, duration: 600.ms)
+              .slideY(begin: 0.3, end: 0, delay: 200.ms, duration: 500.ms),
           const SizedBox(height: 8),
           const Text(
             'Paste the JSON credential payload from Beariscope to provision this device.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey),
-          ),
+          )
+              .animate()
+              .fadeIn(delay: 300.ms, duration: 600.ms)
+              .slideY(begin: 0.3, end: 0, delay: 300.ms, duration: 500.ms),
           const SizedBox(height: 24),
           if (_error != null) ...[
             Card(
@@ -202,14 +224,20 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
                   style: TextStyle(color: colorScheme.onErrorContainer),
                 ),
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 300.ms)
+                .shake(hz: 4, curve: Curves.easeInOut),
             const SizedBox(height: 16),
           ],
           FilledButton.icon(
             onPressed: _provisioning ? null : _showPasteDialog,
             icon: const Icon(Icons.paste),
             label: const Text('Paste credential JSON'),
-          ),
+          )
+              .animate()
+              .fadeIn(delay: 400.ms, duration: 600.ms)
+              .slideY(begin: 0.3, end: 0, delay: 400.ms, duration: 500.ms, curve: Curves.easeOut),
           if (_provisioning) ...[
             const SizedBox(height: 24),
             const Center(child: CircularProgressIndicator()),

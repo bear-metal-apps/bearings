@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:pawfinder/pages/flow/about_page.dart';
 
 class ConfigPage extends ConsumerStatefulWidget {
   const ConfigPage({super.key});
@@ -102,11 +104,23 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
           UploadButton(),
           const SizedBox(width: 5),
           IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'About',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AboutPage(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
             onPressed: () => context.push('/config/settings'),
           ),
           const SizedBox(width: 2),
-        ],
+        ]
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -119,7 +133,10 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                 Text(
                   'Position',
                   style: Theme.of(context).textTheme.titleMedium,
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 500.ms)
+                    .slideX(begin: -0.2, end: 0, duration: 500.ms),
                 const SizedBox(height: 8),
                 _PositionSelector(
                   selected: _selectedPosition,
@@ -127,14 +144,20 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                     setState(() => _selectedPosition = pos);
                     ref.read(scoutingSessionProvider.notifier).setPosition(pos);
                   },
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 100.ms, duration: 500.ms)
+                    .slideY(begin: 0.2, end: 0, delay: 100.ms, duration: 500.ms),
 
                 const SizedBox(height: 32),
 
                 Text(
                   'Competition',
                   style: Theme.of(context).textTheme.titleMedium,
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 200.ms, duration: 500.ms)
+                    .slideX(begin: -0.2, end: 0, delay: 200.ms, duration: 500.ms),
                 const SizedBox(height: 8),
                 eventsAsync.when(
                   data: (events) {
@@ -185,7 +208,10 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                               .setEvent(event);
                         }
                       },
-                    );
+                    )
+                        .animate()
+                        .fadeIn(delay: 300.ms, duration: 500.ms)
+                        .slideY(begin: 0.2, end: 0, delay: 300.ms, duration: 500.ms);
                   },
                   loading: () => const LinearProgressIndicator(),
                   error: (err, _) => _ErrorRetry(
@@ -198,7 +224,10 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                 Text(
                   'Or enter event key manually',
                   style: Theme.of(context).textTheme.titleMedium,
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 400.ms, duration: 500.ms)
+                    .slideX(begin: -0.2, end: 0, delay: 400.ms, duration: 500.ms),
                 const SizedBox(height: 8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -226,7 +255,10 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                       child: const Text('Apply'),
                     ),
                   ],
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 500.ms, duration: 500.ms)
+                    .slideY(begin: 0.2, end: 0, delay: 500.ms, duration: 500.ms),
 
                 const Spacer(),
 
@@ -258,7 +290,11 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text('Next'),
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 600.ms, duration: 500.ms)
+                    .slideY(begin: 0.3, end: 0, delay: 600.ms, duration: 500.ms, curve: Curves.easeOut)
+                    .shimmer(delay: 1200.ms, duration: 1500.ms, color: Colors.white24),
               ],
             ),
           ),
