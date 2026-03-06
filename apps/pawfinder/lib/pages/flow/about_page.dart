@@ -103,7 +103,7 @@ class AboutPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Framework and libraries used:\n- Flutter\n- Riverpod\n- GoRouter\n- Hive\n- Flutter Animate\n\nJack Jorgensen ',
+                            'Framework and libraries used:\n- Flutter\n- Riverpod\n- GoRouter\n- Hive\n- Flutter Animate\n\nJack GPT\nSam AaravAltman\'s son\nRyan Essay\nMeghnaa\'s computer is broken\nBen the Ginger\nAsh is playing Balatro\nZaydenyahu Palantir\nTiny(\'s in hardware)\nSen(d help)\nAnd Nived (emotional support)',
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
@@ -125,12 +125,12 @@ class AboutPage extends StatelessWidget {
                         children: [
                           
                           Text(
-                            'Made with ❤️ by Bear Metal Apps\nGet back to scouting you lazy bum.',
+                            'Made with ❤️ by Bear Metal Apps',
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '2046 Bear Metal Robotics',
+                            'Get back to scouting you lazy bum.',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -156,7 +156,7 @@ class AboutPage extends StatelessWidget {
                           builder: (context) => Theme(
                             data: Theme.of(context),
                             child: const LicensePage(
-                              applicationName: 'PawFinder',
+                              applicationName: 'Pawfinder',
                               applicationVersion: '1.0.0',
                               applicationIcon: Padding(
                                 padding: EdgeInsets.all(16.0),
