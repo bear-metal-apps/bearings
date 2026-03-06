@@ -91,7 +91,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
           ],
         ),
         actions: [
-          LightSwitch(value: true),
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
