@@ -159,6 +159,7 @@ class MatchPage extends ConsumerWidget {
               box.put(dataBoxKey, v);
               markDirty();
             },
+            // ignore: prefer_contains
             initialIndex: items.indexOf(storedValue) == -1
                 ? null
                 : items.indexOf(storedValue),

@@ -7,7 +7,6 @@ import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/brightness_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
-import 'package:pawfinder/providers/match_config_provider.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -26,8 +25,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
     final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
-    final location = GoRouterState.of(context).uri.toString();
-    final isOnSettings = location.startsWith('/match/settings');
 
     // always contains the correct team even when navigating via prev/next.
     ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_, next) {
