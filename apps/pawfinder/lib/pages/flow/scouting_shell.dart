@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
-import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
@@ -136,39 +135,5 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
     if (location.contains('/tele')) return 1;
     if (location.contains('/end')) return 2;
     return 0;
-  }
-}
-
-class LightSwitch extends ConsumerStatefulWidget {
-  final bool value;
-
-  const LightSwitch({super.key, required this.value});
-
-  @override
-  ConsumerState<LightSwitch> createState() {
-    return _LightSwitchState();
-  }
-}
-
-class _LightSwitchState extends ConsumerState<LightSwitch> {
-  late bool _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.value;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Switch(
-      value: _value,
-      onChanged: (bool value) {
-        setState(() {
-          _value = value;
-          ref.read(brightnessNotifierProvider.notifier).changeBrightness(value);
-        });
-      },
-    );
   }
 }

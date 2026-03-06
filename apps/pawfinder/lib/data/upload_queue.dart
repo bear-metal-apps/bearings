@@ -54,14 +54,22 @@ class UploadQueueNotifier extends Notifier<List<MatchIdentity>> {
   }
 
   void addIfNotPresent(MatchIdentity identity) {
-    final key = identityDataKey(identity);
-    if (state.any((e) => identityDataKey(e) == key)) return;
+    final key = matchBaseKey(identity);
+    final idx = state.indexWhere((e) => matchBaseKey(e) == key);
+    if (idx != -1) {
+      // update the scout to reflect whoever just made a change so that scoutedBy in the upload is attributed correctly
+      final updated = List<MatchIdentity>.from(state);
+      updated[idx] = identity;
+      state = updated;
+      _persist();
+      return;
+    }
     add(identity);
   }
 
   void removeUploaded(List<MatchIdentity> uploaded) {
-    final keys = uploaded.map(identityDataKey).toSet();
-    state = state.where((e) => !keys.contains(identityDataKey(e))).toList();
+    final keys = uploaded.map(matchBaseKey).toSet();
+    state = state.where((e) => !keys.contains(matchBaseKey(e))).toList();
     _persist();
   }
 

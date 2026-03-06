@@ -16,12 +16,20 @@ String identityDataKey(MatchIdentity identity) {
   return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.position.name}_${identity.scout.name}";
 }
 
-String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
-  return "${identityDataKey(identity)}_${sectionId}_$fieldId";
+// key without scouts
+String matchBaseKey(MatchIdentity identity) {
+  return "MATCH_${identity.event.key}_${identity.matchNumber}_${identity.position.name}";
 }
 
-String matchTeamKey(MatchIdentity identity) =>
-    '${identityDataKey(identity)}_team';
+String matchDataKey(MatchIdentity identity, String sectionId, String fieldId) {
+  return "${matchBaseKey(identity)}_${sectionId}_$fieldId";
+}
+
+String matchTeamKey(MatchIdentity identity) => '${matchBaseKey(identity)}_team';
+
+// name of the scout who last saved data
+String matchScoutedByKey(MatchIdentity identity) =>
+    '${matchBaseKey(identity)}_scoutedBy';
 
 class SectionJsonData {
   final String sectionId;
@@ -125,14 +133,17 @@ SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
   return section;
 }
 
-MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) =>
-    MetaJsonData(
-      season: config.season,
-      type: config.type,
-      version: config.version,
-      event: info.event.key,
-      scoutedBy: info.scout.name,
-    );
+MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) {
+  // keep the name of the scout who last saved data
+  final storedScout = Hive.box(boxKey).get(matchScoutedByKey(info)) as String?;
+  return MetaJsonData(
+    season: config.season,
+    type: config.type,
+    version: config.version,
+    event: info.event.key,
+    scoutedBy: storedScout ?? info.scout.name,
+  );
+}
 
 // assembles the full match json from hive for upload
 MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
@@ -162,16 +173,13 @@ void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
   }
 }
 
-// saves the full match json snapshot under the identity key
+// saves the full match json snapshot under the scout-agnostic base key
 void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
-  Hive.box(
-    boxKey,
-  ).put("${identityDataKey(info)}_JSON", jsonEncode(data.toJson()));
+  Hive.box(boxKey).put("${matchBaseKey(info)}_JSON", jsonEncode(data.toJson()));
 }
 
 MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
-  final jsonRaw =
-      Hive.box(boxKey).get("${identityDataKey(info)}_JSON") as String?;
+  final jsonRaw = Hive.box(boxKey).get("${matchBaseKey(info)}_JSON") as String?;
   if (jsonRaw == null) return null;
   return MatchJsonData.fromJson(jsonDecode(jsonRaw));
 }

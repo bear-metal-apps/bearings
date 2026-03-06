@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class ScoutPage extends ConsumerStatefulWidget {
   const ScoutPage({super.key});
@@ -51,6 +51,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
         title: const Text('Select Scout'),
         actionsPadding: EdgeInsets.only(right: 16),
         actions: [UploadButton()],
+        actionsPadding: EdgeInsets.only(right: 8),
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -117,46 +118,35 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                           final scout = filtered[index];
                           final isSelected = _selectedScout == scout;
                           return ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                leading: CircleAvatar(
-                                  backgroundColor: isSelected
-                                      ? Theme.of(context)
-                                            .colorScheme
-                                            .primaryContainer
-                                            .withAlpha(100)
-                                      : Theme.of(
-                                          context,
-                                        ).colorScheme.primaryContainer,
-                                  child: Text(
-                                    scout.name.isNotEmpty
-                                        ? scout.name[0].toUpperCase()
-                                        : '?',
-                                  ),
-                                ),
-                                title: Text(scout.name),
-                                selected: isSelected,
-                                selectedTileColor: Theme.of(
-                                  context,
-                                ).colorScheme.primaryContainer,
-                                shape: StadiumBorder(),
-                                onTap: () {
-                                  setState(() => _selectedScout = scout);
-                                  ref
-                                      .read(scoutingSessionProvider.notifier)
-                                      .setScout(scout);
-                                },
-                              )
-                              .animate()
-                              .fadeIn(delay: (50 * index).ms, duration: 400.ms)
-                              .slideX(
-                                begin: -0.2,
-                                end: 0,
-                                delay: (50 * index).ms,
-                                duration: 400.ms,
-                                curve: Curves.easeOut,
-                              );
+                            contentPadding: EdgeInsets.symmetric(horizontal: 4),
+                            leading: CircleAvatar(
+                              backgroundColor: isSelected
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                        .withAlpha(100)
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer,
+                              child: Text(
+                                scout.name.isNotEmpty
+                                    ? scout.name[0].toUpperCase()
+                                    : '?',
+                              ),
+                            ),
+                            title: Text(scout.name),
+                            selected: isSelected,
+                            selectedTileColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            shape: StadiumBorder(),
+                            onTap: () {
+                              setState(() => _selectedScout = scout);
+                              ref
+                                  .read(scoutingSessionProvider.notifier)
+                                  .setScout(scout);
+                            },
+                          );
                         },
                       );
                     },
