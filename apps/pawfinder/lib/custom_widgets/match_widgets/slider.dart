@@ -59,7 +59,9 @@ class _CustomSliderState extends State<CustomSlider> {
                 showTicks: true,
                 showLabels: true,
                 activeColor: Theme.of(context).colorScheme.primary,
-                inactiveColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                inactiveColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
                 // enableTooltip: true,
               ),
             ),
@@ -95,7 +97,9 @@ class _CustomSliderState extends State<CustomSlider> {
               enableTooltip: true,
               stepSize: 0.5,
               activeColor: Theme.of(context).colorScheme.primary,
-              inactiveColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              inactiveColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
             ),
           ),
         ],

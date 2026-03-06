@@ -90,10 +90,10 @@ class MatchPage extends ConsumerWidget {
             },
           );
         case 'int_button':
-              widget = NumberButton(
-                key: ValueKey(dataBoxKey),
-                dataName: data.alias,
-                width: w,
+          widget = NumberButton(
+            key: ValueKey(dataBoxKey),
+            dataName: data.alias,
+            width: w,
             height: h,
             initialValue: storedValue is int ? storedValue : null,
             onChanged: (value) {

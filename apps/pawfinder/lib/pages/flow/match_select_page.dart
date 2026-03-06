@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
@@ -7,7 +8,6 @@ import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class MatchSelectPage extends ConsumerStatefulWidget {
   const MatchSelectPage({super.key});
@@ -44,11 +44,6 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final teamAsync = ref.watch(teamNumberForSessionProvider);
-    final scheduleLastUpdated = ref.watch(scheduleLastUpdatedProvider);
-
-    // warm up the schedule cache in advance so it's ready for scouting
-    final eventKey = session.event?.key;
-    if (eventKey != null) ref.watch(matchesProvider(eventKey));
 
     if (session.event == null ||
         session.position == null ||
@@ -69,9 +64,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
         ),
         title: const Text('Select Match'),
         actionsPadding: EdgeInsets.only(right: 16),
-        actions: [
-          UploadButton(),
-        ],
+        actions: [UploadButton()],
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -82,42 +75,67 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  session.event?.name ?? '',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                )
+                      session.event?.name ?? '',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    )
                     .animate()
                     .fadeIn(duration: 500.ms)
-                    .slideY(begin: -0.3, end: 0, duration: 500.ms, curve: Curves.easeOut),
+                    .slideY(
+                      begin: -0.3,
+                      end: 0,
+                      duration: 500.ms,
+                      curve: Curves.easeOut,
+                    ),
                 const SizedBox(height: 8),
                 Text(
-                  'Position: ${position.displayName}',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                )
+                      'Position: ${position.displayName}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    )
                     .animate()
                     .fadeIn(delay: 100.ms, duration: 500.ms)
-                    .slideY(begin: -0.2, end: 0, delay: 100.ms, duration: 500.ms, curve: Curves.easeOut),
+                    .slideY(
+                      begin: -0.2,
+                      end: 0,
+                      delay: 100.ms,
+                      duration: 500.ms,
+                      curve: Curves.easeOut,
+                    ),
                 Text(
-                  'Scout: ${session.scout?.name ?? "—"}',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                )
+                      'Scout: ${session.scout?.name ?? "—"}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    )
                     .animate()
                     .fadeIn(delay: 150.ms, duration: 500.ms)
-                    .slideY(begin: -0.2, end: 0, delay: 150.ms, duration: 500.ms, curve: Curves.easeOut),
+                    .slideY(
+                      begin: -0.2,
+                      end: 0,
+                      delay: 150.ms,
+                      duration: 500.ms,
+                      curve: Curves.easeOut,
+                    ),
 
                 const SizedBox(height: 16),
                 teamAsync.when(
-                  data: (team) => Text(
-                    team != null ? 'Team: $team' : 'Team: —',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: team != null
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(delay: 200.ms, duration: 500.ms)
-                      .slideY(begin: -0.2, end: 0, delay: 200.ms, duration: 500.ms, curve: Curves.easeOut),
+                  data: (team) =>
+                      Text(
+                            team != null ? 'Team: $team' : 'Team: —',
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  color: team != null
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                          )
+                          .animate()
+                          .fadeIn(delay: 200.ms, duration: 500.ms)
+                          .slideY(
+                            begin: -0.2,
+                            end: 0,
+                            delay: 200.ms,
+                            duration: 500.ms,
+                            curve: Curves.easeOut,
+                          ),
                   loading: () => const SizedBox(
                     height: 24,
                     width: 24,
@@ -129,227 +147,144 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
-
-                _ScheduleDownloadTile(
-                  eventKey: session.event!.key,
-                  lastUpdated: scheduleLastUpdated,
-                )
-                    .animate()
-                    .fadeIn(delay: 300.ms, duration: 500.ms)
-                    .scale(begin: Offset(0.9, 0.9), end: Offset(1.0, 1.0), delay: 300.ms, duration: 500.ms),
-
                 const SizedBox(height: 32),
 
                 Text(
-                  'Match Number',
-                  style: Theme.of(context).textTheme.titleLarge,
-                )
+                      'Match Number',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    )
                     .animate()
                     .fadeIn(delay: 400.ms, duration: 500.ms)
-                    .slideY(begin: 0.2, end: 0, delay: 400.ms, duration: 500.ms),
+                    .slideY(
+                      begin: 0.2,
+                      end: 0,
+                      delay: 400.ms,
+                      duration: 500.ms,
+                    ),
                 const SizedBox(height: 16),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 300),
-                  child: TextField(
-                    controller: _matchNumberController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      hintText: 'Match number',
-                      prefixIcon: IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {
-                          final current =
-                              int.tryParse(_matchNumberController.text) ?? 1;
-                          if (current > 1) {
-                            _matchNumberController.text = (current - 1)
-                                .toString();
-                            setState(() => _matchNumber = current - 1);
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      child: TextField(
+                        controller: _matchNumberController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: 'Match number',
+                          prefixIcon: IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () {
+                              final current =
+                                  int.tryParse(_matchNumberController.text) ??
+                                  1;
+                              if (current > 1) {
+                                _matchNumberController.text = (current - 1)
+                                    .toString();
+                                setState(() => _matchNumber = current - 1);
+                                ref
+                                    .read(scoutingSessionProvider.notifier)
+                                    .setMatchNumber(current - 1);
+                              }
+                            },
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              final current =
+                                  int.tryParse(_matchNumberController.text) ??
+                                  1;
+                              _matchNumberController.text = (current + 1)
+                                  .toString();
+                              setState(() => _matchNumber = current + 1);
+                              ref
+                                  .read(scoutingSessionProvider.notifier)
+                                  .setMatchNumber(current + 1);
+                            },
+                          ),
+                        ),
+                        onChanged: (value) {
+                          final parsed = int.tryParse(value);
+                          setState(() {
+                            _matchNumber = parsed;
+                          });
+                          if (parsed != null && parsed > 0) {
                             ref
                                 .read(scoutingSessionProvider.notifier)
-                                .setMatchNumber(current - 1);
+                                .setMatchNumber(parsed);
                           }
                         },
                       ),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {
-                          final current =
-                              int.tryParse(_matchNumberController.text) ?? 1;
-                          _matchNumberController.text = (current + 1)
-                              .toString();
-                          setState(() => _matchNumber = current + 1);
-                          ref
-                              .read(scoutingSessionProvider.notifier)
-                              .setMatchNumber(current + 1);
-                        },
-                      ),
-                    ),
-                    onChanged: (value) {
-                      final parsed = int.tryParse(value);
-                      setState(() {
-                        _matchNumber = parsed;
-                      });
-                      if (parsed != null && parsed > 0) {
-                        ref
-                            .read(scoutingSessionProvider.notifier)
-                            .setMatchNumber(parsed);
-                      }
-                    },
-                  ),
-                )
+                    )
                     .animate()
                     .fadeIn(delay: 500.ms, duration: 500.ms)
-                    .slideY(begin: 0.2, end: 0, delay: 500.ms, duration: 500.ms),
+                    .slideY(
+                      begin: 0.2,
+                      end: 0,
+                      delay: 500.ms,
+                      duration: 500.ms,
+                    ),
 
                 const Spacer(),
 
                 SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: FilledButton.icon(
-                    onPressed: _matchNumber != null && _matchNumber! > 0
-                        ? () {
-                            ref
-                                .read(scoutingSessionProvider.notifier)
-                                .setMatchNumber(_matchNumber!);
+                      width: double.infinity,
+                      height: 56,
+                      child: FilledButton.icon(
+                        onPressed: _matchNumber != null && _matchNumber! > 0
+                            ? () {
+                                ref
+                                    .read(scoutingSessionProvider.notifier)
+                                    .setMatchNumber(_matchNumber!);
 
-                            final identity = ref
-                                .read(scoutingSessionProvider.notifier)
-                                .createMatchIdentity();
-                            if (identity != null) {
-                              final team = teamAsync.when(
-                                data: (t) => t,
-                                loading: () => null,
-                                error: (_, _) => null,
-                              );
-                              if (team != null) {
-                                Hive.box(
-                                  boxKey,
-                                ).put(matchTeamKey(identity), team);
+                                final identity = ref
+                          .read(scoutingSessionProvider.notifier)
+                          .createMatchIdentity();
+                      if (identity != null) {
+                        final team = teamAsync.when(
+                          data: (t) => t,
+                          loading: () => null,
+                          error: (_, _) => null,
+                        );
+                        if (team != null) {
+                          Hive.box(
+                            boxKey,
+                          ).put(matchTeamKey(identity), team);
+                        }
+                      }
+
+                                if (position.isStrategy) {
+                                  context.go('/strat');
+                                } else {
+                                  context.go('/match/auto');
+                                }
                               }
-                            }
-
-                            if (position.isStrategy) {
-                              context.go('/strat');
-                            } else {
-                              context.go('/match/auto');
-                            }
-                          }
-                        : null,
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Go'),
-                  ),
-                )
+                            : null,
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Go'),
+                      ),
+                    )
                     .animate()
                     .fadeIn(delay: 600.ms, duration: 500.ms)
-                    .slideY(begin: 0.3, end: 0, delay: 600.ms, duration: 500.ms, curve: Curves.easeOut)
-                    .shimmer(delay: 1200.ms, duration: 1500.ms, color: Colors.white24),
+                    .slideY(
+                      begin: 0.3,
+                      end: 0,
+                      delay: 600.ms,
+                      duration: 500.ms,
+                      curve: Curves.easeOut,
+                    )
+                    .shimmer(
+                      delay: 1200.ms,
+                      duration: 1500.ms,
+                      color: Colors.white24,
+                    ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ScheduleDownloadTile extends ConsumerStatefulWidget {
-  final String eventKey;
-  final DateTime? lastUpdated;
-
-  const _ScheduleDownloadTile({
-    required this.eventKey,
-    required this.lastUpdated,
-  });
-
-  @override
-  ConsumerState<_ScheduleDownloadTile> createState() =>
-      _ScheduleDownloadTileState();
-}
-
-class _ScheduleDownloadTileState extends ConsumerState<_ScheduleDownloadTile> {
-  bool _downloading = false;
-
-  Future<void> _download() async {
-    setState(() => _downloading = true);
-    try {
-      // invalidate to force a fetch
-      ref.invalidate(eventScheduleProvider(widget.eventKey));
-      await ref.read(eventScheduleProvider(widget.eventKey).future);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Schedule downloaded'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Download failed: $e'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _downloading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final lastUpdated = widget.lastUpdated;
-    final String statusText = lastUpdated != null
-        ? () {
-            final local = lastUpdated.toLocal();
-            final h = local.hour % 12 == 0 ? 12 : local.hour % 12;
-            final m = local.minute.toString().padLeft(2, '0');
-            final ampm = local.hour < 12 ? 'AM' : 'PM';
-            return 'Schedule saved $h:$m $ampm';
-          }()
-        : 'No schedule cached';
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          lastUpdated != null
-              ? Icons.cloud_done_outlined
-              : Icons.cloud_off_outlined,
-          size: 18,
-          color: lastUpdated != null
-              ? theme.colorScheme.primary
-              : theme.colorScheme.error,
-        ),
-        const SizedBox(width: 8),
-        Text(statusText, style: theme.textTheme.bodySmall),
-        const SizedBox(width: 12),
-        _downloading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : OutlinedButton.icon(
-                onPressed: _download,
-                icon: const Icon(Icons.download, size: 16),
-                label: const Text('Refresh'),
-                style: OutlinedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                ),
-              ),
-      ],
     );
   }
 }

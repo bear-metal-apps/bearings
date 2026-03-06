@@ -15,8 +15,6 @@ class StratShell extends ConsumerWidget {
     final notifier = ref.read(scoutingSessionProvider.notifier);
     final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
-    final location = GoRouterState.of(context).uri.toString();
-    final isOnSettings = location.startsWith('/strat/settings');
 
     return Scaffold(
       appBar: AppBar(
@@ -71,8 +69,11 @@ class StratShell extends ConsumerWidget {
                 tooltip: 'Next Match',
                 onPressed: () => flow.nextMatch(),
               ),
+            ],
+          ),
         ],
       ),
-    ]));
+      body: child,
+    );
   }
 }

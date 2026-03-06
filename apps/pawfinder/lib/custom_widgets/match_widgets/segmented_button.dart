@@ -62,10 +62,7 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
               child: Center(
                 child: Text(
                   segment,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),

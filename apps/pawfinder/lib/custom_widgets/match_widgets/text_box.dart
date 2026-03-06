@@ -51,11 +51,15 @@ class _StringTextboxState extends State<StringTextbox> {
           filled: true,
           fillColor: widget.fillColor ?? Theme.of(context).colorScheme.surface,
           labelText: widget.dataName,
-          labelStyle: TextStyle(color: widget.outlineColor ?? Theme.of(context).colorScheme.onSurface),
+          labelStyle: TextStyle(
+            color:
+                widget.outlineColor ?? Theme.of(context).colorScheme.onSurface,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: widget.outlineColor ?? Theme.of(context).colorScheme.outline,
+              color:
+                  widget.outlineColor ?? Theme.of(context).colorScheme.outline,
               width: 2.0,
             ),
           ),
@@ -69,14 +73,17 @@ class _StringTextboxState extends State<StringTextbox> {
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: widget.outlineColor ?? Theme.of(context).colorScheme.onSurface,
+              color:
+                  widget.outlineColor ??
+                  Theme.of(context).colorScheme.onSurface,
               width: 2.0,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: widget.outlineColor ?? Theme.of(context).colorScheme.primary,
+              color:
+                  widget.outlineColor ?? Theme.of(context).colorScheme.primary,
               width: 2.0,
             ),
           ),

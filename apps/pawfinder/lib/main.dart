@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,8 +8,8 @@ import 'package:pawfinder/pages/flow/config_page.dart';
 import 'package:pawfinder/pages/flow/match_select_page.dart';
 import 'package:pawfinder/pages/flow/scout_page.dart';
 import 'package:pawfinder/pages/flow/scouting_shell.dart';
-import 'package:pawfinder/pages/flow/strat_shell.dart';
 import 'package:pawfinder/pages/flow/settings_page.dart';
+import 'package:pawfinder/pages/flow/strat_shell.dart';
 import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
@@ -43,121 +42,33 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const SplashScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: '/provision',
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const ProvisioningPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.1),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                )),
-                child: child,
-              ),
-            );
-          },
-        ),
+        builder: (context, state) => const ProvisioningPage(),
       ),
       GoRoute(
         path: '/config',
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const ConfigPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.1, 0),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                )),
-                child: child,
-              ),
-            );
-          },
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: ConfigPage()),
         routes: [
           GoRoute(
             path: 'settings',
-            pageBuilder: (context, state) => CustomTransitionPage(
-              key: state.pageKey,
-              child: const SettingsPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 1),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  )),
-                  child: child,
-                );
-              },
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: SettingsPage()),
           ),
         ],
       ),
       GoRoute(
         path: '/scout',
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const ScoutPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.95, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  ),
-                ),
-                child: child,
-              ),
-            );
-          },
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: ScoutPage()),
       ),
       GoRoute(
         path: '/match-select',
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const MatchSelectPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.1, 0),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                )),
-                child: child,
-              ),
-            );
-          },
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: MatchSelectPage()),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -185,10 +96,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               child: const MatchPage(index: 2),
             ),
           ),
-          GoRoute(
-            path: '/match/settings',
-            builder: (context, state) => const SettingsPage(),
-          ),
         ],
       ),
       ShellRoute(
@@ -199,10 +106,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/strat',
             builder: (context, state) => const StratPage(),
-          ),
-          GoRoute(
-            path: '/strat/settings',
-            builder: (context, state) => const SettingsPage(),
           ),
         ],
       ),
@@ -252,28 +155,17 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    final brightness = ref.watch(brightnessNotifierProvider);
 
     return MaterialApp.router(
       title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromARGB(255, 0, 76, 255),
-          brightness: Brightness.light,
+          seedColor: Colors.deepPurple,
+          brightness: ref.watch(brightnessNotifierProvider),
         ),
       ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 0, 26, 255),
-          brightness: Brightness.dark,
-        ),
-      ),
-      themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
     );
   }
 }

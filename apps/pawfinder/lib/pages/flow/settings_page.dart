@@ -1,9 +1,10 @@
-import 'package:pawfinder/providers/brightness_provider.dart';
-import 'package:pawfinder/services/device_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/services/device_auth_service.dart';
 
 const String _signOutPassword = 'johnscout2046';
 
@@ -19,7 +20,7 @@ class SettingsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Theme Settings'),
+        title: const Text('Settings'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -30,16 +31,6 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          Text(
-            'Appearance',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          )
-              .animate()
-              .fadeIn(duration: 500.ms)
-              .slideX(begin: -0.2, end: 0, duration: 500.ms),
-          const SizedBox(height: 24),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -63,14 +54,11 @@ class SettingsPage extends ConsumerWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
-                          
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Theme',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
+                              style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
@@ -78,13 +66,11 @@ class SettingsPage extends ConsumerWidget {
                               isDarkMode
                                   ? 'Dark theme is currently active'
                                   : 'Light theme is currently active',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                             ),
                           ],
@@ -101,56 +87,60 @@ class SettingsPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  
                 ],
               ),
             ),
-          )
-              .animate()
-              .fadeIn(delay: 100.ms, duration: 500.ms)
-              .slideY(begin: 0.2, end: 0, delay: 100.ms, duration: 500.ms, curve: Curves.easeOut),
+          ),
           const SizedBox(height: 24),
           ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Sign Out'),
-            subtitle: const Text('Sign out of your account'),
-            onTap: () => _showPasswordDialog(context, ref),
-          )
-              .animate()
-              .fadeIn(delay: 200.ms, duration: 500.ms)
-              .slideX(begin: -0.2, end: 0, delay: 200.ms, duration: 500.ms),
+            leading: const Icon(Icons.link_off),
+            title: const Text('Deprovision Device'),
+            subtitle: const Text('Remove stored credentials from this device'),
+            onTap: () => _showPasswordDialog(
+              context,
+              ref,
+              () => _showDeprovisionDialog(context, ref),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline),
+            title: const Text('Delete Local Data'),
+            subtitle: const Text(
+              'Clears all cached match data from this device',
+            ),
+            onTap: () => _showPasswordDialog(
+              context,
+              ref,
+              () => _showDeleteCacheDialog(context),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Future<void> _showPasswordDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showPasswordDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Function redirect,
+  ) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => const _PasswordDialog(),
     );
-    
+
     if (result == true && context.mounted) {
-      _showSignOutDialog(context, ref);
+      redirect();
     }
   }
 
-  Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
-    final shouldSignOut = await showDialog<bool>(
+  Future<void> _showDeleteCacheDialog(BuildContext context) async {
+    final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: Row(
-          children: [
-            const Icon(Icons.warning, color: Colors.red),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                'Are you sure you want to sign out? You will need to sign in again to access your data.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-          ],
+        title: const Text('Delete Local Data'),
+        content: const Text(
+          'This will delete all locally stored match data, schedule cache, and upload queue. your config (event/position) will be kept.\n\nYou should upload pending matches first.',
         ),
         actions: [
           TextButton(
@@ -159,90 +149,53 @@ class SettingsPage extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Sign Out'),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
 
-    if (shouldSignOut ?? false) {
+    if (shouldDelete ?? false) {
+      await Hive.box(boxKey).clear();
+    }
+  }
+
+  Future<void> _showDeprovisionDialog(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final shouldDeprovision = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Deprovision Device'),
+        content: const Text(
+          'This will remove all stored credentials from this device. You will need to scan a new QR code from Beariscope to use Pawfinder again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Deprovision',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDeprovision ?? false) {
       await ref.read(deviceAuthServiceProvider).deprovision();
       if (context.mounted) {
-        context.go('/welcome');
+        context.go('/provision');
       }
     }
   }
 }
 
-class _ThemePreviewCard extends StatelessWidget {
-  final String title;
-  final bool isSelected;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _ThemePreviewCard({
-    required this.title,
-    required this.isSelected,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline,
-            width: isSelected ? 3 : 2,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 48,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(height: 4),
-              Icon(
-                Icons.check_circle,
-                size: 20,
-                color: Theme.of(context).colorScheme.primary,
-              )
-                  .animate()
-                  .scale(duration: 300.ms, curve: Curves.elasticOut)
-                  .fadeIn(duration: 200.ms),
-            ],
-          ],
-        ),
-      )
-          .animate(target: isSelected ? 1 : 0)
-          .scale(begin: Offset(1.0, 1.0), end: Offset(1.05, 1.05), duration: 200.ms),
-    );
-  }
-}
 class _PasswordDialog extends StatefulWidget {
   const _PasswordDialog();
 
@@ -282,17 +235,6 @@ class _PasswordDialogState extends State<_PasswordDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.warning,
-              color: Colors.red,
-              size: 48,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'IMPORTANT: Doing this will sign you out of your account. You will need to sign in again to access your data.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
             TextFormField(
               controller: _passwordController,
               obscureText: true,
@@ -301,8 +243,6 @@ class _PasswordDialogState extends State<_PasswordDialog> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                hintText:
-                    'Additional verification to prevent accidental sign out. Contact anybody in the Apps subteam if you need the password.',
                 errorText: _errorMessage,
               ),
               validator: (value) {
@@ -327,10 +267,7 @@ class _PasswordDialogState extends State<_PasswordDialog> {
           onPressed: () => Navigator.of(context).pop(false),
           child: const Text('Cancel'),
         ),
-        TextButton(
-          onPressed: _verify,
-          child: const Text('Verify'),
-        ),
+        TextButton(onPressed: _verify, child: const Text('Verify')),
       ],
     );
   }

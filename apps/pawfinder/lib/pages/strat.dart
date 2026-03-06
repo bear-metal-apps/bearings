@@ -114,13 +114,10 @@ class _StratPageState extends ConsumerState<StratPage> {
               onPressed: notifier.incrementHumanPlayer,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.surface,
-                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                      side: BorderSide(
-                        color: Colors.white,
-                        width: 1.0,
-                      ),
+                  side: BorderSide(color: Colors.white, width: 1.0),
                 ),
               ),
               child: Column(
@@ -145,7 +142,10 @@ class _StratPageState extends ConsumerState<StratPage> {
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.onSurface),
+                        icon: Icon(
+                          Icons.remove,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         onPressed: notifier.decrementHumanPlayer,
                       ),
                     ),

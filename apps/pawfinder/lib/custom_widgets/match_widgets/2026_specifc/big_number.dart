@@ -88,14 +88,15 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                         widget.onChanged?.call(currentValue);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
-                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                        backgroundColor:
+                            widget.backgroundColor ??
+                            Theme.of(context).colorScheme.surface,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                          side: BorderSide(
-                            color: Colors.white,
-                            width: 1.0,
-                          ),
+                          side: BorderSide(color: Colors.white, width: 1.0),
                         ),
                       ),
                       child: Text(

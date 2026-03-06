@@ -47,14 +47,12 @@ class _NumberButtonState extends State<NumberButton> {
             widget.onChanged?.call(currentVariable);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
+            backgroundColor:
+                widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(
-                color: Colors.white,
-                width: 1.0,
-              ),
+              side: BorderSide(color: Colors.white, width: 1.0),
             ),
           ),
           child: Column(
@@ -78,10 +76,7 @@ class _NumberButtonState extends State<NumberButton> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(20.0),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1.0,
-                    ),
+                    border: Border.all(color: Colors.white, width: 1.0),
                   ),
                   child: IconButton(
                     iconSize: 24,
@@ -91,7 +86,10 @@ class _NumberButtonState extends State<NumberButton> {
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.onSurface,),
+                    icon: Icon(
+                      Icons.remove,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     onPressed: () {
                       setState(() {
                         if (widget.negativeAllowed == null) {

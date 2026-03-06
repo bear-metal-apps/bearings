@@ -18,41 +18,54 @@ class WelcomePage extends ConsumerWidget {
           spacing: 16,
           children: [
             const Text(
-              'Pawfinder',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            )
+                  'Pawfinder',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                )
                 .animate()
                 .fadeIn(duration: 600.ms)
-                .slideY(begin: -0.3, end: 0, duration: 600.ms, curve: Curves.easeOutCubic),
+                .slideY(
+                  begin: -0.3,
+                  end: 0,
+                  duration: 600.ms,
+                  curve: Curves.easeOutCubic,
+                ),
             IntrinsicWidth(
               child: Column(
                 spacing: 16,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   FilledButton.icon(
-                    onPressed: () async {
-                      try {
-                        await auth.login([
-                          'openid',
-                          'profile',
-                          'email',
-                          'offline_access',
-                          'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
-                        ]);
-                      } on OfflineAuthException {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('No internet connection')),
-                          );
-                        }
-                      }
-                    },
-                    label: const Text('Sign In'),
-                    icon: const Icon(Symbols.open_in_new_rounded),
-                  )
+                        onPressed: () async {
+                          try {
+                            await auth.login([
+                              'openid',
+                              'profile',
+                              'email',
+                              'offline_access',
+                              'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+                            ]);
+                          } on OfflineAuthException {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('No internet connection'),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        label: const Text('Sign In'),
+                        icon: const Icon(Symbols.open_in_new_rounded),
+                      )
                       .animate()
                       .fadeIn(delay: 300.ms, duration: 600.ms)
-                      .slideY(begin: 0.3, end: 0, delay: 300.ms, duration: 600.ms, curve: Curves.easeOutCubic),
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 300.ms,
+                        duration: 600.ms,
+                        curve: Curves.easeOutCubic,
+                      ),
                 ],
               ),
             ),

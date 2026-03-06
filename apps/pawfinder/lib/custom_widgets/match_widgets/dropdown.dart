@@ -62,16 +62,16 @@ class _DropdownState extends State<Dropdown> {
             label: widget.title.isNotEmpty
                 ? Text(
                     widget.title,
-                    style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     maxLines: 1,
                   )
                 : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: Colors.white,
-                width: 1.0,
-              ),
+              borderSide: BorderSide(color: Colors.white, width: 1.0),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
@@ -84,7 +84,10 @@ class _DropdownState extends State<Dropdown> {
           onChanged: widget.onChanged,
           hint: AutoSizeText(
             widget.title,
-            style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
