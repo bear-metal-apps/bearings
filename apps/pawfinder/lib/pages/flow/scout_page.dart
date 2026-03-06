@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/models/scouting_session.dart';
-import 'package:pawfinder/providers/guest_mode_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
 class ScoutPage extends ConsumerStatefulWidget {
@@ -206,23 +205,9 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () {
-              // Enable guest mode and create a guest scout
-              ref.read(guestModeProvider.notifier).enable();
-              final guestScout = Scout(
-                name: 'guestuser',
-                uuid: 'guest-${DateTime.now().millisecondsSinceEpoch}',
-              );
+              const guestScout = Scout(name: 'Guest', uuid: 'guest');
               setState(() => _selectedScout = guestScout);
               ref.read(scoutingSessionProvider.notifier).setScout(guestScout);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Offline mode enabled. Data will be saved locally and uploaded when internet is available.'),
-                    duration: Duration(seconds: 4),
-                  ),
-                );
-                context.go('/match-select');
-              }
             },
             icon: const Icon(Icons.person_outline),
             label: const Text('Continue as Guest'),

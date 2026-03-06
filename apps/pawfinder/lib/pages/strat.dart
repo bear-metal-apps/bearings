@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pawfinder/store/strat_state.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
-import '../providers/scouting_flow_provider.dart';
-import '../providers/scouting_providers.dart';
+import 'package:pawfinder/providers/scouting_flow_provider.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class StratPage extends ConsumerStatefulWidget {
   const StratPage({super.key});

@@ -17,8 +17,8 @@ import 'package:pawfinder/data/upload_queue.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 
-import '../data/ui_json_serialization.dart';
-import '../providers/scouting_providers.dart';
+import 'package:pawfinder/data/ui_json_serialization.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class MatchPage extends ConsumerWidget {
   final int index;

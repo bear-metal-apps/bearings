@@ -5,10 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 
-import '../data/match_json_gen.dart';
-import '../data/ui_json_serialization.dart';
-import '../data/upload_queue.dart';
-import '../providers/guest_mode_provider.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/data/ui_json_serialization.dart';
+import 'package:pawfinder/data/upload_queue.dart';
 
 class UploadButton extends ConsumerStatefulWidget {
   const UploadButton({super.key});
@@ -23,7 +22,6 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
   @override
   Widget build(BuildContext context) {
     final queue = ref.watch(uploadQueueProvider);
-    final isGuest = ref.watch(guestModeProvider);
 
     return FilledButton.tonal(
       onPressed: queue.isEmpty || _uploading ? null : _upload,
@@ -33,12 +31,7 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
               height: 18,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : isGuest && queue.isNotEmpty
-              ? Badge(
-                  label: Text('${queue.length}'),
-                  child: const Icon(Icons.upload),
-                )
-              : const Icon(Icons.upload),
+          : const Icon(Icons.upload),
     );
   }
 
@@ -73,19 +66,6 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
             ),
           ),
         );
-
-        // If in guest mode and upload successful, suggest exiting offline mode
-        final isGuest = ref.read(guestModeProvider);
-        if (isGuest) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Data uploaded! You can now exit offline mode in Settings.',
-              ),
-              duration: Duration(seconds: 4),
-            ),
-          );
-        }
       }
     } catch (e) {
       ref.read(uploadQueueProvider.notifier).restoreAll(pending);
