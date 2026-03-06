@@ -15,8 +15,6 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final brightness = ref.watch(brightnessNotifierProvider);
     final isDarkMode = brightness == Brightness.dark;
-    final uri = GoRouterState.of(context).uri;
-    final from = uri.queryParameters['from'];
 
     return Scaffold(
       appBar: AppBar(
