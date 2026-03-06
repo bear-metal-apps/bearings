@@ -17,37 +17,7 @@ class ScoutingShell extends ConsumerStatefulWidget {
   ConsumerState<ScoutingShell> createState() => _ScoutingShellState();
 }
 
-late AnimationController teleFlash;
-
-Future<void> startFlash() async {
-  await Future.delayed(Duration(seconds: 15));
-  teleFlash.forward();
-}
-
-class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTickerProviderStateMixin{
-
-  @override
-  void initState() {
-    super.initState();
-    teleFlash = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    )..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        teleFlash.reverse();
-      } else if (status == AnimationStatus.dismissed) {
-        teleFlash.forward();
-      }
-    });
-    teleFlash.value = double.infinity;
-    teleFlash.stop();
-  }
-
-  @override
-  void dispose() {
-    teleFlash.dispose();
-    super.dispose();
-  }
+class _ScoutingShellState extends ConsumerState<ScoutingShell> {
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +32,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
       final team = next.when(
         data: (t) => t,
         loading: () => null,
-        error: (_, __) => null,
+        error: (_, _) => null,
       );
       if (team == null) return;
       final identity = notifier.createMatchIdentity();
@@ -155,8 +125,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
               context.go('/match/auto');
               break;
             case 1:
-              teleFlash.value = double.infinity;
-              teleFlash.stop();
               context.go('/match/tele');
               break;
             case 2:
@@ -166,12 +134,8 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
         },
         items: [
           const BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Auto'),
-          BottomNavigationBarItem(
-            icon:
-            FadeTransition(
-                opacity: teleFlash, // Animate the opacity (visibility)
-                child: const Icon(Icons.stacked_bar_chart_sharp)
-            ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart_sharp),
             label: 'Tele',
           ),
           const BottomNavigationBarItem(
@@ -192,7 +156,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> with SingleTicker
 }
 
 class LightSwitch extends ConsumerStatefulWidget {
-  bool value;
+  final bool value;
 
   LightSwitch({super.key, required this.value});
 
@@ -203,13 +167,21 @@ class LightSwitch extends ConsumerStatefulWidget {
 }
 
 class _LightSwitchState extends ConsumerState<LightSwitch> {
+  late bool _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.value;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Switch(
-      value: widget.value,
+      value: _value,
       onChanged: (bool value) {
         setState(() {
-          widget.value = value;
+          _value = value;
           ref.read(brightnessNotifierProvider.notifier).changeBrightness(value);
         });
       },

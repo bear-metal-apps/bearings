@@ -89,9 +89,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value){
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
               );
               break;
@@ -105,9 +105,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
               );
               break;
@@ -116,9 +116,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 key: ValueKey(dataBoxKey),
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
                 dataName: data.alias,
                 width: data.layout.w * horizontalStep,
@@ -135,9 +135,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
                 visualFeedback: true,
               );
@@ -152,9 +152,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialString: storedValue is String ? storedValue : null,
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
               );
               break;
@@ -172,9 +172,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                     .toList(), // darts type system is really weird
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
                 initialIndex: initialIndex == -1 ? null : initialIndex,
                 width: data.layout.w * horizontalStep,
@@ -190,9 +190,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
               );
               break;
@@ -206,9 +206,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (value) {
                   return dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
               );
               break;
@@ -220,9 +220,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 key: ValueKey(dataBoxKey),
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
                 title: data.alias,
                 width: data.layout.w * horizontalStep,
@@ -248,9 +248,9 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                 segments: items.map((x) => x.toString()).toList(),
                 onChanged: (value) {
                   dataBox.put(dataBoxKey, value);
-                  if(page.sectionId == 'auto'){
-                    startFlash();
-                  }
+                  // if(page.sectionId == 'auto'){
+                  //   startFlash();
+                  // }
                 },
                 initialIndex: initialIndex,
                 width: data.layout.w * horizontalStep,

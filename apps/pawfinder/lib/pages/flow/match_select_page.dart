@@ -188,7 +188,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                               final team = teamAsync.when(
                                 data: (t) => t,
                                 loading: () => null,
-                                error: (_, __) => null,
+                                error: (_, _) => null,
                               );
                               if (team != null) {
                                 Hive.box(

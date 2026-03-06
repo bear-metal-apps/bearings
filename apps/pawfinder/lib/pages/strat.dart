@@ -1,4 +1,3 @@
-import 'package:beariscope_scouter/custom_widgets/match_widgets/int_button.dart';
 import 'package:beariscope_scouter/store/strat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
