@@ -37,7 +37,9 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
         final selected = widget.initialValue as List;
         isSelected = List.generate(
           widget.segments.length,
-          (index) => selected.contains(index) || selected.contains(widget.segments[index]),
+          (index) =>
+              selected.contains(index) ||
+              selected.contains(widget.segments[index]),
         );
       } else {
         isSelected = List.filled(widget.segments.length, false);

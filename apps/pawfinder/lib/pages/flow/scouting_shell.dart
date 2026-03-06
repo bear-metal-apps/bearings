@@ -8,7 +8,6 @@ import 'package:pawfinder/providers/brightness_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
-
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
 
@@ -19,7 +18,6 @@ class ScoutingShell extends ConsumerStatefulWidget {
 }
 
 class _ScoutingShellState extends ConsumerState<ScoutingShell> {
-
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);

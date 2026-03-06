@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
-
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/data/ui_json_serialization.dart';
 import 'package:pawfinder/data/upload_queue.dart';
@@ -48,9 +47,7 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
       final matchConfig = MatchConfig.fromJson(json);
 
       final entries = pending
-          .map(
-            (id) => generateMatchJsonHive(matchConfig, id).toJson(),
-          )
+          .map((id) => generateMatchJsonHive(matchConfig, id).toJson())
           .toList();
 
       await ref
