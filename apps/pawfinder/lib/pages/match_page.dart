@@ -92,7 +92,6 @@ class MatchPage extends ConsumerWidget {
         case 'int_button':
           widget = NumberButton(
             key: ValueKey(dataBoxKey),
-            backgroundColor: Colors.white,
             dataName: data.alias,
             width: w,
             height: h,

@@ -39,20 +39,31 @@ class _CustomSliderState extends State<CustomSlider> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
-            SfSlider.vertical(
-              min: widget.minValue.toDouble(),
-              max: widget.maxValue.toDouble(),
-              value: sliderValue,
-              onChanged: (value) {
-                widget.onChanged(value);
-                setState(() => sliderValue = value);
-              },
-              interval: 10.0,
-              showTicks: true,
-              showLabels: true,
-              enableTooltip: true,
-              stepSize: 0.5,
+            Text(
+              widget.title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+            Expanded(
+              child: SfSlider.vertical(
+                min: widget.minValue.toDouble(),
+                max: widget.maxValue.toDouble(),
+                value: sliderValue,
+                onChanged: (value) {
+                  widget.onChanged(value);
+                  setState(() => sliderValue = value);
+                },
+                interval: 1.0,
+                showTicks: true,
+                showLabels: true,
+                activeColor: Theme.of(context).colorScheme.primary,
+                inactiveColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+                // enableTooltip: true,
+              ),
             ),
           ],
         ),
@@ -64,20 +75,32 @@ class _CustomSliderState extends State<CustomSlider> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
-          SfSlider(
-            min: widget.minValue.toDouble(),
-            max: widget.maxValue.toDouble(),
-            value: sliderValue,
-            onChanged: (value) {
-              widget.onChanged(value);
-              setState(() => sliderValue = value);
-            },
-            interval: 5.0,
-            showTicks: true,
-            showLabels: true,
-            enableTooltip: true,
-            stepSize: 0.5,
+          Text(
+            widget.title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          Expanded(
+            child: SfSlider(
+              min: widget.minValue.toDouble(),
+              max: widget.maxValue.toDouble(),
+              value: sliderValue,
+              onChanged: (value) {
+                widget.onChanged(value);
+                setState(() => sliderValue = value);
+              },
+              interval: 5.0,
+              showTicks: true,
+              showLabels: true,
+              enableTooltip: true,
+              stepSize: 0.5,
+              activeColor: Theme.of(context).colorScheme.primary,
+              inactiveColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
+            ),
           ),
         ],
       ),
