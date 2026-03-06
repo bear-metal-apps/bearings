@@ -31,6 +31,8 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   auto_size_text: ^3.0.0
   flutter_animate: ^4.5.2
+  google_fonts: ^8.0.2
+  native_font: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +46,10 @@ flutter:
   uses-material-design: true
   assets:
     - resources/ui_creator.json
+  fonts:
+    - family: Papyrus
+      fonts:
+        - asset: resources/PAPYRUS.TTF
 
 assets:
   - assets/

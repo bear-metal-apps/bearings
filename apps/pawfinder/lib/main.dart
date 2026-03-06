@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/providers/api_provider.dart';
@@ -155,11 +156,15 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final usePapyrusFont = ref.watch(papyrusFontProvider);
 
     return MaterialApp.router(
       title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
+        fontFamily: usePapyrusFont
+            ? 'Papyrus'
+            : GoogleFonts.googleSansFlex().fontFamily,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 0, 221, 255),

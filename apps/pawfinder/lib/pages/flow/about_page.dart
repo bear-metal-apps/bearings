@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pawfinder/providers/brightness_provider.dart';
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends ConsumerWidget {
   const AboutPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isPapyrusEnabled = ref.watch(papyrusFontProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('About')),
       body: SingleChildScrollView(
@@ -106,9 +110,32 @@ class AboutPage extends StatelessWidget {
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 12),
-                              Text(
-                                'Framework and libraries used:\n- Flutter\n- Riverpod\n- GoRouter\n- Hive\n- Flutter Animate\n\nJack GPT\nThe big Aurav G\'s son\nRyan Essay\nMeghnaa\'s computer is broken\nBen the Ginger\nAsh is playing Balatro\nZaydenyahu Palantir\nTiny(\'s in hardware)\nSen(d help)\nAnd Nived (emotional support)',
-                                style: Theme.of(context).textTheme.bodyLarge,
+                              RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Developed by:\n\n',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    TextSpan(text: 'Jack GPT\n'),
+                                    TextSpan(text: 'The big Aurav G\n'),
+                                    TextSpan(text: 'Ryan Essay\n'),
+                                    TextSpan(
+                                      text: 'Meghnaa\'s broken computer\n',
+                                    ),
+                                    TextSpan(text: 'Ben the Ginger\n'),
+                                    TextSpan(text: 'Ash Balatro\n'),
+                                    TextSpan(text: 'Zaydenyahu Palantir\n'),
+                                    TextSpan(text: 'Tiny and Sen\n'),
+                                    TextSpan(
+                                      text:
+                                          'And Nived i guess (emotional support)',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -161,8 +188,6 @@ class AboutPage extends StatelessWidget {
                       ),
 
                   const SizedBox(height: 24),
-
-                  // Licenses Button
                   OutlinedButton.icon(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -198,7 +223,34 @@ class AboutPage extends StatelessWidget {
                         delay: 600.ms,
                         duration: 500.ms,
                       ),
+                  SizedBox(height: 16),
+                  OutlinedButton.icon(
+                        onPressed: () {
+                          ref.read(papyrusFontProvider.notifier).toggle();
+                        },
+                        icon: Text("😭", style: const TextStyle(fontSize: 24)),
+                        label: Text(
+                          isPapyrusEnabled ? 'son im crine' : 'son im crine',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 550.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.2,
+                        end: 0,
+                        delay: 550.ms,
+                        duration: 500.ms,
+                      ),
 
+                  const SizedBox(height: 16),
+
+                  // Licenses Button
                   const SizedBox(height: 40),
                 ],
               ),
