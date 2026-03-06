@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "beariscope_scouter" "\0"
+            VALUE "FileDescription", "pawfinder" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "beariscope_scouter" "\0"
+            VALUE "InternalName", "pawfinder" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "beariscope_scouter.exe" "\0"
-            VALUE "ProductName", "beariscope_scouter" "\0"
+            VALUE "OriginalFilename", "pawfinder.exe" "\0"
+            VALUE "ProductName", "pawfinder" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -122,8 +122,15 @@ class MatchAlliance {
   const MatchAlliance({this.score, this.teamKeys = const []});
 
   factory MatchAlliance.fromJson(Map<String, dynamic> json) {
+    int? parseInt(dynamic value) {
+      if (value == null) return null;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      return int.tryParse(value.toString());
+    }
+
     return MatchAlliance(
-      score: json['score'] as int?,
+      score: parseInt(json['score']),
       teamKeys:
           (json['team_keys'] as List<dynamic>?)
               ?.map((e) => e.toString())
@@ -157,23 +164,35 @@ class ScoutingMatch {
   });
 
   factory ScoutingMatch.fromJson(Map<String, dynamic> json) {
-    final alliances = json['alliances'] as Map<String, dynamic>?;
+    Map<String, dynamic>? asStringMap(dynamic value) {
+      if (value is Map<String, dynamic>) return value;
+      if (value is Map) {
+        return value.map((k, v) => MapEntry(k.toString(), v));
+      }
+      return null;
+    }
+
+    int? parseInt(dynamic value) {
+      if (value == null) return null;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      return int.tryParse(value.toString());
+    }
+
+    final alliances = asStringMap(json['alliances']);
+    final red = asStringMap(alliances?['red']);
+    final blue = asStringMap(alliances?['blue']);
+
     return ScoutingMatch(
-      key: json['key'] as String,
-      compLevel: json['comp_level'] as String,
-      matchNumber: json['match_number'] as int,
-      setNumber: (json['set_number'] as int?) ?? 1,
+      key: json['key']?.toString() ?? '',
+      compLevel: json['comp_level']?.toString() ?? '',
+      matchNumber: parseInt(json['match_number']) ?? 0,
+      setNumber: parseInt(json['set_number']) ?? 1,
       eventKey: json['event_key'] as String?,
-      redAlliance: alliances?['red'] != null
-          ? MatchAlliance.fromJson(Map<String, dynamic>.from(alliances!['red']))
-          : null,
-      blueAlliance: alliances?['blue'] != null
-          ? MatchAlliance.fromJson(
-              Map<String, dynamic>.from(alliances!['blue']),
-            )
-          : null,
-      predictedTime: json['predicted_time'] as int?,
-      actualTime: json['actual_time'] as int?,
+      redAlliance: red != null ? MatchAlliance.fromJson(red) : null,
+      blueAlliance: blue != null ? MatchAlliance.fromJson(blue) : null,
+      predictedTime: parseInt(json['predicted_time']),
+      actualTime: parseInt(json['actual_time']),
     );
   }
 

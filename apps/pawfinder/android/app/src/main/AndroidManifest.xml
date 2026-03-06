@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.tahomarobotics.beariscope_scouter">
+          package="org.tahomarobotics.pawfinder">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     >
     
     <application
-        android:label="beariscope_scouter"
+            android:label="pawfinder"
         android:name="${applicationName}"
         android:icon="@mipmap/pawfinder_logo">
         <activity
@@ -33,7 +33,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="org.tahomarobotics.beariscope_scouter" android:host="callback"/>
+                <data android:scheme="org.tahomarobotics.pawfinder" android:host="callback"/>
             </intent-filter>
 
         </activity>

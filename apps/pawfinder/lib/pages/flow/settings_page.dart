@@ -1,10 +1,10 @@
-import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
-import 'package:beariscope_scouter/data/upload_queue.dart';
-import 'package:beariscope_scouter/providers/guest_mode_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/auth_provider.dart';
+import 'package:pawfinder/custom_widgets/upload_button.dart';
+import 'package:pawfinder/services/device_auth_service.dart';
+
+import '../../data/local_data.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -62,7 +62,7 @@ class SettingsPage extends ConsumerWidget {
                 ),
               ),
             ),
-          
+
           // Exit offline mode option
           if (isGuest)
             ListTile(
@@ -74,31 +74,35 @@ class SettingsPage extends ConsumerWidget {
                 context.go('/scout');
               },
             ),
-          
+
           // Sign out option
           ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Sign Out'),
-            subtitle: const Text('Sign out of your account'),
-            onTap: () => _showSignOutDialog(context, ref),
+            leading: const Icon(Icons.link_off),
+            title: const Text('Deprovision Device'),
+            subtitle: const Text('Remove stored credentials from this device'),
+            onTap: () => _showDeprovisionDialog(context, ref),
           ),
-          
+
           ListTile(
-            title: const Text("Delete Cache"),
-            // onLongPress: () => Hive.deleteFromDisk(),TODO get a Dialogue for this
+            leading: const Icon(Icons.delete_outline),
+            title: const Text('Delete Local Data'),
+            subtitle: const Text(
+              'clears all cached match data from this device',
+            ),
+            onTap: () => _showDeleteCacheDialog(context),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
-    final shouldSignOut = await showDialog<bool>(
+  Future<void> _showDeleteCacheDialog(BuildContext context) async {
+    final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
+        title: const Text('Delete Local Data'),
         content: const Text(
-          'Are you sure you want to sign out? DO NOT DO THIS WITHOUT INTERNET',
+          'this will delete all locally stored match data, schedule cache, and upload queue. your config (event/position) will be kept.\n\nyou should upload pending matches first.',
         ),
         actions: [
           TextButton(
@@ -107,18 +111,50 @@ class SettingsPage extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Sign Out'),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
 
-    if (shouldSignOut ?? false) {
+    if (shouldDelete ?? false) {
+      await Hive.box(boxKey).clear();
+    }
+  }
+
+  Future<void> _showDeprovisionDialog(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final shouldDeprovision = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Deprovision Device'),
+        content: const Text(
+          'This will remove all stored credentials from this device. You will need to scan a new QR code from Beariscope to use Pawfinder again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Deprovision',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDeprovision ?? false) {
       // Disable guest mode when signing out
       ref.read(guestModeProvider.notifier).disable();
-      await ref.read(authProvider).logout();
+      await ref.read(deviceAuthServiceProvider).deprovision();
       if (context.mounted) {
-        context.go('/welcome');
+        context.go('/provision');
       }
     }
   }

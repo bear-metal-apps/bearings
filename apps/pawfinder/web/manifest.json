@@ -1,6 +1,6 @@
 {
-    "name": "beariscope_scouter",
-    "short_name": "beariscope_scouter",
+  "name": "pawfinder",
+  "short_name": "pawfinder",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
