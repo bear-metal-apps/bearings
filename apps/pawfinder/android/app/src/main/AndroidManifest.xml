@@ -7,7 +7,7 @@
     <application
         android:label="beariscope_scouter"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/pawfinder_logo">
         <activity
             android:name=".MainActivity"
             android:exported="true"
