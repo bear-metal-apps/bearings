@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:libkoala/providers/secure_storage_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'device_auth_service.g.dart';
@@ -36,10 +39,40 @@ class DeviceAuthService {
 
   DeviceAuthService(this._ref, this._storage);
 
+  // Name of the file the fleet tool drops into the app's documents directory to
+  // trigger automatic provisioning on the next launch.
+  static const _pendingCredentialsFile = 'pending_credentials.json';
+
   /// Called once on app startup. Sets [AuthStatus] based on stored credentials.
   Future<void> initialize() async {
     final notifier = _ref.read(authStatusProvider.notifier);
     notifier.setStatus(AuthStatus.authenticating);
+
+    // Check for a credentials file staged by the fleet tool.
+    // If found, provision automatically and delete the file so it is one-shot.
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dir.path, _pendingCredentialsFile));
+      if (await file.exists()) {
+        final raw =
+            jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        await provision(
+          clientId: raw['clientId'] as String,
+          clientSecret: raw['clientSecret'] as String,
+          domain: raw['domain'] as String,
+          audience: raw['audience'] as String,
+        );
+        await file.delete();
+        return; // provision() already set AuthStatus.authenticated
+      }
+    } catch (_) {
+      // Malformed or unreadable file — ignore and fall through to normal init.
+      // Best-effort delete so a corrupt file doesn't block every future launch.
+      try {
+        final dir = await getApplicationDocumentsDirectory();
+        await File(p.join(dir.path, _pendingCredentialsFile)).delete();
+      } catch (_) {}
+    }
 
     final clientId = await _storage.read(key: _keyClientId);
     if (clientId == null) {

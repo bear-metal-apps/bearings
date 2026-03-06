@@ -59,7 +59,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Comp and Position'),
-        actionsPadding: EdgeInsets.only(right: 8, top: 1),
+        actionsPadding: EdgeInsets.only(right: 8),
         actions: [
           UploadButton(),
           const SizedBox(width: 5),
