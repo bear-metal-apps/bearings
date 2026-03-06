@@ -49,7 +49,6 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
           onPressed: () => context.go('/config'),
         ),
         title: const Text('Select Scout'),
-        actionsPadding: EdgeInsets.only(right: 16),
         actions: [UploadButton()],
         actionsPadding: EdgeInsets.only(right: 8),
       ),
