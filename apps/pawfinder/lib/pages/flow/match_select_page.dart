@@ -240,20 +240,20 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                                     .setMatchNumber(_matchNumber!);
 
                                 final identity = ref
-                          .read(scoutingSessionProvider.notifier)
-                          .createMatchIdentity();
-                      if (identity != null) {
-                        final team = teamAsync.when(
-                          data: (t) => t,
-                          loading: () => null,
-                          error: (_, _) => null,
-                        );
-                        if (team != null) {
-                          Hive.box(
-                            boxKey,
-                          ).put(matchTeamKey(identity), team);
-                        }
-                      }
+                                    .read(scoutingSessionProvider.notifier)
+                                    .createMatchIdentity();
+                                if (identity != null) {
+                                  final team = teamAsync.when(
+                                    data: (t) => t,
+                                    loading: () => null,
+                                    error: (_, _) => null,
+                                  );
+                                  if (team != null) {
+                                    Hive.box(
+                                      boxKey,
+                                    ).put(matchTeamKey(identity), team);
+                                  }
+                                }
 
                                 if (position.isStrategy) {
                                   context.go('/strat');

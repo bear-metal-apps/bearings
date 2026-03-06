@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 
-import '../data/upload_queue.dart';
-import '../services/scout_upload_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/api_provider.dart';
+import 'package:pawfinder/data/match_json_gen.dart';
+import 'package:pawfinder/data/ui_json_serialization.dart';
+import 'package:pawfinder/data/upload_queue.dart';
 
 class UploadButton extends ConsumerStatefulWidget {
   const UploadButton({super.key});
@@ -37,26 +41,41 @@ class _UploadButtonState extends ConsumerState<UploadButton> {
     setState(() => _uploading = true);
 
     try {
-      final count = await ref.read(scoutUploadServiceProvider).upload(pending);
-      if (mounted) {
+      final json = jsonDecode(
+        await rootBundle.loadString('resources/ui_creator.json'),
+      );
+      final matchConfig = MatchConfig.fromJson(json);
+
+      final entries = pending
+          .map((id) => generateMatchJsonHive(matchConfig, id).toJson())
+          .toList();
+
+      await ref
+          .read(honeycombClientProvider)
+          .post('/scout/ingest', data: {'entries': entries});
+
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('uploaded $count entr${count == 1 ? "y" : "ies"}'),
+            content: Text(
+              'Uploaded ${entries.length} '
+              'entr${entries.length == 1 ? 'y' : 'ies'} successfully',
+            ),
           ),
         );
       }
     } catch (e) {
       ref.read(uploadQueueProvider.notifier).restoreAll(pending);
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('upload failed: $e'),
+            content: Text('Upload failed: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } finally {
-      if (mounted) setState(() => _uploading = false);
+      setState(() => _uploading = false);
     }
   }
 }

@@ -102,6 +102,7 @@ class SettingsPage extends ConsumerWidget {
               () => _showDeprovisionDialog(context, ref),
             ),
           ),
+
           ListTile(
             leading: const Icon(Icons.delete_outline),
             title: const Text('Delete Local Data'),

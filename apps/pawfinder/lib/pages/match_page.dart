@@ -14,12 +14,11 @@ import 'package:pawfinder/custom_widgets/match_widgets/tristate.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/data/upload_queue.dart';
-import 'package:pawfinder/pages/flow/scouting_shell.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 
-import '../data/ui_json_serialization.dart';
-import '../providers/scouting_providers.dart';
+import 'package:pawfinder/data/ui_json_serialization.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 
 class MatchPage extends ConsumerWidget {
   final int index;
@@ -86,7 +85,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
           );
         case 'int_button':
@@ -99,7 +98,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
           );
         case 'int_text_box':
@@ -108,7 +107,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
             dataName: data.alias,
             width: w,
@@ -125,7 +124,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
             visualFeedback: true,
           );
@@ -139,7 +138,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
           );
         case 'dropdown':
@@ -155,7 +154,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
             initialIndex: initialIndex == -1 ? null : initialIndex,
             width: w,
@@ -171,7 +170,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
           );
         case 'checkbox':
@@ -193,7 +192,7 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
             title: data.alias,
             width: w,
@@ -219,9 +218,9 @@ class MatchPage extends ConsumerWidget {
             onChanged: (value) {
               box.put(dataBoxKey, value);
               markDirty();
-              if (page.sectionId == 'auto') startFlash();
+              // if (page.sectionId == 'auto') startFlash();
             },
-            initialIndex: initialIndex,
+            initialValue: initialIndex,
             width: w,
             height: h,
           );

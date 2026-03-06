@@ -84,6 +84,9 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                       onPressed: () {
                         setState(() {
                           currentValue += value;
+                          if (currentValue <= 0) {
+                            currentValue = 0;
+                          }
                         });
                         widget.onChanged?.call(currentValue);
                       },
