@@ -5,11 +5,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/betterbearmetalcode/pawfinder/releases">
-    <img src="https://img.shields.io/github/v/release/betterbearmetalcode/pawfinder?label=Latest%20Release" alt="Release"/>
+  <a href="https://github.com/bear-metal-apps/pawfinder/releases">
+    <img src="https://img.shields.io/github/v/release/bear-metal-apps/pawfinder?label=Latest%20Release" alt="Release"/>
   </a>
-  <a href="https://github.com/betterbearmetalcode/beariscope/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/betterbearmetalcode/pawfinder?color=blue" alt="License"/>
+  <a href="https://github.com/bear-metal-apps/pawfinder/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/bear-metal-apps/pawfinder?color=blue" alt="License"/>
   </a>
   <a href="https://flutter.dev/">
     <img src="https://img.shields.io/badge/Built%20with-Flutter-02569B?logo=flutter" alt="Flutter"/>
@@ -17,14 +17,14 @@
 </p>
 
 > [!NOTE]
-> Beariscope is under active development. We're running it internally this season and plan to open it up to other teams next year.
+> Pawfinder is under active development. We're running it internally this season and plan to open it up to other teams next year.
 ---
 
-# PawFinder
-PawFinder is a fully custom FRC scouting app by Team 2046, Bear Metal.
+# Pawfinder
+Pawfinder is a fully custom FRC scouting app by Team 2046, Bear Metal.
 
 ## Features
-PawFinder is built using flutter. This enables scouting without the need to do so via android. PawFinder is also multiplatform, allowing Bear Metal to create a more intuitive, aesthetic design, as well as created the opportunity to add further complexities, making PawFinder adaptable year by year.
+Pawinder is built using flutter. This enables scouting without the need to do so via android. PawFinder is also multiplatform, allowing Bear Metal to create a more intuitive, aesthetic design, as well as created the opportunity to add further complexities, making PawFinder adaptable year by year.
 
 ## Customizing Our App
 Currently we have it set up so that you only have to change one file in order to customize the UI.
@@ -50,3 +50,5 @@ and more have yet to be created
 ## If you haven't checked out our..
 - [Viewer App](https://github.com/bear-metal-apps/beariscope)
 - [Custom Library](https://github.com/bear-metal-apps/libkoala)
+
+## 
