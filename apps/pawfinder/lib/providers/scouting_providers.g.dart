@@ -107,7 +107,7 @@ final class MatchesProvider
   }
 }
 
-String _$matchesHash() => r'7e80fa4e18dc596d4856fa57b6d0d8277e13c8af';
+String _$matchesHash() => r'd09fac8b8dd6c49251c5b502e0a0d40e7c04a4c9';
 
 final class MatchesFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<ScoutingMatch>>, String> {
@@ -360,7 +360,7 @@ final class ScoutingSessionNotifierProvider
 }
 
 String _$scoutingSessionNotifierHash() =>
-    r'47cb756b86300e8af796952e1cd08df17b49b00b';
+    r'0414d76f527894bac3498f90e75f91ad352b2ed0';
 
 abstract class _$ScoutingSessionNotifier extends $Notifier<ScoutingSession> {
   ScoutingSession build();
