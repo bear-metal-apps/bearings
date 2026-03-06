@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -42,8 +43,9 @@ class _TristateState extends State<TristateButton> {
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(color: Colors.white, width: 1.0),
             ),
-            foregroundColor: Colors.black,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             backgroundColor: (currentState == 0
                 ? Colors.red
                 : currentState == 1
@@ -71,14 +73,15 @@ class _TristateState extends State<TristateButton> {
             });
           },
           child: Center(
-            child: FittedBox(
-              child: Text(
-                widget.dataName,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+            child: AutoSizeText(
+              widget.dataName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),

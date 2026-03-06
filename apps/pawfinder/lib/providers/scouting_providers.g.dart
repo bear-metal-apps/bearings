@@ -50,83 +50,6 @@ final class EventsProvider
 
 String _$eventsHash() => r'cb93aaff34eda6618033533b9ce5b9155cf2d761';
 
-@ProviderFor(eventSchedule)
-final eventScheduleProvider = EventScheduleFamily._();
-
-final class EventScheduleProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<EventScheduleData>,
-          EventScheduleData,
-          FutureOr<EventScheduleData>
-        >
-    with
-        $FutureModifier<EventScheduleData>,
-        $FutureProvider<EventScheduleData> {
-  EventScheduleProvider._({
-    required EventScheduleFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'eventScheduleProvider',
-         isAutoDispose: false,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$eventScheduleHash();
-
-  @override
-  String toString() {
-    return r'eventScheduleProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<EventScheduleData> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<EventScheduleData> create(Ref ref) {
-    final argument = this.argument as String;
-    return eventSchedule(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is EventScheduleProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$eventScheduleHash() => r'54dc4393c485e1cade6060c69c63740684dc0a1e';
-
-final class EventScheduleFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<EventScheduleData>, String> {
-  EventScheduleFamily._()
-    : super(
-        retry: null,
-        name: r'eventScheduleProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: false,
-      );
-
-  EventScheduleProvider call(String eventKey) =>
-      EventScheduleProvider._(argument: eventKey, from: this);
-
-  @override
-  String toString() => r'eventScheduleProvider';
-}
-
 @ProviderFor(matches)
 final matchesProvider = MatchesFamily._();
 
@@ -184,7 +107,7 @@ final class MatchesProvider
   }
 }
 
-String _$matchesHash() => r'8c44709706fb03e2c8c2285cf894fdc14c7b7fc0';
+String _$matchesHash() => r'7e80fa4e18dc596d4856fa57b6d0d8277e13c8af';
 
 final class MatchesFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<ScoutingMatch>>, String> {
@@ -402,7 +325,7 @@ final class ScoutsProvider
   }
 }
 
-String _$scoutsHash() => r'9b4fc843ec2ccc737351ad27a98f3c546923f1f7';
+String _$scoutsHash() => r'bb8b405be9c386ab2ac1f98f65a92493b747da9d';
 
 @ProviderFor(ScoutingSessionNotifier)
 final scoutingSessionProvider = ScoutingSessionNotifierProvider._();

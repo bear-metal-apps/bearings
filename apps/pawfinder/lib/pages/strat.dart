@@ -44,8 +44,9 @@ class _StratPageState extends ConsumerState<StratPage> {
       final matchNumber = session.matchNumber;
       if (teams.isEmpty || matchNumber == null) return;
 
-      if (_initializedForMatch == matchNumber && strat.driverSkill.isNotEmpty)
+      if (_initializedForMatch == matchNumber && strat.driverSkill.isNotEmpty) {
         return;
+      }
       _initializedForMatch = matchNumber;
       notifier.initFromSchedule(teams);
     });
@@ -112,9 +113,11 @@ class _StratPageState extends ConsumerState<StratPage> {
             ElevatedButton(
               onPressed: notifier.incrementHumanPlayer,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
+                  side: BorderSide(color: Colors.white, width: 1.0),
                 ),
               ),
               child: Column(
@@ -133,13 +136,16 @@ class _StratPageState extends ConsumerState<StratPage> {
                       width: 56,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.remove, color: Colors.black),
+                        icon: Icon(
+                          Icons.remove,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         onPressed: notifier.decrementHumanPlayer,
                       ),
                     ),

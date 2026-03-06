@@ -37,8 +37,9 @@ class _BoolButtonState extends State<BoolButton> {
             splashFactory: NoSplash.splashFactory,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(color: Colors.white, width: 1.0),
             ),
-            foregroundColor: Colors.black,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             backgroundColor: (boolButtonState == false)
                 ? Colors.red
                 : Colors.green,
@@ -58,6 +59,8 @@ class _BoolButtonState extends State<BoolButton> {
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.5,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
@@ -52,18 +53,25 @@ class _DropdownState extends State<Dropdown> {
               : dropdownValue,
           isExpanded: true,
           dropdownColor: widget.backgroundColor,
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
           decoration: InputDecoration(
             label: widget.title.isNotEmpty
                 ? Text(
                     widget.title,
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     maxLines: 1,
                   )
                 : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.black, width: 1.0),
+              borderSide: BorderSide(color: Colors.white, width: 1.0),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
@@ -74,9 +82,12 @@ class _DropdownState extends State<Dropdown> {
               )
               .toList(),
           onChanged: widget.onChanged,
-          hint: Text(
+          hint: AutoSizeText(
             widget.title,
-            style: const TextStyle(fontSize: 16, color: Colors.black),
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

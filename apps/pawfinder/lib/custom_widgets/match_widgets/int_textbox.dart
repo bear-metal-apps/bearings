@@ -48,38 +48,46 @@ class _IntTextboxState extends State<IntTextbox> {
       width: widget.width,
       height: widget.height,
       child: TextField(
-        cursorColor: widget.outlineColor ?? Colors.black,
+        cursorColor:
+            widget.outlineColor ?? Theme.of(context).colorScheme.onSurface,
         decoration: InputDecoration(
           filled: true,
-          fillColor: widget.fillColor ?? Colors.white,
+          fillColor: widget.fillColor ?? Theme.of(context).colorScheme.surface,
           labelText: widget.dataName,
-          labelStyle: TextStyle(color: widget.outlineColor ?? Colors.black),
+          labelStyle: TextStyle(
+            color:
+                widget.outlineColor ?? Theme.of(context).colorScheme.onSurface,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: widget.outlineColor ?? Colors.black,
-              // width: 1.0,
+              color:
+                  widget.outlineColor ?? Theme.of(context).colorScheme.outline,
+              width: 2.0,
             ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
               color: widget.outlineColor ?? Colors.red,
-              // width: 1.0,
+              width: 2.0,
             ),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: widget.outlineColor ?? Colors.black,
-              // width: 1.0,
+              color:
+                  widget.outlineColor ??
+                  Theme.of(context).colorScheme.onSurface,
+              width: 2.0,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: widget.outlineColor ?? Colors.black,
-              // width: 1.0,
+              color:
+                  widget.outlineColor ?? Theme.of(context).colorScheme.primary,
+              width: 2.0,
             ),
           ),
           // contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),

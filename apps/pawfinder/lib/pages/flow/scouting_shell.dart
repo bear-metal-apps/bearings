@@ -27,6 +27,8 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
     final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
+    final location = GoRouterState.of(context).uri.toString();
+    final isOnSettings = location.startsWith('/match/settings');
 
     // always contains the correct team even when navigating via prev/next.
     ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_, next) {
