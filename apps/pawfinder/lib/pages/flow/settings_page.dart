@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pawfinder/data/local_data.dart';
-import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
 
 const String _signOutPassword = 'johnscout2046';

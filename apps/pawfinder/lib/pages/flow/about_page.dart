@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/providers/app_provider.dart';
 
 class AboutPage extends ConsumerWidget {
   const AboutPage({super.key});

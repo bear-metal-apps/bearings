@@ -15,7 +15,7 @@ import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
 import 'package:pawfinder/pages/strat.dart';
-import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
 
 Future<void> main() async {
