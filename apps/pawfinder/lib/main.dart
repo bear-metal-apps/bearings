@@ -162,7 +162,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: const Color.fromARGB(255, 23, 28, 43),
           brightness: ref.watch(brightnessNotifierProvider),
         ),
       ),
