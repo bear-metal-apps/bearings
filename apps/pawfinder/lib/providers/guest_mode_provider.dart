@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/adapters.dart';
-import 'package:beariscope_scouter/data/local_data.dart';
+import 'package:pawfinder/data/local_data.dart';
 
 /// Provider that tracks whether the app is running in guest mode.
 /// Guest mode allows users to use the app without authentication when offline.
