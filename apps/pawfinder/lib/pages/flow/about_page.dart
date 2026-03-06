@@ -103,7 +103,7 @@ class AboutPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Framework and libraries used:\n- Flutter\n- Riverpod\n- GoRouter\n- Hive\n- Flutter Animate\n\nJack GPT\nSam AaravAltman\'s son\nRyan Essay\nMeghnaa\'s computer is broken\nBen the Ginger\nAsh is playing Balatro\nZaydenyahu Palantir\nTiny(\'s in hardware)\nSen(d help)\nAnd Nived (emotional support)',
+                            'Framework and libraries used:\n- Flutter\n- Riverpod\n- GoRouter\n- Hive\n- Flutter Animate\n\nJack GPT\nThe big Aurav G\'s son\nRyan Essay\nMeghnaa\'s computer is broken\nBen the Ginger\nAsh is playing Balatro\nZaydenyahu Palantir\nTiny(\'s in hardware)\nSen(d help)\nAnd Nived (emotional support)',
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
