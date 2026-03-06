@@ -1,5 +1,6 @@
 import 'package:beariscope_scouter/custom_widgets/upload_button.dart';
 import 'package:beariscope_scouter/models/scouting_session.dart';
+import 'package:beariscope_scouter/providers/guest_mode_provider.dart';
 import 'package:beariscope_scouter/providers/scouting_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ class ScoutPage extends ConsumerStatefulWidget {
 class _ScoutPageState extends ConsumerState<ScoutPage> {
   String _searchQuery = '';
   Scout? _selectedScout;
+  bool _showTimeout = false;
 
   @override
   void initState() {
@@ -26,6 +28,13 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
           _selectedScout = session.scout;
         });
       }
+      
+      // Start timeout timer
+      Future.delayed(const Duration(seconds: 10), () {
+        if (mounted) {
+          setState(() => _showTimeout = true);
+        }
+      });
     });
   }
 
@@ -130,27 +139,10 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                         },
                       );
                     },
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (err, _) => Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Failed to load scouts',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton.icon(
-                            onPressed: () => ref.invalidate(scoutsProvider),
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    ),
+                    loading: () => _showTimeout
+                        ? _buildTimeoutWidget(context)
+                        : const Center(child: CircularProgressIndicator()),
+                    error: (err, _) => _buildTimeoutWidget(context),
                   ),
                 ),
 
@@ -176,6 +168,66 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTimeoutWidget(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.cloud_off,
+            size: 48,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load scouts',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Unable to connect to the server',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 24),
+          TextButton.icon(
+            onPressed: () {
+              setState(() => _showTimeout = false);
+              ref.invalidate(scoutsProvider);
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () {
+              // Enable guest mode and create a guest scout
+              ref.read(guestModeProvider.notifier).enable();
+              final guestScout = Scout(
+                name: 'guestuser',
+                uuid: 'guest-${DateTime.now().millisecondsSinceEpoch}',
+              );
+              setState(() => _selectedScout = guestScout);
+              ref.read(scoutingSessionProvider.notifier).setScout(guestScout);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Offline mode enabled. Data will be saved locally and uploaded when internet is available.'),
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+                context.go('/match-select');
+              }
+            },
+            icon: const Icon(Icons.person_outline),
+            label: const Text('Continue as Guest'),
+          ),
+        ],
       ),
     );
   }

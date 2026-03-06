@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beariscope_scouter/providers/guest_mode_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +22,7 @@ class UploadButtonState extends ConsumerState<UploadButton> {
   Widget build(BuildContext context) {
     // watch the queue so the button re-enables the moment a match is queued
     final queue = ref.watch(uploadQueueProvider);
+    final isGuest = ref.watch(guestModeProvider);
 
     return FilledButton.tonal(
       onPressed: queue.isEmpty
@@ -55,6 +57,18 @@ class UploadButtonState extends ConsumerState<UploadButton> {
                       ),
                     ),
                   );
+                  
+                  // If in guest mode and upload successful, suggest exiting offline mode
+                  if (isGuest) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Data uploaded! You can now exit offline mode in Settings.',
+                        ),
+                        duration: Duration(seconds: 4),
+                      ),
+                    );
+                  }
                 }
               } catch (e) {
                 ref.read(uploadQueueProvider.notifier).restoreAll(pending);
@@ -68,7 +82,12 @@ class UploadButtonState extends ConsumerState<UploadButton> {
                 }
               }
             },
-      child: const Icon(Icons.upload),
+      child: isGuest && queue.isNotEmpty 
+          ? Badge(
+              label: Text('${queue.length}'),
+              child: const Icon(Icons.upload),
+            )
+          : const Icon(Icons.upload),
     );
   }
 }
