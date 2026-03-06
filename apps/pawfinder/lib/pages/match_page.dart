@@ -17,6 +17,7 @@ import 'package:pawfinder/data/ui_json_serialization.dart';
 import 'package:pawfinder/data/upload_queue.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
+import 'package:pawfinder/data/ui_json_serialization.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
 class MatchPage extends ConsumerWidget {
@@ -26,8 +27,7 @@ class MatchPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // watch session so we rebuild when match/position changes
-    ref.watch(scoutingSessionProvider);
+    final session = ref.watch(scoutingSessionProvider);
     final configAsync = ref.watch(matchConfigProvider);
     final identity = ref
         .read(scoutingSessionProvider.notifier)
@@ -40,7 +40,14 @@ class MatchPage extends ConsumerWidget {
         if (identity == null || index >= config.pages.length) {
           return const Center(child: CircularProgressIndicator());
         }
-        return _buildPage(context, ref, config, identity);
+        // passes resetVersion to the builder
+        return _buildPage(
+          context,
+          ref,
+          config,
+          identity,
+          session.resetVersion ?? 0,
+        );
       },
     );
   }
@@ -50,20 +57,17 @@ class MatchPage extends ConsumerWidget {
     WidgetRef ref,
     MatchConfig config,
     MatchIdentity identity,
+    int version,
   ) {
     final size = MediaQuery.sizeOf(context);
     final page = config.pages[index];
     final hStep = size.width / page.width;
     final vStep = (size.height - 130) / page.height;
     final box = Hive.box(boxKey);
-
     final positioned = <Widget>[];
 
-    // this is the only place we should queue match uploads now: actual edits
-    void markDirty() {
-      box.put(matchScoutedByKey(identity), identity.scout.name);
-      ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
-    }
+    void markDirty() =>
+        box.put(matchScoutedByKey(identity), identity.scout.name);ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
 
     for (final data in page.components) {
       final dataBoxKey = matchDataKey(identity, page.sectionId, data.fieldId);
@@ -71,128 +75,132 @@ class MatchPage extends ConsumerWidget {
       final w = data.layout.w * hStep;
       final h = data.layout.h * vStep;
 
-      Widget? widget;
+      // include version to force hard reset
+      final widgetKey = ValueKey('${dataBoxKey}_v$version');
 
+      Widget? widget;
       switch (data.type) {
         case 'volumetric_button':
           widget = BigNumberWidget(
-            key: ValueKey(dataBoxKey),
-            buttons: [1, 5, -1, -5],
+            key: widgetKey,
+            buttons: const [1, 5, -1, -5],
             width: w,
             height: h,
             dataName: data.alias,
             initialValue: storedValue is int ? storedValue : null,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
           );
+          break;
         case 'int_button':
           widget = NumberButton(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             dataName: data.alias,
             width: w,
             height: h,
             initialValue: storedValue is int ? storedValue : null,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
           );
+          break;
         case 'int_text_box':
           widget = IntTextbox(
-            key: ValueKey(dataBoxKey),
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            key: widgetKey,
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
             dataName: data.alias,
             width: w,
             height: h,
             initialValue: storedValue is int ? storedValue : null,
           );
+          break;
         case 'toggle_switch':
           widget = BoolButton(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             dataName: data.alias,
             width: w,
             height: h,
             initialValue: storedValue is bool ? storedValue : null,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
             visualFeedback: true,
           );
+          break;
         case 'text_box':
           widget = StringTextbox(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             dataName: data.alias,
             width: w,
             height: h,
             initialString: storedValue is String ? storedValue : null,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
           );
+          break;
         case 'dropdown':
           final items = (data.parameters['options'] as List)
               .map((x) => x.toString())
               .toList();
-          final initialIndex = items.indexOf(storedValue);
           widget = Dropdown(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             title: data.alias,
             backgroundColor: Colors.blueAccent,
             items: items,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
-            initialIndex: initialIndex == -1 ? null : initialIndex,
+            // ignore: prefer_contains
+            initialIndex: items.indexOf(storedValue) == -1
+                ? null
+                : items.indexOf(storedValue),
             width: w,
             height: h,
           );
+          break;
         case 'tristate':
           widget = TristateButton(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             dataName: data.alias,
             width: w,
             height: h,
             initialValue: storedValue is int ? storedValue : null,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
           );
+          break;
         case 'checkbox':
           widget = BoolButton(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             dataName: data.alias,
             width: w,
             height: h,
             visualFeedback: true,
             initialValue: storedValue is bool ? storedValue : null,
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
             },
           );
+          break;
         case 'slider':
           widget = CustomSlider(
-            key: ValueKey(dataBoxKey),
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            key: widgetKey,
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
             title: data.alias,
             width: w,
@@ -201,29 +209,21 @@ class MatchPage extends ConsumerWidget {
             maxValue: 100,
             initialValue: storedValue is num ? storedValue.toDouble() : null,
           );
+          break;
         case 'segmented_button':
           final items = data.parameters['options'] as List;
-          int? initialIndex;
-          if (storedValue is int) {
-            initialIndex = (storedValue >= 0 && storedValue < items.length)
-                ? storedValue
-                : null;
-          } else if (storedValue is String) {
-            final idx = items.indexOf(storedValue);
-            initialIndex = idx >= 0 ? idx : null;
-          }
           widget = CustomSegmentedButton(
-            key: ValueKey(dataBoxKey),
+            key: widgetKey,
             segments: items.map((x) => x.toString()).toList(),
-            onChanged: (value) {
-              box.put(dataBoxKey, value);
+            onChanged: (v) {
+              box.put(dataBoxKey, v);
               markDirty();
-              // if (page.sectionId == 'auto') startFlash();
             },
-            initialValue: initialIndex,
+            initialValue: (storedValue is int) ? storedValue : null,
             width: w,
             height: h,
           );
+          break;
         case 'Nxt':
           widget = SizedBox(
             width: w,
@@ -236,6 +236,7 @@ class MatchPage extends ConsumerWidget {
               child: const Text('Next Match'),
             ),
           );
+          break;
         default:
           continue;
       }
@@ -248,7 +249,6 @@ class MatchPage extends ConsumerWidget {
         ),
       );
     }
-
     return Stack(children: positioned);
   }
 }

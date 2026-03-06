@@ -152,6 +152,33 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     return ScoutingSession(event: savedEvent, position: savedPosition);
   }
 
+  void setMatchNumber(int matchNumber) {
+    state = state.copyWith(matchNumber: matchNumber, resetVersion: 0);
+  }
+
+  void nextMatch() {
+    if (state.matchNumber != null) {
+      state = state.copyWith(
+        matchNumber: state.matchNumber! + 1,
+        resetVersion: 0,
+      );
+    }
+  }
+
+  void previousMatch() {
+    if (state.matchNumber != null && state.matchNumber! > 1) {
+      state = state.copyWith(
+        matchNumber: state.matchNumber! - 1,
+        resetVersion: 0,
+      );
+    }
+  }
+
+  /// increments version to force a hard rebuild of the MatchPage widgets
+  void triggerResetUI() {
+    state = state.copyWith(resetVersion: state.resetVersion + 1);
+  }
+
   void setEvent(ScoutingEvent event) {
     state = state.copyWith(event: event);
     prefs.setString(_eventKey, jsonEncode(event.toJson()));
@@ -164,22 +191,6 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
 
   void setScout(Scout scout) {
     state = state.copyWith(scout: scout);
-  }
-
-  void setMatchNumber(int matchNumber) {
-    state = state.copyWith(matchNumber: matchNumber);
-  }
-
-  void nextMatch() {
-    if (state.matchNumber != null) {
-      state = state.copyWith(matchNumber: state.matchNumber! + 1);
-    }
-  }
-
-  void previousMatch() {
-    if (state.matchNumber != null && state.matchNumber! > 1) {
-      state = state.copyWith(matchNumber: state.matchNumber! - 1);
-    }
   }
 
   MatchIdentity? createMatchIdentity() {
@@ -208,6 +219,12 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
 
   void clear() {
     state = const ScoutingSession();
+  }
+}
+
+extension on int? {
+  int? operator +(int other) {
+    return null;
   }
 }
 

@@ -43,7 +43,7 @@ class _TristateState extends State<TristateButton> {
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(color: Colors.white, width: 1.0),
+              side: BorderSide(color: Colors.grey, width: 1.0),
             ),
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             backgroundColor: (currentState == 0

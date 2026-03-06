@@ -117,7 +117,7 @@ class _StratPageState extends ConsumerState<StratPage> {
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  side: BorderSide(color: Colors.white, width: 1.0),
+                  side: BorderSide(color: Colors.grey, width: 1.0),
                 ),
               ),
               child: Column(

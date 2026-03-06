@@ -264,12 +264,14 @@ class ScoutingSession {
   final ScoutPosition? position;
   final Scout? scout;
   final int? matchNumber;
+  final int? resetVersion;
 
   const ScoutingSession({
     this.event,
     this.position,
     this.scout,
     this.matchNumber,
+    this.resetVersion = 0,
   });
 
   bool get isConfigured =>
@@ -280,12 +282,14 @@ class ScoutingSession {
     ScoutPosition? position,
     Scout? scout,
     int? matchNumber,
+    int? resetVersion,
   }) {
     return ScoutingSession(
       event: event ?? this.event,
       position: position ?? this.position,
       scout: scout ?? this.scout,
       matchNumber: matchNumber ?? this.matchNumber,
+      resetVersion: resetVersion ?? this.resetVersion,
     );
   }
 }

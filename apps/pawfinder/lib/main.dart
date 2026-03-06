@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/providers/api_provider.dart';
@@ -14,7 +15,7 @@ import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
 import 'package:pawfinder/pages/strat.dart';
-import 'package:pawfinder/providers/brightness_provider.dart';
+import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
 
 Future<void> main() async {
@@ -155,14 +156,18 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final usePapyrusFont = ref.watch(papyrusFontProvider);
 
     return MaterialApp.router(
       title: 'Pawfinder',
       routerConfig: router,
       theme: ThemeData(
+        fontFamily: usePapyrusFont
+            ? 'Papyrus'
+            : GoogleFonts.googleSansFlex().fontFamily,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: const Color.fromARGB(255, 0, 221, 255),
           brightness: ref.watch(brightnessNotifierProvider),
         ),
       ),
