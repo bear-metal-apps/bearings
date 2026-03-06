@@ -438,7 +438,8 @@
               "Cycling",
               "Shooting",
               "Defense"
-            ]
+            ],
+            "multi_select": true
           }
         },
         {

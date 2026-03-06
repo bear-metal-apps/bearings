@@ -234,15 +234,7 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
               break;
             case "segmented_button":
               List<dynamic> items = data.parameters["options"];
-              int? initialIndex;
-              if (storedValue is int) {
-                initialIndex = storedValue >= 0 && storedValue < items.length
-                    ? storedValue
-                    : null;
-              } else if (storedValue is String) {
-                final idx = items.indexOf(storedValue);
-                initialIndex = idx >= 0 ? idx : null;
-              }
+              bool multiSelect = data.parameters["multi_select"] == true;
               widget = CustomSegmentedButton(
                 key: ValueKey(dataBoxKey),
                 segments: items.map((x) => x.toString()).toList(),
@@ -252,7 +244,8 @@ class MatchPagesNotifier extends AsyncNotifier<List<List<Widget>>> {
                   //   startFlash();
                   // }
                 },
-                initialIndex: initialIndex,
+                initialValue: storedValue,
+                multiSelect: multiSelect,
                 width: data.layout.w * horizontalStep,
                 height: data.layout.h * verticalStep,
               );
