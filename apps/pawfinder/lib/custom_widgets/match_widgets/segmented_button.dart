@@ -18,7 +18,7 @@ class CustomSegmentedButton extends StatefulWidget {
     required this.width,
     required this.height,
     this.multiSelect = false,
-    this.selectedColor = Colors.blue,
+    this.selectedColor,
     this.unselectedColor,
   });
 
@@ -85,9 +85,9 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
       },
       color: Theme.of(context).colorScheme.onSurface,
       selectedColor: Theme.of(context).colorScheme.onPrimary,
-      fillColor: widget.selectedColor,
-      borderColor: Colors.white,
-      selectedBorderColor: Colors.white,
+      fillColor: widget.selectedColor ?? Theme.of(context).colorScheme.primary,
+      borderColor: Colors.grey,
+      selectedBorderColor: Colors.grey,
       borderWidth: 1.0,
       borderRadius: BorderRadius.circular(8.0),
       children: widget.segments

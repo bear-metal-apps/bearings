@@ -99,7 +99,7 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                         ).colorScheme.onSurface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                          side: BorderSide(color: Colors.white, width: 1.0),
+                          side: BorderSide(color: Colors.grey, width: 1.0),
                         ),
                       ),
                       child: Text(

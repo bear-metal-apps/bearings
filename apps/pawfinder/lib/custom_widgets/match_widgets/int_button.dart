@@ -52,7 +52,7 @@ class _NumberButtonState extends State<NumberButton> {
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(color: Colors.white, width: 1.0),
+              side: BorderSide(color: Colors.grey, width: 1.0),
             ),
           ),
           child: Column(
@@ -76,7 +76,7 @@ class _NumberButtonState extends State<NumberButton> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(20.0),
-                    border: Border.all(color: Colors.white, width: 1.0),
+                    border: Border.all(color: Colors.grey, width: 1.0),
                   ),
                   child: IconButton(
                     iconSize: 24,
