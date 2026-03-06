@@ -649,14 +649,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.6.3"
-  native_font:
-    dependency: "direct main"
-    description:
-      name: native_font
-      sha256: "66e574d8a265449588c4d20762f67517a018b2182caac448fa8b449964e1a0de"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
   native_toolchain_c:
     dependency: transitive
     description:
