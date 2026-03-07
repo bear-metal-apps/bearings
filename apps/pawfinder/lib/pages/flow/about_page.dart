@@ -3,12 +3,71 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 
-class AboutPage extends ConsumerWidget {
+class AboutPage extends ConsumerStatefulWidget {
   const AboutPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isPapyrusEnabled = ref.watch(papyrusFontProvider);
+  ConsumerState<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends ConsumerState<AboutPage> {
+  int _tapCount = 0;
+  static const int _tapsRequired = 7;
+  int _animationTrigger = 0;
+
+  void _handlePawTap() {
+    final isPapyrusEnabled = ref.read(papyrusFontProvider);
+    setState(() {
+      _tapCount++;
+      _animationTrigger++;
+    });
+
+    final remaining = _tapsRequired - _tapCount;
+
+    if (remaining > 0) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            remaining == _tapsRequired - 1
+                ? '...'
+                : remaining == 1
+                ? 'one more...'
+                : '$remaining more',
+            textAlign: TextAlign.center,
+          ),
+          duration: const Duration(milliseconds: 800),
+          behavior: SnackBarBehavior.floating,
+          width: 160,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+      );
+    } else {
+      _tapCount = 0;
+      ref.read(papyrusFontProvider.notifier).toggle();
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isPapyrusEnabled ? 'brainrot cured' : 'son im crine 😭',
+            textAlign: TextAlign.center,
+          ),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          width: 200,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = _tapCount / _tapsRequired;
 
     return Scaffold(
       appBar: AppBar(title: const Text('About')),
@@ -23,15 +82,52 @@ class AboutPage extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // App Icon/Logo
-                  Icon(
+                  GestureDetector(
+                    onTap: _handlePawTap,
+                    child: Animate(
+                      // new key on every tap so the effect re-fires
+                      key: ValueKey(_animationTrigger),
+                      effects: _animationTrigger == 0
+                          ? [
+                              FadeEffect(duration: 500.ms),
+                              ScaleEffect(
+                                begin: const Offset(0.8, 0.8),
+                                end: const Offset(1.0, 1.0),
+                                duration: 500.ms,
+                              ),
+                            ]
+                          // tap feedback: shake + pop bounce
+                          : [
+                              ShakeEffect(
+                                hz: 8,
+                                offset: const Offset(4, 0),
+                                duration: 300.ms,
+                              ),
+                              ScaleEffect(
+                                begin: const Offset(1.0, 1.0),
+                                end: const Offset(1.2, 1.2),
+                                duration: 80.ms,
+                                curve: Curves.easeOut,
+                              ),
+                              ScaleEffect(
+                                begin: const Offset(1.2, 1.2),
+                                end: const Offset(1.0, 1.0),
+                                delay: 80.ms,
+                                duration: 200.ms,
+                                curve: Curves.elasticOut,
+                              ),
+                            ],
+                      child: Icon(
                         Icons.pets,
                         size: 100,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                      .animate()
-                      .fadeIn(duration: 500.ms)
-                      .scale(begin: const Offset(0.8, 0.8), duration: 500.ms),
+                        color: Color.lerp(
+                          Theme.of(context).colorScheme.primary,
+                          Colors.amberAccent,
+                          progress,
+                        ),
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 24),
 
@@ -98,7 +194,7 @@ class AboutPage extends ConsumerWidget {
 
                   const SizedBox(height: 16),
 
-                  // Features Card
+                  // Credits Card
                   Card(
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
@@ -114,19 +210,13 @@ class AboutPage extends ConsumerWidget {
                                 text: TextSpan(
                                   style: Theme.of(context).textTheme.bodyLarge,
                                   children: [
-                                    const TextSpan(
-                                      text: 'Developed by:\n\n',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextSpan(text: 'Jack GPT\n'),
+                                    TextSpan(text: 'JackGPT\n'),
+                                    TextSpan(text: 'Ben the Ginger\n'),
                                     TextSpan(text: 'The big Aurav G\n'),
                                     TextSpan(text: 'Ryan Essay\n'),
                                     TextSpan(
                                       text: 'Meghnaa\'s broken computer\n',
                                     ),
-                                    TextSpan(text: 'Ben the Ginger\n'),
                                     TextSpan(text: 'Ash Balatro\n'),
                                     TextSpan(text: 'Zaydenyahu Palantir\n'),
                                     TextSpan(text: 'Tiny and Sen\n'),
@@ -152,7 +242,7 @@ class AboutPage extends ConsumerWidget {
 
                   const SizedBox(height: 16),
 
-                  // Credits Card
+                  // Footer Card
                   Card(
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
@@ -188,6 +278,7 @@ class AboutPage extends ConsumerWidget {
                       ),
 
                   const SizedBox(height: 24),
+
                   OutlinedButton.icon(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -223,34 +314,7 @@ class AboutPage extends ConsumerWidget {
                         delay: 600.ms,
                         duration: 500.ms,
                       ),
-                  SizedBox(height: 16),
-                  OutlinedButton.icon(
-                        onPressed: () {
-                          ref.read(papyrusFontProvider.notifier).toggle();
-                        },
-                        icon: Text("😭", style: const TextStyle(fontSize: 24)),
-                        label: Text(
-                          isPapyrusEnabled ? 'son im crine' : 'son im crine',
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 16,
-                          ),
-                        ),
-                      )
-                      .animate()
-                      .fadeIn(delay: 550.ms, duration: 500.ms)
-                      .slideY(
-                        begin: 0.2,
-                        end: 0,
-                        delay: 550.ms,
-                        duration: 500.ms,
-                      ),
 
-                  const SizedBox(height: 16),
-
-                  // Licenses Button
                   const SizedBox(height: 40),
                 ],
               ),
