@@ -17,7 +17,6 @@ import 'package:pawfinder/data/ui_json_serialization.dart';
 import 'package:pawfinder/data/upload_queue.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
-import 'package:pawfinder/data/ui_json_serialization.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
 class MatchPage extends ConsumerWidget {
@@ -66,8 +65,10 @@ class MatchPage extends ConsumerWidget {
     final box = Hive.box(boxKey);
     final positioned = <Widget>[];
 
-    void markDirty() =>
-        box.put(matchScoutedByKey(identity), identity.scout.name);ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
+    void markDirty() {
+      box.put(matchScoutedByKey(identity), identity.scout.name);
+      ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
+    }
 
     for (final data in page.components) {
       final dataBoxKey = matchDataKey(identity, page.sectionId, data.fieldId);

@@ -100,9 +100,9 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
         ],
       ),
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentTabIndex(context),
-        onTap: (index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentTabIndex(context),
+        onDestinationSelected: (index) {
           switch (index) {
             case 0:
               context.go('/match/auto');
@@ -115,13 +115,13 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
               break;
           }
         },
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.bolt), label: 'Auto'),
-          const BottomNavigationBarItem(
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.bolt), label: 'Auto'),
+          NavigationDestination(
             icon: Icon(Icons.stacked_bar_chart_sharp),
             label: 'Tele',
           ),
-          const BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.view_array),
             label: 'Post-Match',
           ),
