@@ -36,7 +36,6 @@ APK_PATH    = SCRIPT_DIR / "build" / "app" / "outputs" / "flutter-apk" / "app-re
 PACKAGE_ID  = "org.tahomarobotics.pawfinder"
 # Flutter's getApplicationDocumentsDirectory() on Android
 APP_DATA    = f"/data/user/0/{PACKAGE_ID}/app_flutter"
-HIVE_BOXES  = ["localData", "api_cache"]
 POLL_SECS   = 2
 
 # ── Operation registry ────────────────────────────────────────────────────────
@@ -123,130 +122,179 @@ def device_label(serial: str) -> str:
 #
 # Format (hive_ce 2.x):
 #
-#   Frame = [frameLen: u32le]          ← total frame size including this field
+#   Frame = [frameLen: u32le]          — total frame size including this field
 #           [key_type: u8]             + key data
 #           [value_type: u8]           + value data
-#           [crc: u32le]               ← last 4 bytes of frame
+#           [crc: u32le]               — last 4 bytes of frame
 #
-#   Key encoding (BinaryReader.readKey):
+#   Frame-level key encoding:
 #     key_type 0 (uint)   → [uint32: u32le]
-#     key_type 1 (string) → [byteCount: u8] [UTF-8 bytes]
+#     key_type 1 (string) → [byteCount: u8] [UTF-8 bytes]   ← u8, NOT u32
 #
-#   Value encoding (BinaryReader.read):
-#     type 0  null
-#     type 1  int    → float64 LE (then .toInt())
-#     type 2  double → float64 LE
-#     type 3  bool   → u8 (0/1)
-#     type 4  string → [len: u32le] [UTF-8 bytes]
-#    (other types skipped — not used by pawfinder's String→String storage)
+#   Value type codes (BinaryReader.read):
+#     0   null
+#     1   int    → float64 LE (stored as double, then .toInt())
+#     2   double → float64 LE
+#     3   bool   → u8 (0 = false, 1 = true)
+#     4   string → [len: u32le] [UTF-8 bytes]
+#     5   byte list   → [count: u32le] [u8 * count]
+#     6   int list    → [count: u32le] [f64 * count]
+#     7   double list → [count: u32le] [f64 * count]
+#     8   bool list   → [count: u32le] [u8 * count]
+#     9   string list → [count: u32le] ([len: u32le] [UTF-8])* count
+#    10   list (generic) → [count: u32le] ([type: u8] [data])* count
+#    11   map  → [count: u32le] ([key_type: u8] [key_data] [val_type: u8] [val_data])* count
 #
-# Keys in pawfinder are always strings; values are JSON strings.
+# Note: inside maps/lists, keys are encoded as typed VALUES (using u32le for
+# string lengths), NOT as frame-level keys (which use u8 lengths).
 
-_KEY_UINT   = 0
-_KEY_STR    = 1
-_VAL_NULL   = 0
-_VAL_INT    = 1
-_VAL_DOUBLE = 2
-_VAL_BOOL   = 3
-_VAL_STRING = 4
-
-
-def _read_uint32(data: bytes, pos: int) -> tuple[int, int]:
+def _ru32(data: bytes, pos: int) -> tuple[int, int]:
     (v,) = struct.unpack_from("<I", data, pos)
     return v, pos + 4
 
-def _read_float64(data: bytes, pos: int) -> tuple[float, int]:
+def _rf64(data: bytes, pos: int) -> tuple[float, int]:
     (v,) = struct.unpack_from("<d", data, pos)
     return v, pos + 8
 
 
-def parse_hive_box(raw: bytes) -> dict[str, object]:
+def _read_value(data: bytes, pos: int) -> tuple[object, int]:
+    """
+    Decode a typed value at ``pos``.  Returns ``(value, new_pos)``.
+
+    Handles all scalar and container types recursively.  Unknown types raise
+    ``ValueError`` so callers can decide whether to skip the enclosing frame.
+    """
+    t = data[pos]; pos += 1
+
+    if t == 0:    # null
+        return None, pos
+
+    elif t == 1:  # int (stored as float64)
+        v, pos = _rf64(data, pos)
+        return int(v), pos
+
+    elif t == 2:  # double
+        return _rf64(data, pos)
+
+    elif t == 3:  # bool
+        return bool(data[pos]), pos + 1
+
+    elif t == 4:  # string
+        slen, pos = _ru32(data, pos)
+        s = data[pos:pos + slen].decode("utf-8")
+        return s, pos + slen
+
+    elif t == 5:  # byte list
+        count, pos = _ru32(data, pos)
+        return list(data[pos:pos + count]), pos + count
+
+    elif t == 6:  # int list
+        count, pos = _ru32(data, pos)
+        lst = []
+        for _ in range(count):
+            v, pos = _rf64(data, pos)
+            lst.append(int(v))
+        return lst, pos
+
+    elif t == 7:  # double list
+        count, pos = _ru32(data, pos)
+        lst = []
+        for _ in range(count):
+            v, pos = _rf64(data, pos)
+            lst.append(v)
+        return lst, pos
+
+    elif t == 8:  # bool list
+        count, pos = _ru32(data, pos)
+        lst = [bool(data[pos + i]) for i in range(count)]
+        return lst, pos + count
+
+    elif t == 9:  # string list
+        count, pos = _ru32(data, pos)
+        lst = []
+        for _ in range(count):
+            slen, pos = _ru32(data, pos)
+            lst.append(data[pos:pos + slen].decode("utf-8"))
+            pos += slen
+        return lst, pos
+
+    elif t == 10:  # generic list
+        count, pos = _ru32(data, pos)
+        lst = []
+        for _ in range(count):
+            v, pos = _read_value(data, pos)
+            lst.append(v)
+        return lst, pos
+
+    elif t == 11:  # map
+        count, pos = _ru32(data, pos)
+        d: dict = {}
+        for _ in range(count):
+            k, pos = _read_value(data, pos)   # key is a typed value
+            v, pos = _read_value(data, pos)
+            d[k] = v
+        return d, pos
+
+    else:
+        raise ValueError(f"Unknown Hive value type {t} at offset {pos - 1:#x}")
+
+
+def parse_hive_box(raw: bytes) -> dict[str | int, object]:
     """
     Parse a Hive CE .hive file and return a ``{key: value}`` dict.
 
-    Keys may be ``str`` or ``int``.
-    Values are decoded to their Python equivalents where possible:
-    - ``str`` values are further parsed as JSON if valid.
-    - ``None`` for deleted/null entries.
+    Keys are ``str`` (type 1) or ``int`` (type 0) depending on the box.
+    Values are fully decoded Python objects (dicts, lists, scalars, None).
     Frames that fail to parse are silently skipped.
     """
-    entries: dict[str, object] = {}
+    entries: dict[str | int, object] = {}
     pos = 0
 
     while pos + 4 <= len(raw):
         frame_start = pos
-        frame_len, pos = _read_uint32(raw, pos)
+        frame_len, pos = _ru32(raw, pos)
 
-        # Sanity: need at least [frameLen(4)] + [key_type(1)] + [crc(4)] = 9
-        if frame_len < 9:
-            # Could be padding or a corrupt frame — step one byte and try again
+        # Minimum valid frame: frameLen(4) + key_type(1) + val_type(1) + crc(4) = 10
+        if frame_len < 10:
             pos = frame_start + 1
             continue
 
         frame_end = frame_start + frame_len
         if frame_end > len(raw):
-            break  # truncated
-
-        # Region available for key + value (excluding CRC at the tail)
-        data_end = frame_end - 4  # before CRC
+            break  # truncated file
 
         try:
-            # ── Read key ──────────────────────────────────────────────────
+            # ── Read frame-level key ──────────────────────────────────────────
+            # Frame keys use a DIFFERENT encoding from value strings:
+            # string length is u8 here, not u32.
             key_type = raw[pos]; pos += 1
-            if key_type == _KEY_UINT:
-                key, pos = _read_uint32(raw, pos)
-            elif key_type == _KEY_STR:
-                key_len = raw[pos]; pos += 1
-                key = raw[pos:pos + key_len].decode("utf-8")
-                pos += key_len
+
+            if key_type == 0:    # uint key
+                key, pos = _ru32(raw, pos)
+            elif key_type == 1:  # string key (u8 length)
+                klen = raw[pos]; pos += 1
+                key = raw[pos:pos + klen].decode("utf-8")
+                pos += klen
             else:
                 pos = frame_end
-                continue  # unknown key type
+                continue  # unknown key type — skip frame
 
-            # ── Read value ────────────────────────────────────────────────
+            # ── Read value ────────────────────────────────────────────────────
+            data_end = frame_end - 4  # CRC occupies the last 4 bytes
             if pos >= data_end:
-                # deleted frame
-                entries[key] = None
-                pos = frame_end
-                continue
+                entries[key] = None   # deleted/tombstone frame
+            else:
+                val, _ = _read_value(raw, pos)
+                entries[key] = val
 
-            val_type = raw[pos]; pos += 1
+        except (struct.error, IndexError, UnicodeDecodeError, ValueError):
+            pass  # corrupted or unknown frame — skip
 
-            if val_type == _VAL_NULL:
-                entries[key] = None
-
-            elif val_type == _VAL_STRING:
-                str_len, pos = _read_uint32(raw, pos)
-                val_str = raw[pos:pos + str_len].decode("utf-8")
-                pos += str_len
-                # Try to auto-decode JSON values
-                try:
-                    entries[key] = json.loads(val_str)
-                except (json.JSONDecodeError, ValueError):
-                    entries[key] = val_str  # store raw string
-
-            elif val_type == _VAL_INT:
-                fval, pos = _read_float64(raw, pos)
-                entries[key] = int(fval)
-
-            elif val_type == _VAL_DOUBLE:
-                fval, pos = _read_float64(raw, pos)
-                entries[key] = fval
-
-            elif val_type == _VAL_BOOL:
-                entries[key] = bool(raw[pos]); pos += 1
-
-            # All other types (lists, maps, custom adapters) are not used by
-            # pawfinder's String-keyed JSON data, so just skip the frame.
-
-        except (struct.error, IndexError, UnicodeDecodeError):
-            pass  # corrupted frame — skip to next
-
-        pos = frame_end  # always advance to next frame boundary
+        pos = frame_end  # always advance to the next frame boundary
 
     return entries
 
-# ── Registered operations ──────────────────────────────────────────────────────
+# ── Registered operations ─────────────────────────────────────────────────────
 
 # Shared state: build the APK once per run even if multiple devices connect.
 _apk_built: bool = False
@@ -284,10 +332,24 @@ def op_install(serial: str) -> None:
         log(f"  ✗ Install failed: {err}")
 
 
+def _list_hive_files(serial: str) -> list[str]:
+    """
+    Return the basenames of every .hive file in the app's data directory
+    on the given device (e.g. ["localData.hive", "api_cache.hive"]).
+    """
+    rc, out = adb_shell(
+        serial,
+        f"run-as {PACKAGE_ID} ls {APP_DATA}",
+    )
+    if rc != 0 or not out:
+        return []
+    return [f for f in out.splitlines() if f.endswith(".hive")]
+
+
 @operation(
     "export",
     "Export Hive Data",
-    "Pull Hive boxes from the device and save as a ZIP of JSON documents",
+    "Pull all Hive boxes from the device and save as a ZIP of JSON documents",
 )
 def op_export(serial: str) -> None:
     label     = device_label(serial)
@@ -297,26 +359,34 @@ def op_export(serial: str) -> None:
     zip_path  = SCRIPT_DIR / zip_name
 
     log(f"  Exporting Hive data from {label}…")
+
+    hive_files = _list_hive_files(serial)
+    if not hive_files:
+        log(f"  ✗  Could not list Hive files (run-as failed — "
+            f"is the fleet-built APK installed? build with 'Build & Install APK')")
+        return
+
+    log(f"  Found {len(hive_files)} .hive file(s): {', '.join(hive_files)}")
     exported_any = False
 
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
 
-        for box in HIVE_BOXES:
-            hive_file = f"{APP_DATA}/{box}.hive"
+        for hive_filename in hive_files:
+            box = hive_filename.removesuffix(".hive")
+            hive_path = f"{APP_DATA}/{hive_filename}"
             raw = adb_pull_binary(
                 serial,
-                f"run-as {PACKAGE_ID} cat {hive_file}",
+                f"run-as {PACKAGE_ID} cat {hive_path}",
             )
 
             if not raw:
-                log(f"  ⚠  Could not read {box}.hive (run-as failed — "
-                    f"is the fleet-built APK installed? build with 'Build & Install APK')")
+                log(f"  ⚠  Could not read {hive_filename} — skipping")
                 continue
 
             exported_any = True
 
             # Always save the raw binary — can be restored to another device
-            zf.writestr(f"raw/{box}.hive", raw)
+            zf.writestr(f"raw/{hive_filename}", raw)
 
             # Parse and write individual JSON documents
             entries = parse_hive_box(raw)
@@ -328,12 +398,13 @@ def op_export(serial: str) -> None:
                         {"_key": key, "value": value},
                         indent=2,
                         ensure_ascii=False,
+                        default=str,  # fallback for any non-serializable types
                     ),
                 )
 
-            log(f"  ✓ {box}: {len(entries)} entries → {box}/*.json")
+            log(f"  ✓ {hive_filename}: {len(entries)} entries → {box}/*.json")
 
-        # Add a manifest so you know where the export came from
+        # Manifest so you know where the export came from
         zf.writestr(
             "manifest.json",
             json.dumps(
@@ -342,7 +413,7 @@ def op_export(serial: str) -> None:
                     "serial":      serial,
                     "exported_at": datetime.now().isoformat(),
                     "package":     PACKAGE_ID,
-                    "boxes":       HIVE_BOXES,
+                    "hive_files":  hive_files,
                 },
                 indent=2,
             ),
@@ -372,7 +443,7 @@ def op_reset(serial: str) -> None:
         log(f"  ✗ Reset failed (rc={rc}): {out or '(no output)'}")
 
 
-# ── Provision credentials ────────────────────────────────────────────────────
+# ── Provision credentials ─────────────────────────────────────────────────────
 #
 # How it works:
 #   1. The user pastes the Auth0 JSON payload at "go" time.
@@ -403,7 +474,7 @@ def _configure_provision() -> bool:
 
     raw = "".join(lines).strip()
     if not raw:
-        print("  ⚠ No JSON provided — provision step will not run.")
+        print("  ✗ No JSON provided — provision step will not run.")
         return False
     try:
         json.loads(raw)  # validate before storing
@@ -423,7 +494,7 @@ def _configure_provision() -> bool:
 )
 def op_provision(serial: str) -> None:
     if _provision_json is None:
-        log("  ⚠ No credentials JSON configured — skipping")
+        log("  ✗ No credentials JSON configured — skipping")
         return
 
     label  = device_label(serial)
@@ -432,7 +503,7 @@ def op_provision(serial: str) -> None:
 
     proc = subprocess.run(
         ["adb", "-s", serial, "shell",
-         f"run-as {PACKAGE_ID} sh -c 'cat > {target}'"],
+         f"run-as {PACKAGE_ID} sh -c 'mkdir -p {APP_DATA} && cat > {target}'"],
         input=_provision_json,
         capture_output=True,
         text=True,
@@ -446,7 +517,7 @@ def op_provision(serial: str) -> None:
 
 # ── Menu ──────────────────────────────────────────────────────────────────────
 
-_CHECK = "✓"
+_CHECK   = "✓"
 _UNCHECK = "○"
 
 
@@ -509,7 +580,7 @@ def show_menu() -> list[Operation]:
                     if op.configure():
                         ready.append(op)
                     else:
-                        print(f"  ↳ '{op.label}' will be skipped this run.")
+                        print(f"  ✗ '{op.label}' will be skipped this run.")
             if not ready:
                 print("  No operations ready — please select again.")
                 continue
@@ -541,7 +612,7 @@ def watch_and_apply(ops: list[Operation]) -> None:
     Devices that disconnect are removed from the known set so a reconnect
     will trigger them again.
     """
-    known: set[str] = set(get_connected_devices())
+    known: set[str] = set()
     if known:
         log(f"Already connected ({len(known)}): {', '.join(known)}")
     else:

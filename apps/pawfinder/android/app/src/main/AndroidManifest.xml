@@ -7,8 +7,7 @@
     <application
             android:label="pawfinder"
             android:name="${applicationName}"
-            android:icon="@mipmap/pawfinder_logo"
-            android:debuggable="true">
+            android:icon="@mipmap/pawfinder_logo">
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
