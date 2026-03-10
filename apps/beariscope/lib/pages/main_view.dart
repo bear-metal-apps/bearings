@@ -1,0 +1,402 @@
+import 'package:beariscope/providers/connectivity_provider.dart';
+import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:libkoala/libkoala.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
+class _NavItem {
+  final String route;
+  final IconData icon;
+  final String label;
+  final String group;
+
+  const _NavItem({
+    required this.route,
+    required this.icon,
+    required this.label,
+    required this.group,
+  });
+}
+
+class MainViewController extends InheritedWidget {
+  final VoidCallback openDrawer;
+  final bool isDesktop;
+
+  const MainViewController({
+    super.key,
+    required this.openDrawer,
+    required this.isDesktop,
+    required super.child,
+  });
+
+  static MainViewController of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<MainViewController>()!;
+
+  @override
+  bool updateShouldNotify(MainViewController oldWidget) =>
+      isDesktop != oldWidget.isDesktop;
+}
+
+class MainView extends ConsumerStatefulWidget {
+  final Widget child;
+
+  const MainView({super.key, required this.child});
+
+  @override
+  ConsumerState<MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends ConsumerState<MainView> {
+  bool _isRefreshing = false;
+  static const double _drawerWidth = 280;
+  static const _animationDuration = Duration(milliseconds: 100);
+
+  static const List<_NavItem> _navItems = [
+    _NavItem(
+      route: '/up_next',
+      icon: Symbols.event_rounded,
+      label: 'Up Next',
+      group: 'General',
+    ),
+    _NavItem(
+      route: '/team_lookup',
+      icon: Symbols.smart_toy_rounded,
+      label: 'Team Lookup',
+      group: 'Insights',
+    ),
+    // _NavItem(
+    //   route: '/picklists',
+    //   icon: Symbols.list_alt_rounded,
+    //   label: 'Picklists',
+    //   group: 'Insights',
+    // ),
+    // _NavItem(
+    //   route: '/corrections',
+    //   icon: Symbols.table_edit_rounded,
+    //   label: 'Data Corrections',
+    //   group: 'Scouting',
+    // ),
+    _NavItem(
+      route: '/pits_scouting',
+      icon: Symbols.build_rounded,
+      label: 'Pits Scouting',
+      group: 'Scouting',
+    ),
+  ];
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  int get _selectedIndex {
+    final location = GoRouterState.of(context).uri.toString();
+    final idx = _navItems.indexWhere((n) => location.startsWith(n.route));
+    return idx;
+  }
+
+  bool get _isAtTopLevel {
+    final location = GoRouterState.of(context).uri.toString();
+    // just checks if we're at a top level nav item (not a nested route)
+    return _navItems.any((n) => n.route == location);
+  }
+
+  void _onDestinationSelected(int index, bool isDesktop) {
+    if (index == _selectedIndex) {
+      if (!isDesktop) Navigator.pop(context);
+      return;
+    }
+    context.go(_navItems[index].route);
+    if (!isDesktop) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 700;
+        final isAtTopLevel = _isAtTopLevel;
+
+        final isOnline = switch (ref.watch(connectivityProvider)) {
+          AsyncData(:final value) => value,
+          _ => true,
+        };
+
+        final navigationDrawer = SizedBox(
+          width: _drawerWidth,
+          child: NavigationDrawer(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (i) => _onDestinationSelected(i, isDesktop),
+            children: _buildNavChildren(isOnline: isOnline),
+          ),
+        );
+
+        final childContent =
+            isDesktop
+                ? Row(
+                  children: [navigationDrawer, Expanded(child: widget.child)],
+                )
+                : widget.child;
+
+        // checks for showing no perms banner
+        final authMeLoaded = ref.watch(authMeProvider).hasValue;
+        final permissionChecker = ref.watch(permissionCheckerProvider);
+        final hasNoPermissions =
+            authMeLoaded &&
+            permissionChecker != null &&
+            permissionChecker.permissions.isEmpty;
+
+        return Scaffold(
+          key: _scaffoldKey,
+          // Only enable drawer when at top level and on mobile
+          drawer: isDesktop ? null : (isAtTopLevel ? navigationDrawer : null),
+          drawerEnableOpenDragGesture: !isDesktop && isAtTopLevel,
+          drawerBarrierDismissible: !isDesktop,
+          body: MainViewController(
+            isDesktop: isDesktop,
+            openDrawer: () => _scaffoldKey.currentState?.openDrawer(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (hasNoPermissions) const _NoPermissionsBanner(),
+                Expanded(child: childContent),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _doRefresh() async {
+    setState(() => _isRefreshing = true);
+    try {
+      await ref.read(scoutingDataProvider.notifier).refresh();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Scouting data updated'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sync failed: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  List<Widget> _buildNavChildren({required bool isOnline}) {
+    final children = <Widget>[];
+
+    children.add(
+      Padding(
+        padding: const EdgeInsets.fromLTRB(28, 12, 24, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    'assets/beariscope_head.svg',
+                    width: 24,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.primary,
+                      BlendMode.srcATop,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Beariscope',
+                    style: TextStyle(fontFamily: 'Xolonium', fontSize: 20),
+                  ),
+                ],
+              ),
+            ),
+            Tooltip(
+              message: 'Settings',
+              child: InkWell(
+                onTap: () => context.push('/settings'),
+                borderRadius: BorderRadius.circular(24),
+                child: ProfilePicture(size: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    children.add(
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 28),
+        child: Divider(),
+      ),
+    );
+
+    String? currentGroup;
+    for (final entry in _navItems.indexed) {
+      final index = entry.$1;
+      final item = entry.$2;
+      if (item.group != currentGroup) {
+        if (currentGroup != null) {
+          children.add(
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 28),
+              child: Divider(),
+            ),
+          );
+        }
+        currentGroup = item.group;
+        children.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 10, 16, 16),
+            child: Text(
+              currentGroup,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+        );
+      }
+      children.add(
+        NavigationDrawerDestination(
+          icon: TweenAnimationBuilder<double>(
+            tween: Tween<double>(
+              begin: _selectedIndex == index ? 0.0 : 1.0,
+              end: _selectedIndex == index ? 1.0 : 0.0,
+            ),
+            duration: _animationDuration,
+            curve: Curves.fastOutSlowIn,
+            builder:
+                (context, value, _) =>
+                    Icon(item.icon, weight: 600, fill: value),
+          ),
+          label: Text(item.label),
+        ),
+      );
+    }
+    children.add(
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        child: Divider(),
+      ),
+    );
+
+    // final location = GoRouterState.of(context).uri.toString();
+    // final isUtilitiesSelected = location.startsWith('/utilities');
+    //
+    // children.add(
+    //   Padding(
+    //     padding: const EdgeInsets.symmetric(horizontal: 15),
+    //     child: SizedBox(
+    //       width: double.infinity,
+    //       height: 50,
+    //       child: OutlinedButton(
+    //         onPressed: () => context.go('/utilities'),
+    //         style: OutlinedButton.styleFrom(
+    //           alignment: Alignment.center,
+    //           side: BorderSide.none,
+    //           backgroundColor:
+    //               isUtilitiesSelected
+    //                   ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)
+    //                   : null,
+    //         ),
+    //         child: Row(
+    //           mainAxisAlignment: MainAxisAlignment.center,
+    //           children: [
+    //             Icon(
+    //               Icons.more_horiz,
+    //               size: 30,
+    //               color: Theme.of(context).colorScheme.onSurfaceVariant,
+    //             ),
+    //             const SizedBox(width: 12),
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
+
+    children.add(
+      Padding(
+        padding: const EdgeInsets.fromLTRB(15, 0, 15, 8),
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: FilledButton.icon(
+            onPressed: isOnline && !_isRefreshing ? _doRefresh : null,
+            icon:
+                _isRefreshing
+                    ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                    : Icon(
+                      isOnline
+                          ? Symbols.sync_rounded
+                          : Symbols.cloud_off_rounded,
+                    ),
+            label: Text(
+              _isRefreshing
+                  ? 'Syncing…'
+                  : isOnline
+                  ? 'Sync Scouting Data'
+                  : 'No Internet',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return children;
+  }
+}
+
+class _NoPermissionsBanner extends StatelessWidget {
+  const _NoPermissionsBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.errorContainer,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Symbols.warning_rounded,
+                color: colorScheme.onErrorContainer,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'You don\'t have any permissions yet and won\'t be able to use the app. Ask an Apps lead or Executive to give you access.',
+                  style: TextStyle(
+                    color: colorScheme.onErrorContainer,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
