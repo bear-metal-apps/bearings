@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+// Number button widget that adds and substracts a numerical value.
+class IntTextbox extends StatefulWidget {
+  final Color? fillColor;
+  final Color? outlineColor;
+  final String dataName;
+  final Function(int) onChanged;
+  final double width;
+  final double height;
+  final int? initialValue;
+
+  const IntTextbox({
+    super.key,
+    this.initialValue,
+    this.fillColor,
+    required this.onChanged,
+    this.outlineColor,
+    required this.dataName,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  State<IntTextbox> createState() => _IntTextboxState();
+}
+
+class _IntTextboxState extends State<IntTextbox> {
+  TextEditingController controller = TextEditingController();
+  late int value = widget.initialValue ?? 0;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.text = value.toString();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: TextField(
+        cursorColor:
+            widget.outlineColor ?? Theme.of(context).colorScheme.onSurface,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: widget.fillColor ?? Theme.of(context).colorScheme.surface,
+          labelText: widget.dataName,
+          labelStyle: TextStyle(
+            color:
+                widget.outlineColor ?? Theme.of(context).colorScheme.onSurface,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              color:
+                  widget.outlineColor ?? Theme.of(context).colorScheme.outline,
+              width: 2.0,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              color: widget.outlineColor ?? Colors.red,
+              width: 2.0,
+            ),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              color:
+                  widget.outlineColor ??
+                  Theme.of(context).colorScheme.onSurface,
+              width: 2.0,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(
+              color:
+                  widget.outlineColor ?? Theme.of(context).colorScheme.primary,
+              width: 2.0,
+            ),
+          ),
+          // contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        ),
+        controller: controller,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        onChanged: (text) {
+          setState(() {
+            value = int.tryParse(controller.text) ?? 0;
+            widget.onChanged(value);
+          });
+        },
+      ),
+    );
+  }
+}
