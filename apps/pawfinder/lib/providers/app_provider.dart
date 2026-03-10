@@ -19,5 +19,6 @@ class PapyrusFontProvider extends Notifier<bool> {
   void toggle() => state = !state;
 }
 
-final papyrusFontProvider =
-    NotifierProvider<PapyrusFontProvider, bool>(PapyrusFontProvider.new);
+final papyrusFontProvider = NotifierProvider<PapyrusFontProvider, bool>(
+  PapyrusFontProvider.new,
+);

@@ -14,8 +14,6 @@ class StratPage extends ConsumerStatefulWidget {
 }
 
 class _StratPageState extends ConsumerState<StratPage> {
-  int? _initializedForMatch;
-
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
@@ -33,22 +31,34 @@ class _StratPageState extends ConsumerState<StratPage> {
     final allianceTeamsAsync = ref.watch(allianceTeamsForSessionProvider);
     final size = MediaQuery.sizeOf(context);
 
+    // Re-init when the match changes and teams are already loaded.
+    ref.listen(scoutingSessionProvider, (_, _) {
+      final id = ref
+          .read(scoutingSessionProvider.notifier)
+          .createMatchIdentity();
+      if (id == null) return;
+      final teams = ref
+          .read(allianceTeamsForSessionProvider)
+          .maybeWhen(data: (v) => v, orElse: () => const <String>[]);
+      if (teams.isEmpty) return;
+      ref.read(stratStateProvider(id).notifier).initFromSchedule(teams);
+    });
+
+    // Re-init when teams arrive asynchronously for the current match.
     ref.listen<AsyncValue<List<String>>>(allianceTeamsForSessionProvider, (
       _,
       next,
     ) {
       final teams = next.maybeWhen(
-        data: (value) => value,
+        data: (v) => v,
         orElse: () => const <String>[],
       );
-      final matchNumber = session.matchNumber;
-      if (teams.isEmpty || matchNumber == null) return;
-
-      if (_initializedForMatch == matchNumber && strat.driverSkill.isNotEmpty) {
-        return;
-      }
-      _initializedForMatch = matchNumber;
-      notifier.initFromSchedule(teams);
+      if (teams.isEmpty) return;
+      final id = ref
+          .read(scoutingSessionProvider.notifier)
+          .createMatchIdentity();
+      if (id == null) return;
+      ref.read(stratStateProvider(id).notifier).initFromSchedule(teams);
     });
 
     return Scaffold(
@@ -117,7 +127,7 @@ class _StratPageState extends ConsumerState<StratPage> {
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  side: BorderSide(color: Colors.grey, width: 1.0),
+                  side: BorderSide(color: Colors.white, width: 1.0),
                 ),
               ),
               child: Column(
@@ -187,8 +197,9 @@ class _RankingList extends StatelessWidget {
         Text(title, textScaler: TextScaler.linear(2)),
         SizedBox(
           width: 400,
-          height: 160,
           child: ReorderableListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             onReorder: onReorder,
             children: [
               for (final item in teams)

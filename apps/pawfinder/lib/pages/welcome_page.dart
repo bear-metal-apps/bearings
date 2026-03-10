@@ -1,10 +1,8 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class WelcomePage extends ConsumerWidget {
   const WelcomePage({super.key});
