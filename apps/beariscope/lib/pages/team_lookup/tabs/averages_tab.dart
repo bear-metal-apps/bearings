@@ -180,7 +180,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Auto Accuracy',
-                  value: _fmt10Pct(avgAutoAccuracy),
+                  value: _fmtPct(avgAutoAccuracy),
                 ),
                 ScoutingDataRow(
                   label: 'Auto L1 Climb Rate',
@@ -193,7 +193,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Tele Accuracy',
-                  value: _fmt10Pct(avgTeleAccuracy),
+                  value: _fmtPct(avgTeleAccuracy),
                 ),
                 ScoutingDataRow(
                   label: 'Avg Fuel Passed (Auto)',
@@ -280,5 +280,4 @@ class _AveragesBodyState extends State<_AveragesBody> {
 
   static String _fmtDec(double v) => v.toStringAsFixed(1);
   static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
-  static String _fmt10Pct(double v) => '${(v * 10).toStringAsFixed(1)}%';
 }
