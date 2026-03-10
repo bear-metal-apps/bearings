@@ -1,7 +1,7 @@
 import 'package:beariscope/pages/main_view.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/permissions_provider.dart';
-import 'package:libkoala/ui/widgets/text_divider.dart';
+import 'package:services/providers/permissions_provider.dart';
+import 'package:ui/widgets/text_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -28,13 +28,12 @@ class PicklistsPageState extends ConsumerState<PicklistsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Picklists'),
-        leading:
-            controller.isDesktop
-                ? null
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: controller.openDrawer,
-                ),
+        leading: controller.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: controller.openDrawer,
+              ),
       ),
       body: Center(
         child: Column(

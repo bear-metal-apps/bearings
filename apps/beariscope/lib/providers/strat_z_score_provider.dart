@@ -106,8 +106,9 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
 
 final stratZScoresProvider = FutureProvider<StratZScoreData>((ref) async {
   final allDocs = await ref.watch(scoutingDataProvider.future);
-  final stratDocs =
-      allDocs.where((doc) => doc.meta?['type']?.toString() == 'strat').toList();
+  final stratDocs = allDocs
+      .where((doc) => doc.meta?['type']?.toString() == 'strat')
+      .toList();
   if (stratDocs.isEmpty) return StratZScoreData.empty;
   return _computeStratZScores(stratDocs);
 });

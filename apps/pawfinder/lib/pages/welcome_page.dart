@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/auth_provider.dart';
+import 'package:services/providers/auth_provider.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class WelcomePage extends ConsumerWidget {

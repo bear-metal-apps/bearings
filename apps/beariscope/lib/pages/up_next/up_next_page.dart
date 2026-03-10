@@ -5,7 +5,7 @@ import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class UpNextPage extends ConsumerWidget {
@@ -35,20 +35,23 @@ class UpNextPage extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Up Next'),
-          leading:
-              controller.isDesktop
-                  ? null
-                  : IconButton(
-                    icon: const Icon(Symbols.menu_rounded),
-                    onPressed: controller.openDrawer,
-                  ),
-          bottom: const TabBar(tabs: [Tab(text: 'Current'), Tab(text: 'Past')]),
+          leading: controller.isDesktop
+              ? null
+              : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: controller.openDrawer,
+                ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Current'),
+              Tab(text: 'Past'),
+            ],
+          ),
         ),
         body: scheduleAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error:
-              (err, stack) =>
-                  Center(child: Text('Error fetching schedule: $err')),
+          error: (err, stack) =>
+              Center(child: Text('Error fetching schedule: $err')),
           data: (schedule) {
             final now = DateTime.now();
             final currentEvents = <Map<String, dynamic>>[];
@@ -123,8 +126,9 @@ class _EventSection extends StatelessWidget {
           Text(eventName, style: TextStyle(fontFamily: 'Xolonium')),
           ...matches.map((match) {
             final matchTime = _parseMatchTime(match);
-            final timeLabel =
-                matchTime == null ? 'Time TBD' : timeFormat.format(matchTime);
+            final timeLabel = matchTime == null
+                ? 'Time TBD'
+                : timeFormat.format(matchTime);
 
             String displayName;
             final compLevel = _stringValue(match, 'compLevel', 'comp_level');
@@ -182,10 +186,9 @@ class _EventList extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: BeariscopeCardList(
-        children:
-            items.map((item) {
-              return _EventSection(data: item, timeFormat: timeFormat);
-            }).toList(),
+        children: items.map((item) {
+          return _EventSection(data: item, timeFormat: timeFormat);
+        }).toList(),
       ),
     );
   }

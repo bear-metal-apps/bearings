@@ -1,8 +1,9 @@
 import 'package:beariscope/components/beariscope_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:services/providers/api_provider.dart';
+import 'package:services/providers/rbac_management_provider.dart';
 
 class TeamRolesPage extends ConsumerStatefulWidget {
   const TeamRolesPage({super.key});
@@ -127,8 +128,9 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
     final isEdit = role != null && !duplicate;
 
     final initialId = duplicate ? '${role?.id ?? ''}_copy' : (role?.id ?? '');
-    final initialName =
-        duplicate ? '${role?.name ?? ''} Copy' : (role?.name ?? '');
+    final initialName = duplicate
+        ? '${role?.name ?? ''} Copy'
+        : (role?.name ?? '');
     final initialDescription = role?.description ?? '';
     final initialPermissions = <String>{...?role?.permissions};
 
@@ -161,12 +163,11 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                   currentName.isNotEmpty &&
                   selectedPermissions.isNotEmpty;
 
-              final titleText =
-                  isEdit
-                      ? 'Edit Role'
-                      : duplicate
-                      ? 'Duplicate Role'
-                      : 'Create Role';
+              final titleText = isEdit
+                  ? 'Edit Role'
+                  : duplicate
+                  ? 'Duplicate Role'
+                  : 'Create Role';
 
               Future<void> handleSave() async {
                 final messenger = ScaffoldMessenger.of(context);
@@ -180,20 +181,19 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                 final nextRole = ManagedRole(
                   id: currentId,
                   name: currentName,
-                  description:
-                      currentDescription.isEmpty ? null : currentDescription,
+                  description: currentDescription.isEmpty
+                      ? null
+                      : currentDescription,
                   permissions: permissionList,
                 );
 
-                final nextRoles =
-                    isEdit
-                        ? previousRoles
-                            .map(
-                              (entry) =>
-                                  entry.id == currentId ? nextRole : entry,
-                            )
-                            .toList()
-                        : <ManagedRole>[...previousRoles, nextRole];
+                final nextRoles = isEdit
+                    ? previousRoles
+                          .map(
+                            (entry) => entry.id == currentId ? nextRole : entry,
+                          )
+                          .toList()
+                    : <ManagedRole>[...previousRoles, nextRole];
 
                 setState(() {
                   _optimisticRoles = nextRoles;
@@ -205,18 +205,18 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     await service.updateRole(
                       id: currentId,
                       name: currentName,
-                      description:
-                          currentDescription.isEmpty ? '' : currentDescription,
+                      description: currentDescription.isEmpty
+                          ? ''
+                          : currentDescription,
                       permissions: permissionList,
                     );
                   } else {
                     await service.createRole(
                       id: currentId,
                       name: currentName,
-                      description:
-                          currentDescription.isEmpty
-                              ? null
-                              : currentDescription,
+                      description: currentDescription.isEmpty
+                          ? null
+                          : currentDescription,
                       permissions: permissionList,
                     );
                   }
@@ -339,43 +339,41 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
     if (assignedUsers > 0) {
       await showDialog<void>(
         context: context,
-        builder:
-            (_) => AlertDialog(
-              title: const Text('Cannot delete role'),
-              content: Text(
-                'This role is assigned to $assignedUsers users. Please reassign them before deleting.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
+        builder: (_) => AlertDialog(
+          title: const Text('Cannot delete role'),
+          content: Text(
+            'This role is assigned to $assignedUsers users. Please reassign them before deleting.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
             ),
+          ],
+        ),
       );
       return;
     }
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Delete Role'),
-            content: Text('Delete ${role.name}?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                child: const Text('Delete'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Role'),
+        content: Text('Delete ${role.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed != true) return;
@@ -393,8 +391,9 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
 
     try {
       setState(() {
-        _optimisticRoles =
-            previousRoles.where((entry) => entry.id != role.id).toList();
+        _optimisticRoles = previousRoles
+            .where((entry) => entry.id != role.id)
+            .toList();
       });
 
       await ref.read(rbacManagementServiceProvider).deleteRole(role.id);
@@ -450,10 +449,9 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
               );
 
               setState(() {
-                _optimisticUsers =
-                    previousUsers
-                        .map((entry) => entry.id == user.id ? nextUser : entry)
-                        .toList();
+                _optimisticUsers = previousUsers
+                    .map((entry) => entry.id == user.id ? nextUser : entry)
+                    .toList();
               });
 
               try {
@@ -499,10 +497,9 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     (role) => CheckboxListTile(
                       value: selectedRoles.contains(role.id),
                       title: Text(role.name),
-                      subtitle:
-                          (role.description ?? '').isNotEmpty
-                              ? Text(role.description!)
-                              : null,
+                      subtitle: (role.description ?? '').isNotEmpty
+                          ? Text(role.description!)
+                          : null,
                       onChanged: (checked) {
                         setDialogState(() {
                           if (checked == true) {
@@ -598,15 +595,17 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
         ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Users'), Tab(text: 'Roles')],
+          tabs: const [
+            Tab(text: 'Users'),
+            Tab(text: 'Roles'),
+          ],
         ),
         actions: const [SizedBox(width: 48)],
       ),
       body: metadataAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error:
-            (error, _) =>
-                Center(child: Text('Failed to load metadata: $error')),
+        error: (error, _) =>
+            Center(child: Text('Failed to load metadata: $error')),
         data: (metadata) {
           final permissionMap = {
             for (final permission in metadata.permissions)
@@ -618,9 +617,8 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
             children: [
               usersAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error:
-                    (error, _) =>
-                        Center(child: Text('Failed to load users: $error')),
+                error: (error, _) =>
+                    Center(child: Text('Failed to load users: $error')),
                 data: (users) {
                   final effectiveUsers = _optimisticUsers ?? users;
                   final effectiveRolesForUsers =
@@ -631,16 +629,15 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     for (final role in effectiveRolesForUsers) role.id: role,
                   };
 
-                  final filteredUsers =
-                      effectiveUsers.where((user) {
-                        if (searchQuery.isEmpty) return true;
-                        final roleNames = user.roles
-                            .map((roleId) => roleMap[roleId]?.name ?? '')
-                            .join(' ');
-                        final userText =
-                            '${user.name ?? ''} $roleNames'.toLowerCase();
-                        return userText.contains(searchQuery);
-                      }).toList();
+                  final filteredUsers = effectiveUsers.where((user) {
+                    if (searchQuery.isEmpty) return true;
+                    final roleNames = user.roles
+                        .map((roleId) => roleMap[roleId]?.name ?? '')
+                        .join(' ');
+                    final userText = '${user.name ?? ''} $roleNames'
+                        .toLowerCase();
+                    return userText.contains(searchQuery);
+                  }).toList();
 
                   if (filteredUsers.isEmpty) {
                     return RefreshIndicator(
@@ -660,98 +657,84 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                   return RefreshIndicator(
                     onRefresh: _refreshRbacData,
                     child: BeariscopeCardList(
-                      children:
-                          filteredUsers
-                              .map(
-                                (user) => Card(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.surfaceContainer,
-                                  margin: EdgeInsets.zero,
-                                  clipBehavior: Clip.antiAlias,
-                                  elevation: 0,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                      children: filteredUsers
+                          .map(
+                            (user) => Card(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainer,
+                              margin: EdgeInsets.zero,
+                              clipBehavior: Clip.antiAlias,
+                              elevation: 0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 18,
-                                              backgroundImage:
-                                                  (user.avatarUrl ?? '')
-                                                          .isNotEmpty
-                                                      ? NetworkImage(
-                                                        user.avatarUrl!,
-                                                      )
-                                                      : null,
-                                              child:
-                                                  (user.avatarUrl ?? '').isEmpty
-                                                      ? const Icon(
-                                                        Symbols.person_rounded,
-                                                      )
-                                                      : null,
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Text(
-                                                user.name?.isNotEmpty == true
-                                                    ? user.name!
-                                                    : 'Unknown User',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              onPressed:
-                                                  () => _showUserDialog(
-                                                    user: user,
-                                                    roles:
-                                                        effectiveRolesForUsers,
-                                                    currentUsers:
-                                                        effectiveUsers,
-                                                  ),
-                                              icon: Icon(Symbols.edit_rounded),
-                                            ),
-                                          ],
+                                        CircleAvatar(
+                                          radius: 18,
+                                          backgroundImage:
+                                              (user.avatarUrl ?? '').isNotEmpty
+                                              ? NetworkImage(user.avatarUrl!)
+                                              : null,
+                                          child: (user.avatarUrl ?? '').isEmpty
+                                              ? const Icon(
+                                                  Symbols.person_rounded,
+                                                )
+                                              : null,
                                         ),
-                                        const SizedBox(height: 8),
-                                        if (user.roles.isEmpty)
-                                          const Text('No roles assigned')
-                                        else
-                                          Wrap(
-                                            spacing: 8,
-                                            runSpacing: 8,
-                                            children:
-                                                user.roles.map((roleId) {
-                                                  final roleName =
-                                                      roleMap[roleId]?.name ??
-                                                      'Unknown Role';
-                                                  return Chip(
-                                                    label: Text(roleName),
-                                                  );
-                                                }).toList(),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            user.name?.isNotEmpty == true
+                                                ? user.name!
+                                                : 'Unknown User',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
                                           ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () => _showUserDialog(
+                                            user: user,
+                                            roles: effectiveRolesForUsers,
+                                            currentUsers: effectiveUsers,
+                                          ),
+                                          icon: Icon(Symbols.edit_rounded),
+                                        ),
                                       ],
                                     ),
-                                  ),
+                                    const SizedBox(height: 8),
+                                    if (user.roles.isEmpty)
+                                      const Text('No roles assigned')
+                                    else
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: user.roles.map((roleId) {
+                                          final roleName =
+                                              roleMap[roleId]?.name ??
+                                              'Unknown Role';
+                                          return Chip(label: Text(roleName));
+                                        }).toList(),
+                                      ),
+                                  ],
                                 ),
-                              )
-                              .toList(),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   );
                 },
               ),
               rolesAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error:
-                    (error, _) =>
-                        Center(child: Text('Failed to load roles: $error')),
+                error: (error, _) =>
+                    Center(child: Text('Failed to load roles: $error')),
                 data: (roles) {
                   final effectiveRoles = _optimisticRoles ?? roles;
                   final users =
@@ -769,14 +752,13 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     }
                   }
 
-                  final filteredRoles =
-                      effectiveRoles.where((role) {
-                        if (searchQuery.isEmpty) return true;
-                        final roleText =
-                            '${role.name} ${role.description ?? ''} ${role.permissions.join(' ')}'
-                                .toLowerCase();
-                        return roleText.contains(searchQuery);
-                      }).toList();
+                  final filteredRoles = effectiveRoles.where((role) {
+                    if (searchQuery.isEmpty) return true;
+                    final roleText =
+                        '${role.name} ${role.description ?? ''} ${role.permissions.join(' ')}'
+                            .toLowerCase();
+                    return roleText.contains(searchQuery);
+                  }).toList();
 
                   if (filteredRoles.isEmpty) {
                     return RefreshIndicator(
@@ -796,156 +778,135 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                   return RefreshIndicator(
                     onRefresh: _refreshRbacData,
                     child: BeariscopeCardList(
-                      children:
-                          filteredRoles
-                              .map(
-                                (role) => Card(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.surfaceContainer,
-                                  margin: EdgeInsets.zero,
-                                  clipBehavior: Clip.antiAlias,
-                                  elevation: 0,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                      children: filteredRoles
+                          .map(
+                            (role) => Card(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainer,
+                              margin: EdgeInsets.zero,
+                              clipBehavior: Clip.antiAlias,
+                              elevation: 0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                role.name,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
+                                        Expanded(
+                                          child: Text(
+                                            role.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                        PopupMenuButton<String>(
+                                          onSelected: (action) {
+                                            final assignedUsers =
+                                                roleUserCounts[role.id] ?? 0;
+                                            if (action == 'edit') {
+                                              _showRoleDialog(
+                                                role: role,
+                                                permissions:
+                                                    metadata.permissions,
+                                                currentRoles: effectiveRoles,
+                                              );
+                                            } else if (action == 'duplicate') {
+                                              _showRoleDialog(
+                                                role: role,
+                                                permissions:
+                                                    metadata.permissions,
+                                                currentRoles: effectiveRoles,
+                                                duplicate: true,
+                                              );
+                                            } else if (action == 'delete') {
+                                              _deleteRole(role, assignedUsers);
+                                            }
+                                          },
+                                          itemBuilder: (context) {
+                                            final assignedUsers =
+                                                roleUserCounts[role.id] ?? 0;
+                                            return [
+                                              const PopupMenuItem(
+                                                value: 'edit',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Symbols.edit_rounded),
+                                                    SizedBox(width: 8),
+                                                    Text('Edit'),
+                                                  ],
                                                 ),
                                               ),
-                                            ),
-                                            PopupMenuButton<String>(
-                                              onSelected: (action) {
-                                                final assignedUsers =
-                                                    roleUserCounts[role.id] ??
-                                                    0;
-                                                if (action == 'edit') {
-                                                  _showRoleDialog(
-                                                    role: role,
-                                                    permissions:
-                                                        metadata.permissions,
-                                                    currentRoles:
-                                                        effectiveRoles,
-                                                  );
-                                                } else if (action ==
-                                                    'duplicate') {
-                                                  _showRoleDialog(
-                                                    role: role,
-                                                    permissions:
-                                                        metadata.permissions,
-                                                    currentRoles:
-                                                        effectiveRoles,
-                                                    duplicate: true,
-                                                  );
-                                                } else if (action == 'delete') {
-                                                  _deleteRole(
-                                                    role,
-                                                    assignedUsers,
-                                                  );
-                                                }
-                                              },
-                                              itemBuilder: (context) {
-                                                final assignedUsers =
-                                                    roleUserCounts[role.id] ??
-                                                    0;
-                                                return [
-                                                  const PopupMenuItem(
-                                                    value: 'edit',
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          Symbols.edit_rounded,
-                                                        ),
-                                                        SizedBox(width: 8),
-                                                        Text('Edit'),
-                                                      ],
+                                              const PopupMenuItem(
+                                                value: 'duplicate',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Symbols
+                                                          .content_copy_rounded,
                                                     ),
-                                                  ),
-                                                  const PopupMenuItem(
-                                                    value: 'duplicate',
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          Symbols
-                                                              .content_copy_rounded,
-                                                        ),
-                                                        SizedBox(width: 8),
-                                                        Text('Duplicate'),
-                                                      ],
+                                                    SizedBox(width: 8),
+                                                    Text('Duplicate'),
+                                                  ],
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'delete',
+                                                enabled: assignedUsers == 0,
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Symbols.delete_rounded,
                                                     ),
-                                                  ),
-                                                  PopupMenuItem(
-                                                    value: 'delete',
-                                                    enabled: assignedUsers == 0,
-                                                    child: Row(
-                                                      children: [
-                                                        const Icon(
-                                                          Symbols
-                                                              .delete_rounded,
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 8,
-                                                        ),
-                                                        Text(
-                                                          assignedUsers == 0
-                                                              ? 'Delete'
-                                                              : 'Delete (assigned to $assignedUsers users)',
-                                                        ),
-                                                      ],
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      assignedUsers == 0
+                                                          ? 'Delete'
+                                                          : 'Delete (assigned to $assignedUsers users)',
                                                     ),
-                                                  ),
-                                                ];
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        if ((role.description ?? '').isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 4,
-                                            ),
-                                            child: Text(role.description!),
-                                          ),
-                                        const SizedBox(height: 10),
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 8,
-                                          children:
-                                              role.permissions.map((
-                                                permissionKey,
-                                              ) {
-                                                final metadataEntry =
-                                                    permissionMap[permissionKey];
-                                                return Tooltip(
-                                                  message:
-                                                      metadataEntry
-                                                          ?.description ??
-                                                      '',
-                                                  child: Chip(
-                                                    label: Text(
-                                                      metadataEntry?.name ??
-                                                          'Unknown Permission',
-                                                    ),
-                                                  ),
-                                                );
-                                              }).toList(),
+                                                  ],
+                                                ),
+                                              ),
+                                            ];
+                                          },
                                         ),
                                       ],
                                     ),
-                                  ),
+                                    if ((role.description ?? '').isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(role.description!),
+                                      ),
+                                    const SizedBox(height: 10),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: role.permissions.map((
+                                        permissionKey,
+                                      ) {
+                                        final metadataEntry =
+                                            permissionMap[permissionKey];
+                                        return Tooltip(
+                                          message:
+                                              metadataEntry?.description ?? '',
+                                          child: Chip(
+                                            label: Text(
+                                              metadataEntry?.name ??
+                                                  'Unknown Permission',
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
                                 ),
-                              )
-                              .toList(),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   );
                 },

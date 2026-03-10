@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:libkoala/providers/auth_provider.dart';
-import 'package:libkoala/providers/secure_storage_provider.dart';
+import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/secure_storage_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

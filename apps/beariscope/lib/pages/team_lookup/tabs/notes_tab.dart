@@ -34,14 +34,15 @@ class _NotesBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final feedItems = <_FeedItem>[];
 
-    final sortedDocs = [...bundle.matchDocs]..sort((a, b) {
-      final na = TeamScoutingBundle.matchNumber(a);
-      final nb = TeamScoutingBundle.matchNumber(b);
-      if (na != null && nb != null) return na.compareTo(nb);
-      if (na != null) return -1;
-      if (nb != null) return 1;
-      return a.timestamp.compareTo(b.timestamp);
-    });
+    final sortedDocs = [...bundle.matchDocs]
+      ..sort((a, b) {
+        final na = TeamScoutingBundle.matchNumber(a);
+        final nb = TeamScoutingBundle.matchNumber(b);
+        if (na != null && nb != null) return na.compareTo(nb);
+        if (na != null) return -1;
+        if (nb != null) return 1;
+        return a.timestamp.compareTo(b.timestamp);
+      });
 
     int totalAStop = 0;
     int totalEStop = 0;
@@ -60,10 +61,9 @@ class _NotesBody extends StatelessWidget {
       final notes =
           _field(doc, kSectionEndgame, kEndNotes)?.toString().trim() ?? '';
       final mn = TeamScoutingBundle.matchNumber(doc);
-      final matchLabel =
-          mn != null
-              ? 'Match $mn'
-              : 'Match (${scoutingShortDate(doc.timestamp)})';
+      final matchLabel = mn != null
+          ? 'Match $mn'
+          : 'Match (${scoutingShortDate(doc.timestamp)})';
       final scoutedBy = doc.meta?['scoutedBy']?.toString() ?? '';
 
       feedItems.add(
@@ -116,8 +116,9 @@ class _NotesBody extends StatelessWidget {
     // Strat scouting entries — show ranking positions per recorded match.
     for (final doc in bundle.stratDocs) {
       final matchNum = doc.meta?['matchNumber'];
-      final matchLabel =
-          matchNum != null ? 'Match $matchNum' : 'Match (unknown)';
+      final matchLabel = matchNum != null
+          ? 'Match $matchNum'
+          : 'Match (unknown)';
       final scoutedBy = doc.meta?['scoutedBy']?.toString() ?? '';
       final rankSummary = _formatStratRanks(doc, teamNumber);
       if (rankSummary.isNotEmpty) {
@@ -282,10 +283,9 @@ class _FeedItemTile extends StatelessWidget {
               Wrap(
                 spacing: 4,
                 runSpacing: 4,
-                children:
-                    item.incidents
-                        .map((i) => scoutingIncidentChip(context, i))
-                        .toList(),
+                children: item.incidents
+                    .map((i) => scoutingIncidentChip(context, i))
+                    .toList(),
               ),
             ],
             if (item.notes.isNotEmpty) ...[

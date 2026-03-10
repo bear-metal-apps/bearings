@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:services/providers/permissions_provider.dart';
+import 'package:services/widgets/profile_picture.dart';
 
 class _NavItem {
   final String route;
@@ -131,12 +132,14 @@ class _MainViewState extends ConsumerState<MainView> {
           ),
         );
 
-        final childContent =
-            isDesktop
-                ? Row(
-                  children: [navigationDrawer, Expanded(child: widget.child)],
-                )
-                : widget.child;
+        final childContent = isDesktop
+            ? Row(
+                children: [
+                  navigationDrawer,
+                  Expanded(child: widget.child),
+                ],
+              )
+            : widget.child;
 
         // checks for showing no perms banner
         final authMeLoaded = ref.watch(authMeProvider).hasValue;
@@ -274,9 +277,8 @@ class _MainViewState extends ConsumerState<MainView> {
             ),
             duration: _animationDuration,
             curve: Curves.fastOutSlowIn,
-            builder:
-                (context, value, _) =>
-                    Icon(item.icon, weight: 600, fill: value),
+            builder: (context, value, _) =>
+                Icon(item.icon, weight: 600, fill: value),
           ),
           label: Text(item.label),
         ),
@@ -332,21 +334,18 @@ class _MainViewState extends ConsumerState<MainView> {
           height: 50,
           child: FilledButton.icon(
             onPressed: isOnline && !_isRefreshing ? _doRefresh : null,
-            icon:
-                _isRefreshing
-                    ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
-                      ),
-                    )
-                    : Icon(
-                      isOnline
-                          ? Symbols.sync_rounded
-                          : Symbols.cloud_off_rounded,
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
                     ),
+                  )
+                : Icon(
+                    isOnline ? Symbols.sync_rounded : Symbols.cloud_off_rounded,
+                  ),
             label: Text(
               _isRefreshing
                   ? 'Syncing…'

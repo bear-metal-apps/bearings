@@ -1,7 +1,7 @@
 import 'package:beariscope/models/drive_team_note.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/permissions_provider.dart';
+import 'package:services/providers/permissions_provider.dart';
 
 final myDriveTeamNotesProvider =
     FutureProvider.family<Map<int, DriveTeamNote>, String>((

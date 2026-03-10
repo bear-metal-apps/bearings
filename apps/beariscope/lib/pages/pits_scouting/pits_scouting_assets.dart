@@ -7,8 +7,8 @@ import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
-import 'package:libkoala/providers/user_profile_provider.dart';
+import 'package:services/providers/api_provider.dart';
+import 'package:services/providers/user_profile_provider.dart';
 
 class PitsScoutingTeamCard extends ConsumerWidget {
   final String teamName;
@@ -57,13 +57,12 @@ class PitsScoutingTeamCard extends ConsumerWidget {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (context) => PitsScoutingFormPage(
-                  teamNumber: teamNumber,
-                  teamName: teamName,
-                  scouted: scouted,
-                  initialDoc: existingDoc,
-                ),
+            builder: (context) => PitsScoutingFormPage(
+              teamNumber: teamNumber,
+              teamName: teamName,
+              scouted: scouted,
+              initialDoc: existingDoc,
+            ),
           ),
         );
 
@@ -297,9 +296,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     options: ['Swerve', 'Tank', 'Mecanum'],
                     label: 'Drivetrain Type',
                     initialValue: _f.drivetrainType,
-                    onChanged:
-                        (value) =>
-                            _f.drivetrainType = value ?? _f.drivetrainType,
+                    onChanged: (value) =>
+                        _f.drivetrainType = value ?? _f.drivetrainType,
                   ),
                 ),
                 Padding(
@@ -315,8 +313,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     ],
                     label: 'Swerve Brand',
                     initialValue: _f.swerveBrand,
-                    onChanged:
-                        (value) => _f.swerveBrand = value ?? _f.swerveBrand,
+                    onChanged: (value) =>
+                        _f.swerveBrand = value ?? _f.swerveBrand,
                   ),
                 ),
                 Padding(
@@ -405,8 +403,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                       'Other',
                     ],
                     initialValue: _f.climbMethod,
-                    onChanged:
-                        (value) => _f.climbMethod = value ?? _f.climbMethod,
+                    onChanged: (value) =>
+                        _f.climbMethod = value ?? _f.climbMethod,
                   ),
                 ),
                 Padding(
@@ -451,8 +449,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     options: ['Outpost', 'Depot', 'Neutral Zone'],
                     label: 'Fuel Collection Location',
                     variable: _f.fuelCollectionLocation,
-                    onSelectionChanged:
-                        (value) => _f.fuelCollectionLocation = value,
+                    onSelectionChanged: (value) =>
+                        _f.fuelCollectionLocation = value,
                   ),
                 ),
                 // Pathing Here, will replace Pathway Preference, Trench Capability, and Auto Paths
@@ -471,10 +469,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     options: ['Bump', 'Trench'],
                     label: 'Pathway Preference',
                     initialValue: _f.pathwayPreference,
-                    onChanged:
-                        (value) =>
-                            _f.pathwayPreference =
-                                value ?? _f.pathwayPreference,
+                    onChanged: (value) =>
+                        _f.pathwayPreference = value ?? _f.pathwayPreference,
                   ),
                 ),
                 Padding(
@@ -483,9 +479,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     options: ['Trench Capable', 'Trench Incapable'],
                     height: 96,
                     initialValue: _f.trenchCapability,
-                    onChanged:
-                        (value) =>
-                            _f.trenchCapability = value ?? _f.trenchCapability,
+                    onChanged: (value) =>
+                        _f.trenchCapability = value ?? _f.trenchCapability,
                   ),
                 ),
                 // Outtake
@@ -524,8 +519,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     options: ['4 Bar', 'Linear', 'Pivot'],
                     label: 'Collector Type',
                     initialValue: _f.collectorType,
-                    onChanged:
-                        (value) => _f.collectorType = value ?? _f.collectorType,
+                    onChanged: (value) =>
+                        _f.collectorType = value ?? _f.collectorType,
                   ),
                 ),
                 Padding(
@@ -591,8 +586,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     ],
                     label: 'Indexer Type',
                     initialValue: _f.indexerType,
-                    onChanged:
-                        (value) => _f.indexerType = value ?? _f.indexerType,
+                    onChanged: (value) =>
+                        _f.indexerType = value ?? _f.indexerType,
                   ),
                 ),
                 Padding(

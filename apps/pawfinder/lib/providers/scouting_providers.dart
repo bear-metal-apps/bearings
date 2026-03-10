@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/models/scouting_session.dart';

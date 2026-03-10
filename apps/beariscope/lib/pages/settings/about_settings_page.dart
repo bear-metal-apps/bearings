@@ -1,9 +1,9 @@
 import 'package:beariscope/components/settings_group.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:services/release/release_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutSettingsPage extends ConsumerWidget {
@@ -40,15 +40,16 @@ class AboutSettingsPage extends ConsumerWidget {
               ListTile(
                 title: const Text('Version'),
                 trailing: FutureBuilder<(PackageInfo, String)>(
-                  future: Future.wait([
-                    PackageInfo.fromPlatform(),
-                    rootBundle.loadString('assets/codename.txt'),
-                  ]).then(
-                    (results) => (
-                      results[0] as PackageInfo,
-                      (results[1] as String).trim(),
-                    ),
-                  ),
+                  future:
+                      Future.wait([
+                        PackageInfo.fromPlatform(),
+                        loadReleaseCodename(),
+                      ]).then(
+                        (results) => (
+                          results[0] as PackageInfo,
+                          (results[1] as String).trim(),
+                        ),
+                      ),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Text('Loading');
@@ -73,12 +74,11 @@ class AboutSettingsPage extends ConsumerWidget {
                 title: const Text('Beariscope GitHub'),
                 subtitle: const Text('Source code & other downloads'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap:
-                    () => _launchUrl(
-                      context,
-                      'https://github.com/bear-metal-apps/beariscope',
-                      'Beariscope GitHub',
-                    ),
+                onTap: () => _launchUrl(
+                  context,
+                  'https://github.com/bear-metal-apps/beariscope',
+                  'Beariscope GitHub',
+                ),
               ),
             ],
           ),
@@ -90,19 +90,18 @@ class AboutSettingsPage extends ConsumerWidget {
                 title: const Text('The Blue Alliance'),
                 subtitle: const Text('Match schedule & team data'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap:
-                    () => _launchUrl(
-                      context,
-                      'https://www.thebluealliance.com',
-                      'The Blue Alliance',
-                    ),
+                onTap: () => _launchUrl(
+                  context,
+                  'https://www.thebluealliance.com',
+                  'The Blue Alliance',
+                ),
               ),
               ListTile(
                 title: const Text('FRC Nexus'),
                 subtitle: const Text('Event pit & queue information'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap:
-                    () => _launchUrl(context, 'https://frc.nexus', 'FRC Nexus'),
+                onTap: () =>
+                    _launchUrl(context, 'https://frc.nexus', 'FRC Nexus'),
               ),
             ],
           ),
@@ -113,12 +112,11 @@ class AboutSettingsPage extends ConsumerWidget {
               ListTile(
                 title: const Text('Privacy Policy'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap:
-                    () => _launchUrl(
-                      context,
-                      'https://bear-metal-apps.github.io/beariscope/privacy-policy',
-                      'Privacy Policy',
-                    ),
+                onTap: () => _launchUrl(
+                  context,
+                  'https://bear-metal-apps.github.io/beariscope/privacy-policy',
+                  'Privacy Policy',
+                ),
               ),
             ],
           ),

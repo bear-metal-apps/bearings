@@ -1,40 +1,30 @@
 # Bearings
 
-Bearings is the Bear Metal monorepo for the 2046 app stack. It brings the shared Dart and Flutter packages, both client apps, and the backend into one workspace so dependencies, code generation, validation, and release automation can be run from a single root.
+Bearings is Bear Metal's monorepo for our apps. We use a monorepo with everything in dart to share code and make it easier for less experienced members to contribute. 
 
-## Workspace layout
+## Repo layout
 
-- `apps/beariscope`: strategy and viewing app
+- `apps/beariscope`: strategy app
 - `apps/pawfinder`: scouting app
-- `packages/core`: shared Dart models and utilities
-- `packages/services`: shared Flutter services and providers
-- `packages/ui`: shared Flutter UI components
-- `backend/honeycomb`: Dart Frog backend
+- `packages/core`: shared pure dart models and utilities
+- `packages/services`: shared flutter services and providers
+- `packages/ui`: shared flutter UI components
+- `backend/honeycomb`: Dart Frog backend (wip)
 
 ## Getting started
 
-1. Install Flutter stable and ensure `dart`, `flutter`, and `melos` are on your `PATH`.
-2. From the repo root, run `dart pub get`.
+1. Install the latest version of flutter (run `flutter upgrade` if you need to update) and Melos and make sure `dart`, `flutter`, and `melos` are in your `PATH`.
+2. From the repo root, run `melos bootstrap`.
 3. Use Melos scripts from the root for day-to-day tasks.
 
-## Common commands
+## Melos commands
 
-- `melos run bootstrap`: resolve the full workspace
 - `melos run format`: apply formatting
 - `melos run format:check`: check formatting without writing changes
 - `melos run analyze`: analyze all packages
 - `melos run generate`: run `build_runner` where needed
 - `melos run test`: run Dart and Flutter tests
 - `melos run ci`: run the full validation sequence used by CI
-
-## Release workflow
-
-Bearings now uses a single workspace version for both apps, all shared packages, and the Honeycomb backend. The release workflow is driven from the repo root and updates every workspace `pubspec.yaml`, the shared codename file at `packages/services/assets/release/codename.txt`, and the root `CHANGELOG.md`.
-
-Release automation lives in `.github/workflows/release.yml`. It creates one GitHub release per version, tags it as `vX.Y.Z`, publishes a unified changelog, and attaches these build artifacts:
-
-- Beariscope: Android, Linux, Web, and Windows
-- Pawfinder: Android only
 
 ## Conventional commits
 
@@ -58,12 +48,3 @@ Examples:
 - `feat(beariscope): add pit map refresh`
 - `fix(services): retry secure storage read`
 - `chore(ci): add commitlint to pull requests`
-
-## Working on apps
-
-Run app-specific commands from the app directory when you need platform builds:
-
-- `cd apps/beariscope && flutter run`
-- `cd apps/pawfinder && flutter run`
-
-Use the root workspace for dependency resolution, analysis, tests, and code generation.

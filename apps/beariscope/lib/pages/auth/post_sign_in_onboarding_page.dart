@@ -2,7 +2,7 @@ import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/user_profile_provider.dart';
+import 'package:services/providers/user_profile_provider.dart';
 
 enum _OnboardingStep { realName, emailVerification }
 
@@ -78,11 +78,10 @@ class _PostSignInOnboardingPageState
       return 'Enter your first and last name.';
     }
 
-    final parts =
-        trimmedName
-            .split(RegExp(r'\s+'))
-            .where((part) => part.isNotEmpty)
-            .toList();
+    final parts = trimmedName
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
     if (parts.length < 2) {
       return 'Please include both first and last name.';
     }
@@ -168,12 +167,11 @@ class _PostSignInOnboardingPageState
       // the change immediately, mark the step as complete locally and check
       // remaining steps using the currently cached userInfo.
       final cachedUserInfo = ref.read(userInfoProvider).asData?.value;
-      final remainingSteps =
-          cachedUserInfo != null
-              ? _requiredSteps(
-                cachedUserInfo,
-              ).where((s) => s != _OnboardingStep.realName).toList()
-              : <_OnboardingStep>[];
+      final remainingSteps = cachedUserInfo != null
+          ? _requiredSteps(
+              cachedUserInfo,
+            ).where((s) => s != _OnboardingStep.realName).toList()
+          : <_OnboardingStep>[];
 
       if (mounted) {
         setState(() {
@@ -234,12 +232,9 @@ class _PostSignInOnboardingPageState
             return const Center(child: CircularProgressIndicator());
           }
 
-          final steps =
-              _requiredSteps(userInfo)
-                  .where(
-                    (s) => !_nameStepComplete || s != _OnboardingStep.realName,
-                  )
-                  .toList();
+          final steps = _requiredSteps(userInfo)
+              .where((s) => !_nameStepComplete || s != _OnboardingStep.realName)
+              .toList();
           if (steps.isEmpty) {
             _scheduleFinishFlow();
             return const Center(child: CircularProgressIndicator());
@@ -309,14 +304,13 @@ class _PostSignInOnboardingPageState
             ),
             FilledButton(
               onPressed: canSubmit ? () => _saveRealName(userInfo.email) : null,
-              child:
-                  _isSavingName
-                      ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : const Text('Continue'),
+              child: _isSavingName
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Continue'),
             ),
           ],
         );

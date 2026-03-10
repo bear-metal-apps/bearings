@@ -11,13 +11,12 @@ class CorrectionsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Data Corrections'),
-        leading:
-            controller.isDesktop
-                ? null
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: controller.openDrawer,
-                ),
+        leading: controller.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: controller.openDrawer,
+              ),
       ),
       body: const Center(child: Text('Data Corrections Page')),
     );

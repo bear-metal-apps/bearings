@@ -49,10 +49,9 @@ class _PitsMapViewState extends State<PitsMapView> {
     final tx = (constraints.maxWidth - mapW * fitScale) / 2.0;
     final ty = (constraints.maxHeight - mapH * fitScale) / 2.0;
 
-    _controller.value =
-        Matrix4.identity()
-          ..translateByDouble(tx, ty, 0, 1)
-          ..scaleByDouble(fitScale, fitScale, 1, 1);
+    _controller.value = Matrix4.identity()
+      ..translateByDouble(tx, ty, 0, 1)
+      ..scaleByDouble(fitScale, fitScale, 1, 1);
   }
 
   @override
@@ -143,10 +142,9 @@ class _MapCanvas extends StatelessWidget {
         height: pit.size.y,
         teamNumber: teamNum,
         scouted: teamNum != null && scoutedTeams.contains(teamNum),
-        onTap:
-            teamNum != null
-                ? () => onTeamTap(teamNum, teamNames[teamNum] ?? '')
-                : null,
+        onTap: teamNum != null
+            ? () => onTeamTap(teamNum, teamNames[teamNum] ?? '')
+            : null,
         theme: theme,
       );
 
@@ -209,15 +207,13 @@ class _MapBackgroundPainter extends CustomPainter {
       final fillColor = fills[idx % fills.length];
       idx++;
 
-      final fillPaint =
-          Paint()
-            ..color = fillColor
-            ..style = PaintingStyle.fill;
-      final borderPaint =
-          Paint()
-            ..color = cs.onSurface
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 2;
+      final fillPaint = Paint()
+        ..color = fillColor
+        ..style = PaintingStyle.fill;
+      final borderPaint = Paint()
+        ..color = cs.onSurface
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
 
       _withTransform(canvas, a, () {
         final rect = Rect.fromCenter(
@@ -252,10 +248,9 @@ class _MapBackgroundPainter extends CustomPainter {
 
   // walls
   void _paintWalls(Canvas canvas) {
-    final paint =
-        Paint()
-          ..color = theme.colorScheme.surfaceContainerHigh
-          ..style = PaintingStyle.fill;
+    final paint = Paint()
+      ..color = theme.colorScheme.surfaceContainerHigh
+      ..style = PaintingStyle.fill;
 
     for (final entry in mapData.walls.entries) {
       final w = entry.value;
@@ -274,10 +269,9 @@ class _MapBackgroundPainter extends CustomPainter {
 
   // arrows
   void _paintArrows(Canvas canvas) {
-    final paint =
-        Paint()
-          ..color = theme.colorScheme.onSurface
-          ..style = PaintingStyle.fill;
+    final paint = Paint()
+      ..color = theme.colorScheme.onSurface
+      ..style = PaintingStyle.fill;
 
     for (final entry in mapData.arrows.entries) {
       final a = entry.value;
@@ -287,35 +281,34 @@ class _MapBackgroundPainter extends CustomPainter {
       canvas.translate(a.position.x, a.position.y);
       if (a.angle != null && a.angle != 0) canvas.rotate(a.angleRadians);
 
-      final path =
-          a.type == 'double'
-              ? (Path()
-                ..moveTo(0, -r) // top tip
-                ..lineTo(r * 0.65, -r * 0.35) // top-right of top arrowhead base
-                ..lineTo(r * 0.15, -r * 0.35) // shaft top-right
-                ..lineTo(r * 0.15, r * 0.35) // shaft bottom-right
-                ..lineTo(
-                  r * 0.65,
-                  r * 0.35,
-                ) // bottom-right of bottom arrowhead base
-                ..lineTo(0, r) // bottom tip
-                ..lineTo(
-                  -r * 0.65,
-                  r * 0.35,
-                ) // bottom-left of bottom arrowhead base
-                ..lineTo(-r * 0.15, r * 0.35) // shaft bottom-left
-                ..lineTo(-r * 0.15, -r * 0.35) // shaft top-left
-                ..lineTo(-r * 0.65, -r * 0.35) // top-left of top arrowhead base
-                ..close())
-              : (Path()
-                ..moveTo(0, -r) // tip
-                ..lineTo(r * 0.65, -r * 0.35) // right arrowhead base
-                ..lineTo(r * 0.15, -r * 0.35) // shaft top-right
-                ..lineTo(r * 0.15, r * 0.6) // shaft bottom-right
-                ..lineTo(-r * 0.15, r * 0.6) // shaft bottom-left
-                ..lineTo(-r * 0.15, -r * 0.35) // shaft top-left
-                ..lineTo(-r * 0.65, -r * 0.35) // left arrowhead base
-                ..close());
+      final path = a.type == 'double'
+          ? (Path()
+              ..moveTo(0, -r) // top tip
+              ..lineTo(r * 0.65, -r * 0.35) // top-right of top arrowhead base
+              ..lineTo(r * 0.15, -r * 0.35) // shaft top-right
+              ..lineTo(r * 0.15, r * 0.35) // shaft bottom-right
+              ..lineTo(
+                r * 0.65,
+                r * 0.35,
+              ) // bottom-right of bottom arrowhead base
+              ..lineTo(0, r) // bottom tip
+              ..lineTo(
+                -r * 0.65,
+                r * 0.35,
+              ) // bottom-left of bottom arrowhead base
+              ..lineTo(-r * 0.15, r * 0.35) // shaft bottom-left
+              ..lineTo(-r * 0.15, -r * 0.35) // shaft top-left
+              ..lineTo(-r * 0.65, -r * 0.35) // top-left of top arrowhead base
+              ..close())
+          : (Path()
+              ..moveTo(0, -r) // tip
+              ..lineTo(r * 0.65, -r * 0.35) // right arrowhead base
+              ..lineTo(r * 0.15, -r * 0.35) // shaft top-right
+              ..lineTo(r * 0.15, r * 0.6) // shaft bottom-right
+              ..lineTo(-r * 0.15, r * 0.6) // shaft bottom-left
+              ..lineTo(-r * 0.15, -r * 0.35) // shaft top-left
+              ..lineTo(-r * 0.65, -r * 0.35) // left arrowhead base
+              ..close());
       canvas.drawPath(path, paint);
       canvas.restore();
     }
@@ -435,28 +428,27 @@ class _PitBox extends StatelessWidget {
     final fontSize = rawFontSize.clamp(5.0, 36.0);
 
     Widget child = Center(
-      child:
-          hasTeam
-              ? Padding(
-                padding: EdgeInsets.all(math.max(width, height) * 0.04),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '$teamNumber',
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                      fontFamily: 'Xolonium',
-                      height: 1.0,
-                      letterSpacing: -0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
+      child: hasTeam
+          ? Padding(
+              padding: EdgeInsets.all(math.max(width, height) * 0.04),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$teamNumber',
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                    fontFamily: 'Xolonium',
+                    height: 1.0,
+                    letterSpacing: -0.5,
                   ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
                 ),
-              )
-              : null,
+              ),
+            )
+          : null,
     );
 
     Widget inner = Material(

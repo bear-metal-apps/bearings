@@ -3,7 +3,7 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/beariscope_card.dart';
@@ -74,54 +74,49 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             PopupMenuButton<TeamSort>(
               icon: Icon(Symbols.sort_rounded),
               tooltip: 'Sort',
-              itemBuilder:
-                  (context) =>
-                      TeamSort.values
-                          .map(
-                            (sort) => CheckedPopupMenuItem<TeamSort>(
-                              value: sort,
-                              checked: selectedSort == sort,
-                              child: Text(sort.label),
-                            ),
-                          )
-                          .toList(),
+              itemBuilder: (context) => TeamSort.values
+                  .map(
+                    (sort) => CheckedPopupMenuItem<TeamSort>(
+                      value: sort,
+                      checked: selectedSort == sort,
+                      child: Text(sort.label),
+                    ),
+                  )
+                  .toList(),
               onSelected: (TeamSort newSort) {
                 ref.read(teamSortProvider.notifier).setSort(newSort);
               },
             ),
           ],
         ),
-        leading:
-            main.isDesktop
-                ? SizedBox(width: 48)
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: main.openDrawer,
-                ),
+        leading: main.isDesktop
+            ? SizedBox(width: 48)
+            : IconButton(
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: main.openDrawer,
+              ),
         actions: [SizedBox(width: 48)],
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (teams) {
-          final teamList =
-              teams
-                  .whereType<Map<String, dynamic>>()
-                  .map((json) => Team.fromJson(json))
-                  .toList();
+          final teamList = teams
+              .whereType<Map<String, dynamic>>()
+              .map((json) => Team.fromJson(json))
+              .toList();
 
           final searchTerm = _searchTermTEC.text.trim().toLowerCase();
-          var filteredTeams =
-              searchTerm.isEmpty
-                  ? teamList
-                  : teamList.where((team) {
-                    final teamName = team.name.toLowerCase();
-                    final teamNumber = team.number.toString();
-                    final teamKey = team.key.toLowerCase();
-                    return teamName.contains(searchTerm) ||
-                        teamNumber.contains(searchTerm) ||
-                        teamKey.contains(searchTerm);
-                  }).toList();
+          var filteredTeams = searchTerm.isEmpty
+              ? teamList
+              : teamList.where((team) {
+                  final teamName = team.name.toLowerCase();
+                  final teamNumber = team.number.toString();
+                  final teamKey = team.key.toLowerCase();
+                  return teamName.contains(searchTerm) ||
+                      teamNumber.contains(searchTerm) ||
+                      teamKey.contains(searchTerm);
+                }).toList();
 
           // Apply sort
           filteredTeams = List.of(filteredTeams);
@@ -152,10 +147,9 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           return RefreshIndicator(
             onRefresh: onRefresh,
             child: BeariscopeCardList(
-              children:
-                  filteredTeams
-                      .map((team) => TeamCard(teamKey: team.key))
-                      .toList(),
+              children: filteredTeams
+                  .map((team) => TeamCard(teamKey: team.key))
+                  .toList(),
             ),
           );
         },

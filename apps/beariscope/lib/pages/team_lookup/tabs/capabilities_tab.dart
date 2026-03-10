@@ -21,12 +21,11 @@ class CapabilitiesTab extends ConsumerWidget {
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
-      data:
-          (bundle) => _CapabilitiesBody(
-            bundle: bundle,
-            teamNumber: teamNumber,
-            stratZScores: stratZScores,
-          ),
+      data: (bundle) => _CapabilitiesBody(
+        bundle: bundle,
+        teamNumber: teamNumber,
+        stratZScores: stratZScores,
+      ),
     );
   }
 }
@@ -128,12 +127,12 @@ class _CapabilitiesBody extends StatelessWidget {
           label: 'Chassis (L × W × H)',
           value:
               [
-                    chassisLength,
-                    chassisWidth,
-                    chassisHeight,
-                  ].every((v) => v != null)
-                  ? '${chassisLength!.toStringAsFixed(1)}" × ${chassisWidth!.toStringAsFixed(1)}" × ${chassisHeight!.toStringAsFixed(1)}"'
-                  : '—',
+                chassisLength,
+                chassisWidth,
+                chassisHeight,
+              ].every((v) => v != null)
+              ? '${chassisLength!.toStringAsFixed(1)}" × ${chassisWidth!.toStringAsFixed(1)}" × ${chassisHeight!.toStringAsFixed(1)}"'
+              : '—',
         ),
         ScoutingDataRow(
           label: 'Weight',
@@ -167,18 +166,15 @@ class _CapabilitiesBody extends StatelessWidget {
     final trenchCapability =
         bundle.getPitsField<String>('trenchCapability') ?? '—';
     final hasMatchData = bundle.hasMatchData;
-    final modalStartPosition =
-        hasMatchData
-            ? bundle.modalMatchField(kSectionAuto, kAutoStartPositions)
-            : null;
-    final outpostRate =
-        hasMatchData
-            ? bundle.boolRateMatchField(kSectionAuto, kAutoCollectFromOutpost)
-            : null;
-    final depotRate =
-        hasMatchData
-            ? bundle.boolRateMatchField(kSectionAuto, kAutoCollectFromDepot)
-            : null;
+    final modalStartPosition = hasMatchData
+        ? bundle.modalMatchField(kSectionAuto, kAutoStartPositions)
+        : null;
+    final outpostRate = hasMatchData
+        ? bundle.boolRateMatchField(kSectionAuto, kAutoCollectFromOutpost)
+        : null;
+    final depotRate = hasMatchData
+        ? bundle.boolRateMatchField(kSectionAuto, kAutoCollectFromDepot)
+        : null;
 
     return _specsCard(
       context,
@@ -227,10 +223,9 @@ class _CapabilitiesBody extends StatelessWidget {
       'shootingRange',
     ]);
     // Keep observed tele accuracy alongside the pits claim for direct comparison.
-    final actualTeleAccuracy =
-        bundle.hasMatchData
-            ? bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy)
-            : null;
+    final actualTeleAccuracy = bundle.hasMatchData
+        ? bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy)
+        : null;
 
     return _specsCard(
       context,
@@ -244,10 +239,9 @@ class _CapabilitiesBody extends StatelessWidget {
         ScoutingDataRow(label: 'Indexer Type', value: indexerType),
         ScoutingDataRow(
           label: 'Outtake Rate',
-          value:
-              outtakeRate != null
-                  ? '${outtakeRate.toStringAsFixed(1)} balls/s'
-                  : '—',
+          value: outtakeRate != null
+              ? '${outtakeRate.toStringAsFixed(1)} balls/s'
+              : '—',
         ),
         const ScoutingDataDivider(),
         ScoutingDataRow(
@@ -260,10 +254,9 @@ class _CapabilitiesBody extends StatelessWidget {
         ),
         ScoutingDataRow(
           label: 'Claimed Accuracy (Pits)',
-          value:
-              pitsAccuracy != null
-                  ? '${pitsAccuracy.toStringAsFixed(1)}%'
-                  : '—',
+          value: pitsAccuracy != null
+              ? '${pitsAccuracy.toStringAsFixed(1)}%'
+              : '—',
         ),
         if (actualTeleAccuracy != null)
           ScoutingDataRow(
@@ -287,40 +280,36 @@ class _CapabilitiesBody extends StatelessWidget {
     // Derive actual endgame climb stats from match data.
     final n = bundle.matchDocs.length;
     final hasMatchData = bundle.hasMatchData;
-    final actualClimbRate =
-        hasMatchData
-            ? bundle.rateMatchField(
-              kSectionEndgame,
-              kEndClimb,
-              (v) => v != null && v.toString().isNotEmpty,
-            )
-            : null;
+    final actualClimbRate = hasMatchData
+        ? bundle.rateMatchField(
+            kSectionEndgame,
+            kEndClimb,
+            (v) => v != null && v.toString().isNotEmpty,
+          )
+        : null;
     final climbCounts = <String, int>{};
     if (hasMatchData) {
       for (final doc in bundle.matchDocs) {
-        final v =
-            TeamScoutingBundle.getMatchField(
-              doc,
-              kSectionEndgame,
-              kEndClimb,
-            )?.toString();
+        final v = TeamScoutingBundle.getMatchField(
+          doc,
+          kSectionEndgame,
+          kEndClimb,
+        )?.toString();
         if (v != null && v.isNotEmpty) {
           climbCounts[v] = (climbCounts[v] ?? 0) + 1;
         }
       }
     }
-    final mostCommonClimbLocation =
-        hasMatchData
-            ? bundle.modalMatchField(kSectionEndgame, kEndClimbLocation)
-            : null;
-    final defenseOffShiftRate =
-        hasMatchData
-            ? bundle.rateMatchField(
-              kSectionEndgame,
-              kEndPlayedDefenseOffShift,
-              (v) => v == true,
-            )
-            : null;
+    final mostCommonClimbLocation = hasMatchData
+        ? bundle.modalMatchField(kSectionEndgame, kEndClimbLocation)
+        : null;
+    final defenseOffShiftRate = hasMatchData
+        ? bundle.rateMatchField(
+            kSectionEndgame,
+            kEndPlayedDefenseOffShift,
+            (v) => v == true,
+          )
+        : null;
 
     return _specsCard(
       context,
@@ -332,19 +321,17 @@ class _CapabilitiesBody extends StatelessWidget {
         ),
         ScoutingDataRow(
           label: 'Claimed Consistency',
-          value:
-              climbConsistency != null
-                  ? '${climbConsistency.toStringAsFixed(1)} / 10'
-                  : '—',
+          value: climbConsistency != null
+              ? '${climbConsistency.toStringAsFixed(1)} / 10'
+              : '—',
         ),
         if (hasMatchData) ...[
           const ScoutingDataDivider(),
           ScoutingDataRow(
             label: 'Actual Endgame Climb Rate',
-            value:
-                actualClimbRate != null
-                    ? '${_fmtPct(actualClimbRate * 100)} ($n matches)'
-                    : '—',
+            value: actualClimbRate != null
+                ? '${_fmtPct(actualClimbRate * 100)} ($n matches)'
+                : '—',
             highlight: true,
           ),
           if (mostCommonClimbLocation != null)
@@ -370,10 +357,9 @@ class _CapabilitiesBody extends StatelessWidget {
           const ScoutingDataDivider(),
           ScoutingDataRow(
             label: 'Defense Activity Level',
-            value:
-                bundle.avgDefenseActivityLevel != null
-                    ? '${bundle.avgDefenseActivityLevel!.toStringAsFixed(1)} / 10'
-                    : '—',
+            value: bundle.avgDefenseActivityLevel != null
+                ? '${bundle.avgDefenseActivityLevel!.toStringAsFixed(1)} / 10'
+                : '—',
             highlight: true,
           ),
         ],

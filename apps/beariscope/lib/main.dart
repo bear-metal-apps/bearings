@@ -28,9 +28,11 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
-import 'package:libkoala/libkoala.dart';
-import 'package:libkoala/providers/auth_provider.dart';
+import 'package:core/providers/device_info_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/permissions_provider.dart';
+import 'package:services/release/release_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beariscope/pages/settings/team_role.dart';
 import 'package:beariscope/pages/settings/device_provisioning_page.dart';
@@ -109,13 +111,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/team_lookup',
-            pageBuilder:
-                (_, _) => const NoTransitionPage(child: TeamLookupPage()),
+            pageBuilder: (_, _) =>
+                const NoTransitionPage(child: TeamLookupPage()),
           ),
           GoRoute(
             path: '/picklists',
-            pageBuilder:
-                (_, _) => const NoTransitionPage(child: PicklistsPage()),
+            pageBuilder: (_, _) =>
+                const NoTransitionPage(child: PicklistsPage()),
             routes: [
               GoRoute(
                 path: 'create',
@@ -130,22 +132,23 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'licenses',
                 builder: (_, _) {
                   return FutureBuilder<(PackageInfo, String)>(
-                    future: Future.wait([
-                      PackageInfo.fromPlatform(),
-                      rootBundle.loadString('assets/codename.txt'),
-                    ]).then(
-                      (results) => (
-                        results[0] as PackageInfo,
-                        (results[1] as String).trim(),
-                      ),
-                    ),
+                    future:
+                        Future.wait([
+                          PackageInfo.fromPlatform(),
+                          loadReleaseCodename(),
+                        ]).then(
+                          (results) => (
+                            results[0] as PackageInfo,
+                            (results[1] as String).trim(),
+                          ),
+                        ),
                     builder: (context, snapshot) {
                       final version = snapshot.data?.$1.version ?? '...';
                       final codename = snapshot.data?.$2 ?? '';
                       final displayVersion =
                           codename.isNotEmpty && codename != 'Unknown'
-                              ? '$version $codename'
-                              : version;
+                          ? '$version $codename'
+                          : version;
                       return LicensePage(
                         applicationName: 'Beariscope',
                         applicationVersion: displayVersion,
@@ -158,18 +161,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/corrections',
-            pageBuilder:
-                (_, _) => const NoTransitionPage(child: CorrectionsPage()),
+            pageBuilder: (_, _) =>
+                const NoTransitionPage(child: CorrectionsPage()),
           ),
           GoRoute(
             path: '/pits_scouting',
-            pageBuilder:
-                (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+            pageBuilder: (_, _) =>
+                const NoTransitionPage(child: PitsScoutingHomePage()),
           ),
           GoRoute(
             path: '/utilities',
-            pageBuilder:
-                (_, _) => const NoTransitionPage(child: UtilitiesPage()),
+            pageBuilder: (_, _) =>
+                const NoTransitionPage(child: UtilitiesPage()),
           ),
         ],
       ),
@@ -203,22 +206,23 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'licenses',
             builder: (_, _) {
               return FutureBuilder<(PackageInfo, String)>(
-                future: Future.wait([
-                  PackageInfo.fromPlatform(),
-                  rootBundle.loadString('assets/codename.txt'),
-                ]).then(
-                  (results) => (
-                    results[0] as PackageInfo,
-                    (results[1] as String).trim(),
-                  ),
-                ),
+                future:
+                    Future.wait([
+                      PackageInfo.fromPlatform(),
+                      loadReleaseCodename(),
+                    ]).then(
+                      (results) => (
+                        results[0] as PackageInfo,
+                        (results[1] as String).trim(),
+                      ),
+                    ),
                 builder: (context, snapshot) {
                   final version = snapshot.data?.$1.version ?? '...';
                   final codename = snapshot.data?.$2 ?? '';
                   final displayVersion =
                       codename.isNotEmpty && codename != 'Unknown'
-                          ? '$version \u2014 $codename'
-                          : version;
+                      ? '$version \u2014 $codename'
+                      : version;
                   return LicensePage(
                     applicationName: 'Beariscope',
                     applicationVersion: displayVersion,

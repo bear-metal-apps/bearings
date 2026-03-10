@@ -6,7 +6,7 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 final _teamScheduleProvider = FutureProvider.family<List<int>, int>((
@@ -30,12 +30,11 @@ final _teamScheduleProvider = FutureProvider.family<List<int>, int>((
           (item['comp_level'] ?? item['compLevel'])?.toString() ?? '';
       if (compLevel != 'qm') continue; // qualification matches only
       final mn = item['match_number'] ?? item['matchNumber'];
-      final n =
-          mn is int
-              ? mn
-              : mn is double
-              ? mn.toInt()
-              : int.tryParse(mn?.toString() ?? '');
+      final n = mn is int
+          ? mn
+          : mn is double
+          ? mn.toInt()
+          : int.tryParse(mn?.toString() ?? '');
       if (n != null) matchNumbers.add(n);
     }
 
@@ -94,9 +93,10 @@ class _MatchesBody extends StatelessWidget {
     }
 
     // combine scheduled and scouted numbers
-    final allMatchNumbers =
-        {...scheduledMatchNumbers, ...scoutedByMatchNumber.keys}.toList()
-          ..sort();
+    final allMatchNumbers = {
+      ...scheduledMatchNumbers,
+      ...scoutedByMatchNumber.keys,
+    }.toList()..sort();
 
     // Build items: numbered matches first (in order), then unknowns.
     final items = <_MatchItem>[
@@ -148,8 +148,9 @@ class _UnscoutedMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label =
-        matchNumber != null ? 'Match $matchNumber' : 'Match (unknown)';
+    final label = matchNumber != null
+        ? 'Match $matchNumber'
+        : 'Match (unknown)';
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -194,10 +195,9 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mn = TeamScoutingBundle.matchNumber(doc);
-    final label =
-        mn != null
-            ? 'Match $mn'
-            : 'Match (${scoutingShortDate(doc.timestamp)})';
+    final label = mn != null
+        ? 'Match $mn'
+        : 'Match (${scoutingShortDate(doc.timestamp)})';
 
     final autoFuel = _f(kSectionAuto, kAutoFuelScored);
     final teleFuel = _f(kSectionTele, kTeleFuelScored);
@@ -227,14 +227,14 @@ class _MatchCard extends StatelessWidget {
     // Summary subtitle shown in the collapsed tile.
     final autoStr = autoFuel is num ? autoFuel.toInt().toString() : '—';
     final teleStr = teleFuel is num ? teleFuel.toInt().toString() : '—';
-    final accStr =
-        teleAccuracy is num ? '${teleAccuracy.toStringAsFixed(0)}%' : '—';
-    final climbStr =
-        (climb == null || climb.toString().isEmpty)
-            ? '—'
-            : (climbLoc != null && climbLoc.isNotEmpty
-                ? '$climb ($climbLoc)'
-                : climb.toString());
+    final accStr = teleAccuracy is num
+        ? '${teleAccuracy.toStringAsFixed(0)}%'
+        : '—';
+    final climbStr = (climb == null || climb.toString().isEmpty)
+        ? '—'
+        : (climbLoc != null && climbLoc.isNotEmpty
+              ? '$climb ($climbLoc)'
+              : climb.toString());
 
     return Card(
       elevation: 0,
@@ -267,7 +267,10 @@ class _MatchCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
-        children: [const Divider(height: 1), _MatchDetailSection(doc: doc)],
+        children: [
+          const Divider(height: 1),
+          _MatchDetailSection(doc: doc),
+        ],
       ),
     );
   }
@@ -304,7 +307,10 @@ class _MatchDetailSection extends StatelessWidget {
     String label,
     dynamic v, {
     String Function(num)? format,
-  }) => ScoutingDataRow(label: label, value: _fmt(v, format: format));
+  }) => ScoutingDataRow(
+    label: label,
+    value: _fmt(v, format: format),
+  );
 
   Widget _phaseSection(
     BuildContext context, {

@@ -54,13 +54,12 @@ class _ImportFromSpreadsheetPopupState
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed:
-              selectedFile != null
-                  ? () {
-                    // Process the file here
-                    Navigator.of(context).pop(selectedFile);
-                  }
-                  : null,
+          onPressed: selectedFile != null
+              ? () {
+                  // Process the file here
+                  Navigator.of(context).pop(selectedFile);
+                }
+              : null,
           child: const Text('Next'),
         ),
       ],

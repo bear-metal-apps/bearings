@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';

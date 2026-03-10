@@ -17,8 +17,8 @@ class Team {
     }
 
     // extract key (try multiple names, or generate from number)
-    String? keyRaw =
-        (json['team_key'] ?? json['team'] ?? json['key'])?.toString();
+    String? keyRaw = (json['team_key'] ?? json['team'] ?? json['key'])
+        ?.toString();
     String key = (keyRaw != null && keyRaw.isNotEmpty) ? keyRaw : 'frc$number';
 
     // extract name

@@ -163,13 +163,12 @@ class PitsMapData {
     Map<String, T> parseEntries<T>(
       Map<String, dynamic>? raw,
       T Function(Map<String, dynamic>) fromJson,
-    ) =>
-        raw == null
-            ? const {}
-            : raw.map(
-              (key, value) =>
-                  MapEntry(key, fromJson(value as Map<String, dynamic>)),
-            );
+    ) => raw == null
+        ? const {}
+        : raw.map(
+            (key, value) =>
+                MapEntry(key, fromJson(value as Map<String, dynamic>)),
+          );
 
     final addressesRaw = json['addresses'];
     final Map<String, String> addresses;

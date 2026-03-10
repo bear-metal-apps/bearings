@@ -1,26 +1,6 @@
-<p align="center">
-  <img src="docs/assets/banner.png" alt="Beariscope" />
-</p><p align="center">
-  <b>The ultimate FRC strategy app</b>
-</p>
+# Beariscope
 
-<p align="center">
-  <a href="https://github.com/betterbearmetalcode/beariscope/releases">
-    <img src="https://img.shields.io/github/v/release/betterbearmetalcode/beariscope?label=Latest%20Release" alt="Release"/>
-  </a>
-  <a href="https://github.com/betterbearmetalcode/beariscope/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/betterbearmetalcode/beariscope?color=blue" alt="License"/>
-  </a>
-  <a href="https://flutter.dev/">
-    <img src="https://img.shields.io/badge/Built%20with-Flutter-02569B?logo=flutter" alt="Flutter"/>
-  </a>
-</p>
-
-> [!NOTE]
-> Beariscope is under active development. We're running it internally this season and plan to open it up to other teams next year.
----
-
-Beariscope is a FRC strategy app by Team 2046, Bear Metal.
+Beariscope is Bear Metal's FRC strategy app.
 
 ## Features
 
@@ -32,6 +12,10 @@ Beariscope is a FRC strategy app by Team 2046, Bear Metal.
 - **Role-based access** - different permissions for scouts, strategists, and drive team
 - **Mobile, desktop, and web!** - works on iOS, Android, your laptop, and as a web app in a pinch
 
-## If you haven't checked out our..
-- [Scouting App](https://github.com/bear-metal-apps/pawfinder)
-- [Shared Library](https://github.com/bear-metal-apps/libkoala)
+## Working on Beariscope
+
+From the monorepo root:
+
+1. Run `dart pub get`
+2. Run `melos run generate` if codegen needs refreshing
+3. Start the app with `cd apps/beariscope && flutter run` or by using Melos's IntelliJ run configs

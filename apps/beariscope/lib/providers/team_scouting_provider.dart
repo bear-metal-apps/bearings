@@ -17,18 +17,17 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
 
   // Filter to docs belonging to this team.
   // pawfinder writes teamNumber alongside the meta object as data['teamNumber'].
-  final teamDocs =
-      allDocs.where((doc) {
-        return TeamScoutingBundle.teamNumber(doc) == teamNumber;
-      }).toList();
+  final teamDocs = allDocs.where((doc) {
+    return TeamScoutingBundle.teamNumber(doc) == teamNumber;
+  }).toList();
 
-  final matchDocs =
-      teamDocs
-          .where((doc) => doc.meta?['type']?.toString() == 'match')
-          .toList();
+  final matchDocs = teamDocs
+      .where((doc) => doc.meta?['type']?.toString() == 'match')
+      .toList();
 
-  final pitsDocs =
-      teamDocs.where((doc) => doc.meta?['type']?.toString() == 'pits').toList();
+  final pitsDocs = teamDocs
+      .where((doc) => doc.meta?['type']?.toString() == 'pits')
+      .toList();
 
   // Take the most recently uploaded pits doc for this team (if any).
   pitsDocs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -50,15 +49,13 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
     'mechanicalStabilityRanking',
   ];
   final teamStr = teamNumber.toString();
-  final stratDocs =
-      allDocs.where((doc) {
-          if (doc.meta?['type']?.toString() != 'strat') return false;
-          return stratRankingKeys.any((key) {
-            final v = doc.data[key];
-            return v is List && v.map((e) => e.toString()).contains(teamStr);
-          });
-        }).toList()
-        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+  final stratDocs = allDocs.where((doc) {
+    if (doc.meta?['type']?.toString() != 'strat') return false;
+    return stratRankingKeys.any((key) {
+      final v = doc.data[key];
+      return v is List && v.map((e) => e.toString()).contains(teamStr);
+    });
+  }).toList()..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
   return TeamScoutingBundle(
     matchDocs: matchDocs,

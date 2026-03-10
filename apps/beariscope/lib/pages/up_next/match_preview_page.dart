@@ -6,9 +6,9 @@ import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
-import 'package:libkoala/providers/permissions_provider.dart';
-import 'package:libkoala/providers/user_profile_provider.dart';
+import 'package:services/providers/api_provider.dart';
+import 'package:services/providers/permissions_provider.dart';
+import 'package:services/providers/user_profile_provider.dart';
 
 final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
   ref,
@@ -63,21 +63,19 @@ class _DriveTeamMatchPreviewPageState
     final permissionChecker = ref.watch(permissionCheckerProvider);
 
     return matchAsync.when(
-      loading:
-          () => Scaffold(
-            appBar: AppBar(title: Text('Match ${widget.matchKey}')),
-            body: const Center(child: CircularProgressIndicator()),
+      loading: () => Scaffold(
+        appBar: AppBar(title: Text('Match ${widget.matchKey}')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => Scaffold(
+        appBar: AppBar(title: Text('Match ${widget.matchKey}')),
+        body: Center(
+          child: FilledButton(
+            onPressed: () => ref.invalidate(requestProvider),
+            child: const Text('Retry'),
           ),
-      error:
-          (err, stack) => Scaffold(
-            appBar: AppBar(title: Text('Match ${widget.matchKey}')),
-            body: Center(
-              child: FilledButton(
-                onPressed: () => ref.invalidate(requestProvider),
-                child: const Text('Retry'),
-              ),
-            ),
-          ),
+        ),
+      ),
       data: (data) {
         String teamNumberFromKey(String teamKey) {
           return teamKey.replaceFirst(RegExp('^frc'), '');
@@ -91,20 +89,18 @@ class _DriveTeamMatchPreviewPageState
 
         final match = Map<String, dynamic>.from(data);
         final alliances = match['alliances'];
-        final redTeams =
-            alliances is Map && alliances['red'] is Map
-                ? (alliances['red']['team_keys'] as List?)
-                        ?.map((e) => e.toString())
-                        .toList() ??
-                    const <String>[]
-                : const <String>[];
-        final blueTeams =
-            alliances is Map && alliances['blue'] is Map
-                ? (alliances['blue']['team_keys'] as List?)
-                        ?.map((e) => e.toString())
-                        .toList() ??
-                    const <String>[]
-                : const <String>[];
+        final redTeams = alliances is Map && alliances['red'] is Map
+            ? (alliances['red']['team_keys'] as List?)
+                      ?.map((e) => e.toString())
+                      .toList() ??
+                  const <String>[]
+            : const <String>[];
+        final blueTeams = alliances is Map && alliances['blue'] is Map
+            ? (alliances['blue']['team_keys'] as List?)
+                      ?.map((e) => e.toString())
+                      .toList() ??
+                  const <String>[]
+            : const <String>[];
         final cards = [
           ...redTeams.map((teamKey) {
             final number = teamNumberFromKey(teamKey);
@@ -123,19 +119,17 @@ class _DriveTeamMatchPreviewPageState
         ];
         final compLevel = match['comp_level']?.toString() ?? '';
         final matchNumber = match['match_number'];
-        final number =
-            matchNumber is int
-                ? matchNumber
-                : int.tryParse(matchNumber?.toString() ?? '');
-        final matchTitle =
-            compLevel.isEmpty || number == null
-                ? 'Match ${widget.matchKey}'
-                : '${switch (compLevel) {
-                  'qm' => 'Qualification Match',
-                  'sf' => 'Semifinal Match',
-                  'f' => 'Final Match',
-                  _ => compLevel.toUpperCase(),
-                }} $number';
+        final number = matchNumber is int
+            ? matchNumber
+            : int.tryParse(matchNumber?.toString() ?? '');
+        final matchTitle = compLevel.isEmpty || number == null
+            ? 'Match ${widget.matchKey}'
+            : '${switch (compLevel) {
+                'qm' => 'Qualification Match',
+                'sf' => 'Semifinal Match',
+                'f' => 'Final Match',
+                _ => compLevel.toUpperCase(),
+              }} $number';
 
         return Scaffold(
           appBar: AppBar(title: Text(matchTitle)),
@@ -148,8 +142,9 @@ class _DriveTeamMatchPreviewPageState
               final width = constraints.maxWidth;
 
               final cardWidth = (width - 16).clamp(0.0, 600.0);
-              final fraction =
-                  width > 0 ? (cardWidth / width).clamp(0.0, 1.0) : 1.0;
+              final fraction = width > 0
+                  ? (cardWidth / width).clamp(0.0, 1.0)
+                  : 1.0;
 
               final stride = width * fraction;
               final contentLeftEdge = (width - cardWidth) / 2.0 + 8.0;
@@ -159,12 +154,11 @@ class _DriveTeamMatchPreviewPageState
                 _currentPageNotifier.value.round().clamp(0, cards.length - 1),
               );
 
-              final labelStyle = Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              );
+              final labelStyle = Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  );
 
               return Column(
                 children: [
@@ -246,10 +240,9 @@ class _DriveTeamMatchPreviewPageState
                           },
                           decorator: DotsDecorator(
                             activeColor: Theme.of(context).colorScheme.primary,
-                            color:
-                                Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             spacing: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 8,
@@ -278,31 +271,27 @@ class _DriveTeamMatchPreviewPageState
                               blueTeams,
                               '2046',
                             );
-                            final allianceTeams =
-                                is2046OnRed
-                                    ? redTeams
-                                    : is2046OnBlue
-                                    ? blueTeams
-                                    : const <String>[];
-                            final memberKeys =
-                                allianceTeams
-                                    .where(
-                                      (k) => teamNumberFromKey(k) != '2046',
-                                    )
-                                    .toList();
-                            final allianceLabel =
-                                is2046OnRed ? 'Red Alliance' : 'Blue Alliance';
+                            final allianceTeams = is2046OnRed
+                                ? redTeams
+                                : is2046OnBlue
+                                ? blueTeams
+                                : const <String>[];
+                            final memberKeys = allianceTeams
+                                .where((k) => teamNumberFromKey(k) != '2046')
+                                .toList();
+                            final allianceLabel = is2046OnRed
+                                ? 'Red Alliance'
+                                : 'Blue Alliance';
                             showModalBottomSheet(
                               context: context,
                               showDragHandle: true,
                               isScrollControlled: true,
                               useSafeArea: true,
-                              builder:
-                                  (context) => _DriveTeamNotesSheet(
-                                    matchKey: widget.matchKey,
-                                    allianceMemberTeamKeys: memberKeys,
-                                    allianceLabel: allianceLabel,
-                                  ),
+                              builder: (context) => _DriveTeamNotesSheet(
+                                matchKey: widget.matchKey,
+                                allianceMemberTeamKeys: memberKeys,
+                                allianceLabel: allianceLabel,
+                              ),
                             );
                           },
                           child: const Text('Take Notes'),
@@ -352,7 +341,10 @@ class _DriveTeamMatchPreviewPageState
       x = boxRight - labelWidth;
     }
 
-    return Positioned(left: x, child: Text(label, style: style));
+    return Positioned(
+      left: x,
+      child: Text(label, style: style),
+    );
   }
 }
 
@@ -464,16 +456,14 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     final theme = Theme.of(context);
 
     return notesAsync.when(
-      loading:
-          () => const SizedBox(
-            height: 200,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-      error:
-          (e, _) => SizedBox(
-            height: 200,
-            child: Center(child: Text('Error loading notes: $e')),
-          ),
+      loading: () => const SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => SizedBox(
+        height: 200,
+        child: Center(child: Text('Error loading notes: $e')),
+      ),
       data: (existingNotes) {
         _initControllers(existingNotes);
 
@@ -538,14 +528,13 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: _isSaving ? null : _save,
-                    child:
-                        _isSaving
-                            ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Text('Save Notes'),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Save Notes'),
                   ),
                 ),
               ],

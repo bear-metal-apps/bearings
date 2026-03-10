@@ -21,12 +21,11 @@ class AveragesTab extends ConsumerWidget {
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
-      data:
-          (bundle) => _AveragesBody(
-            bundle: bundle,
-            teamNumber: teamNumber,
-            stratZScores: stratZScores,
-          ),
+      data: (bundle) => _AveragesBody(
+        bundle: bundle,
+        teamNumber: teamNumber,
+        stratZScores: stratZScores,
+      ),
     );
   }
 }
@@ -54,11 +53,12 @@ class _AveragesBodyState extends State<_AveragesBody> {
 
   TeamScoutingBundle get _filteredBundle {
     if (_lastN == null) return widget.bundle;
-    final sorted = [...widget.bundle.matchDocs]..sort((a, b) {
-      final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
-      final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
-      return mb.compareTo(ma);
-    });
+    final sorted = [...widget.bundle.matchDocs]
+      ..sort((a, b) {
+        final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
+        final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+        return mb.compareTo(ma);
+      });
     final limited = sorted.take(_lastN!).toList();
     return TeamScoutingBundle(
       matchDocs: limited,
@@ -141,17 +141,16 @@ class _AveragesBodyState extends State<_AveragesBody> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children:
-                _presets.map((preset) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(_label(preset)),
-                      selected: _lastN == preset,
-                      onSelected: (_) => setState(() => _lastN = preset),
-                    ),
-                  );
-                }).toList(),
+            children: _presets.map((preset) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(_label(preset)),
+                  selected: _lastN == preset,
+                  onSelected: (_) => setState(() => _lastN = preset),
+                ),
+              );
+            }).toList(),
           ),
         ),
         const SizedBox(height: 12),

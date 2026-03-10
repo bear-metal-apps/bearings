@@ -128,13 +128,12 @@ class ScoutingDataRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style:
-                  highlight
-                      ? Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      )
-                      : Theme.of(context).textTheme.bodySmall,
+              style: highlight
+                  ? Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    )
+                  : Theme.of(context).textTheme.bodySmall,
             ),
           ),
         ],
@@ -202,16 +201,14 @@ Widget scoutingIncidentCountChip(
       '$label: $count',
       style: TextStyle(
         fontSize: 12,
-        color:
-            active
-                ? Theme.of(context).colorScheme.onError
-                : Theme.of(context).colorScheme.onSurface,
+        color: active
+            ? Theme.of(context).colorScheme.onError
+            : Theme.of(context).colorScheme.onSurface,
       ),
     ),
-    backgroundColor:
-        active
-            ? Theme.of(context).colorScheme.error
-            : Theme.of(context).colorScheme.surfaceContainerHigh,
+    backgroundColor: active
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.surfaceContainerHigh,
     side: BorderSide.none,
     visualDensity: VisualDensity.compact,
     padding: EdgeInsets.zero,

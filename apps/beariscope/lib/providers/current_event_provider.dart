@@ -29,8 +29,9 @@ class CurrentEvent extends _$CurrentEvent {
     final trimmed = eventKey?.trim();
     final prefs = await SharedPreferences.getInstance();
 
-    final value =
-        trimmed == null || trimmed.isEmpty ? _defaultEventKey : trimmed;
+    final value = trimmed == null || trimmed.isEmpty
+        ? _defaultEventKey
+        : trimmed;
     await _setAndPersist(value, prefs);
   }
 

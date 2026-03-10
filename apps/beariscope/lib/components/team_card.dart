@@ -11,7 +11,7 @@ import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/permissions_provider.dart';
+import 'package:services/providers/permissions_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,22 +28,19 @@ class TeamCard extends ConsumerWidget {
     final cardHeight = height ?? 256;
 
     return teamsAsync.when(
-      loading:
-          () => SizedBox(
-            height: cardHeight,
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-      error:
-          (err, stack) => SizedBox(
-            height: cardHeight,
-            child: Center(child: Text('Error: $err')),
-          ),
+      loading: () => SizedBox(
+        height: cardHeight,
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => SizedBox(
+        height: cardHeight,
+        child: Center(child: Text('Error: $err')),
+      ),
       data: (teams) {
-        final teamList =
-            teams
-                .whereType<Map<String, dynamic>>()
-                .map((json) => Team.fromJson(json))
-                .toList();
+        final teamList = teams
+            .whereType<Map<String, dynamic>>()
+            .map((json) => Team.fromJson(json))
+            .toList();
 
         Team? team;
         for (final t in teamList) {
@@ -73,21 +70,19 @@ class TeamCard extends ConsumerWidget {
           closedShape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          closedBuilder:
-              (context, action) => SizedBox(
-                height: cardHeight,
-                width: double.infinity,
-                child: InkWell(
-                  onTap: action,
-                  borderRadius: BorderRadius.circular(12),
-                  child: _TeamCardSummary(team: resolvedTeam),
-                ),
-              ),
-          openBuilder:
-              (context, action) => TeamDetailsPage(
-                teamName: resolvedTeam.name,
-                teamNumber: resolvedTeam.number,
-              ),
+          closedBuilder: (context, action) => SizedBox(
+            height: cardHeight,
+            width: double.infinity,
+            child: InkWell(
+              onTap: action,
+              borderRadius: BorderRadius.circular(12),
+              child: _TeamCardSummary(team: resolvedTeam),
+            ),
+          ),
+          openBuilder: (context, action) => TeamDetailsPage(
+            teamName: resolvedTeam.name,
+            teamNumber: resolvedTeam.number,
+          ),
         );
       },
     );
@@ -125,12 +120,11 @@ class _TeamCardSummary extends ConsumerWidget {
                   width: 32,
                   height: 32,
                   fit: BoxFit.contain,
-                  errorBuilder:
-                      (context, error, stackTrace) => Icon(
-                        Icons.account_circle,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.account_circle,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -208,8 +202,9 @@ class _SummaryMetrics extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
                   ),
-                  backgroundColor:
-                      Theme.of(context).colorScheme.primaryContainer,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   labelPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -270,10 +265,9 @@ class _SummaryMetrics extends StatelessWidget {
     required String value,
     bool highlight = false,
   }) {
-    final color =
-        highlight
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant;
+    final color = highlight
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -357,42 +351,41 @@ class TeamDetailsPage extends ConsumerWidget {
               icon: const Icon(Icons.more_vert),
               tooltip: 'More options',
               onSelected: (action) => _handleAction(context, action),
-              itemBuilder:
-                  (context) => [
-                    PopupMenuItem(
-                      value: _TeamAction.openTba,
-                      child: ListTile(
-                        leading: const Icon(Symbols.open_in_new_rounded),
-                        title: const Text('Open in TBA'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: _TeamAction.openStatbotics,
-                      child: ListTile(
-                        leading: const Icon(Symbols.open_in_new_rounded),
-                        title: const Text('Open in Statbotics'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: _TeamAction.openFrcEvents,
-                      child: ListTile(
-                        leading: const Icon(Symbols.open_in_new_rounded),
-                        title: const Text('Open in FRC Events'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: _TeamAction.copyNumber,
-                      child: ListTile(
-                        leading: const Icon(Symbols.content_copy_rounded),
-                        title: const Text('Copy team number'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: _TeamAction.openTba,
+                  child: ListTile(
+                    leading: const Icon(Symbols.open_in_new_rounded),
+                    title: const Text('Open in TBA'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _TeamAction.openStatbotics,
+                  child: ListTile(
+                    leading: const Icon(Symbols.open_in_new_rounded),
+                    title: const Text('Open in Statbotics'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _TeamAction.openFrcEvents,
+                  child: ListTile(
+                    leading: const Icon(Symbols.open_in_new_rounded),
+                    title: const Text('Open in FRC Events'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  value: _TeamAction.copyNumber,
+                  child: ListTile(
+                    leading: const Icon(Symbols.content_copy_rounded),
+                    title: const Text('Copy team number'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(width: 8),
           ],

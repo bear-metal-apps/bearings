@@ -6,9 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
+import 'package:services/providers/device_credentials_provider.dart';
 
 bool get _scannerSupported =>
     kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS;

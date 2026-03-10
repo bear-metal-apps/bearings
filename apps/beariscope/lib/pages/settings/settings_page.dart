@@ -3,8 +3,9 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:services/providers/api_provider.dart';
+import 'package:services/providers/permissions_provider.dart';
 
 final teamEventsProvider = FutureProvider<List<_EventOption>>((ref) async {
   final client = ref.watch(honeycombClientProvider);
@@ -15,12 +16,11 @@ final teamEventsProvider = FutureProvider<List<_EventOption>>((ref) async {
     cachePolicy: CachePolicy.cacheFirst,
   );
 
-  final events =
-      response
-          .whereType<Map>()
-          .map((raw) => Map<String, dynamic>.from(raw))
-          .map(_EventOption.fromJson)
-          .toList();
+  final events = response
+      .whereType<Map>()
+      .map((raw) => Map<String, dynamic>.from(raw))
+      .map(_EventOption.fromJson)
+      .toList();
 
   events.sort((a, b) {
     final aDate = a.startDate ?? DateTime(0);
@@ -113,32 +113,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             if (canSelectEvent) ...[
               const SizedBox(height: 16),
               eventsAsync!.when(
-                loading:
-                    () => SettingsGroup(
-                      title: 'Current Event',
-                      children: [
-                        const ListTile(
-                          leading: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          title: Text('Loading events…'),
-                        ),
-                      ],
+                loading: () => SettingsGroup(
+                  title: 'Current Event',
+                  children: [
+                    const ListTile(
+                      leading: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      title: Text('Loading events…'),
                     ),
-                error:
-                    (error, _) => SettingsGroup(
-                      title: 'Current Event',
-                      children: [
-                        ListTile(
-                          leading: const Icon(Symbols.error_rounded),
-                          title: const Text('Could not load events'),
-                          subtitle: const Text('Tap to retry'),
-                          onTap: () => ref.invalidate(teamEventsProvider),
-                        ),
-                      ],
+                  ],
+                ),
+                error: (error, _) => SettingsGroup(
+                  title: 'Current Event',
+                  children: [
+                    ListTile(
+                      leading: const Icon(Symbols.error_rounded),
+                      title: const Text('Could not load events'),
+                      subtitle: const Text('Tap to retry'),
+                      onTap: () => ref.invalidate(teamEventsProvider),
                     ),
+                  ],
+                ),
                 data: (events) {
                   _EventOption? currentEvent;
                   for (final event in events) {
@@ -150,34 +148,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   final currentLabel =
                       currentEvent?.name ?? 'Event key: $selectedKey';
 
-                  final menuItems =
-                      events.map((event) {
-                        return MenuItemButton(
-                          onPressed: () {
-                            ref
-                                .read(currentEventProvider.notifier)
-                                .setEventKey(event.key);
-                            _menuController.close();
-                            setState(() {});
-                          },
-                          child: Text(event.name),
-                        );
-                      }).toList();
+                  final menuItems = events.map((event) {
+                    return MenuItemButton(
+                      onPressed: () {
+                        ref
+                            .read(currentEventProvider.notifier)
+                            .setEventKey(event.key);
+                        _menuController.close();
+                        setState(() {});
+                      },
+                      child: Text(event.name),
+                    );
+                  }).toList();
 
                   return SettingsGroup(
                     title: 'Current Event',
                     children: [
                       MenuAnchor(
                         controller: _menuController,
-                        menuChildren:
-                            menuItems.isEmpty
-                                ? const [
-                                  MenuItemButton(
-                                    onPressed: null,
-                                    child: Text('No events available'),
-                                  ),
-                                ]
-                                : menuItems,
+                        menuChildren: menuItems.isEmpty
+                            ? const [
+                                MenuItemButton(
+                                  onPressed: null,
+                                  child: Text('No events available'),
+                                ),
+                              ]
+                            : menuItems,
                         builder: (context, controller, child) {
                           return ListTile(
                             leading: const Icon(Symbols.event_rounded),
@@ -188,17 +184,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ? Symbols.expand_less_rounded
                                   : Symbols.expand_more_rounded,
                             ),
-                            onTap:
-                                menuItems.isEmpty
-                                    ? null
-                                    : () {
-                                      if (controller.isOpen) {
-                                        controller.close();
-                                      } else {
-                                        controller.open();
-                                      }
-                                      setState(() {});
-                                    },
+                            onTap: menuItems.isEmpty
+                                ? null
+                                : () {
+                                    if (controller.isOpen) {
+                                      controller.close();
+                                    } else {
+                                      controller.open();
+                                    }
+                                    setState(() {});
+                                  },
                           );
                         },
                       ),
@@ -238,8 +233,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       leading: const Icon(Symbols.qr_code_rounded),
                       title: const Text('Device Provisioning'),
                       subtitle: const Text('Generate Pawfinder QR Code'),
-                      onTap:
-                          () => context.push('/settings/device_provisioning'),
+                      onTap: () =>
+                          context.push('/settings/device_provisioning'),
                     ),
                 ],
               ),

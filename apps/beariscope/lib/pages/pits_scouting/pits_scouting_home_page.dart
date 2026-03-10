@@ -9,7 +9,7 @@ import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:beariscope/components/beariscope_card.dart';
@@ -55,13 +55,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder:
-            (_) => PitsScoutingFormPage(
-              teamNumber: teamNumber,
-              teamName: teamName,
-              scouted: scouted,
-              initialDoc: existingDoc,
-            ),
+        builder: (_) => PitsScoutingFormPage(
+          teamNumber: teamNumber,
+          teamName: teamName,
+          scouted: scouted,
+          initialDoc: existingDoc,
+        ),
       ),
     ).then((result) {
       if (result == true) {
@@ -100,66 +99,60 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       appBar: AppBar(
         centerTitle: !_showMapView,
         titleSpacing: !_showMapView ? 8.0 : 16.0,
-        title:
-            _showMapView
-                ? const Text('Pits Map')
-                : SearchBar(
-                  controller: _searchTEC,
-                  hintText: 'Team name or number',
-                  padding: const WidgetStatePropertyAll<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 16.0),
+        title: _showMapView
+            ? const Text('Pits Map')
+            : SearchBar(
+                controller: _searchTEC,
+                hintText: 'Team name or number',
+                padding: const WidgetStatePropertyAll<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 16.0),
+                ),
+                elevation: const WidgetStatePropertyAll<double>(0),
+                leading: const Icon(Symbols.search_rounded),
+                trailing: [
+                  PopupMenuButton<PitsScoutingFilter>(
+                    icon: const Icon(Symbols.filter_list_rounded),
+                    tooltip: 'Filter & Sort',
+                    itemBuilder: (context) => [
+                      CheckedPopupMenuItem<PitsScoutingFilter>(
+                        value: PitsScoutingFilter.allTeams,
+                        checked: _statusFilter == PitsScoutingFilter.allTeams,
+                        child: const Text('All Teams'),
+                      ),
+                      CheckedPopupMenuItem<PitsScoutingFilter>(
+                        value: PitsScoutingFilter.notScouted,
+                        checked: _statusFilter == PitsScoutingFilter.notScouted,
+                        child: const Text('Not Scouted'),
+                      ),
+                      CheckedPopupMenuItem<PitsScoutingFilter>(
+                        value: PitsScoutingFilter.scouted,
+                        checked: _statusFilter == PitsScoutingFilter.scouted,
+                        child: const Text('Scouted'),
+                      ),
+                    ],
+                    onSelected: (selection) {
+                      setState(() {
+                        _statusFilter = selection;
+                      });
+                    },
                   ),
-                  elevation: const WidgetStatePropertyAll<double>(0),
-                  leading: const Icon(Symbols.search_rounded),
-                  trailing: [
-                    PopupMenuButton<PitsScoutingFilter>(
-                      icon: const Icon(Symbols.filter_list_rounded),
-                      tooltip: 'Filter & Sort',
-                      itemBuilder:
-                          (context) => [
-                            CheckedPopupMenuItem<PitsScoutingFilter>(
-                              value: PitsScoutingFilter.allTeams,
-                              checked:
-                                  _statusFilter == PitsScoutingFilter.allTeams,
-                              child: const Text('All Teams'),
-                            ),
-                            CheckedPopupMenuItem<PitsScoutingFilter>(
-                              value: PitsScoutingFilter.notScouted,
-                              checked:
-                                  _statusFilter ==
-                                  PitsScoutingFilter.notScouted,
-                              child: const Text('Not Scouted'),
-                            ),
-                            CheckedPopupMenuItem<PitsScoutingFilter>(
-                              value: PitsScoutingFilter.scouted,
-                              checked:
-                                  _statusFilter == PitsScoutingFilter.scouted,
-                              child: const Text('Scouted'),
-                            ),
-                          ],
-                      onSelected: (selection) {
-                        setState(() {
-                          _statusFilter = selection;
-                        });
-                      },
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                ),
-        leading:
-            main.isDesktop
-                ? (!_showMapView ? const SizedBox(width: 40) : null)
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: main.openDrawer,
-                ),
+                ],
+                onChanged: (value) {
+                  setState(() {});
+                },
+              ),
+        leading: main.isDesktop
+            ? (!_showMapView ? const SizedBox(width: 40) : null)
+            : IconButton(
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: main.openDrawer,
+              ),
         actionsPadding: EdgeInsets.symmetric(horizontal: 8),
         actions: [
           IconButton(
-            tooltip:
-                _showMapView ? 'Switch to list view' : 'Switch to map view',
+            tooltip: _showMapView
+                ? 'Switch to list view'
+                : 'Switch to map view',
             icon: Icon(
               _showMapView ? Symbols.list_rounded : Symbols.map_rounded,
             ),
@@ -169,13 +162,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error:
-            (err, stack) => Center(
-              child: FilledButton(
-                onPressed: () => ref.invalidate(pitsTeamsProvider),
-                child: const Text('Retry'),
-              ),
-            ),
+        error: (err, stack) => Center(
+          child: FilledButton(
+            onPressed: () => ref.invalidate(pitsTeamsProvider),
+            child: const Text('Retry'),
+          ),
+        ),
         data: (teams) {
           final filteredTeams = filterPitsTeams(
             teams: teams,
@@ -307,21 +299,20 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     Set<int> scoutedNums,
   ) {
     return BeariscopeCardList(
-      children:
-          filteredTeams
-              .map(
-                (team) => PitsScoutingTeamCard(
-                  teamName: team.name,
-                  teamNumber: team.number,
-                  scouted: scoutedNums.contains(team.number),
-                  onScoutedChanged: (value) {
-                    if (!value) return;
-                    // The provider updates automatically; just refresh it.
-                    ref.read(scoutingDataProvider.notifier).refresh();
-                  },
-                ),
-              )
-              .toList(),
+      children: filteredTeams
+          .map(
+            (team) => PitsScoutingTeamCard(
+              teamName: team.name,
+              teamNumber: team.number,
+              scouted: scoutedNums.contains(team.number),
+              onScoutedChanged: (value) {
+                if (!value) return;
+                // The provider updates automatically; just refresh it.
+                ref.read(scoutingDataProvider.notifier).refresh();
+              },
+            ),
+          )
+          .toList(),
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pits_scouting_provider.g.dart';
@@ -31,23 +31,20 @@ Set<int> pitsScouted(Ref ref) {
   final scoutingAsync = ref.watch(scoutingDataProvider);
 
   return scoutingAsync.maybeWhen(
-    data:
-        (docs) =>
-            docs
-                .where(
-                  (doc) =>
-                      doc.meta?['type'] == 'pits' &&
-                      doc.meta?['event'] == eventKey,
-                )
-                .map((doc) {
-                  final raw = doc.data['teamNumber'];
-                  if (raw is int) return raw;
-                  if (raw is num) return raw.toInt();
-                  if (raw is String) return int.tryParse(raw);
-                  return null;
-                })
-                .whereType<int>()
-                .toSet(),
+    data: (docs) => docs
+        .where(
+          (doc) =>
+              doc.meta?['type'] == 'pits' && doc.meta?['event'] == eventKey,
+        )
+        .map((doc) {
+          final raw = doc.data['teamNumber'];
+          if (raw is int) return raw;
+          if (raw is num) return raw.toInt();
+          if (raw is String) return int.tryParse(raw);
+          return null;
+        })
+        .whereType<int>()
+        .toSet(),
     orElse: () => {},
   );
 }

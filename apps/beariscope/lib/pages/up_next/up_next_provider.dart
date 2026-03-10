@@ -1,32 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 
 final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final client = ref.watch(honeycombClientProvider);
   final eventsFuture = client.get<List<dynamic>>(
-    '/events?team=2046&year=2026&year=2025',
+    '/events?team=2046&year=2026',
     cachePolicy: CachePolicy.cacheFirst,
   );
   final matchesFuture = client.get<List<dynamic>>(
-    '/matches?team=2046&year=2026&year=2025',
+    '/matches?team=2046&year=2026',
     cachePolicy: CachePolicy.cacheFirst,
   );
 
   final results = await Future.wait([eventsFuture, matchesFuture]);
 
-  final events =
-      results[0]
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
+  final events = results[0]
+      .whereType<Map>()
+      .map((e) => Map<String, dynamic>.from(e))
+      .toList();
 
-  final matches =
-      results[1]
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
+  final matches = results[1]
+      .whereType<Map>()
+      .map((e) => Map<String, dynamic>.from(e))
+      .toList();
 
   final matchesByEvent = <String, List<Map<String, dynamic>>>{};
   for (final match in matches) {
@@ -41,16 +39,14 @@ final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
     list.sort((a, b) => _matchNumber(a).compareTo(_matchNumber(b)));
   }
 
-  final schedule =
-      events
-          .map(
-            (event) => <String, dynamic>{
-              'event': event,
-              'matches':
-                  matchesByEvent[event['key']?.toString() ?? ''] ?? const [],
-            },
-          )
-          .toList();
+  final schedule = events
+      .map(
+        (event) => <String, dynamic>{
+          'event': event,
+          'matches': matchesByEvent[event['key']?.toString() ?? ''] ?? const [],
+        },
+      )
+      .toList();
 
   schedule.sort((a, b) {
     final dateA =

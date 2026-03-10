@@ -24,10 +24,9 @@ class ScoutingDocument {
       id: json['_id']?.toString() ?? '',
       uploadBatchId: json['uploadBatchId']?.toString() ?? '',
       timestamp: _parseTimestamp(json['timestamp']),
-      data:
-          json['data'] is Map
-              ? Map<String, dynamic>.from(json['data'] as Map)
-              : const {},
+      data: json['data'] is Map
+          ? Map<String, dynamic>.from(json['data'] as Map)
+          : const {},
       processed: json['processed'] as bool? ?? false,
     );
   }

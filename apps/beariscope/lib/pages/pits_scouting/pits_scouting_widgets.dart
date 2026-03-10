@@ -76,22 +76,21 @@ class _RadioButtonState extends State<RadioButton> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children:
-          widget.options.map((option) {
-            return ListTile(
-              title: Text(option),
-              leading: Radio<String>(
-                value: option,
-                groupValue: _selectedValue,
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedValue = value;
-                  });
-                  widget.onChanged?.call(value);
-                },
-              ),
-            );
-          }).toList(),
+      children: widget.options.map((option) {
+        return ListTile(
+          title: Text(option),
+          leading: Radio<String>(
+            value: option,
+            groupValue: _selectedValue,
+            onChanged: (String? value) {
+              setState(() {
+                _selectedValue = value;
+              });
+              widget.onChanged?.call(value);
+            },
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -148,15 +147,12 @@ class _MultipleChoiceState extends State<MultipleChoice> {
             });
             widget.onSelectionChanged?.call(newSelection);
           },
-          segments:
-              widget.options
-                  .map(
-                    (option) => ButtonSegment<String>(
-                      value: option,
-                      label: Text(option),
-                    ),
-                  )
-                  .toList(),
+          segments: widget.options
+              .map(
+                (option) =>
+                    ButtonSegment<String>(value: option, label: Text(option)),
+              )
+              .toList(),
         ),
       ],
     );
@@ -203,10 +199,11 @@ class _DropdownButtonState extends State<DropdownButtonOneChoice> {
         });
         widget.onChanged?.call(value);
       },
-      dropdownMenuEntries:
-          widget.options.map<DropdownMenuEntry<String>>((String value) {
-            return DropdownMenuEntry<String>(value: value, label: value);
-          }).toList(),
+      dropdownMenuEntries: widget.options.map<DropdownMenuEntry<String>>((
+        String value,
+      ) {
+        return DropdownMenuEntry<String>(value: value, label: value);
+      }).toList(),
     );
   }
 }

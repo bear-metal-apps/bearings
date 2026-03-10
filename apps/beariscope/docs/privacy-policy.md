@@ -9,16 +9,21 @@ Bear Metal Apps, a subteam of FRC Team 2046 (Tahoma Robotics), operates the Bear
 ## 1. Information We Collect
 
 ### Account Information
+
 When you create an account or sign in via Auth0, we collect:
+
 - **Name** – your first and last name
 - **Email address** – used for account identification and communication
 - **Profile photo** – optional; uploaded by you
 
 ### Usage Information
+
 We do not collect analytics, crash reports, or usage telemetry beyond what is necessary to operate the App.
 
 ### Third-Party Data
+
 The App retrieves publicly available FRC competition data from:
+
 - **The Blue Alliance** (thebluealliance.com) – match schedules, team information
 - **FRC Nexus** (frc.nexus) – event pit and queue information
 
@@ -29,6 +34,7 @@ We do not store this data permanently; it is cached locally on your device for o
 ## 2. How We Use Your Information
 
 We use your information solely to:
+
 - Authenticate you and maintain your session
 - Display your profile within the App
 - Associate scouting contributions with your account
@@ -45,7 +51,8 @@ We do **not** sell, share, or disclose your information to third parties for mar
 - All communication between the App and our servers uses HTTPS/TLS encryption.
 
 ### Auth0 Privacy Policy
-Auth0's privacy policy is available at: https://auth0.com/privacy
+
+Auth0's privacy policy is available at <https://auth0.com/privacy>.
 
 ---
 
@@ -60,6 +67,7 @@ Locally cached data (match schedules, team data) is stored only on your device a
 ## 5. Your Rights
 
 You have the right to:
+
 - **Access** the personal data we hold about you
 - **Correct** inaccurate information via Settings → Account
 - **Delete** your account and associated data via Settings → Account → Delete Account
@@ -84,5 +92,6 @@ We may update this policy from time to time. Changes will be posted to this page
 For privacy questions or data requests, contact us at:
 
 **Bear Metal Apps – FRC Team 2046**  
-Email: scouting-app@bearmet.al  
-GitHub: https://github.com/bear-metal-apps
+Email: <mailto:scouting-app@bearmet.al>  
+GitHub: <https://github.com/bear-metal-apps>
+

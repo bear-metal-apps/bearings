@@ -29,13 +29,12 @@ class _UtilitiesPageState extends State<UtilitiesPage> {
           ),
           leading: const Icon(Symbols.search_rounded),
         ),
-        leading:
-            main.isDesktop
-                ? SizedBox(width: 48)
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: main.openDrawer,
-                ),
+        leading: main.isDesktop
+            ? SizedBox(width: 48)
+            : IconButton(
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: main.openDrawer,
+              ),
         actions: [SizedBox(width: 48)],
       ),
       body: Center(

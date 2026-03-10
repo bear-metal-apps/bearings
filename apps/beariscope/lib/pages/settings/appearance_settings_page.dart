@@ -146,24 +146,22 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: color,
                           shape: BoxShape.circle,
-                          border:
-                              isSelected
-                                  ? Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                    width: 2,
-                                  )
-                                  : null,
-                        ),
-                        child:
-                            isSelected
-                                ? Icon(
-                                  Symbols.check_rounded,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                  size: 20,
+                          border: isSelected
+                              ? Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  width: 2,
                                 )
-                                : null,
+                              : null,
+                        ),
+                        child: isSelected
+                            ? Icon(
+                                Symbols.check_rounded,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                size: 20,
+                              )
+                            : null,
                       ),
                     );
                   },

@@ -98,17 +98,16 @@ class _ImageCropDialogState extends State<ImageCropDialog> {
         actions: [
           TextButton(
             onPressed: _isProcessing ? null : _confirm,
-            child:
-                _isProcessing
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                    : const Text('Done', style: TextStyle(color: Colors.white)),
+            child: _isProcessing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Done', style: TextStyle(color: Colors.white)),
           ),
           const SizedBox(width: 8),
         ],

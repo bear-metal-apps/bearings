@@ -4,9 +4,12 @@ import 'package:beariscope/utils/image_processor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mime/mime.dart';
+import 'package:services/providers/api_provider.dart';
+import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/user_profile_provider.dart';
+import 'package:services/widgets/profile_picture.dart';
 
 class AccountSettingsPage extends ConsumerStatefulWidget {
   const AccountSettingsPage({super.key});
@@ -79,11 +82,10 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       return 'Enter your first and last name.';
     }
 
-    final parts =
-        trimmedName
-            .split(RegExp(r'\s+'))
-            .where((part) => part.isNotEmpty)
-            .toList();
+    final parts = trimmedName
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
     if (parts.length < 2) {
       return 'Please include both first and last name.';
     }
@@ -234,11 +236,10 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       return;
     }
 
-    final mimeType =
-        file.extension != null
-            ? lookupMimeType('', headerBytes: bytes) ??
-                lookupMimeType('file.${file.extension}')
-            : lookupMimeType('', headerBytes: bytes);
+    final mimeType = file.extension != null
+        ? lookupMimeType('', headerBytes: bytes) ??
+              lookupMimeType('file.${file.extension}')
+        : lookupMimeType('', headerBytes: bytes);
 
     final convertedBytes = await ImageProcessor.convertToSupportedFormat(
       bytes,
@@ -290,28 +291,27 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   Future<void> _deleteAccount(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete Account'),
-            content: const Text(
-              'This will permanently delete your account and all associated data. '
-              'This action cannot be undone.\n\n'
-              'Are you sure you want to delete your account?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                child: const Text('Delete Account'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'This will permanently delete your account and all associated data. '
+          'This action cannot be undone.\n\n'
+          'Are you sure you want to delete your account?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete Account'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed != true) return;
@@ -337,24 +337,23 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
     final confirmed =
         await showDialog<bool>(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: const Text('Sign Out'),
-                content: const Text('Are you sure you want to sign out?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                    child: const Text('Sign Out'),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: const Text('Sign Out'),
+            content: const Text('Are you sure you want to sign out?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
               ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Sign Out'),
+              ),
+            ],
+          ),
         ) ??
         false;
 
@@ -366,23 +365,22 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   Future<void> _sendPasswordReset() async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Reset Password'),
-            content: const Text(
-              'Are you sure you want to send a password reset email?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Send'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: const Text(
+          'Are you sure you want to send a password reset email?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Send'),
+          ),
+        ],
+      ),
     );
 
     if (confirm != true) return;
@@ -450,26 +448,23 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                               child: Container(
                                 padding: const EdgeInsets.all(3),
                                 decoration: BoxDecoration(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.tertiaryContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.tertiaryContainer,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainer,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainer,
                                     width: 2,
                                   ),
                                 ),
                                 child: Icon(
                                   Symbols.photo_camera_rounded,
                                   size: 12,
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onTertiaryContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onTertiaryContainer,
                                 ),
                               ),
                             ),
@@ -493,10 +488,9 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                           Text(
                             userInfo.value?.email ?? 'No Email',
                             style: TextStyle(
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -549,16 +543,15 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                       alignment: Alignment.centerRight,
                       child: FilledButton.icon(
                         onPressed: canSave ? _saveProfile : null,
-                        icon:
-                            _isSaving
-                                ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                                : const Icon(Symbols.save_rounded),
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Symbols.save_rounded),
                         label: const Text('Save Changes'),
                       ),
                     ),
@@ -575,14 +568,13 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                 leading: const Icon(Symbols.lock_reset_rounded),
                 title: const Text('Reset Password'),
                 subtitle: const Text('Send a password reset email'),
-                trailing:
-                    _isSendingReset
-                        ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : null,
+                trailing: _isSendingReset
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : null,
                 onTap: _isSendingReset ? null : _sendPasswordReset,
               ),
               ListTile(
@@ -604,19 +596,19 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                   'Permanently delete your account and all data',
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
-                trailing:
-                    _isDeletingAccount
-                        ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        )
-                        : null,
-                onTap:
-                    _isDeletingAccount ? null : () => _deleteAccount(context),
+                trailing: _isDeletingAccount
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      )
+                    : null,
+                onTap: _isDeletingAccount
+                    ? null
+                    : () => _deleteAccount(context),
               ),
             ],
           ),

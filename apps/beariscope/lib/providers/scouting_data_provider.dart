@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:hive_ce_flutter/adapters.dart';
-import 'package:libkoala/providers/api_provider.dart';
+import 'package:services/providers/api_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scouting_data_provider.g.dart';

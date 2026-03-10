@@ -19,17 +19,16 @@ List<Team> filterPitsTeams({
   final trimmedQuery = query.trim();
   final queryIsNumber = int.tryParse(trimmedQuery) != null;
 
-  final queryFiltered =
-      trimmedQuery.isEmpty
-          ? teams
-          : teams.where((team) {
-            if (queryIsNumber) {
-              return team.number.toString().contains(trimmedQuery);
-            }
-            final normalizedQuery = trimmedQuery.toLowerCase();
-            return team.name.toLowerCase().contains(normalizedQuery) ||
-                team.key.toLowerCase().contains(normalizedQuery);
-          }).toList();
+  final queryFiltered = trimmedQuery.isEmpty
+      ? teams
+      : teams.where((team) {
+          if (queryIsNumber) {
+            return team.number.toString().contains(trimmedQuery);
+          }
+          final normalizedQuery = trimmedQuery.toLowerCase();
+          return team.name.toLowerCase().contains(normalizedQuery) ||
+              team.key.toLowerCase().contains(normalizedQuery);
+        }).toList();
 
   return queryFiltered.where((team) {
     final isScouted = scoutedTeamNumbers.contains(team.number);
