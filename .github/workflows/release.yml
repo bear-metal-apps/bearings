@@ -1,0 +1,447 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (for example 26.2.0)
+        required: true
+        type: string
+      codename:
+        description: Release codename shared across the workspace
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bearings-release
+  cancel-in-progress: false
+
+env:
+  BEARISCOPE_DIR: apps/beariscope
+  PAWFINDER_DIR: apps/pawfinder
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.meta.outputs.build_number }}
+      full_version: ${{ steps.meta.outputs.full_version }}
+      release_name: ${{ steps.meta.outputs.release_name }}
+      tag_name: ${{ steps.meta.outputs.tag_name }}
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEARITONE_APP_ID }}
+          private-key: ${{ secrets.BEARITONE_APP_KEY }}
+
+      - name: Get Bearitone user ID
+        id: get-user-id
+        run: echo "user-id=$(gh api \"/users/${{ steps.app-token.outputs.app-slug }}[bot]\" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Normalize version
+        id: normalize
+        run: |
+          version="${{ inputs.version }}"
+
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            version="${version}.0"
+          elif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version: $version"
+            exit 1
+          fi
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Compute release metadata
+        id: meta
+        run: |
+          version="${{ steps.normalize.outputs.version }}"
+          build_number="${{ github.run_number }}"
+          tag_name="v${version}"
+          full_version="${version}+${build_number}"
+          release_name="${version} - ${{ inputs.codename }}"
+
+          echo "build_number=${build_number}" >> "$GITHUB_OUTPUT"
+          echo "full_version=${full_version}" >> "$GITHUB_OUTPUT"
+          echo "release_name=${release_name}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
+      - name: Generate release notes
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag ${{ steps.meta.outputs.tag_name }}
+        env:
+          OUTPUT: release_notes.md
+
+      - name: Update changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag ${{ steps.meta.outputs.tag_name }} --prepend CHANGELOG.md
+
+      - name: Apply unified release version
+        run: |
+          dart run tool/update_workspace_release.dart \
+            --version=${{ steps.meta.outputs.version }} \
+            --build-number=${{ steps.meta.outputs.build_number }} \
+            --codename=${{ inputs.codename }}
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: release_notes.md
+          retention-days: 1
+
+      - name: Commit release metadata and tag
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
+          git add CHANGELOG.md \
+            apps/beariscope/pubspec.yaml \
+            apps/pawfinder/pubspec.yaml \
+            packages/core/pubspec.yaml \
+            packages/services/pubspec.yaml \
+            packages/services/assets/release/codename.txt \
+            packages/ui/pubspec.yaml \
+            backend/honeycomb/pubspec.yaml
+
+          git commit -m "chore(release): cut v${{ steps.meta.outputs.version }} [skip ci]"
+          git push
+
+          git tag -a "${{ steps.meta.outputs.tag_name }}" -m "Release ${{ steps.meta.outputs.version }} - ${{ inputs.codename }}"
+          git push origin "${{ steps.meta.outputs.tag_name }}"
+
+  build-beariscope-android:
+    needs: prepare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag_name }}
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
+      - name: Build Beariscope Android APK
+        working-directory: ${{ env.BEARISCOPE_DIR }}
+        run: |
+          flutter build apk \
+            --release \
+            --build-name="${{ needs.prepare.outputs.version }}" \
+            --build-number="${{ needs.prepare.outputs.build_number }}"
+
+      - name: Stage Android artifact
+        run: |
+          mkdir -p artifacts
+          cp "${{ env.BEARISCOPE_DIR }}/build/app/outputs/flutter-apk/app-release.apk" \
+            "artifacts/beariscope-android-${{ needs.prepare.outputs.version }}.apk"
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: beariscope-android
+          path: artifacts/beariscope-android-${{ needs.prepare.outputs.version }}.apk
+
+  build-beariscope-linux:
+    needs: prepare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag_name }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y appstream libgtk-3-dev libwebkit2gtk-4.1-dev \
+            cmake clang ninja-build libcanberra-gtk-module libcanberra-gtk3-module \
+            libsecret-1-dev
+
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
+      - name: Build Beariscope Linux bundle
+        working-directory: ${{ env.BEARISCOPE_DIR }}
+        run: |
+          flutter build linux \
+            --release \
+            --build-name="${{ needs.prepare.outputs.version }}" \
+            --build-number="${{ needs.prepare.outputs.build_number }}"
+
+      - name: Build Beariscope AppImage
+        uses: AppImageCrafters/build-appimage-action@v1
+        env:
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
+        with:
+          recipe: apps/beariscope/AppImageBuilder.yml
+
+      - name: Stage Linux artifacts
+        run: |
+          mkdir -p artifacts
+          cp Beariscope-latest-x86_64.AppImage \
+            "artifacts/beariscope-linux-${{ needs.prepare.outputs.version }}.AppImage"
+          cp Beariscope-latest-x86_64.AppImage.zsync \
+            "artifacts/beariscope-linux-${{ needs.prepare.outputs.version }}.AppImage.zsync"
+          tar -czf "artifacts/beariscope-linux-${{ needs.prepare.outputs.version }}.tar.gz" \
+            -C "${{ env.BEARISCOPE_DIR }}/build/linux/x64/release/bundle" .
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: beariscope-linux
+          path: artifacts/*
+
+  build-beariscope-web:
+    needs: prepare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag_name }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
+      - name: Build Beariscope web bundle
+        working-directory: ${{ env.BEARISCOPE_DIR }}
+        run: |
+          flutter build web \
+            --release \
+            --build-name="${{ needs.prepare.outputs.version }}" \
+            --build-number="${{ needs.prepare.outputs.build_number }}"
+
+      - name: Stage web artifact
+        run: |
+          mkdir -p artifacts
+          cd "${{ env.BEARISCOPE_DIR }}/build/web"
+          zip -r "../../../artifacts/beariscope-web-${{ needs.prepare.outputs.version }}.zip" .
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: beariscope-web
+          path: artifacts/beariscope-web-${{ needs.prepare.outputs.version }}.zip
+
+  build-beariscope-windows:
+    needs: prepare
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag_name }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
+      - name: Build Beariscope Windows bundle
+        working-directory: ${{ env.BEARISCOPE_DIR }}
+        run: |
+          flutter build windows --release --build-name="${{ needs.prepare.outputs.version }}" --build-number="${{ needs.prepare.outputs.build_number }}"
+
+      - name: Build Windows installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: apps/beariscope/windows/inno_setup.iss
+          options: /DMyAppVersion=${{ needs.prepare.outputs.version }} /O+
+
+      - name: Stage Windows artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Copy-Item `
+            -Path "${{ env.BEARISCOPE_DIR }}/build/inno_setup/beariscope-installer.exe" `
+            -Destination "artifacts/beariscope-windows-${{ needs.prepare.outputs.version }}.exe"
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: beariscope-windows
+          path: artifacts/beariscope-windows-${{ needs.prepare.outputs.version }}.exe
+
+  build-pawfinder-android:
+    needs: prepare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag_name }}
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
+      - name: Build Pawfinder Android APK
+        working-directory: ${{ env.PAWFINDER_DIR }}
+        run: |
+          flutter build apk \
+            --release \
+            --build-name="${{ needs.prepare.outputs.version }}" \
+            --build-number="${{ needs.prepare.outputs.build_number }}"
+
+      - name: Stage Android artifact
+        run: |
+          mkdir -p artifacts
+          cp "${{ env.PAWFINDER_DIR }}/build/app/outputs/flutter-apk/app-release.apk" \
+            "artifacts/pawfinder-android-${{ needs.prepare.outputs.version }}.apk"
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pawfinder-android
+          path: artifacts/pawfinder-android-${{ needs.prepare.outputs.version }}.apk
+
+  publish:
+    needs:
+      - prepare
+      - build-beariscope-android
+      - build-beariscope-linux
+      - build-beariscope-web
+      - build-beariscope-windows
+      - build-pawfinder-android
+    runs-on: ubuntu-latest
+    if: always() && needs.prepare.result == 'success'
+  
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEARITONE_APP_ID }}
+          private-key: ${{ secrets.BEARITONE_APP_KEY }}
+  
+      - name: Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+          path: release-assets/changelog
+  
+      - name: Download Beariscope Android artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: beariscope-android
+          path: release-assets/beariscope-android
+  
+      - name: Download Beariscope Linux artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: beariscope-linux
+          path: release-assets/beariscope-linux
+  
+      - name: Download Beariscope web artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: beariscope-web
+          path: release-assets/beariscope-web
+  
+      - name: Download Beariscope Windows artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: beariscope-windows
+          path: release-assets/beariscope-windows
+  
+      - name: Download Pawfinder Android artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: pawfinder-android
+          path: release-assets/pawfinder-android
+  
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          tag_name: ${{ needs.prepare.outputs.tag_name }}
+          name: ${{ needs.prepare.outputs.release_name }}
+          body_path: release-assets/changelog/release_notes.md
+          files: |
+            release-assets/**/*.apk
+            release-assets/**/*.exe
+            release-assets/**/*.tar.gz
+            release-assets/**/*.AppImage
+            release-assets/**/*.AppImage.zsync
+            release-assets/**/*.zip
+          draft: false
+          prerelease: false

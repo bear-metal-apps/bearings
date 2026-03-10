@@ -1,0 +1,32 @@
+# Workspace-wide generated files
+*.log
+*.pyc
+*.swp
+.DS_Store
+
+# IDE metadata
+**/.idea/
+**/.vscode/
+**/*.iml
+
+# Dart / Flutter
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/doc/api/
+**/coverage/
+**/build/
+
+# Flutter platform build artifacts
+apps/**/ios/Flutter/.last_build_id
+
+# Nested package lockfiles are owned by the workspace root lockfile
+apps/**/pubspec.lock
+packages/**/pubspec.lock
+backend/**/pubspec.lock
+
+# Dart Frog generated files
+backend/**/.dart_frog/
+
+# Python cache in migrated tools
+apps/**/__pycache__/

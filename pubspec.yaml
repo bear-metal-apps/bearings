@@ -1,0 +1,64 @@
+name: bearings
+publish_to: none
+environment:
+  sdk: ^3.11.0
+  
+workspace:
+  - apps/beariscope
+  - apps/pawfinder
+  - packages/core
+  - packages/services
+  - packages/ui
+  - backend/honeycomb
+
+dev_dependencies:
+  build_runner: ^2.12.2
+  melos: ^7.4.0
+
+melos:
+  packages:
+    - apps/beariscope
+    - apps/pawfinder
+    - packages/core
+    - packages/services
+    - packages/ui
+    - backend/honeycomb
+
+  scripts:
+    format:
+      description: Apply formatting across the workspace.
+      run: dart format apps packages backend
+
+    format:check:
+      description: Check formatting across the workspace.
+      run: dart format --output=none --set-exit-if-changed apps packages backend
+
+    analyze:
+      description: Run static analysis in every package.
+      run: melos exec --fail-fast -- "dart analyze ."
+
+    test:dart:
+      description: Run tests for pure Dart packages.
+      run: melos exec --scope=core --scope=honeycomb --dir-exists=test --fail-fast -- "dart test"
+
+    test:flutter:
+      description: Run tests for Flutter packages and apps.
+      run: melos exec -c 1 --flutter --dir-exists=test --fail-fast -- "flutter test"
+
+    test:
+      description: Run every workspace test suite.
+      steps:
+        - melos run test:dart
+        - melos run test:flutter
+
+    generate:
+      description: Run build_runner where it is declared.
+      run: melos exec --depends-on=build_runner --fail-fast -- "dart run build_runner build --delete-conflicting-outputs"
+
+    ci:
+      description: Run the full validation suite used in CI.
+      steps:
+        - dart pub get
+        - melos run format:check
+        - melos run analyze
+        - melos run test
