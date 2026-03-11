@@ -20,8 +20,8 @@ class UpNextPage extends ConsumerWidget {
     final scheduleAsync = ref.watch(upcomingScheduleProvider);
     Future<void> refreshSchedule() async {
       final client = ref.read(honeycombClientProvider);
-      client.invalidateCache('/events?team=2046&year=2026&year=2025');
-      client.invalidateCache('/matches?team=2046&year=2026&year=2025');
+      client.invalidateCache('/events?year=2026&year=2025');
+      client.invalidateCache('/matches?year=2026&year=2025');
       ref.invalidate(upcomingScheduleProvider);
       try {
         await ref.read(upcomingScheduleProvider.future);
@@ -43,8 +43,7 @@ class UpNextPage extends ConsumerWidget {
                 ),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'Current'),
-              Tab(text: 'Past'),
+              Tab(text: 'Current')
             ],
           ),
         ),
@@ -53,20 +52,10 @@ class UpNextPage extends ConsumerWidget {
           error: (err, stack) =>
               Center(child: Text('Error fetching schedule: $err')),
           data: (schedule) {
-            final now = DateTime.now();
             final currentEvents = <Map<String, dynamic>>[];
-            final pastEvents = <Map<String, dynamic>>[];
 
             for (final item in schedule) {
-              final event = item['event'] as Map<String, dynamic>;
-              final endDate = _parseDate(event['endDate'] ?? event['end_date']);
-              if (endDate == null) {
-                pastEvents.add(item);
-              } else if (endDate.add(const Duration(days: 1)).isBefore(now)) {
-                pastEvents.add(item);
-              } else {
-                currentEvents.add(item);
-              }
+              currentEvents.add(item);
             }
 
             return TabBarView(
@@ -74,12 +63,6 @@ class UpNextPage extends ConsumerWidget {
                 _EventList(
                   items: currentEvents,
                   emptyMessage: 'No Current Events found.',
-                  timeFormat: timeFormat,
-                  onRefresh: refreshSchedule,
-                ),
-                _EventList(
-                  items: pastEvents,
-                  emptyMessage: 'No Past Events found.',
                   timeFormat: timeFormat,
                   onRefresh: refreshSchedule,
                 ),
