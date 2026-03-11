@@ -18,14 +18,73 @@ import 'package:pawfinder/data/upload_queue.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:pawfinder/widgets/reset_scopes.dart';
 
-class MatchPage extends ConsumerWidget {
+class MatchPage extends ConsumerStatefulWidget {
   final int index;
 
   const MatchPage({super.key, required this.index});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MatchPage> createState() => _MatchPageState();
+}
+
+class _MatchPageState extends ConsumerState<MatchPage> {
+  int _localResetVersion = 0;
+  MatchConfig? _cachedConfig;
+  MatchIdentity? _cachedIdentity;
+  MatchResetController? _resetController;
+
+  void _handleResetTrigger() {
+    _resetPageData();
+  }
+
+  void _markMatchDirty(MatchIdentity identity) {
+    final box = Hive.box(boxKey);
+    box.put(matchScoutedByKey(identity), identity.scout.name);
+    ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
+  }
+
+  void _resetPageData() {
+    final config = _cachedConfig;
+    final identity = _cachedIdentity;
+    if (config == null || identity == null) return;
+    final box = Hive.box(boxKey);
+    for (final section in config.pages) {
+      for (final data in section.components) {
+        box.delete(matchDataKey(identity, section.sectionId, data.fieldId));
+      }
+    }
+    box.delete(matchTeamKey(identity));
+    box.delete('${matchBaseKey(identity)}_JSON');
+    _markMatchDirty(identity);
+    ref.read(scoutingSessionProvider.notifier).triggerResetUI();
+    setState(() => _localResetVersion++);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Match data cleared')));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = MatchResetScope.of(context);
+    if (_resetController != controller) {
+      _resetController?.removeListener(_handleResetTrigger);
+      _resetController = controller;
+      _resetController?.addListener(_handleResetTrigger);
+    }
+  }
+
+  @override
+  void dispose() {
+    _resetController?.removeListener(_handleResetTrigger);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final configAsync = ref.watch(matchConfigProvider);
     final identity = ref
@@ -36,16 +95,17 @@ class MatchPage extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text(e.toString())),
       data: (config) {
-        if (identity == null || index >= config.pages.length) {
+        if (identity == null || widget.index >= config.pages.length) {
           return const Center(child: CircularProgressIndicator());
         }
-        // passes resetVersion to the builder
+        _cachedConfig = config;
+        _cachedIdentity = identity;
         return _buildPage(
           context,
           ref,
           config,
           identity,
-          session.resetVersion ?? 0,
+          (session.resetVersion ?? 0) + _localResetVersion,
         );
       },
     );
@@ -58,7 +118,7 @@ class MatchPage extends ConsumerWidget {
     MatchIdentity identity,
     int version,
   ) {
-    final page = config.pages[index];
+    final page = config.pages[widget.index];
     final box = Hive.box(boxKey);
 
     return LayoutBuilder(
@@ -66,11 +126,6 @@ class MatchPage extends ConsumerWidget {
         final hStep = constraints.maxWidth / page.width;
         final vStep = constraints.maxHeight / page.height;
         final positioned = <Widget>[];
-
-        void markDirty() {
-          box.put(matchScoutedByKey(identity), identity.scout.name);
-          ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
-        }
 
         for (final data in page.components) {
           final dataBoxKey = matchDataKey(
@@ -97,7 +152,7 @@ class MatchPage extends ConsumerWidget {
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
               );
               break;
@@ -110,7 +165,7 @@ class MatchPage extends ConsumerWidget {
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
               );
               break;
@@ -119,7 +174,7 @@ class MatchPage extends ConsumerWidget {
                 key: widgetKey,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
                 dataName: data.alias,
                 width: w,
@@ -136,7 +191,7 @@ class MatchPage extends ConsumerWidget {
                 initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
                 visualFeedback: true,
               );
@@ -150,7 +205,7 @@ class MatchPage extends ConsumerWidget {
                 initialString: storedValue is String ? storedValue : null,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
               );
               break;
@@ -165,7 +220,7 @@ class MatchPage extends ConsumerWidget {
                 items: items,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
                 // ignore: prefer_contains
                 initialIndex: items.indexOf(storedValue) == -1
@@ -184,7 +239,7 @@ class MatchPage extends ConsumerWidget {
                 initialValue: storedValue is int ? storedValue : null,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
               );
               break;
@@ -198,7 +253,7 @@ class MatchPage extends ConsumerWidget {
                 initialValue: storedValue is bool ? storedValue : null,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
               );
               break;
@@ -207,7 +262,7 @@ class MatchPage extends ConsumerWidget {
                 key: widgetKey,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
                 title: data.alias,
                 width: w,
@@ -228,7 +283,7 @@ class MatchPage extends ConsumerWidget {
                 multiSelect: isMultiSelect,
                 onChanged: (v) {
                   box.put(dataBoxKey, v);
-                  markDirty();
+                  _markMatchDirty(identity);
                 },
                 initialValue: isMultiSelect
                     ? (storedValue is List ? storedValue : null)

@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:pawfinder/widgets/reset_scopes.dart';
 
 class StratPage extends ConsumerStatefulWidget {
   const StratPage({super.key});
@@ -14,6 +15,46 @@ class StratPage extends ConsumerStatefulWidget {
 }
 
 class _StratPageState extends ConsumerState<StratPage> {
+  StratResetController? _resetController;
+
+  void _handleStratReset() {
+    _applyStratReset();
+  }
+
+  void _applyStratReset() {
+    final identity = ref
+        .read(scoutingSessionProvider.notifier)
+        .createMatchIdentity();
+    if (identity == null) return;
+    final notifier = ref.read(stratStateProvider(identity).notifier);
+    notifier.reset();
+    final teams = ref
+        .read(allianceTeamsForSessionProvider)
+        .maybeWhen(data: (value) => value, orElse: () => const <String>[]);
+    notifier.initFromSchedule(teams);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Strategy data cleared')));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = StratResetScope.of(context);
+    if (_resetController != controller) {
+      _resetController?.removeListener(_handleStratReset);
+      _resetController = controller;
+      _resetController?.addListener(_handleStratReset);
+    }
+  }
+
+  @override
+  void dispose() {
+    _resetController?.removeListener(_handleStratReset);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);

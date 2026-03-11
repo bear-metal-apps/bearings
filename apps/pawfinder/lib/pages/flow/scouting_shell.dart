@@ -7,6 +7,7 @@ import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:pawfinder/widgets/reset_scopes.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -18,6 +19,20 @@ class ScoutingShell extends ConsumerStatefulWidget {
 }
 
 class _ScoutingShellState extends ConsumerState<ScoutingShell> {
+  late final MatchResetController _resetController;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetController = MatchResetController();
+  }
+
+  @override
+  void dispose() {
+    _resetController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
@@ -90,6 +105,34 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
         actions: [
           LightSwitch(value: false),
           IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Reset Match Inputs',
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Reset Match Inputs'),
+                  content: const Text(
+                    'This will clear all answers on the current match page. Continue?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Reset'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed ?? false) {
+                _resetController.trigger();
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
             onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
@@ -101,7 +144,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
           ),
         ],
       ),
-      body: widget.child,
+      body: MatchResetScope(controller: _resetController, child: widget.child),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentTabIndex(context),
         indicatorColor: Theme.of(context).colorScheme.primary,

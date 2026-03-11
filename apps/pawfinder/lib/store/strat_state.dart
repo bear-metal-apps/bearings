@@ -159,4 +159,9 @@ class StratStateNotifier extends _$StratStateNotifier {
     state = state.copyWith(humanPlayerScore: state.humanPlayerScore - 1);
     _save();
   }
+
+  void reset() {
+    state = const StratState.empty();
+    _save();
+  }
 }
