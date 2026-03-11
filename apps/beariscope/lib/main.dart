@@ -51,6 +51,11 @@ Future<void> main() async {
     setWindowMaxSize(Size.infinite);
     setWindowTitle('Beariscope');
   }
+  
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   runApp(
     ProviderScope(
