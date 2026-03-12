@@ -98,6 +98,7 @@ class _PitsFormData {
   String motorType;
   String drivetrainType;
   String swerveBrand;
+  String swerveGR;
   String wheelType;
 
   // Climb
@@ -126,6 +127,7 @@ class _PitsFormData {
     this.motorType = 'X60',
     this.drivetrainType = 'Swerve',
     this.swerveBrand = 'REV',
+    this.swerveGR = 'L1',
     this.wheelType = 'Colson',
     this.climbMethod = 'Rotation',
     Set<String>? climbLevel,
@@ -162,6 +164,7 @@ class _PitsFormData {
       motorType: str('motorType', 'X60'),
       drivetrainType: str('drivetrainType', 'Swerve'),
       swerveBrand: str('swerveBrand', 'REV'),
+      swerveGR: str('swerveGR', 'L1'),
       wheelType: str('wheelType', 'Colson'),
       climbMethod: str('climbMethod', 'Rotation'),
       climbLevel: strSet('climbLevel'),
@@ -184,7 +187,6 @@ class _PitsFormData {
 class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   // Text fields kept as TECs (cursor / IME management).
   final TextEditingController _hopperSizeTEC = TextEditingController();
-  final TextEditingController _swerveGRTEC = TextEditingController();
   final TextEditingController _chassisLengthTEC = TextEditingController();
   final TextEditingController _chassisWidthTEC = TextEditingController();
   final TextEditingController _chassisHeightTEC = TextEditingController();
@@ -206,7 +208,6 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
     if (d != null) {
       _f = _PitsFormData.fromDoc(d);
       _hopperSizeTEC.text = (d['hopperSize'] as num?)?.toInt().toString() ?? '';
-      _swerveGRTEC.text = (d['swerveGearRatio'] as String?) ?? '';
       _chassisLengthTEC.text = (d['chassisLength'] as num?)?.toString() ?? '';
       _chassisWidthTEC.text = (d['chassisWidth'] as num?)?.toString() ?? '';
       _chassisHeightTEC.text = (d['chassisHeight'] as num?)?.toString() ?? '';
@@ -229,7 +230,6 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   @override
   void dispose() {
     _hopperSizeTEC.dispose();
-    _swerveGRTEC.dispose();
     _chassisLengthTEC.dispose();
     _chassisWidthTEC.dispose();
     _chassisHeightTEC.dispose();
@@ -319,11 +319,17 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: TextField(
-                    controller: _swerveGRTEC,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: InputDecoration(labelText: 'Swerve Gear Ratio'),
+                  child: DropdownButtonOneChoice(
+                    options: [
+                      'L1',
+                      'L2',
+                      'L3',
+                      'L4',
+                      'No Swerve'
+                    ],
+                    label: 'Swerve Gear Ratio',
+                    initialValue: _f.swerveGR,
+                    onChanged: (value) => _f.swerveGR = value ?? _f.swerveGR,
                   ),
                 ),
                 Padding(
@@ -612,7 +618,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                         motorType: _f.motorType,
                         drivetrainType: _f.drivetrainType,
                         swerveBrand: _f.swerveBrand,
-                        swerveGearRatio: _swerveGRTEC.text,
+                        swerveGearRatio: _f.swerveGR,
                         wheelType: _f.wheelType,
                         chassisLength: double.tryParse(_chassisLengthTEC.text),
                         chassisWidth: double.tryParse(_chassisWidthTEC.text),
