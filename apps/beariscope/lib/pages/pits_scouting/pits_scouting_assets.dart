@@ -110,7 +110,7 @@ class _PitsFormData {
   String autoClimb;
   Set<String> fuelCollectionLocation;
   String autoPaths;
-  String pathwayPreference;
+  Set<String> pathwayDetails;
   String trenchCapability;
 
   // Outtake
@@ -135,7 +135,7 @@ class _PitsFormData {
     this.autoClimb = 'Climb',
     Set<String>? fuelCollectionLocation,
     this.autoPaths = '',
-    this.pathwayPreference = 'Bump',
+    Set<String>? pathwayDetails,
     this.trenchCapability = 'Trench Capable',
     this.shooter = 'Turret',
     this.collectorType = '4 Bar',
@@ -145,6 +145,7 @@ class _PitsFormData {
     this.indexerType = 'Dye Rotor',
   }) : climbLevel = climbLevel ?? {},
        fuelCollectionLocation = fuelCollectionLocation ?? {},
+       pathwayDetails = pathwayDetails ?? {},
        mobileShooting = mobileShooting ?? {},
        shootingRange = shootingRange ?? {};
 
@@ -172,7 +173,7 @@ class _PitsFormData {
       autoClimb: str('autoClimb', 'Climb'),
       fuelCollectionLocation: strSet('fuelCollectionLocation'),
       autoPaths: str('autoPaths', ''),
-      pathwayPreference: str('pathwayPreference', 'Bump'),
+      pathwayDetails: strSet('pathwayDetails'),
       trenchCapability: str('trenchCapability', 'Trench Capable'),
       shooter: str('shooter', 'Turret'),
       collectorType: str('collectorType', '4 Bar'),
@@ -459,7 +460,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                         _f.fuelCollectionLocation = value,
                   ),
                 ),
-                // Pathing Here, will replace Pathway Preference, Trench Capability, and Auto Paths
+                // Pathing Here, will replace Pathway Details, Trench Capability, and Auto Paths
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: TextField(
@@ -471,14 +472,14 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: DropdownButtonOneChoice(
-                    options: ['Bump', 'Trench'],
-                    label: 'Pathway Preference',
-                    initialValue: _f.pathwayPreference,
-                    onChanged: (value) =>
-                        _f.pathwayPreference = value ?? _f.pathwayPreference,
+                  child: MultipleChoice(
+                    options: ['Bump Capable', 'Trench Capable', 'Never Over Bump'],
+                    label: 'Pathway Details',
+                    variable: _f.pathwayDetails,
+                    onSelectionChanged: (value) =>
+                    _f.pathwayDetails = value,
                   ),
-                ),
+                  ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: RadioButton(
@@ -636,7 +637,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                         autoClimb: _f.autoClimb,
                         fuelCollectionLocation: _f.fuelCollectionLocation,
                         autoPaths: _autoPathsTEC.text,
-                        pathwayPreference: _f.pathwayPreference,
+                        pathwayDetails: _f.pathwayDetails,
                         trenchCapability: _f.trenchCapability,
                         shooter: _f.shooter,
                         shooterNumber: int.tryParse(_shooterNumberTEC.text),

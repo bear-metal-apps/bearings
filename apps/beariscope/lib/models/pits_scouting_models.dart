@@ -61,7 +61,7 @@ class PitsScoutingSubmission {
   final String autoClimb;
   final Set<String> fuelCollectionLocation;
   final String autoPaths;
-  final String pathwayPreference;
+  final Set<String> pathwayDetails;
   final String trenchCapability;
   final String shooter;
   final int? shooterNumber;
@@ -94,7 +94,7 @@ class PitsScoutingSubmission {
     required this.autoClimb,
     required this.fuelCollectionLocation,
     required this.autoPaths,
-    required this.pathwayPreference,
+    required this.pathwayDetails,
     required this.trenchCapability,
     required this.shooter,
     required this.shooterNumber,
@@ -142,7 +142,7 @@ class PitsScoutingSubmission {
       'autoClimb': autoClimb,
       'fuelCollectionLocation': fuelCollectionLocation.toList(),
       'autoPaths': autoPaths,
-      'pathwayPreference': pathwayPreference,
+      'pathwayDetails': pathwayDetails.toList(),
       'trenchCapability': trenchCapability,
       'shooter': shooter,
       'shooterNumber': shooterNumber,
