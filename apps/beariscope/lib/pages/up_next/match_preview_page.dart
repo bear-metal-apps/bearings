@@ -89,11 +89,17 @@ class _DriveTeamMatchPreviewPageState
           );
         }
 
-        void _handleAction(BuildContext context, _TeamAction action) {
+        void _handleAction(
+          BuildContext context,
+          _TeamAction action,
+          String key,
+        ) {
           switch (action) {
             case _TeamAction.openTba:
               launchUrl(
-                Uri.parse('https://www.thebluealliance.com/match/${widget.matchKey}'),
+                Uri.parse(
+                  'https://www.thebluealliance.com/match/${widget.matchKey}',
+                ),
                 mode: LaunchMode.externalApplication,
               );
             case _TeamAction.openStatbotics:
@@ -101,7 +107,15 @@ class _DriveTeamMatchPreviewPageState
                 Uri.parse('https://www.statbotics.io/match/${widget.matchKey}'),
                 mode: LaunchMode.externalApplication,
               );
-              default:
+            case _TeamAction.openYouTube:
+              key == 'null'
+                  ? ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No video available')),
+                    )
+                  : launchUrl(
+                      Uri.parse('https://www.youtube.com/watch?v=$key'),
+                      mode: LaunchMode.externalApplication,
+                    );
           }
         }
 
@@ -148,6 +162,13 @@ class _DriveTeamMatchPreviewPageState
                 'f' => 'Final Match',
                 _ => compLevel.toUpperCase(),
               }} $number';
+        List<dynamic> matchVideos = (match['videos'] as List<dynamic>? ?? [])
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+        var video = matchVideos.firstWhere(
+          (e) => e['type'] == 'youtube',
+          orElse: () => <String, dynamic>{},
+        );
 
         return Scaffold(
           appBar: AppBar(
@@ -156,7 +177,8 @@ class _DriveTeamMatchPreviewPageState
               PopupMenuButton<_TeamAction>(
                 icon: const Icon(Icons.more_vert),
                 tooltip: 'More options',
-                onSelected: (action) => _handleAction(context, action),
+                onSelected: (action) =>
+                    _handleAction(context, action, video['key'].toString()),
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: _TeamAction.openTba,
