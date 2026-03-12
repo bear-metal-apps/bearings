@@ -6,9 +6,11 @@ import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
   ref,
@@ -87,6 +89,22 @@ class _DriveTeamMatchPreviewPageState
           );
         }
 
+        void _handleAction(BuildContext context, _TeamAction action) {
+          switch (action) {
+            case _TeamAction.openTba:
+              launchUrl(
+                Uri.parse('https://www.thebluealliance.com/match/${widget.matchKey}'),
+                mode: LaunchMode.externalApplication,
+              );
+            case _TeamAction.openStatbotics:
+              launchUrl(
+                Uri.parse('https://www.statbotics.io/match/${widget.matchKey}'),
+                mode: LaunchMode.externalApplication,
+              );
+              default:
+          }
+        }
+
         final match = Map<String, dynamic>.from(data);
         final alliances = match['alliances'];
         final redTeams = alliances is Map && alliances['red'] is Map
@@ -132,7 +150,43 @@ class _DriveTeamMatchPreviewPageState
               }} $number';
 
         return Scaffold(
-          appBar: AppBar(title: Text(matchTitle)),
+          appBar: AppBar(
+            title: Text(matchTitle),
+            actions: [
+              PopupMenuButton<_TeamAction>(
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'More options',
+                onSelected: (action) => _handleAction(context, action),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: _TeamAction.openTba,
+                    child: ListTile(
+                      leading: const Icon(Symbols.open_in_new_rounded),
+                      title: const Text('Open in TBA'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _TeamAction.openStatbotics,
+                    child: ListTile(
+                      leading: const Icon(Symbols.open_in_new_rounded),
+                      title: const Text('Open in Statbotics'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _TeamAction.openYouTube,
+                    child: ListTile(
+                      leading: const Icon(Symbols.open_in_new_rounded),
+                      title: const Text('Open in YouTube'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
           body: LayoutBuilder(
             builder: (context, constraints) {
               if (cards.isEmpty) {
@@ -545,3 +599,5 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     );
   }
 }
+
+enum _TeamAction { openTba, openStatbotics, openYouTube }
