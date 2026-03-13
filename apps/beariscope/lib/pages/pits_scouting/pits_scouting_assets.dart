@@ -321,13 +321,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: DropdownButtonOneChoice(
-                    options: [
-                      'L1',
-                      'L2',
-                      'L3',
-                      'L4',
-                      'No Swerve'
-                    ],
+                    options: ['L1', 'L2', 'L3', 'L4', 'No Swerve'],
                     label: 'Swerve Gear Ratio',
                     initialValue: _f.swerveGR,
                     onChanged: (value) => _f.swerveGR = value ?? _f.swerveGR,
@@ -473,13 +467,16 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: MultipleChoice(
-                    options: ['Bump Capable', 'Trench Capable', 'Never Over Bump'],
+                    options: [
+                      'Bump Capable',
+                      'Trench Capable',
+                      'Never Over Bump',
+                    ],
                     label: 'Pathway Details',
                     variable: _f.pathwayDetails,
-                    onSelectionChanged: (value) =>
-                    _f.pathwayDetails = value,
+                    onSelectionChanged: (value) => _f.pathwayDetails = value,
                   ),
-                  ),
+                ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: RadioButton(
