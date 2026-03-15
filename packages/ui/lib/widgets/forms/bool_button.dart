@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
 class BoolButton extends StatefulWidget {
-  final String dataName;
-  final double width;
-  final double height;
-  final Function(bool) onChanged;
-  final bool visualFeedback;
-  final bool? initialValue;
-
   const BoolButton({
     super.key,
     this.initialValue,
@@ -19,12 +12,19 @@ class BoolButton extends StatefulWidget {
     required this.visualFeedback,
   });
 
+  final String dataName;
+  final double width;
+  final double height;
+  final ValueChanged<bool> onChanged;
+  final bool visualFeedback;
+  final bool? initialValue;
+
   @override
-  _BoolButtonState createState() => _BoolButtonState();
+  State<BoolButton> createState() => _BoolButtonState();
 }
 
 class _BoolButtonState extends State<BoolButton> {
-  late bool boolButtonState = widget.initialValue ?? false;
+  late bool _boolButtonState = widget.initialValue ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,26 +37,24 @@ class _BoolButtonState extends State<BoolButton> {
             splashFactory: NoSplash.splashFactory,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(color: Colors.grey, width: 1.0),
+              side: const BorderSide(color: Colors.grey, width: 1.0),
             ),
             foregroundColor: Theme.of(context).colorScheme.onSurface,
-            backgroundColor: (boolButtonState == false)
-                ? Colors.red
-                : Colors.green,
-            padding: EdgeInsets.all(16.0),
+            backgroundColor: _boolButtonState ? Colors.green : Colors.red,
+            padding: const EdgeInsets.all(16.0),
             minimumSize: Size(widget.width, widget.height),
           ),
           onPressed: () {
             setState(() {
-              boolButtonState = !boolButtonState;
+              _boolButtonState = !_boolButtonState;
             });
-            widget.onChanged(boolButtonState);
+            widget.onChanged(_boolButtonState);
           },
           child: Center(
             child: Text(
               widget.dataName,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,

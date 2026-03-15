@@ -1,20 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// width/height, The constraints for the widget in order to plug into the app (logic pixels)
-///buttons, the possible buttons that can be used to change the widget value by the value
-///backgroundColor, The background color, I know legitimately crazy
-///dataName, The Title text given for the widget to label the value
-///initialValue, the value it is initially saved as, important for match rotation
-///onChanged, the lambda for the app to access the value of the widget
 class BigNumberWidget extends StatefulWidget {
-  final double width;
-  final double height;
-  final List<int> buttons;
-  final Color? backgroundColor;
-  final String dataName;
-  final int? initialValue;
-  final Function(int)? onChanged;
-
   const BigNumberWidget({
     super.key,
     this.backgroundColor,
@@ -26,12 +12,20 @@ class BigNumberWidget extends StatefulWidget {
     required this.onChanged,
   });
 
+  final double width;
+  final double height;
+  final List<int> buttons;
+  final Color? backgroundColor;
+  final String dataName;
+  final int? initialValue;
+  final ValueChanged<int>? onChanged;
+
   @override
-  State<BigNumberWidget> createState() => _BigNumberWidget();
+  State<BigNumberWidget> createState() => _BigNumberWidgetState();
 }
 
-class _BigNumberWidget extends State<BigNumberWidget> {
-  late int currentValue = widget.initialValue ?? 0;
+class _BigNumberWidgetState extends State<BigNumberWidget> {
+  late int _currentValue = widget.initialValue ?? 0;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +51,7 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      "${widget.dataName}: $currentValue",
+                      '${widget.dataName}: $_currentValue',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
@@ -83,12 +77,12 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                     return ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          currentValue += value;
-                          if (currentValue <= 0) {
-                            currentValue = 0;
+                          _currentValue += value;
+                          if (_currentValue <= 0) {
+                            _currentValue = 0;
                           }
                         });
-                        widget.onChanged?.call(currentValue);
+                        widget.onChanged?.call(_currentValue);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -99,11 +93,14 @@ class _BigNumberWidget extends State<BigNumberWidget> {
                         ).colorScheme.onSurface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                          side: BorderSide(color: Colors.grey, width: 1.0),
+                          side: const BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
                         ),
                       ),
                       child: Text(
-                        value > 0 ? "+$value" : value.toString(),
+                        value > 0 ? '+$value' : value.toString(),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

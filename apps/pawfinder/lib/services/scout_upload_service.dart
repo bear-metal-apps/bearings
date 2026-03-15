@@ -1,115 +1,162 @@
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
-import 'package:services/providers/api_provider.dart';
 import 'package:pawfinder/data/local_data.dart';
-import 'package:pawfinder/data/match_json_gen.dart';
-import 'package:pawfinder/providers/match_config_provider.dart';
+import 'package:pawfinder/data/upload_queue.dart';
+import 'package:pawfinder/providers/scouting_providers.dart';
 import 'package:pawfinder/store/strat_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:services/providers/api_provider.dart';
 
 part 'scout_upload_service.g.dart';
 
 class ScoutUploadService {
   final Ref _ref;
   final HoneycombClient _client;
+  bool _draining = false;
 
   ScoutUploadService(this._ref, this._client);
 
-  // uploads the given identities and returns how many entries were actually sent.
-  // throws on network failure so the caller can restore the queue.
-  Future<int> upload(List<MatchIdentity> pending) async {
-    if (pending.isEmpty) return 0;
-
-    final entries = <Map<String, dynamic>>[];
-
-    // lazy-load match config only if we have any robot entries
-    final hasRobotEntries = pending.any((id) => !id.position.isStrategy);
-    final matchConfig = hasRobotEntries
-        ? await _ref.read(matchConfigProvider.future)
-        : null;
-
-    // split by event and do cross-check per event, so upsert stays correct
-    final byEvent = <String, List<MatchIdentity>>{};
-    for (final id in pending) {
-      byEvent.putIfAbsent(id.event.key, () => <MatchIdentity>[]).add(id);
+  Future<void> drainIfOnline() async {
+    if (_draining) return;
+    _draining = true;
+    try {
+      await _drain(_ref.read(uploadQueueProvider));
+    } catch (_) {
+      // keep queue intact; next drain retries
+    } finally {
+      _draining = false;
     }
+  }
 
-    for (final eventEntry in byEvent.entries) {
-      final eventKey = eventEntry.key;
-      final eventPending = eventEntry.value;
+  // uploads the provided queue ids and marks successful ids as uploaded.
+  // throws on network failure so callers can surface errors if needed.
+  Future<int> upload(List<String> pendingIds) async {
+    if (pendingIds.isEmpty) return 0;
+    return _drain(pendingIds);
+  }
 
-      // event-local lookup maps for existing docs
-      final matchDocIds = <String, String>{};
-      final stratDocIds = <String, String>{};
+  Future<int> _drain(List<String> pendingIds) async {
+    if (pendingIds.isEmpty) return 0;
 
-      try {
-        final existing = await _client.get<Map<String, dynamic>>(
-          '/scouting?event=${Uri.encodeComponent(eventKey)}',
-          cachePolicy: CachePolicy.networkFirst,
-        );
-        final docs = (existing['data'] as List?) ?? [];
-        for (final raw in docs) {
-          final doc = Map<String, dynamic>.from(raw as Map);
-          final id = doc['_id']?.toString() ?? '';
-          if (id.isEmpty) continue;
-          final data = doc['data'] is Map
-              ? Map<String, dynamic>.from(doc['data'] as Map)
-              : <String, dynamic>{};
-          final meta = data['meta'] is Map
-              ? Map<String, dynamic>.from(data['meta'] as Map)
-              : <String, dynamic>{};
-          final type = meta['type']?.toString();
-          if (type == 'match') {
-            final mn = data['matchNumber'];
-            final pos = data['pos'];
-            if (mn != null && pos != null) {
-              matchDocIds['${mn}_$pos'] = id;
-            }
-          } else if (type == 'strat') {
-            final mn = meta['matchNumber'];
-            final alliance = meta['alliance']?.toString();
-            if (mn != null && alliance != null) {
-              stratDocIds['${mn}_$alliance'] = id;
-            }
-          }
-        }
-      } catch (_) {
-        // no cross-check = no existingId tag, backend will create new docs for this event
+    final store = _ref.read(matchFormStoreProvider);
+    final entries = <Map<String, dynamic>>[];
+    final uploadedIds = <String>[];
+
+    for (final queueId in pendingIds) {
+      final matchDoc = store.loadById(queueId);
+      if (matchDoc != null) {
+        entries.add(matchDoc.toJson());
+        uploadedIds.add(matchDoc.id);
+        continue;
       }
 
-      for (final id in eventPending) {
-        if (id.position.isStrategy) {
-          final entry = _buildStratEntry(id);
-          if (entry == null) continue; // no strat data saved yet, skip
-          final key = '${id.matchNumber}_${id.position.allianceKey}';
-          final existingId = stratDocIds[key];
-          if (existingId != null && existingId.isNotEmpty) {
-            (entry['meta'] as Map<String, dynamic>)['existingId'] = existingId;
-          }
-          entries.add(entry);
-        } else {
-          final matchData = generateMatchJsonHive(matchConfig!, id);
-          final entry = matchData.toJson();
-          final key = '${id.matchNumber}_${id.position.posIndex}';
-          final existingId = matchDocIds[key];
-          if (existingId != null && existingId.isNotEmpty) {
-            (entry['meta'] as Map<String, dynamic>)['existingId'] = existingId;
-          }
-          entries.add(entry);
-        }
+      final stratEntry = _buildStratEntryFromQueueId(queueId);
+      if (stratEntry != null) {
+        entries.add(stratEntry);
+        uploadedIds.add(queueId);
       }
     }
 
     if (entries.isEmpty) return 0;
 
     await _client.post('/scout/ingest', data: {'entries': entries});
+    _ref.read(uploadQueueProvider.notifier).markUploaded(uploadedIds);
     return entries.length;
   }
 
+  String? _sessionScoutName() {
+    final name = _ref.read(scoutingSessionProvider).scout?.name.trim();
+    if (name == null || name.isEmpty) return null;
+    return name;
+  }
+
+  String _stratScoutedByHiveKey({
+    required String eventKey,
+    required int matchNumber,
+    required String alliance,
+  }) =>
+      '${_stratHiveKey(eventKey: eventKey, matchNumber: matchNumber, alliance: alliance)}_scoutedBy';
+
+  String _stratHiveKey({
+    required String eventKey,
+    required int matchNumber,
+    required String alliance,
+  }) => stratStorageKey(
+    eventKey: eventKey,
+    matchNumber: matchNumber,
+    alliance: alliance,
+  );
+
+  Map<String, dynamic>? _parseStratQueueMeta(String queueId) {
+    if (!queueId.startsWith(stratQueuePrefix)) return null;
+    final raw = queueId.substring(stratQueuePrefix.length);
+    final parts = raw.split(':');
+    if (parts.length == 3) {
+      final eventKey = parts[0].trim();
+      final matchNumber = int.tryParse(parts[1]);
+      final alliance = parts[2].trim();
+      if (eventKey.isEmpty || matchNumber == null || alliance.isEmpty) {
+        return null;
+      }
+
+      return {
+        'eventKey': eventKey,
+        'alliance': alliance,
+        'matchNumber': matchNumber,
+      };
+    }
+
+    // legacy queue ids were base64-encoded json payloads
+    try {
+      final decoded = Map<String, dynamic>.from(
+        jsonDecode(utf8.decode(base64Url.decode(raw))) as Map,
+      );
+      final eventKey = decoded['eventKey']?.toString();
+      final alliance = decoded['alliance']?.toString();
+      final matchNumber = (decoded['matchNumber'] as num?)?.toInt();
+      if (eventKey == null || alliance == null || matchNumber == null) {
+        return null;
+      }
+
+      return {
+        'eventKey': eventKey,
+        'alliance': alliance,
+        'matchNumber': matchNumber,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
   // reads strat state from hive and builds the server-facing json
-  Map<String, dynamic>? _buildStratEntry(MatchIdentity id) {
-    final raw = Hive.box(boxKey).get('STRAT_${identityDataKey(id)}');
+  Map<String, dynamic>? _buildStratEntryFromQueueId(String queueId) {
+    final meta = _parseStratQueueMeta(queueId);
+    if (meta == null) return null;
+
+    final eventKey = meta['eventKey']?.toString();
+    final alliance = meta['alliance']?.toString();
+    final matchNumber = (meta['matchNumber'] as num?)?.toInt();
+    if (eventKey == null || alliance == null || matchNumber == null) {
+      return null;
+    }
+
+    final event = _ref.read(scoutingSessionProvider).event;
+    final yearPrefix = eventKey.length >= 4
+        ? eventKey.substring(0, 4)
+        : eventKey;
+    final season =
+        (event?.key == eventKey ? event?.year : null) ??
+        int.tryParse(yearPrefix) ??
+        DateTime.now().year;
+
+    final hiveKey = _stratHiveKey(
+      eventKey: eventKey,
+      matchNumber: matchNumber,
+      alliance: alliance,
+    );
+
+    final raw = Hive.box(boxKey).get(hiveKey);
     if (raw is! String) return null;
 
     StratState strat;
@@ -119,16 +166,37 @@ class ScoutUploadService {
       return null;
     }
 
+    String? scoutedBy;
+    final stored = Hive.box(boxKey)
+        .get(
+          _stratScoutedByHiveKey(
+            eventKey: eventKey,
+            matchNumber: matchNumber,
+            alliance: alliance,
+          ),
+        )
+        ?.toString()
+        .trim();
+    if (stored != null && stored.isNotEmpty) {
+      scoutedBy = stored;
+    } else {
+      scoutedBy = _sessionScoutName();
+    }
+
+    final payloadMeta = {
+      'type': 'strat',
+      'season': season,
+      'version': 1,
+      'event': eventKey,
+      'matchNumber': matchNumber,
+      'alliance': alliance,
+    };
+    if (scoutedBy != null) {
+      payloadMeta['scoutedBy'] = scoutedBy;
+    }
+
     return {
-      'meta': {
-        'type': 'strat',
-        'season': id.event.year,
-        'version': 1,
-        'event': id.event.key,
-        'matchNumber': id.matchNumber,
-        'alliance': id.position.allianceKey,
-        'scoutedBy': id.scout.name,
-      },
+      'meta': payloadMeta,
       'driverSkillRanking': strat.driverSkill,
       'defensiveSkillRanking': strat.defensiveSkill,
       'defensiveSusceptibilityRanking': strat.defensiveSusceptibility,

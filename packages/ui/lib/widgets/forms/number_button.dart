@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
-// IMPORTANT: Font size automatically scales with screen size, but the text alignment and button size are fixed.
-// Number button widget that adds and substracts a numerical value.
 class NumberButton extends StatefulWidget {
-  final Color? backgroundColor;
-  final Alignment textAlignment;
-  final String dataName;
-  final Function(int)? onChanged;
-  final double width;
-  final double height;
-  final bool? negativeAllowed;
-  final int? initialValue;
-
   const NumberButton({
     super.key,
     this.initialValue,
@@ -25,12 +14,31 @@ class NumberButton extends StatefulWidget {
     this.textAlignment = Alignment.bottomRight,
   });
 
+  final Color? backgroundColor;
+  final Alignment textAlignment;
+  final String dataName;
+  final ValueChanged<int>? onChanged;
+  final double width;
+  final double height;
+  final bool? negativeAllowed;
+  final int? initialValue;
+
   @override
   State<NumberButton> createState() => _NumberButtonState();
 }
 
 class _NumberButtonState extends State<NumberButton> {
-  late int currentVariable = widget.initialValue ?? 0;
+  late int _currentVariable = widget.initialValue ?? 0;
+
+  bool get _isNegativeAllowed => widget.negativeAllowed ?? true;
+
+  @override
+  void didUpdateWidget(covariant NumberButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      _currentVariable = widget.initialValue ?? 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +49,10 @@ class _NumberButtonState extends State<NumberButton> {
         child: ElevatedButton(
           onPressed: () {
             setState(() {
-              currentVariable++;
+              _currentVariable++;
             });
 
-            widget.onChanged?.call(currentVariable);
+            widget.onChanged?.call(_currentVariable);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor:
@@ -52,7 +60,7 @@ class _NumberButtonState extends State<NumberButton> {
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(color: Colors.grey, width: 1.0),
+              side: const BorderSide(color: Colors.grey, width: 1.0),
             ),
           ),
           child: Column(
@@ -61,7 +69,7 @@ class _NumberButtonState extends State<NumberButton> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '${widget.dataName}: $currentVariable',
+                '${widget.dataName}: $_currentVariable',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -82,7 +90,7 @@ class _NumberButtonState extends State<NumberButton> {
                     iconSize: 24,
                     style: IconButton.styleFrom(
                       padding: EdgeInsets.zero,
-                      minimumSize: Size(56, 36),
+                      minimumSize: const Size(56, 36),
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -92,18 +100,15 @@ class _NumberButtonState extends State<NumberButton> {
                     ),
                     onPressed: () {
                       setState(() {
-                        if (widget.negativeAllowed == null) {
-                          widget.negativeAllowed == true;
-                        }
-                        if (widget.negativeAllowed == true) {
-                          currentVariable--;
+                        if (_isNegativeAllowed) {
+                          _currentVariable--;
                         } else {
-                          if (currentVariable > 0) {
-                            currentVariable--;
+                          if (_currentVariable > 0) {
+                            _currentVariable--;
                           }
                         }
                       });
-                      widget.onChanged?.call(currentVariable);
+                      widget.onChanged?.call(_currentVariable);
                     },
                   ),
                 ),

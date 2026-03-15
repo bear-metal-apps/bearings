@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pawfinder/custom_widgets/upload_button.dart';
+import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/pages/flow/about_page.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:pawfinder/services/scout_sync_service.dart';
 
 class ConfigPage extends ConsumerStatefulWidget {
   const ConfigPage({super.key});
@@ -61,7 +62,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
         title: const Text('Select Comp and Position'),
         actionsPadding: EdgeInsets.only(right: 8),
         actions: [
-          UploadButton(),
+          const UploadStatusIndicator(),
           const SizedBox(width: 5),
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -128,25 +129,39 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                 const SizedBox(height: 8),
                 eventsAsync.when(
                   data: (events) {
-                    final inList =
-                        _selectedEvent != null &&
-                        events.where((e) => e == _selectedEvent).length == 1;
+                    // Ensure displayEvents has unique event keys and, if we
+                    // need to include a custom/previously-selected event,
+                    // prepend it only once. This prevents multiple
+                    // DropdownMenuItems from comparing equal and tripping the
+                    // Dropdown assertion.
+                    final combined = (_selectedEvent != null &&
+                        !events.any((e) => e.key == _selectedEvent!.key))
+                        ? [_selectedEvent!, ...events]
+                        : events;
 
-                    final displayEvents = (inList || _selectedEvent == null)
-                        ? events
-                        : [_selectedEvent!, ...events];
+                    final displayEvents = <ScoutingEvent>[];
+                    final seenKeys = <String>{};
+                    for (final e in combined) {
+                      if (seenKeys.add(e.key)) displayEvents.add(e);
+                    }
+
+                    // Pick the instance from displayEvents that matches the
+                    // selected event by key so the Dropdown has exactly one
+                    // matching item instance.
+                    ScoutingEvent? initialValue;
+                    if (_selectedEvent != null) {
+                      try {
+                        initialValue = displayEvents
+                            .firstWhere((e) => e.key == _selectedEvent!.key);
+                      } catch (_) {
+                        initialValue = null;
+                      }
+                    }
 
                     return DropdownButtonFormField<ScoutingEvent>(
-                          initialValue:
-                              _selectedEvent != null &&
-                                  displayEvents
-                                          .where((e) => e == _selectedEvent)
-                                          .length ==
-                                      1
-                              ? _selectedEvent
-                              : null,
-                          padding: EdgeInsets.all(4),
-                          decoration: InputDecoration(
+                      initialValue: initialValue,
+                      padding: EdgeInsets.all(4),
+                      decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
                               borderSide: BorderSide(
@@ -421,10 +436,11 @@ class _ScheduleDownloadTileState extends ConsumerState<_ScheduleDownloadTile> {
     try {
       ref.invalidate(matchesProvider(widget.eventKey));
       await ref.read(matchesProvider(widget.eventKey).future);
+      await ref.read(scoutSyncServiceProvider).syncDownEvent(widget.eventKey);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Schedule downloaded'),
+            content: Text('Schedule refreshed and scouting synced'),
             duration: Duration(seconds: 2),
           ),
         );
