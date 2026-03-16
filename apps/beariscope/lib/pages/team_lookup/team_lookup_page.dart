@@ -41,7 +41,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
       AsyncData(:final value) => value,
       _ => const <int, TeamRanking>{},
     };
-    bool isAscending = true;
+    bool isAscending = ref.read(teamSortProvider.notifier).getIsAscending();
 
     Future<void> onRefresh() async {
       final client = ref.read(honeycombClientProvider);
@@ -76,28 +76,28 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           ),
           leading: const Icon(Symbols.search_rounded),
           trailing: [
-            PopupMenuButton<TeamSort>(
+            PopupMenuButton<TeamSortOptions>(
               icon: Icon(Symbols.sort_rounded),
               tooltip: 'Sort',
-              itemBuilder: (context) => TeamSort.values
+              itemBuilder: (context) => TeamSortOptions.values
                   .map(
-                    (sort) => CheckedPopupMenuItem<TeamSort>(
+                    (sort) => CheckedPopupMenuItem<TeamSortOptions>(
                       value: sort,
-                      checked: selectedSort == sort,
+                      checked: selectedSort.sort == sort,
                       child: Row(
                         children: [
                           Text(sort.label),
-                          Icon(isAscending? Icons.arrow_drop_up: Icons.arrow_drop_down)
+                          if(selectedSort.sort == sort) Icon(isAscending? Icons.arrow_drop_up: Icons.arrow_drop_down)
                         ],
                       ),
                     ),
                   )
                   .toList(),
-              onSelected: (TeamSort newSort) {
+              onSelected: (TeamSortOptions newSort) {
                 if(ref.read(teamSortProvider.notifier).getSort() == newSort){
                   isAscending = !isAscending;
                 }
-                ref.read(teamSortProvider.notifier).setSort(newSort);
+                ref.read(teamSortProvider.notifier).setSort(newSort, isAscending);
               },
             ),
           ],
@@ -133,14 +133,14 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 
           // Apply sort
           filteredTeams = List.of(filteredTeams);
-          switch (selectedSort) {
-            case TeamSort.teamNumber:
+          switch (selectedSort.sort) {
+            case TeamSortOptions.teamNumber:
               if(isAscending){
                 filteredTeams.sort((a, b) => a.number.compareTo(b.number));
               }else{
                 filteredTeams.sort((a, b) => b.number.compareTo(a.number));
               }
-            case TeamSort.rank:
+            case TeamSortOptions.rank:
               if(isAscending){
                 filteredTeams.sort((a, b) {
                   // Teams without a rank go to the end
@@ -155,29 +155,27 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                   return rankB.compareTo(rankA);
                 });
               }
-            case TeamSort.custom:
-              if(isAscending){
-                filteredTeams.sort((a, b) {
-                  // Teams without a rank go to the end
-                  final rankA = ref.watch(teamScoutingProvider(a.number)).when(
-                      data: (bundle) => bundle.avgMatchField(kSectionTele, kTeleFuelScored),
-                      error: (_, _) => 0,
-                      loading: () => 0,
-                  );
-                  final rankB = ref.watch(teamScoutingProvider(b.number)).when(
-                    data: (bundle) => bundle.avgMatchField(kSectionTele, kTeleFuelScored),
-                    error: (_, _) => 0,
-                    loading: () => 0,
-                  );
+            case TeamSortOptions.custom:
+              filteredTeams.sort((a, b) {
+                // Teams without a rank go to the end
+                final rankA = ref.watch(teamScoutingProvider(a.number)).when(
+                  data: (bundle) =>
+                      bundle.avgMatchField(kSectionTele, kTeleFuelScored),
+                  error: (_, _) => 0,
+                  loading: () => 0,
+                );
+                final rankB = ref.watch(teamScoutingProvider(b.number)).when(
+                  data: (bundle) =>
+                      bundle.avgMatchField(kSectionTele, kTeleFuelScored),
+                  error: (_, _) => 0,
+                  loading: () => 0,
+                );
+                if (isAscending) {
+                  return rankA.compareTo(rankB);
+                } else {
                   return rankB.compareTo(rankA);
-                });
-              }else{
-                filteredTeams.sort((a, b) {
-                  final rankA = rankings[a.number]?.rank ?? 0;
-                  final rankB = rankings[b.number]?.rank ?? 0;
-                  return rankB.compareTo(rankA);
-                });
-              }
+                }
+              });
           }
 
           if (filteredTeams.isEmpty) {
