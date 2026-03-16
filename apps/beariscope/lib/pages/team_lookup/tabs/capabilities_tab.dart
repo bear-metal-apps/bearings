@@ -316,11 +316,11 @@ class _CapabilitiesBody extends StatelessWidget {
       rows: [
         ScoutingDataRow(label: 'Mechanism', value: climbMethod),
         ScoutingDataRow(
-          label: 'Claimed Levels',
+          label: 'Climb Levels',
           value: _joinedOrDash(climbLevels),
         ),
         ScoutingDataRow(
-          label: 'Claimed Consistency',
+          label: 'Climb Consistency',
           value: climbConsistency != null
               ? '${climbConsistency.toStringAsFixed(1)} / 10'
               : '—',

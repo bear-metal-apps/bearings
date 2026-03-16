@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:beariscope/models/match_field_ids.dart';
+import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
@@ -14,7 +15,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../providers/strat_z_score_provider.dart';
 
 class TeamCard extends ConsumerWidget {
   final String teamKey;
@@ -146,13 +150,15 @@ class _TeamCardSummary extends ConsumerWidget {
           ),
           const Spacer(),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            // crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 child: bundleAsync.when(
                   loading: () => const SizedBox.shrink(),
                   error: (_, _) => const SizedBox.shrink(),
-                  data: (bundle) => _SummaryMetrics(bundle: bundle),
+                  data: (bundle) => _SummaryMetrics(
+                      bundle: bundle, stratZScores: null,
+                  ),
                 ),
               ),
               if (ranking != null)
@@ -168,25 +174,72 @@ class _TeamCardSummary extends ConsumerWidget {
   }
 }
 
-class _SummaryMetrics extends StatelessWidget {
+class _SummaryMetrics extends ConsumerWidget {
   final TeamScoutingBundle bundle;
+  final StratZScoreData? stratZScores;
 
-  const _SummaryMetrics({required this.bundle});
+  const _SummaryMetrics({
+    required this.bundle,
+    required this.stratZScores
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final playingStyles = bundle.getPitsListField('playingStyle');
     final primaryRole = playingStyles.isNotEmpty ? playingStyles.first : null;
-    final trenchCapable =
-        bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
+    final trenchCapable = bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
+    final climbCapable = bundle.getPitsField<String>('climbLevel');
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
+    final avgAccuracy = (bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy) + bundle.avgMatchField(kSectionAuto, kAutoFuelAccuracy))/2;
     final hasMatch = bundle.hasMatchData;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ListView(
+        //   children: [
+        //     ListTile(
+        //       leading: Icon(Icons.directions_car),
+        //       title: Text("Driver Skill"),
+        //       trailing: Text("work"),
+        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.driverSkillZ[2046]) ? "null"),
+        //     ),
+        //
+        //     ListTile(
+        //       leading: Icon(Icons.fence),
+        //       title: Text("Defensive Skill"),
+        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.defensiveSkillZ[2046])),
+        //     ),
+        //
+        //     ListTile(
+        //       leading: Icon(Icons.shield),
+        //       title: Text("Defensive Susceptibility"),
+        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.defensiveSusceptibilityZ[2046])),
+        //     ),
+        //
+        //     ListTile(
+        //       leading: Icon(Icons.architecture),
+        //       title: Text("Mech. Stability"),
+        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[2046])),
+        //     ),
+        //   ],
+        // ),
+        // SfCartesianChart(
+        //   primaryXAxis: NumericAxis(
+        //     maximum: bundle.matchDocs.length.toDouble(),
+        //   ),
+        //   primaryYAxis: NumericAxis(),
+        //   series: <CartesianSeries>[
+        //     // Renders line chart
+        //     LineSeries<TeamScoutingBundle, DateTime>(
+        //         dataSource: bundle.matchDocs[].data[],
+        //         xValueMapper: (, _) => ,
+        //         yValueMapper: (SalesData sales, _) => sales.sales
+        //     )
+        //   ],
+        // ),
         // Role chip + trench status
         if (bundle.hasPitsData) ...[
           Wrap(
@@ -227,6 +280,24 @@ class _SummaryMetrics extends StatelessWidget {
                     );
                   },
                 ),
+              if (climbCapable != null)
+                Builder(
+                  builder: (context) {
+                    final color = Theme.of(context).colorScheme.secondary;
+                    return Chip(
+                      avatar: Icon(Icons.stairs, size: 14, color: color),
+                      label: Text(
+                        'Climb $climbCapable',
+                        style: TextStyle(fontSize: 12, color: color),
+                      ),
+                      backgroundColor: color.withValues(alpha: 0.12),
+                      side: BorderSide(color: color.withValues(alpha: 0.4)),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    );
+                  },
+                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -251,6 +322,13 @@ class _SummaryMetrics extends StatelessWidget {
                 context,
                 label: 'Total',
                 value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
+                highlight: true,
+              ),
+              const SizedBox(width: 8),
+              _statPill(
+                context,
+                label: 'Accuracy',
+                value: '${(avgAccuracy).toStringAsFixed(1)}%',
                 highlight: true,
               ),
             ],
