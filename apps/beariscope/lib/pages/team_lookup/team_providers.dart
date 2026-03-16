@@ -2,22 +2,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 
-enum TeamSort { teamNumberAsc, teamNumberDesc, rankAsc, rankDesc }
+enum TeamSort {
+  teamNumber,
+  rank,
+  custom
+}
 
 extension TeamSortLabel on TeamSort {
   String get label => switch (this) {
-    TeamSort.teamNumberAsc => 'Team # (asc)',
-    TeamSort.teamNumberDesc => 'Team # (desc)',
-    TeamSort.rankAsc => 'Rank (asc)',
-    TeamSort.rankDesc => 'Rank (desc)',
+    TeamSort.teamNumber => 'Team #',
+    TeamSort.rank => 'Rank',
+    TeamSort.custom => 'Rank By'
   };
 }
 
 class TeamSortNotifier extends Notifier<TeamSort> {
   @override
-  TeamSort build() => TeamSort.teamNumberAsc;
+  TeamSort build() => TeamSort.teamNumber;
 
   void setSort(TeamSort sort) => state = sort;
+  TeamSort getSort() => state;
 }
 
 final teamSortProvider = NotifierProvider<TeamSortNotifier, TeamSort>(

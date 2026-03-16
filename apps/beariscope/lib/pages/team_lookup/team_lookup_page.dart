@@ -1,7 +1,9 @@
+import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -9,6 +11,8 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
+
+import '../../providers/team_scouting_provider.dart';
 
 class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
@@ -37,6 +41,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
       AsyncData(:final value) => value,
       _ => const <int, TeamRanking>{},
     };
+    bool isAscending = true;
 
     Future<void> onRefresh() async {
       final client = ref.read(honeycombClientProvider);
@@ -79,11 +84,19 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                     (sort) => CheckedPopupMenuItem<TeamSort>(
                       value: sort,
                       checked: selectedSort == sort,
-                      child: Text(sort.label),
+                      child: Row(
+                        children: [
+                          Text(sort.label),
+                          Icon(isAscending? Icons.arrow_drop_up: Icons.arrow_drop_down)
+                        ],
+                      ),
                     ),
                   )
                   .toList(),
               onSelected: (TeamSort newSort) {
+                if(ref.read(teamSortProvider.notifier).getSort() == newSort){
+                  isAscending = !isAscending;
+                }
                 ref.read(teamSortProvider.notifier).setSort(newSort);
               },
             ),
@@ -121,23 +134,50 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           // Apply sort
           filteredTeams = List.of(filteredTeams);
           switch (selectedSort) {
-            case TeamSort.teamNumberAsc:
-              filteredTeams.sort((a, b) => a.number.compareTo(b.number));
-            case TeamSort.teamNumberDesc:
-              filteredTeams.sort((a, b) => b.number.compareTo(a.number));
-            case TeamSort.rankAsc:
-              filteredTeams.sort((a, b) {
-                // Teams without a rank go to the end
-                final rankA = rankings[a.number]?.rank ?? 999999;
-                final rankB = rankings[b.number]?.rank ?? 999999;
-                return rankA.compareTo(rankB);
-              });
-            case TeamSort.rankDesc:
-              filteredTeams.sort((a, b) {
-                final rankA = rankings[a.number]?.rank ?? 0;
-                final rankB = rankings[b.number]?.rank ?? 0;
-                return rankB.compareTo(rankA);
-              });
+            case TeamSort.teamNumber:
+              if(isAscending){
+                filteredTeams.sort((a, b) => a.number.compareTo(b.number));
+              }else{
+                filteredTeams.sort((a, b) => b.number.compareTo(a.number));
+              }
+            case TeamSort.rank:
+              if(isAscending){
+                filteredTeams.sort((a, b) {
+                  // Teams without a rank go to the end
+                  final rankA = rankings[a.number]?.rank ?? 999999;
+                  final rankB = rankings[b.number]?.rank ?? 999999;
+                  return rankA.compareTo(rankB);
+                });
+              }else{
+                filteredTeams.sort((a, b) {
+                  final rankA = rankings[a.number]?.rank ?? 0;
+                  final rankB = rankings[b.number]?.rank ?? 0;
+                  return rankB.compareTo(rankA);
+                });
+              }
+            case TeamSort.custom:
+              if(isAscending){
+                filteredTeams.sort((a, b) {
+                  // Teams without a rank go to the end
+                  final rankA = ref.watch(teamScoutingProvider(a.number)).when(
+                      data: (bundle) => bundle.avgMatchField(kSectionTele, kTeleFuelScored),
+                      error: (_, _) => 0,
+                      loading: () => 0,
+                  );
+                  final rankB = ref.watch(teamScoutingProvider(b.number)).when(
+                    data: (bundle) => bundle.avgMatchField(kSectionTele, kTeleFuelScored),
+                    error: (_, _) => 0,
+                    loading: () => 0,
+                  );
+                  return rankB.compareTo(rankA);
+                });
+              }else{
+                filteredTeams.sort((a, b) {
+                  final rankA = rankings[a.number]?.rank ?? 0;
+                  final rankB = rankings[b.number]?.rank ?? 0;
+                  return rankB.compareTo(rankA);
+                });
+              }
           }
 
           if (filteredTeams.isEmpty) {
