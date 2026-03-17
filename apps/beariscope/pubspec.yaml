@@ -44,6 +44,7 @@ dependencies:
   intl: ^0.20.2
   mime: ^2.0.0
   internet_connection_checker_plus: ^2.9.1+2
+  audioplayers: ^6.6.0
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +60,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/sounds/
   fonts:
     - family: Xolonium
       fonts:
