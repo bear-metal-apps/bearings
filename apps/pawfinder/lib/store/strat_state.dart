@@ -28,7 +28,7 @@ class StratState {
     required this.mechanicalStability,
     required this.defenseActivityLevel,
     required this.autoHumanPlayerScore,
-    required this.teleHumanPlayerScore
+    required this.teleHumanPlayerScore,
   });
 
   // empty state for a match that hasn't been filled in yet
@@ -48,7 +48,7 @@ class StratState {
     List<String>? mechanicalStability,
     double? defenseActivityLevel,
     int? autoHumanPlayerScore,
-    int? teleHumanPlayerScore
+    int? teleHumanPlayerScore,
   }) => StratState(
     driverSkill: driverSkill ?? this.driverSkill,
     defensiveSkill: defensiveSkill ?? this.defensiveSkill,
@@ -57,7 +57,7 @@ class StratState {
     mechanicalStability: mechanicalStability ?? this.mechanicalStability,
     defenseActivityLevel: defenseActivityLevel ?? this.defenseActivityLevel,
     autoHumanPlayerScore: autoHumanPlayerScore ?? this.autoHumanPlayerScore,
-    teleHumanPlayerScore: teleHumanPlayerScore ?? this.teleHumanPlayerScore
+    teleHumanPlayerScore: teleHumanPlayerScore ?? this.teleHumanPlayerScore,
   );
 
   Map<String, dynamic> toJson() => {
@@ -67,7 +67,7 @@ class StratState {
     'mechanicalStability': mechanicalStability,
     'defenseActivityLevel': defenseActivityLevel,
     'autoHumanPlayerScore': autoHumanPlayerScore,
-    'teleHumanPlayerScore': teleHumanPlayerScore
+    'teleHumanPlayerScore': teleHumanPlayerScore,
   };
 
   factory StratState.fromJson(Map<String, dynamic> json) => StratState(
@@ -80,7 +80,7 @@ class StratState {
     defenseActivityLevel:
         (json['defenseActivityLevel'] as num?)?.toDouble() ?? 0.0,
     autoHumanPlayerScore: (json['autoHumanPlayerScore'] as num?)?.toInt() ?? 0,
-    teleHumanPlayerScore: (json['teleHumanPlayerScore'] as num?)?.toInt() ?? 0
+    teleHumanPlayerScore: (json['teleHumanPlayerScore'] as num?)?.toInt() ?? 0,
   );
 }
 
@@ -157,24 +157,32 @@ class StratStateNotifier extends _$StratStateNotifier {
   }
 
   void incrementAutoHumanPlayer() {
-    state = state.copyWith(autoHumanPlayerScore: state.autoHumanPlayerScore + 1);
+    state = state.copyWith(
+      autoHumanPlayerScore: state.autoHumanPlayerScore + 1,
+    );
     _save();
   }
 
   void decrementAutoHumanPlayer() {
     if (state.autoHumanPlayerScore <= 0) return;
-    state = state.copyWith(autoHumanPlayerScore: state.autoHumanPlayerScore - 1);
+    state = state.copyWith(
+      autoHumanPlayerScore: state.autoHumanPlayerScore - 1,
+    );
     _save();
   }
 
   void incrementTeleHumanPlayer() {
-    state = state.copyWith(teleHumanPlayerScore: state.teleHumanPlayerScore + 1);
+    state = state.copyWith(
+      teleHumanPlayerScore: state.teleHumanPlayerScore + 1,
+    );
     _save();
   }
 
   void decrementTeleHumanPlayer() {
     if (state.teleHumanPlayerScore <= 0) return;
-    state = state.copyWith(teleHumanPlayerScore: state.teleHumanPlayerScore - 1);
+    state = state.copyWith(
+      teleHumanPlayerScore: state.teleHumanPlayerScore - 1,
+    );
     _save();
   }
 }
