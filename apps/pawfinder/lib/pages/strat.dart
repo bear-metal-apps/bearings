@@ -121,7 +121,7 @@ class _StratPageState extends ConsumerState<StratPage> {
             ),
 
             ElevatedButton(
-              onPressed: notifier.incrementHumanPlayer,
+              onPressed: notifier.incrementAutoHumanPlayer,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
@@ -136,7 +136,7 @@ class _StratPageState extends ConsumerState<StratPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Human Player: ${strat.humanPlayerScore}',
+                    'Auto Human Player: ${strat.autoHumanPlayerScore}',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
@@ -156,7 +156,51 @@ class _StratPageState extends ConsumerState<StratPage> {
                           Icons.remove,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
-                        onPressed: notifier.decrementHumanPlayer,
+                        onPressed: notifier.decrementAutoHumanPlayer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: notifier.incrementTeleHumanPlayer,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  side: BorderSide(color: Colors.white, width: 1.0),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Tele Human Player: ${strat.teleHumanPlayerScore}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Container(
+                      width: 56,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(
+                          Icons.remove,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        onPressed: notifier.decrementTeleHumanPlayer,
                       ),
                     ),
                   ),

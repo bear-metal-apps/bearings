@@ -172,7 +172,7 @@ class StratStateNotifier extends _$StratStateNotifier {
     _save();
   }
 
-  void decrementHumanPlayer() {
+  void decrementTeleHumanPlayer() {
     if (state.teleHumanPlayerScore <= 0) return;
     state = state.copyWith(teleHumanPlayerScore: state.teleHumanPlayerScore - 1);
     _save();
