@@ -22,7 +22,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
-    final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
 
