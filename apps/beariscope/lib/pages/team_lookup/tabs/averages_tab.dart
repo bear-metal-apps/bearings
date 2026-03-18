@@ -161,9 +161,6 @@ class _AveragesBodyState extends State<_AveragesBody> {
       }
     }
 
-
-
-
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [

@@ -41,11 +41,7 @@ class UpNextPage extends ConsumerWidget {
                   icon: const Icon(Symbols.menu_rounded),
                   onPressed: controller.openDrawer,
                 ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Current')
-            ],
-          ),
+          bottom: const TabBar(tabs: [Tab(text: 'Current')]),
         ),
         body: scheduleAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),

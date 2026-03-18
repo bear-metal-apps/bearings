@@ -21,7 +21,12 @@ class TeamCard extends ConsumerWidget {
   final double? height;
   final Color? allianceColor;
 
-  const TeamCard({super.key, required this.teamKey, this.height, this.allianceColor});
+  const TeamCard({
+    super.key,
+    required this.teamKey,
+    this.height,
+    this.allianceColor,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,10 +85,10 @@ class TeamCard extends ConsumerWidget {
               child: DecoratedBox(
                 decoration: allianceColor != null
                     ? BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: allianceColor!, width: 4),
-                  ),
-                )
+                        border: Border(
+                          left: BorderSide(color: allianceColor!, width: 4),
+                        ),
+                      )
                     : const BoxDecoration(),
                 child: _TeamCardSummary(team: resolvedTeam),
               ),
