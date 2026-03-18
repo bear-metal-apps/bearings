@@ -347,17 +347,17 @@ class _DriveTeamMatchPreviewPageState
                               blueTeams,
                               '2046',
                             );
-                            final allianceTeams = is2046OnRed
-                                ? redTeams
-                                : is2046OnBlue
-                                ? blueTeams
-                                : const <String>[];
+                            final allianceTeams = [
+                              redTeams[0],
+                              redTeams[1],
+                              redTeams[2],
+                              blueTeams[0],
+                              blueTeams[1],
+                              blueTeams[2],
+                            ];
                             final memberKeys = allianceTeams
                                 .where((k) => teamNumberFromKey(k) != '2046')
                                 .toList();
-                            final allianceLabel = is2046OnRed
-                                ? 'Red Alliance'
-                                : 'Blue Alliance';
                             showModalBottomSheet(
                               context: context,
                               showDragHandle: true,
@@ -366,7 +366,8 @@ class _DriveTeamMatchPreviewPageState
                               builder: (context) => _DriveTeamNotesSheet(
                                 matchKey: widget.matchKey,
                                 allianceMemberTeamKeys: memberKeys,
-                                allianceLabel: allianceLabel,
+                                is2046OnRed: is2046OnRed,
+                                is2046OnBlue: is2046OnBlue,
                               ),
                             );
                           },
@@ -427,12 +428,14 @@ class _DriveTeamMatchPreviewPageState
 class _DriveTeamNotesSheet extends ConsumerStatefulWidget {
   final String matchKey;
   final List<String> allianceMemberTeamKeys;
-  final String allianceLabel;
+  final bool is2046OnRed;
+  final bool is2046OnBlue;
 
   const _DriveTeamNotesSheet({
     required this.matchKey,
     required this.allianceMemberTeamKeys,
-    required this.allianceLabel,
+    required this.is2046OnRed,
+    required this.is2046OnBlue,
   });
 
   @override
@@ -447,6 +450,8 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
 
   bool _initialized = false;
   bool _isSaving = false;
+
+  int _iterNumber = 0;
 
   @override
   void dispose() {
@@ -515,6 +520,8 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
         await ref.read(scoutingDataProvider.notifier).refresh();
       }
 
+      _iterNumber = 0;
+
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
@@ -523,6 +530,21 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
           context,
         ).showSnackBar(SnackBar(content: Text('Failed to save notes: $e')));
       }
+    }
+  }
+
+  Widget blueAllianceLocation(
+    bool is2046onRed,
+    bool is2046onBlue,
+    TextStyle style,
+  ) {
+    _iterNumber++;
+    if (is2046onRed && _iterNumber == 3) {
+      return Text('Blue Alliance', style: style);
+    } else if (is2046onBlue && _iterNumber == 4) {
+      return Text('Blue Alliance', style: style);
+    } else {
+      return SizedBox();
     }
   }
 
@@ -560,7 +582,7 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.allianceLabel,
+                  'Red Alliance',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -568,6 +590,18 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
                 ),
                 const SizedBox(height: 8),
                 for (final teamKey in widget.allianceMemberTeamKeys) ...[
+                  Builder(
+                    builder: (context) {
+                      return blueAllianceLocation(
+                        widget.is2046OnRed,
+                        widget.is2046OnBlue,
+                        theme.textTheme.titleMedium!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      );
+                    },
+                  ),
                   Builder(
                     builder: (context) {
                       final teamNumber = teamKey.replaceFirst(
