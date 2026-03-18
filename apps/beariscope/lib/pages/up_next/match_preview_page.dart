@@ -245,9 +245,17 @@ class _DriveTeamMatchPreviewPageState
                           },
                           decorator: DotsDecorator(
                             activeColor: Theme.of(context).colorScheme.primary,
-                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            colors: cards.map((c) => (c['color'] as Color).withOpacity(0.4)).toList(),
-                            activeColors: cards.map((c) => c['color'] as Color).toList(),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            colors: cards
+                                .map(
+                                  (c) => (c['color'] as Color).withOpacity(0.4),
+                                )
+                                .toList(),
+                            activeColors: cards
+                                .map((c) => c['color'] as Color)
+                                .toList(),
                             spacing: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 8,

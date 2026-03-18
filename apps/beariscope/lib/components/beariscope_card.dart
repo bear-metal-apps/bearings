@@ -46,7 +46,6 @@ class BeariscopeCard extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
 
-
   const BeariscopeCard({
     super.key,
     required this.title,

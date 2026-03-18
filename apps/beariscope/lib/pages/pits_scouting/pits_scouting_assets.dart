@@ -26,7 +26,6 @@ class PitsScoutingTeamCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return BeariscopeCard(
       title: teamName,
       subtitle: '$teamNumber',
