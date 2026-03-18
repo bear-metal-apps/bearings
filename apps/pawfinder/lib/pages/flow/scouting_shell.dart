@@ -92,12 +92,18 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
-            onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
+            onPressed: () {
+              ref.read(scoutingFlowControllerProvider).previousMatch();
+              context.go('/match/auto');
+            },
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
             tooltip: 'Next Match',
-            onPressed: () => flow.nextMatch(),
+            onPressed: () {
+              ref.read(scoutingFlowControllerProvider).nextMatch();
+              context.go('/match/auto');
+            },
           ),
         ],
       ),
