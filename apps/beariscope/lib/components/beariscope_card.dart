@@ -42,12 +42,15 @@ class BeariscopeCard extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Widget? trailing;
+  final Color? color;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
+
 
   const BeariscopeCard({
     super.key,
     required this.title,
+    this.color,
     this.subtitle,
     this.trailing,
     this.onTap,

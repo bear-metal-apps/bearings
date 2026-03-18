@@ -132,8 +132,37 @@ class _AveragesBodyState extends State<_AveragesBody> {
       kTeleStoppedWorking,
       (v) => v == true,
     );
-    final mostCommonPlayStyle =
-        bundle.modalMatchField(kSectionEndgame, kEndPlayStyle) ?? '—';
+
+    const playStyleOptions = ['Passing', 'Cycling', 'Shooting', 'Defense'];
+    final rawPlayStyle = bundle.modalMatchField(kSectionEndgame, kEndPlayStyle);
+
+    String mostCommonPlayStyle = '—';
+
+    if (rawPlayStyle != null) {
+      final input = rawPlayStyle.toString();
+
+      // extract all individual number using a Regex
+      final matches = RegExp(r'\d+').allMatches(input);
+
+      if (matches.isNotEmpty) {
+        // map each number found to its corresponding option string
+        final selectedNames = matches.map((m) {
+          final index = int.parse(m.group(0)!);
+          return (index >= 0 && index < playStyleOptions.length)
+              ? playStyleOptions[index]
+              : 'Unknown';
+        }).toList();
+
+        // join them with commas
+        mostCommonPlayStyle = selectedNames.join(', ');
+      } else {
+        // fallback if no digits were found but string isn't empty
+        mostCommonPlayStyle = input.isEmpty ? '—' : input;
+      }
+    }
+
+
+
 
     return ListView(
       padding: const EdgeInsets.all(16),

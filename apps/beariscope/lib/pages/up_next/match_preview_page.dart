@@ -104,17 +104,19 @@ class _DriveTeamMatchPreviewPageState
         final cards = [
           ...redTeams.map((teamKey) {
             final number = teamNumberFromKey(teamKey);
-            if (number.isEmpty) {
-              return [teamKey, teamKey];
-            }
-            return ['Team $number', number];
+            return {
+              'display': number.isEmpty ? teamKey : 'Team $number',
+              'number': number,
+              'color': Colors.red, // Assign red color here
+            };
           }),
           ...blueTeams.map((teamKey) {
             final number = teamNumberFromKey(teamKey);
-            if (number.isEmpty) {
-              return [teamKey, teamKey];
-            }
-            return ['Team $number', number];
+            return {
+              'display': number.isEmpty ? teamKey : 'Team $number',
+              'number': number,
+              'color': Colors.blue, // Assign blue color here
+            };
           }),
         ];
         final compLevel = match['comp_level']?.toString() ?? '';
@@ -217,7 +219,10 @@ class _DriveTeamMatchPreviewPageState
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: TeamCard(teamKey: cards[index][1]),
+                            child: TeamCard(
+                              teamKey: cards[index]['number'] as String,
+                              allianceColor: cards[index]['color'] as Color,
+                            ),
                           );
                         },
                       ),
@@ -240,9 +245,9 @@ class _DriveTeamMatchPreviewPageState
                           },
                           decorator: DotsDecorator(
                             activeColor: Theme.of(context).colorScheme.primary,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            colors: cards.map((c) => (c['color'] as Color).withOpacity(0.4)).toList(),
+                            activeColors: cards.map((c) => c['color'] as Color).toList(),
                             spacing: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 8,

@@ -18,7 +18,9 @@ class UpNextMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return BeariscopeCard(
+
       title: displayName,
       subtitle: time,
       onTap: () => context.push('/up_next/$matchKey'),
