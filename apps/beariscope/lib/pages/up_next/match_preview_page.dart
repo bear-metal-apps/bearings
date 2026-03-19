@@ -83,13 +83,7 @@ class _DriveTeamMatchPreviewPageState
           return teamKey.replaceFirst(RegExp('^frc'), '');
         }
 
-        bool containsTeam(List<String> teamKeys, String teamNumber) {
-          return teamKeys.any(
-            (teamKey) => teamNumberFromKey(teamKey) == teamNumber,
-          );
-        }
-
-        void _handleAction(
+        void handleAction(
           BuildContext context,
           _TeamAction action,
           String key,
@@ -136,17 +130,15 @@ class _DriveTeamMatchPreviewPageState
         final cards = [
           ...redTeams.map((teamKey) {
             final number = teamNumberFromKey(teamKey);
-            if (number.isEmpty) {
-              return [teamKey, teamKey];
-            }
-            return ['Team $number', number];
+            return number.isEmpty
+                ? [teamKey, teamKey]
+                : ['Team $number', number];
           }),
           ...blueTeams.map((teamKey) {
             final number = teamNumberFromKey(teamKey);
-            if (number.isEmpty) {
-              return [teamKey, teamKey];
-            }
-            return ['Team $number', number];
+            return number.isEmpty
+                ? [teamKey, teamKey]
+                : ['Team $number', number];
           }),
         ];
         final compLevel = match['comp_level']?.toString() ?? '';
@@ -154,18 +146,19 @@ class _DriveTeamMatchPreviewPageState
         final number = matchNumber is int
             ? matchNumber
             : int.tryParse(matchNumber?.toString() ?? '');
-        final matchTitle = compLevel.isEmpty || number == null
+        final matchTitle = (compLevel.isEmpty || number == null)
             ? 'Match ${widget.matchKey}'
-            : '${switch (compLevel) {
-                'qm' => 'Qualification Match',
-                'sf' => 'Semifinal Match',
-                'f' => 'Final Match',
-                _ => compLevel.toUpperCase(),
-              }} $number';
-        List<dynamic> matchVideos = (match['videos'] as List<dynamic>? ?? [])
+            : '${compLevel == 'qm'
+                  ? 'Qualification Match'
+                  : compLevel == 'sf'
+                  ? 'Semifinal Match'
+                  : compLevel == 'f'
+                  ? 'Final Match'
+                  : compLevel.toUpperCase()} $number';
+        final matchVideos = (match['videos'] as List<dynamic>? ?? [])
             .map((e) => Map<String, dynamic>.from(e))
             .toList();
-        var video = matchVideos.firstWhere(
+        final video = matchVideos.firstWhere(
           (e) => e['type'] == 'youtube',
           orElse: () => <String, dynamic>{},
         );
@@ -178,7 +171,7 @@ class _DriveTeamMatchPreviewPageState
                 icon: const Icon(Icons.more_vert),
                 tooltip: 'More options',
                 onSelected: (action) =>
-                    _handleAction(context, action, video['key'].toString()),
+                    handleAction(context, action, video['key'].toString()),
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: _TeamAction.openTba,
@@ -200,7 +193,7 @@ class _DriveTeamMatchPreviewPageState
                     value: _TeamAction.openYouTube,
                     child: ListTile(
                       leading: const Icon(Symbols.open_in_new_rounded),
-                      title: const Text('Open in YouTube'),
+                      title: const Text('Watch Match Video'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -276,7 +269,6 @@ class _DriveTeamMatchPreviewPageState
                       },
                     ),
                   ),
-
                   Expanded(
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (notification) {
@@ -342,21 +334,17 @@ class _DriveTeamMatchPreviewPageState
                         width: 586,
                         child: FilledButton(
                           onPressed: () {
-                            final is2046OnRed = containsTeam(redTeams, '2046');
-                            final is2046OnBlue = containsTeam(
-                              blueTeams,
-                              '2046',
-                            );
-                            final allianceTeams = [
-                              redTeams[0],
-                              redTeams[1],
-                              redTeams[2],
-                              blueTeams[0],
-                              blueTeams[1],
-                              blueTeams[2],
-                            ];
-                            final memberKeys = allianceTeams
-                                .where((k) => teamNumberFromKey(k) != '2046')
+                            final filteredRedTeams = redTeams
+                                .where(
+                                  (teamKey) =>
+                                      teamNumberFromKey(teamKey) != '2046',
+                                )
+                                .toList();
+                            final filteredBlueTeams = blueTeams
+                                .where(
+                                  (teamKey) =>
+                                      teamNumberFromKey(teamKey) != '2046',
+                                )
                                 .toList();
                             showModalBottomSheet(
                               context: context,
@@ -365,9 +353,8 @@ class _DriveTeamMatchPreviewPageState
                               useSafeArea: true,
                               builder: (context) => _DriveTeamNotesSheet(
                                 matchKey: widget.matchKey,
-                                allianceMemberTeamKeys: memberKeys,
-                                is2046OnRed: is2046OnRed,
-                                is2046OnBlue: is2046OnBlue,
+                                redAllianceTeamKeys: filteredRedTeams,
+                                blueAllianceTeamKeys: filteredBlueTeams,
                               ),
                             );
                           },
@@ -427,15 +414,13 @@ class _DriveTeamMatchPreviewPageState
 
 class _DriveTeamNotesSheet extends ConsumerStatefulWidget {
   final String matchKey;
-  final List<String> allianceMemberTeamKeys;
-  final bool is2046OnRed;
-  final bool is2046OnBlue;
+  final List<String> redAllianceTeamKeys;
+  final List<String> blueAllianceTeamKeys;
 
   const _DriveTeamNotesSheet({
     required this.matchKey,
-    required this.allianceMemberTeamKeys,
-    required this.is2046OnRed,
-    required this.is2046OnBlue,
+    required this.redAllianceTeamKeys,
+    required this.blueAllianceTeamKeys,
   });
 
   @override
@@ -445,13 +430,10 @@ class _DriveTeamNotesSheet extends ConsumerStatefulWidget {
 
 class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
   final Map<String, TextEditingController> _controllers = {};
-
   final Map<String, String> _existingIds = {};
 
   bool _initialized = false;
   bool _isSaving = false;
-
-  int _iterNumber = 0;
 
   @override
   void dispose() {
@@ -466,7 +448,12 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     if (_initialized) return;
     _initialized = true;
 
-    for (final teamKey in widget.allianceMemberTeamKeys) {
+    final allTeamKeys = [
+      ...widget.redAllianceTeamKeys,
+      ...widget.blueAllianceTeamKeys,
+    ];
+
+    for (final teamKey in allTeamKeys) {
       final teamNumber = teamKey.replaceFirst(RegExp(r'^frc'), '');
       final teamNum = int.tryParse(teamNumber);
       final controller = TextEditingController();
@@ -520,8 +507,6 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
         await ref.read(scoutingDataProvider.notifier).refresh();
       }
 
-      _iterNumber = 0;
-
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
@@ -533,19 +518,57 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     }
   }
 
-  Widget blueAllianceLocation(
-    bool is2046onRed,
-    bool is2046onBlue,
-    TextStyle style,
+  Widget _buildAllianceSection(
+    ThemeData theme,
+    String label,
+    List<String> teamKeys,
   ) {
-    _iterNumber++;
-    if (is2046onRed && _iterNumber == 3) {
-      return Text('Blue Alliance', style: style);
-    } else if (is2046onBlue && _iterNumber == 4) {
-      return Text('Blue Alliance', style: style);
-    } else {
-      return SizedBox();
+    if (teamKeys.isEmpty) {
+      return const SizedBox.shrink();
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (final teamKey in teamKeys)
+          Builder(
+            builder: (context) {
+              final teamNumber = teamKey.replaceFirst(RegExp(r'^frc'), '');
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    teamNumber.isEmpty ? teamKey : teamNumber,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _controllers[teamNumber],
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Notes',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
+          ),
+      ],
+    );
   }
 
   @override
@@ -565,12 +588,11 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
       data: (existingNotes) {
         _initControllers(existingNotes);
 
-        if (widget.allianceMemberTeamKeys.isEmpty) {
+        if (widget.redAllianceTeamKeys.isEmpty &&
+            widget.blueAllianceTeamKeys.isEmpty) {
           return const Padding(
             padding: EdgeInsets.all(32),
-            child: Center(
-              child: Text('Cannot load notes — 2046 not found in this match.'),
-            ),
+            child: Center(child: Text('Cannot load notes for this match.')),
           );
         }
 
@@ -581,58 +603,16 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                _buildAllianceSection(
+                  theme,
                   'Red Alliance',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
+                  widget.redAllianceTeamKeys,
                 ),
-                const SizedBox(height: 8),
-                for (final teamKey in widget.allianceMemberTeamKeys) ...[
-                  Builder(
-                    builder: (context) {
-                      return blueAllianceLocation(
-                        widget.is2046OnRed,
-                        widget.is2046OnBlue,
-                        theme.textTheme.titleMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      );
-                    },
-                  ),
-                  Builder(
-                    builder: (context) {
-                      final teamNumber = teamKey.replaceFirst(
-                        RegExp(r'^frc'),
-                        '',
-                      );
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            teamNumber.isEmpty ? teamKey : teamNumber,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: _controllers[teamNumber],
-                            maxLines: null,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Notes',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                _buildAllianceSection(
+                  theme,
+                  'Blue Alliance',
+                  widget.blueAllianceTeamKeys,
+                ),
                 const SizedBox(height: 4),
                 SizedBox(
                   width: double.infinity,
