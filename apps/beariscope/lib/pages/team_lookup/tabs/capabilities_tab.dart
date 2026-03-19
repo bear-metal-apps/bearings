@@ -1,6 +1,6 @@
-import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/providers/strat_z_score_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +100,10 @@ class _CapabilitiesBody extends StatelessWidget {
   Widget _botCard(BuildContext context) {
     final drivetrainType = bundle.getPitsField<String>('drivetrainType') ?? '—';
     final swerveBrand = bundle.getPitsField<String>('swerveBrand');
-    final swerveGearRatio = bundle.getPitsField<String>('swerveGearRatio');
+    final swerveGearRatio = _firstNonEmptyPitsString([
+      'swerveGearRatio',
+      'swerveGR',
+    ]);
     final motorType = bundle.getPitsField<String>('motorType') ?? '—';
     final wheelType = bundle.getPitsField<String>('wheelType') ?? '—';
     final weight = bundle.getPitsDouble('weight');
@@ -161,8 +164,10 @@ class _CapabilitiesBody extends StatelessWidget {
       'fuelCollectionLocation',
     );
     final autoPaths = bundle.getPitsField<String>('autoPaths') ?? '—';
-    final pathwayPreference =
-        bundle.getPitsField<String>('pathwayPreference') ?? '—';
+    final pathwayPreference = _firstNonEmptyPitsDisplayValue([
+      'pathwayDetails',
+      'pathwayPreference',
+    ]);
     final trenchCapability =
         bundle.getPitsField<String>('trenchCapability') ?? '—';
     final hasMatchData = bundle.hasMatchData;
@@ -219,8 +224,8 @@ class _CapabilitiesBody extends StatelessWidget {
     final pitsAccuracy = bundle.getPitsDouble('averageAccuracy');
     final moveWhileShooting = bundle.getPitsListField('moveWhileShooting');
     final rangeFromField = _firstNonEmptyPitsList([
-      'rangeFromField',
       'shootingRange',
+      'rangeFromField',
     ]);
     // Keep observed tele accuracy alongside the pits claim for direct comparison.
     final actualTeleAccuracy = bundle.hasMatchData
@@ -415,6 +420,33 @@ class _CapabilitiesBody extends StatelessWidget {
       if (values.isNotEmpty) return values;
     }
     return const [];
+  }
+
+  String? _firstNonEmptyPitsString(List<String> keys) {
+    for (final key in keys) {
+      final value = bundle.getPitsField<String>(key);
+      if (value != null && value.trim().isNotEmpty) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  String _firstNonEmptyPitsDisplayValue(
+    List<String> keys, {
+    String separator = ', ',
+  }) {
+    final listValue = _firstNonEmptyPitsList(keys);
+    if (listValue.isNotEmpty) {
+      return listValue.join(separator);
+    }
+
+    final stringValue = _firstNonEmptyPitsString(keys);
+    if (stringValue != null) {
+      return stringValue;
+    }
+
+    return '—';
   }
 
   String _joinedOrDash(List<String> values, {String separator = ', '}) {

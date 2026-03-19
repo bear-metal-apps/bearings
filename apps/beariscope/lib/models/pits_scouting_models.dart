@@ -113,15 +113,19 @@ class PitsScoutingSubmission {
     int season = 2026,
     String? existingId,
   }) {
+    final meta = <String, Object?>{
+      'type': 'pits',
+      'version': 1,
+      'season': season,
+      'event': eventKey,
+      'scoutedBy': scoutedBy,
+    };
+    if (existingId != null) {
+      meta['existingId'] = existingId;
+    }
+
     return {
-      'meta': {
-        'type': 'pits',
-        'version': 1,
-        'season': season,
-        'event': eventKey,
-        'scoutedBy': scoutedBy,
-        if (existingId != null) 'existingId': existingId,
-      },
+      'meta': meta,
       'teamName': teamName,
       'teamNumber': teamNumber,
       'hopperSize': hopperSize,
@@ -150,7 +154,7 @@ class PitsScoutingSubmission {
       'fuelOuttakeRate': fuelOuttakeRate,
       'averageAccuracy': averageAccuracy,
       'moveWhileShooting': moveWhileShooting.toList(),
-      'rangeFromField': shootingRange.toList(),
+      'shootingRange': shootingRange.toList(),
       'indexerType': indexerType,
       'notes': notes,
     };
