@@ -98,6 +98,15 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                   isAscending = !isAscending;
                 }
                 ref.read(teamSortProvider.notifier).setSort(newSort, isAscending);
+                // if(ref.read(teamSortProvider.notifier).getSort() == TeamSortOptions.custom){
+                //   Scaffold.of(context).showBottomSheet((BuildContext context) {
+                //     return ListView(
+                //             children: [
+                //               SortByFieldItem(itemName: "Hi")
+                //             ]
+                //         );
+                //   });
+                // }
               },
             ),
           ],
@@ -160,13 +169,13 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                 // Teams without a rank go to the end
                 final rankA = ref.watch(teamScoutingProvider(a.number)).when(
                   data: (bundle) =>
-                      bundle.avgMatchField(kSectionTele, kTeleFuelScored),
+                      bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
                   error: (_, _) => 0,
                   loading: () => 0,
                 );
                 final rankB = ref.watch(teamScoutingProvider(b.number)).when(
                   data: (bundle) =>
-                      bundle.avgMatchField(kSectionTele, kTeleFuelScored),
+                  bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
                   error: (_, _) => 0,
                   loading: () => 0,
                 );
@@ -191,6 +200,86 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+
+class SortByFieldItem extends StatefulWidget{
+  final String itemName;
+  VoidCallback? onAddNew;
+
+
+  SortByFieldItem({
+    super.key,
+    required this.itemName,
+    this.onAddNew,
+
+  });
+
+
+  @override
+  State<StatefulWidget> createState() {
+    return SortByFieldItemState();
+  }
+}
+
+class SortByFieldItemState extends State<SortByFieldItem>{
+  String sectionId = '';
+  String dataId = '';
+
+  List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list){
+    List<DropdownMenuItem<String>> finalList = [];
+    list.forEach((item){
+      finalList.add(
+        DropdownMenuItem(
+            child: Text(item),
+            onTap: (){
+              sectionId = item;
+              },
+        )
+      );
+    });
+    return finalList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card.filled(
+      elevation: 2.0,
+      child: Row(
+        children: [
+          // DropdownButtonFormField(
+          //     items: generateDropdownMenuItems(kSectionsList),
+          //     onChanged: (item){
+          //
+          //     }
+          // ),
+          // DropdownButtonFormField(
+          //     items: ,
+          //     onChanged: (item){
+          //     }
+          // ),
+          TextField(
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            decoration: InputDecoration(
+              labelText: 'Weight',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (newValue){
+            },
+          ),
+          FilledButton.icon(
+              onPressed: (){
+                widget.onAddNew;
+              },
+              label: Icon(Icons.add_circle_outline),
+          )
+        ],
       ),
     );
   }

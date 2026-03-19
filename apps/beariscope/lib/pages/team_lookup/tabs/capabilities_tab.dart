@@ -79,16 +79,6 @@ class _CapabilitiesBody extends StatelessWidget {
         ),
         const SizedBox(height: kScoutingHeaderGap),
         _climbCard(context),
-        if (bundle.hasStratData) ...[
-          const SizedBox(height: kScoutingSectionGap),
-          const ScoutingSectionHeader(
-            title: 'Z-Score Metrics',
-            icon: Symbols.analytics_rounded,
-          ),
-          const SizedBox(height: kScoutingHeaderGap),
-          _zScoreCard(context),
-        ],
-        const SizedBox(height: 16),
       ],
     );
   }
@@ -363,44 +353,6 @@ class _CapabilitiesBody extends StatelessWidget {
             highlight: true,
           ),
         ],
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Z-score card
-  // ---------------------------------------------------------------------------
-
-  Widget _zScoreCard(BuildContext context) {
-    return _specsCard(
-      context,
-      rows: [
-        ScoutingDataRow(
-          label: 'Driver Skill',
-          value: StratZScoreData.zLabel(stratZScores.driverSkillZ[teamNumber]),
-          highlight: true,
-        ),
-        ScoutingDataRow(
-          label: 'Defensive Skill',
-          value: StratZScoreData.zLabel(
-            stratZScores.defensiveSkillZ[teamNumber],
-          ),
-          highlight: true,
-        ),
-        ScoutingDataRow(
-          label: 'Defense Susceptibility',
-          value: StratZScoreData.zLabel(
-            stratZScores.defensiveSusceptibilityZ[teamNumber],
-          ),
-          highlight: true,
-        ),
-        ScoutingDataRow(
-          label: 'Mech. Stability',
-          value: StratZScoreData.zLabel(
-            stratZScores.mechanicalStabilityZ[teamNumber],
-          ),
-          highlight: true,
-        ),
       ],
     );
   }

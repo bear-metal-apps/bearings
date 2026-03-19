@@ -274,6 +274,15 @@ class _AveragesBodyState extends State<_AveragesBody> {
           ),
           textAlign: TextAlign.center,
         ),
+        if (bundle.hasStratData) ...[
+          const SizedBox(height: kScoutingSectionGap),
+          const ScoutingSectionHeader(
+            title: 'Z-Score Metrics',
+            icon: Symbols.analytics_rounded,
+          ),
+          const SizedBox(height: kScoutingHeaderGap),
+          _zScoreCard(context, widget.stratZScores),
+        ],
       ],
     );
   }
@@ -281,4 +290,57 @@ class _AveragesBodyState extends State<_AveragesBody> {
   static String _fmtDec(double v) => v.toStringAsFixed(1);
   static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
   static String _fmt10Pct(double v) => '${(v * 10).toStringAsFixed(1)}%';
+
+// ---------------------------------------------------------------------------
+// Z-score card
+// ---------------------------------------------------------------------------
+
+  Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores) {
+    return _specsCard(
+      context,
+      rows: [
+        ScoutingDataRow(
+          label: 'Driver Skill',
+          value: StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber]),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Defensive Skill',
+          value: StratZScoreData.zLabel(
+            stratZScores.defensiveSkillZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Defense Susceptibility',
+          value: StratZScoreData.zLabel(
+            stratZScores.defensiveSusceptibilityZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Mech. Stability',
+          value: StratZScoreData.zLabel(
+            stratZScores.mechanicalStabilityZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+      ],
+    );
+  }
+  Widget _specsCard(BuildContext context, {required List<Widget> rows}) {
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: rows,
+        ),
+      ),
+    );
+  }
 }
+
