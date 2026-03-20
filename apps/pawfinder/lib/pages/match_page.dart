@@ -16,6 +16,7 @@ class MatchPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(scoutingSessionProvider);
     final configAsync = ref.watch(matchConfigProvider);
+    final teamAsync = ref.watch(teamNumberForSessionProvider);
     final store = ref.read(matchFormStoreProvider);
 
     return configAsync.when(
@@ -46,6 +47,11 @@ class MatchPage extends ConsumerWidget {
           );
         } else if (scoutName != null && data.scoutedBy != scoutName) {
           data = data.copyWith(scoutedBy: scoutName);
+        }
+
+        final teamNumber = teamAsync.asData?.value;
+        if (teamNumber != null && data.teamNumber != teamNumber) {
+          data = data.copyWith(teamNumber: teamNumber);
         }
 
         final hydratedData = _hydrateAllConfiguredFields(config, data);

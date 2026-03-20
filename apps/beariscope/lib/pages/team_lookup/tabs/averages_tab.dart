@@ -1,6 +1,6 @@
-import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/providers/strat_z_score_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +55,8 @@ class _AveragesBodyState extends State<_AveragesBody> {
     if (_lastN == null) return widget.bundle;
     final sorted = [...widget.bundle.matchDocs]
       ..sort((a, b) {
-        final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
-        final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+        final ma = TeamScoutingBundle.matchNumber(a.raw) ?? -1;
+        final mb = TeamScoutingBundle.matchNumber(b.raw) ?? -1;
         return mb.compareTo(ma);
       });
     final limited = sorted.take(_lastN!).toList();

@@ -13,9 +13,20 @@ class MatchFormStore {
     final raw = Hive.box(boxKey).get(keyFor(eventKey, matchNumber, pos));
     if (raw is! String) return null;
     try {
-      return MatchFormData.fromJson(
-        Map<String, dynamic>.from(jsonDecode(raw) as Map),
-      );
+      final decoded = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+      final payload = decoded['payload'];
+      if (payload is Map) {
+        final data = MatchFormData.fromJson(Map<String, dynamic>.from(payload));
+        final storedId = decoded['id']?.toString();
+        return data.copyWith(
+          id: storedId != null && storedId.isNotEmpty ? storedId : data.id,
+          lastModified:
+              DateTime.tryParse(decoded['lastModified']?.toString() ?? '') ??
+              data.lastModified,
+        );
+      }
+
+      return MatchFormData.fromJson(decoded);
     } catch (_) {
       return null;
     }
@@ -24,7 +35,7 @@ class MatchFormStore {
   void save(MatchFormData data) {
     Hive.box(boxKey).put(
       keyFor(data.eventKey, data.matchNumber, data.pos),
-      jsonEncode(data.toJson()),
+      jsonEncode(data.toStoredJson()),
     );
   }
 
@@ -36,6 +47,27 @@ class MatchFormStore {
       if (raw is! String) continue;
       try {
         final decoded = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+        final payload = decoded['payload'];
+        if (payload is Map) {
+          final data =
+              MatchFormData.fromJson(
+                Map<String, dynamic>.from(payload),
+              ).copyWith(
+                id: (() {
+                  final storedId = decoded['id']?.toString();
+                  return storedId != null && storedId.isNotEmpty
+                      ? storedId
+                      : null;
+                })(),
+                lastModified:
+                    DateTime.tryParse(
+                      decoded['lastModified']?.toString() ?? '',
+                    ) ??
+                    DateTime.now().toUtc(),
+              );
+          if (data.id == id) return data;
+          continue;
+        }
         final data = MatchFormData.fromJson(decoded);
         if (data.id == id) return data;
       } catch (_) {

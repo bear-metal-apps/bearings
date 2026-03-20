@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:core/core.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/upload_queue.dart';
@@ -46,7 +47,8 @@ class ScoutUploadService {
     for (final queueId in pendingIds) {
       final matchDoc = store.loadById(queueId);
       if (matchDoc != null) {
-        entries.add(matchDoc.toJson());
+        final payload = _withTeamNumber(matchDoc);
+        entries.add(payload.toJson());
         uploadedIds.add(matchDoc.id);
         continue;
       }
@@ -63,6 +65,27 @@ class ScoutUploadService {
     await _client.post('/scout/ingest', data: {'entries': entries});
     _ref.read(uploadQueueProvider.notifier).markUploaded(uploadedIds);
     return entries.length;
+  }
+
+  MatchFormData _withTeamNumber(MatchFormData data) {
+    if (data.teamNumber != null) return data;
+    final teamNumber = _teamNumberFor(
+      data.eventKey,
+      data.matchNumber,
+      data.pos,
+    );
+    if (teamNumber == null) return data;
+    return data.copyWith(teamNumber: teamNumber);
+  }
+
+  int? _teamNumberFor(String eventKey, int matchNumber, int pos) {
+    final raw = Hive.box(
+      boxKey,
+    ).get('MATCH_${eventKey}_${matchNumber}_${pos}_team');
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) return int.tryParse(raw);
+    return null;
   }
 
   String? _sessionScoutName() {

@@ -1,26 +1,14 @@
+import 'package:beariscope/models/match_field_ids.dart';
+import 'package:beariscope/models/processed_scouting_doc.dart';
 import 'package:beariscope/models/scouting_document.dart';
 
-/// Aggregated scouting data for a single team, bundled from all relevant
-/// data sources (match, pits, strat).
-///
-/// Match documents come from the most recent event that has match data for
-/// this team.  Pits data falls back to the most recent event that has a pits
-/// entry, which may differ from the match event.
 class TeamScoutingBundle {
-  /// All match scouting documents for this team's most recent event.
-  final List<ScoutingDocument> matchDocs;
+  final List<ProcessedScoutingDoc> matchDocs;
 
-  /// Most recent pits scouting document, potentially from a different (older)
-  /// event than [matchDocs] if the current event has no pits entry yet.
   final ScoutingDocument? pitsDoc;
 
-  /// All strat scouting documents this team appears in (any of the 4 ranking lists).
   final List<ScoutingDocument> stratDocs;
 
-  /// All drive team scouting note documents for this team at the current event.
-  ///
-  /// Unlike [matchDocs], these are *not* filtered by user — every drive team
-  /// member's submissions are included so the Notes tab shows all perspectives.
   final List<ScoutingDocument> driveTeamDocs;
 
   const TeamScoutingBundle({
@@ -35,16 +23,6 @@ class TeamScoutingBundle {
 
   bool get hasStratData => stratDocs.isNotEmpty;
 
-  // ---------------------------------------------------------------------------
-  // Static field accessor – match documents
-  // ---------------------------------------------------------------------------
-
-  /// Returns the value of [fieldId] inside [sectionId] for a single [doc].
-  ///
-  /// Match data is stored as:
-  /// ```json
-  /// { "sections": [ { "sectionId": "auto", "fields": { "fuel_scored": 3 } } ] }
-  /// ```
   static dynamic getMatchField(
     ScoutingDocument doc,
     String sectionId,
@@ -62,50 +40,42 @@ class TeamScoutingBundle {
     return null;
   }
 
-  // ---------------------------------------------------------------------------
-  // Aggregate helpers over all matchDocs
-  // ---------------------------------------------------------------------------
-
-  /// Numeric average of [fieldId] in [sectionId] across all [matchDocs].
-  /// Returns 0.0 when no docs contain the field.
   double avgMatchField(String sectionId, String fieldId) {
     if (matchDocs.isEmpty) return 0.0;
     double sum = 0;
     int count = 0;
     for (final doc in matchDocs) {
-      final val = getMatchField(doc, sectionId, fieldId);
+      final val = getMatchField(doc.raw, sectionId, fieldId);
       if (val is num) {
-        sum += val.toDouble();
+        sum += val.toDouble() * _scalarFor(doc, sectionId, fieldId);
         count++;
       }
     }
     return count == 0 ? 0.0 : sum / count;
   }
 
-  /// Sum of [fieldId] in [sectionId] across all [matchDocs].
   double sumMatchField(String sectionId, String fieldId) {
     if (matchDocs.isEmpty) return 0.0;
     double sum = 0;
     for (final doc in matchDocs) {
-      final val = getMatchField(doc, sectionId, fieldId);
-      if (val is num) sum += val.toDouble();
+      final val = getMatchField(doc.raw, sectionId, fieldId);
+      if (val is num) {
+        sum += val.toDouble() * _scalarFor(doc, sectionId, fieldId);
+      }
     }
     return sum;
   }
 
-  /// Number of matches where [fieldId] in [sectionId] satisfies [test].
   int countMatchField(
     String sectionId,
     String fieldId,
     bool Function(dynamic) test,
   ) {
     return matchDocs
-        .where((doc) => test(getMatchField(doc, sectionId, fieldId)))
+        .where((doc) => test(getMatchField(doc.raw, sectionId, fieldId)))
         .length;
   }
 
-  /// Rate (0.0–1.0) of matches where [fieldId] in [sectionId] satisfies [test].
-  /// Returns 0.0 for empty match lists.
   double rateMatchField(
     String sectionId,
     String fieldId,
@@ -115,12 +85,11 @@ class TeamScoutingBundle {
     return countMatchField(sectionId, fieldId, test) / matchDocs.length;
   }
 
-  /// Most common string value of [fieldId] in [sectionId] across [matchDocs].
   String? modalMatchField(String sectionId, String fieldId) {
     if (matchDocs.isEmpty) return null;
     final counts = <String, int>{};
     for (final doc in matchDocs) {
-      final val = getMatchField(doc, sectionId, fieldId)?.toString();
+      final val = getMatchField(doc.raw, sectionId, fieldId)?.toString();
       if (val != null && val.isNotEmpty) {
         counts[val] = (counts[val] ?? 0) + 1;
       }
@@ -129,43 +98,29 @@ class TeamScoutingBundle {
     return counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
   }
 
-  /// Boolean rate: fraction of matches where the field is `true`.
   double boolRateMatchField(String sectionId, String fieldId) =>
       rateMatchField(sectionId, fieldId, (v) => v == true);
 
-  // ---------------------------------------------------------------------------
-  // Pits field accessors
-  // ---------------------------------------------------------------------------
-
-  /// Returns [pitsDoc.data[key]] cast to [T], or null if absent or wrong type.
   T? getPitsField<T>(String key) {
     final val = pitsDoc?.data[key];
     if (val is T) return val;
     return null;
   }
 
-  /// Returns a pits list field as `List<String>`, or empty list if absent.
   List<String> getPitsListField(String key) {
     final val = pitsDoc?.data[key];
     if (val is List) return val.map((e) => e.toString()).toList();
     return [];
   }
 
-  /// Returns a numeric pits field coerced to double, or null.
   double? getPitsDouble(String key) {
     final val = pitsDoc?.data[key];
     if (val is num) return val.toDouble();
     return null;
   }
 
-  // ---------------------------------------------------------------------------
-  // Strat field accessors
-  // ---------------------------------------------------------------------------
-
-  /// Number of strat scouting docs this team appears in.
   int get stratAppearanceCount => stratDocs.length;
 
-  /// Average defenseActivityLevel (0–10) across all strat docs, or null if none.
   double? get avgDefenseActivityLevel {
     if (stratDocs.isEmpty) return null;
     double sum = 0;
@@ -180,7 +135,6 @@ class TeamScoutingBundle {
     return count == 0 ? null : sum / count;
   }
 
-  /// Average humanPlayerScore across all strat docs, or null if none.
   double? get avgHumanPlayerScore {
     if (stratDocs.isEmpty) return null;
     double sum = 0;
@@ -195,12 +149,6 @@ class TeamScoutingBundle {
     return count == 0 ? null : sum / count;
   }
 
-  // ---------------------------------------------------------------------------
-  // Utility
-  // ---------------------------------------------------------------------------
-
-  /// Match number from a document, if the field is present.
-  /// pawfinder will expose this as `data['matchNumber']` in a future update.
   static int? matchNumber(ScoutingDocument doc) {
     final mn = doc.data['matchNumber'];
     if (mn is int) return mn;
@@ -209,7 +157,6 @@ class TeamScoutingBundle {
     return null;
   }
 
-  /// Team number from a document, normalised to int.
   static int? teamNumber(ScoutingDocument doc) {
     final tn = doc.data['teamNumber'];
     if (tn is int) return tn;
@@ -217,4 +164,26 @@ class TeamScoutingBundle {
     if (tn is String) return int.tryParse(tn);
     return null;
   }
+
+  double _scalarFor(
+    ProcessedScoutingDoc doc,
+    String sectionId,
+    String fieldId,
+  ) {
+    if (sectionId == kSectionAuto && _scaledAutoFields.contains(fieldId)) {
+      return doc.autoFuelScalar;
+    }
+    if (sectionId == kSectionTele && _scaledTeleFields.contains(fieldId)) {
+      return doc.teleFuelScalar;
+    }
+    return 1.0;
+  }
+
+  static const _scaledAutoFields = {kAutoFuelScored, kAutoFuelPassed};
+
+  static const _scaledTeleFields = {
+    kTeleFuelScored,
+    kTeleFuelPassed,
+    kTeleFuelPoached,
+  };
 }

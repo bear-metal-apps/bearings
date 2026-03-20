@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
-
+import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/models/pits_scouting_models.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
-import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
@@ -199,6 +198,15 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   // All choice-based fields in one object.
   late _PitsFormData _f;
 
+  Future<String> _resolveScoutedBy() async {
+    final userInfo = await ref.read(userInfoProvider.future);
+    final name = userInfo?.name?.trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+    return 'Unknown User';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -246,8 +254,6 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   @override
   Widget build(BuildContext context) {
     final currentEventKey = ref.watch(currentEventProvider);
-    final userInfo = ref.watch(userInfoProvider).asData?.value;
-    final scoutedBy = userInfo?.name?.trim() ?? 'Unknown User';
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -605,6 +611,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   padding: EdgeInsets.all(30),
                   child: FilledButton(
                     onPressed: () async {
+                      final scoutedBy = await _resolveScoutedBy();
                       final submission = PitsScoutingSubmission(
                         teamName: widget.teamName,
                         teamNumber: widget.teamNumber,

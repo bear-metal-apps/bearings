@@ -1,7 +1,7 @@
-import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,12 +36,12 @@ class _NotesBody extends StatelessWidget {
 
     final sortedDocs = [...bundle.matchDocs]
       ..sort((a, b) {
-        final na = TeamScoutingBundle.matchNumber(a);
-        final nb = TeamScoutingBundle.matchNumber(b);
+        final na = TeamScoutingBundle.matchNumber(a.raw);
+        final nb = TeamScoutingBundle.matchNumber(b.raw);
         if (na != null && nb != null) return na.compareTo(nb);
         if (na != null) return -1;
         if (nb != null) return 1;
-        return a.timestamp.compareTo(b.timestamp);
+        return a.raw.timestamp.compareTo(b.raw.timestamp);
       });
 
     int totalAStop = 0;
@@ -51,20 +51,28 @@ class _NotesBody extends StatelessWidget {
     int totalFouls = 0;
 
     for (final doc in sortedDocs) {
-      if (_field(doc, kSectionAuto, kAutoAStop) == true) totalAStop++;
-      if (_field(doc, kSectionTele, kTeleEStop) == true) totalEStop++;
-      if (_field(doc, kSectionTele, kTeleLostComms) == true) totalCommsLoss++;
-      if (_field(doc, kSectionAuto, kAutoCollided) == true) totalCollisions++;
-      final f = _field(doc, kSectionEndgame, kEndFouls);
+      if (_field(doc.raw, kSectionAuto, kAutoAStop) == true) {
+        totalAStop++;
+      }
+      if (_field(doc.raw, kSectionTele, kTeleEStop) == true) {
+        totalEStop++;
+      }
+      if (_field(doc.raw, kSectionTele, kTeleLostComms) == true) {
+        totalCommsLoss++;
+      }
+      if (_field(doc.raw, kSectionAuto, kAutoCollided) == true) {
+        totalCollisions++;
+      }
+      final f = _field(doc.raw, kSectionEndgame, kEndFouls);
       if (f is num) totalFouls += f.toInt();
 
       final notes =
-          _field(doc, kSectionEndgame, kEndNotes)?.toString().trim() ?? '';
-      final mn = TeamScoutingBundle.matchNumber(doc);
+          _field(doc.raw, kSectionEndgame, kEndNotes)?.toString().trim() ?? '';
+      final mn = TeamScoutingBundle.matchNumber(doc.raw);
       final matchLabel = mn != null
           ? 'Match $mn'
-          : 'Match (${scoutingShortDate(doc.timestamp)})';
-      final scoutedBy = doc.meta?['scoutedBy']?.toString() ?? '';
+          : 'Match (${scoutingShortDate(doc.raw.timestamp)})';
+      final scoutedBy = doc.raw.meta?['scoutedBy']?.toString() ?? '';
 
       feedItems.add(
         _FeedItem(
@@ -72,13 +80,15 @@ class _NotesBody extends StatelessWidget {
           scoutedBy: scoutedBy,
           notes: notes,
           incidents: [
-            if (_field(doc, kSectionAuto, kAutoAStop) == true) 'A-Stop',
-            if (_field(doc, kSectionTele, kTeleEStop) == true) 'E-Stop',
-            if (_field(doc, kSectionTele, kTeleLostComms) == true) 'Comms Loss',
-            if (_field(doc, kSectionAuto, kAutoCollided) == true) 'Collision',
+            if (_field(doc.raw, kSectionAuto, kAutoAStop) == true) 'A-Stop',
+            if (_field(doc.raw, kSectionTele, kTeleEStop) == true) 'E-Stop',
+            if (_field(doc.raw, kSectionTele, kTeleLostComms) == true)
+              'Comms Loss',
+            if (_field(doc.raw, kSectionAuto, kAutoCollided) == true)
+              'Collision',
             if (f is num && f > 0) '${f.toInt()} Foul${f == 1 ? '' : 's'}',
           ],
-          timestamp: doc.timestamp,
+          timestamp: doc.raw.timestamp,
         ),
       );
     }

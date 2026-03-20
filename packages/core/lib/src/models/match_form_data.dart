@@ -98,9 +98,72 @@ class MatchFormData {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'meta': {
+        'season': season,
+        'version': configVersion,
+        'type': 'match',
+        'event': eventKey,
+        'scoutedBy': scoutedBy,
+      },
+      'matchNumber': matchNumber,
+      'pos': pos,
+      'sections': _sectionsToJson(sections),
+      if (teamNumber != null) 'teamNumber': teamNumber,
+    };
+  }
+
+  Map<String, dynamic> toStoredJson() {
+    return {
+      'id': id,
+      'lastModified': lastModified.toUtc().toIso8601String(),
+      'payload': toJson(),
+    };
+  }
+
   factory MatchFormData.fromJson(Map<String, dynamic> json) {
+    final wrapped = json['payload'];
+    if (wrapped is Map) {
+      return _fromPayload(
+        Map<String, dynamic>.from(wrapped),
+        id: json['id']?.toString(),
+        lastModified: _asDateTime(json['lastModified']),
+      );
+    }
+
+    return _fromPayload(
+      json,
+      id: json['_id']?.toString() ?? json['id']?.toString(),
+      lastModified: _asDateTime(json['lastModified']),
+    );
+  }
+
+  static MatchFormData _fromPayload(
+    Map<String, dynamic> json, {
+    String? id,
+    DateTime? lastModified,
+  }) {
+    final meta = json['meta'];
+    final legacySections = json['sections'];
+
+    if (meta is Map) {
+      return MatchFormData(
+        id: id ?? json['_id']?.toString() ?? const Uuid().v4(),
+        eventKey: meta['event']?.toString() ?? '',
+        matchNumber: _asInt(json['matchNumber']) ?? 0,
+        pos: _asInt(json['pos']) ?? 0,
+        season: _asInt(meta['season']) ?? 0,
+        configVersion: _asInt(meta['version']) ?? 0,
+        teamNumber: _asInt(json['teamNumber']),
+        scoutedBy: meta['scoutedBy']?.toString(),
+        lastModified: lastModified ?? DateTime.now().toUtc(),
+        sections: _sectionsFromJson(legacySections),
+      );
+    }
+
     return MatchFormData(
-      id: json['id']?.toString() ?? '',
+      id: id ?? json['_id']?.toString() ?? const Uuid().v4(),
       eventKey: json['eventKey']?.toString() ?? '',
       matchNumber: _asInt(json['matchNumber']) ?? 0,
       pos: _asInt(json['pos']) ?? 0,
@@ -108,24 +171,12 @@ class MatchFormData {
       configVersion: _asInt(json['configVersion']) ?? 0,
       teamNumber: _asInt(json['teamNumber']),
       scoutedBy: json['scoutedBy']?.toString(),
-      lastModified: _asDateTime(json['lastModified']) ?? DateTime.now().toUtc(),
-      sections: _sectionsFromJson(json['sections']),
+      lastModified:
+          lastModified ??
+          _asDateTime(json['lastModified']) ??
+          DateTime.now().toUtc(),
+      sections: _sectionsFromJson(legacySections),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'eventKey': eventKey,
-      'matchNumber': matchNumber,
-      'pos': pos,
-      'season': season,
-      'configVersion': configVersion,
-      'teamNumber': teamNumber,
-      'scoutedBy': scoutedBy,
-      'lastModified': lastModified.toUtc().toIso8601String(),
-      'sections': _sectionsToJson(sections),
-    };
   }
 }
 
@@ -141,28 +192,39 @@ Map<String, Map<String, dynamic>> _copySections(
 }
 
 Map<String, Map<String, dynamic>> _sectionsFromJson(dynamic value) {
-  if (value is! Map) return {};
+  if (value is Map) {
+    final result = <String, Map<String, dynamic>>{};
+    value.forEach((key, sectionValue) {
+      if (sectionValue is Map) {
+        result[key.toString()] = sectionValue.map(
+          (fieldId, fieldValue) => MapEntry(fieldId.toString(), fieldValue),
+        );
+      }
+    });
+    return result;
+  }
 
-  final result = <String, Map<String, dynamic>>{};
-  value.forEach((key, sectionValue) {
-    if (sectionValue is Map) {
-      result[key.toString()] = sectionValue.map(
+  if (value is List) {
+    final result = <String, Map<String, dynamic>>{};
+    for (final sectionValue in value) {
+      if (sectionValue is! Map) continue;
+      final sectionId = sectionValue['sectionId']?.toString() ?? '';
+      final fields = sectionValue['fields'];
+      if (sectionId.isEmpty || fields is! Map) continue;
+      result[sectionId] = fields.map(
         (fieldId, fieldValue) => MapEntry(fieldId.toString(), fieldValue),
       );
     }
-  });
-  return result;
+    return result;
+  }
+
+  return {};
 }
 
-Map<String, dynamic> _sectionsToJson(
-  Map<String, Map<String, dynamic>> sections,
-) {
-  return sections.map(
-    (sectionId, fields) => MapEntry(
-      sectionId,
-      fields.map((fieldId, value) => MapEntry(fieldId, value)),
-    ),
-  );
+List<dynamic> _sectionsToJson(Map<String, Map<String, dynamic>> sections) {
+  return sections.entries
+      .map((entry) => {'sectionId': entry.key, 'fields': entry.value})
+      .toList();
 }
 
 int? _asInt(dynamic value) {

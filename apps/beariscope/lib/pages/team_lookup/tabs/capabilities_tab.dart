@@ -1,6 +1,6 @@
-import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/providers/strat_z_score_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
@@ -291,7 +291,7 @@ class _CapabilitiesBody extends StatelessWidget {
     if (hasMatchData) {
       for (final doc in bundle.matchDocs) {
         final v = TeamScoutingBundle.getMatchField(
-          doc,
+          doc.raw,
           kSectionEndgame,
           kEndClimb,
         )?.toString();
