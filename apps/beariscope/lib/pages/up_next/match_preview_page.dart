@@ -1,5 +1,6 @@
 import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/models/drive_team_note.dart';
+import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/drive_team_notes_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
@@ -11,6 +12,8 @@ import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+enum _TeamAction { openTba, openStatbotics, openYouTube }
 
 final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
   ref,
@@ -131,11 +134,10 @@ class _DriveTeamMatchPreviewPageState
           ...redTeams.map((teamKey) => (teamKey: teamKey, color: Colors.red)),
           ...blueTeams.map((teamKey) => (teamKey: teamKey, color: Colors.blue)),
         ];
-        final compLevel = match['comp_level']?.toString() ?? '';
-        final matchNumber = match['match_number'];
-        final number = matchNumber is int
-            ? matchNumber
-            : int.tryParse(matchNumber?.toString() ?? '');
+        final compLevel = compLevelForMatch(match);
+        final number = compLevel == 'sf'
+            ? setNumberForMatch(match) ?? matchNumberForMatch(match)
+            : matchNumberForMatch(match);
         final matchTitle = compLevel.isEmpty || number == null
             ? 'Match ${widget.matchKey}'
             : '${switch (compLevel) {
@@ -161,28 +163,28 @@ class _DriveTeamMatchPreviewPageState
                 tooltip: 'More options',
                 onSelected: (action) =>
                     handleAction(context, action, video['key'].toString()),
-                itemBuilder: (context) => [
+                itemBuilder: (context) => const [
                   PopupMenuItem(
                     value: _TeamAction.openTba,
                     child: ListTile(
-                      leading: const Icon(Symbols.open_in_new_rounded),
-                      title: const Text('Open in TBA'),
+                      leading: Icon(Symbols.open_in_new_rounded),
+                      title: Text('Open in TBA'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _TeamAction.openStatbotics,
                     child: ListTile(
-                      leading: const Icon(Symbols.open_in_new_rounded),
-                      title: const Text('Open in Statbotics'),
+                      leading: Icon(Symbols.open_in_new_rounded),
+                      title: Text('Open in Statbotics'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _TeamAction.openYouTube,
                     child: ListTile(
-                      leading: const Icon(Symbols.open_in_new_rounded),
-                      title: const Text('Watch Match Video'),
+                      leading: Icon(Symbols.open_in_new_rounded),
+                      title: Text('Watch Match Video'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -639,5 +641,3 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     );
   }
 }
-
-enum _TeamAction { openTba, openStatbotics, openYouTube }
