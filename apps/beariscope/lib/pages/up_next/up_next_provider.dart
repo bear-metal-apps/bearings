@@ -1,3 +1,4 @@
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 
@@ -5,12 +6,19 @@ final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final client = ref.watch(honeycombClientProvider);
+
+  final currentEventKey = ref.watch(currentEventProvider);
+  final year = DateTime.now().year;
+
   final eventsFuture = client.get<List<dynamic>>(
-    '/events?team=2046&year=2026',
+    '/events',
+    queryParams: {'year': year, 'key': currentEventKey},
     cachePolicy: CachePolicy.cacheFirst,
   );
+
   final matchesFuture = client.get<List<dynamic>>(
-    '/matches?team=2046&year=2026',
+    '/matches',
+    queryParams: {'year': year, 'event': currentEventKey},
     cachePolicy: CachePolicy.cacheFirst,
   );
 
@@ -19,6 +27,7 @@ final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
   final events = results[0]
       .whereType<Map>()
       .map((e) => Map<String, dynamic>.from(e))
+      .where((e) => e['key'] == currentEventKey)
       .toList();
 
   final matches = results[1]

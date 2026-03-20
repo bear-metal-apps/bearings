@@ -217,6 +217,8 @@ class _MatchCard extends StatelessWidget {
         scoutingIncidentChip(context, 'Comms Loss'),
       if (_f(kSectionAuto, kAutoCollided) == true)
         scoutingIncidentChip(context, 'Collision'),
+      if (_f(kSectionEndgame, kEndNoShow) == true)
+        scoutingIncidentChip(context, 'No Show'),
       if (foulsCount > 0)
         scoutingIncidentChip(
           context,
@@ -437,6 +439,7 @@ class _MatchDetailSection extends StatelessWidget {
                 _f(kSectionEndgame, kEndPlayedDefenseOffShift),
               ),
               _row(context, 'Play Style', _f(kSectionEndgame, kEndPlayStyle)),
+              _row(context, 'No Show', _f(kSectionEndgame, kEndNoShow)),
               _row(context, 'Scout Notes', _f(kSectionEndgame, kEndNotes)),
               // TODO(strat): add strat fields once strat data is implemented.
             ],

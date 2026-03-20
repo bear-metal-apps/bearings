@@ -28,8 +28,27 @@ Bearings is Bear Metal's monorepo for our apps. We use a monorepo with everythin
 
 ## Conventional commits
 
-CI enforces scoped conventional commits for pull requests. Use one of these scopes:
+Conventional commits are a standardized way to write commit messages. They look like this:  
+```
+<type>(<scope>): <description>
+```
 
+Notice how everything is lowercase, the type and scope are separated by parentheses, and the description is separated from the type/scope by a colon and space.
+
+- `feat`
+- `fix`
+- `perf`
+- `refactor`
+- `docs`
+- `build`
+- `ci`
+- `test`
+- `chore`
+
+You can also signify a breaking change by adding an `!` after the type like this:  
+`refactor!(services): refactor honeycomb api provider`
+
+A scope is where the commit edits things. CI enforces scoped commits for pull requests. Use one of these scopes:  
 - `beariscope`
 - `pawfinder`
 - `core`
@@ -43,7 +62,7 @@ CI enforces scoped conventional commits for pull requests. Use one of these scop
 - `deps`
 - `docs`
 
-Examples:
+Examples of good commits:
 
 - `feat(beariscope): add pit map refresh`
 - `fix(services): retry secure storage read`

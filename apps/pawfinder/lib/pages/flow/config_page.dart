@@ -134,8 +134,9 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                     // prepend it only once. This prevents multiple
                     // DropdownMenuItems from comparing equal and tripping the
                     // Dropdown assertion.
-                    final combined = (_selectedEvent != null &&
-                        !events.any((e) => e.key == _selectedEvent!.key))
+                    final combined =
+                        (_selectedEvent != null &&
+                            !events.any((e) => e.key == _selectedEvent!.key))
                         ? [_selectedEvent!, ...events]
                         : events;
 
@@ -151,17 +152,18 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                     ScoutingEvent? initialValue;
                     if (_selectedEvent != null) {
                       try {
-                        initialValue = displayEvents
-                            .firstWhere((e) => e.key == _selectedEvent!.key);
+                        initialValue = displayEvents.firstWhere(
+                          (e) => e.key == _selectedEvent!.key,
+                        );
                       } catch (_) {
                         initialValue = null;
                       }
                     }
 
                     return DropdownButtonFormField<ScoutingEvent>(
-                      initialValue: initialValue,
-                      padding: EdgeInsets.all(4),
-                      decoration: InputDecoration(
+                          initialValue: initialValue,
+                          padding: EdgeInsets.all(4),
+                          decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
                               borderSide: BorderSide(

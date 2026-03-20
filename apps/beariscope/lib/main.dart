@@ -1,26 +1,32 @@
+import 'dart:math';
+
+import 'package:audioplayers/audioplayers.dart';
+import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
-import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
-import 'package:beariscope/pages/settings/scout_selection_page.dart';
-import 'package:beariscope/pages/up_next/match_preview_page.dart';
-import 'package:beariscope/pages/picklists/picklists_create_page.dart';
-import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
-import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/picklists/picklists_page.dart';
+import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
+import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
+import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
+import 'package:beariscope/pages/settings/team_role.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
+import 'package:beariscope/pages/up_next/match_preview_page.dart';
+import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/utilities/utilities_page.dart';
+import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
     if (dart.library.io) 'package:window_size/window_size.dart';
+import 'package:core/providers/device_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,14 +34,11 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
-import 'package:core/providers/device_info_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/providers/auth_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/release/release_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:beariscope/pages/settings/team_role.dart';
-import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,12 +49,18 @@ Future<void> main() async {
   await Hive.openBox('api_cache');
   await Hive.openBox<String>('scouting_data');
 
+  // happy easter
+  if (Random().nextInt(100) == 0) {
+    final player = AudioPlayer();
+    await player.play(AssetSource('sounds/jingle.wav'), volume: 1000);
+  }
+
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(500, 600));
     setWindowMaxSize(Size.infinite);
     setWindowTitle('Beariscope');
   }
-  
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

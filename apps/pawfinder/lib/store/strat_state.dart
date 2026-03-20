@@ -36,7 +36,8 @@ class StratState {
   final List<String> defensiveSusceptibility;
   final List<String> mechanicalStability;
   final double defenseActivityLevel;
-  final int humanPlayerScore;
+  final int autoHumanPlayerScore;
+  final int teleHumanPlayerScore;
 
   const StratState({
     required this.driverSkill,
@@ -44,7 +45,8 @@ class StratState {
     required this.defensiveSusceptibility,
     required this.mechanicalStability,
     required this.defenseActivityLevel,
-    required this.humanPlayerScore,
+    required this.autoHumanPlayerScore,
+    required this.teleHumanPlayerScore,
   });
 
   // empty state for a match that hasn't been filled in yet
@@ -54,7 +56,8 @@ class StratState {
       defensiveSusceptibility = const [],
       mechanicalStability = const [],
       defenseActivityLevel = 0.0,
-      humanPlayerScore = 0;
+      autoHumanPlayerScore = 0,
+      teleHumanPlayerScore = 0;
 
   StratState copyWith({
     List<String>? driverSkill,
@@ -62,7 +65,8 @@ class StratState {
     List<String>? defensiveSusceptibility,
     List<String>? mechanicalStability,
     double? defenseActivityLevel,
-    int? humanPlayerScore,
+    int? autoHumanPlayerScore,
+    int? teleHumanPlayerScore,
   }) => StratState(
     driverSkill: driverSkill ?? this.driverSkill,
     defensiveSkill: defensiveSkill ?? this.defensiveSkill,
@@ -70,7 +74,8 @@ class StratState {
         defensiveSusceptibility ?? this.defensiveSusceptibility,
     mechanicalStability: mechanicalStability ?? this.mechanicalStability,
     defenseActivityLevel: defenseActivityLevel ?? this.defenseActivityLevel,
-    humanPlayerScore: humanPlayerScore ?? this.humanPlayerScore,
+    autoHumanPlayerScore: autoHumanPlayerScore ?? this.autoHumanPlayerScore,
+    teleHumanPlayerScore: teleHumanPlayerScore ?? this.teleHumanPlayerScore,
   );
 
   Map<String, dynamic> toJson() => {
@@ -79,7 +84,8 @@ class StratState {
     'defensiveSusceptibility': defensiveSusceptibility,
     'mechanicalStability': mechanicalStability,
     'defenseActivityLevel': defenseActivityLevel,
-    'humanPlayerScore': humanPlayerScore,
+    'autoHumanPlayerScore': autoHumanPlayerScore,
+    'teleHumanPlayerScore': teleHumanPlayerScore,
   };
 
   factory StratState.fromJson(Map<String, dynamic> json) => StratState(
@@ -91,7 +97,8 @@ class StratState {
     mechanicalStability: List<String>.from(json['mechanicalStability'] ?? []),
     defenseActivityLevel:
         (json['defenseActivityLevel'] as num?)?.toDouble() ?? 0.0,
-    humanPlayerScore: (json['humanPlayerScore'] as num?)?.toInt() ?? 0,
+    autoHumanPlayerScore: (json['autoHumanPlayerScore'] as num?)?.toInt() ?? 0,
+    teleHumanPlayerScore: (json['teleHumanPlayerScore'] as num?)?.toInt() ?? 0,
   );
 }
 
@@ -179,14 +186,33 @@ class StratStateNotifier extends _$StratStateNotifier {
     _save();
   }
 
-  void incrementHumanPlayer() {
-    state = state.copyWith(humanPlayerScore: state.humanPlayerScore + 1);
+  void incrementAutoHumanPlayer() {
+    state = state.copyWith(
+      autoHumanPlayerScore: state.autoHumanPlayerScore + 1,
+    );
     _save();
   }
 
-  void decrementHumanPlayer() {
-    if (state.humanPlayerScore <= 0) return;
-    state = state.copyWith(humanPlayerScore: state.humanPlayerScore - 1);
+  void decrementAutoHumanPlayer() {
+    if (state.autoHumanPlayerScore <= 0) return;
+    state = state.copyWith(
+      autoHumanPlayerScore: state.autoHumanPlayerScore - 1,
+    );
+    _save();
+  }
+
+  void incrementTeleHumanPlayer() {
+    state = state.copyWith(
+      teleHumanPlayerScore: state.teleHumanPlayerScore + 1,
+    );
+    _save();
+  }
+
+  void decrementTeleHumanPlayer() {
+    if (state.teleHumanPlayerScore <= 0) return;
+    state = state.copyWith(
+      teleHumanPlayerScore: state.teleHumanPlayerScore - 1,
+    );
     _save();
   }
 }

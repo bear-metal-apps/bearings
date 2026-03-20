@@ -225,7 +225,8 @@ class ScoutUploadService {
       'defensiveSusceptibilityRanking': strat.defensiveSusceptibility,
       'mechanicalStabilityRanking': strat.mechanicalStability,
       'defenseActivityLevel': strat.defenseActivityLevel,
-      'humanPlayerScore': strat.humanPlayerScore,
+      'autoHumanPlayerScore': strat.autoHumanPlayerScore,
+      'teleHumanPlayerScore': strat.teleHumanPlayerScore,
     };
   }
 }

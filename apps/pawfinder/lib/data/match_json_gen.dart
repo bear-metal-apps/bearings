@@ -156,7 +156,10 @@ MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) {
 MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
   final store = MatchFormStore();
   final stored = store.load(
-      info.event.key, info.matchNumber, info.position.posIndex);
+    info.event.key,
+    info.matchNumber,
+    info.position.posIndex,
+  );
   if (stored != null) {
     return _toLegacyMatchJson(stored);
   }
@@ -194,7 +197,10 @@ void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
 MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
   final store = MatchFormStore();
   final stored = store.load(
-      info.event.key, info.matchNumber, info.position.posIndex);
+    info.event.key,
+    info.matchNumber,
+    info.position.posIndex,
+  );
   if (stored != null) return _toLegacyMatchJson(stored);
 
   // legacy compatibility while old callers still exist
@@ -223,21 +229,25 @@ MatchJsonData _toLegacyMatchJson(MatchFormData data) {
     pos: data.pos,
     sections: data.sections.entries
         .map(
-          (entry) =>
-          SectionJsonData(
+          (entry) => SectionJsonData(
             sectionId: entry.key,
             fields: Map<String, dynamic>.from(entry.value),
           ),
-    )
+        )
         .toList(),
   );
 }
 
-MatchFormData _toMatchFormData(MatchJsonData data,
-    MatchIdentity info,
-    MatchFormStore store,) {
+MatchFormData _toMatchFormData(
+  MatchJsonData data,
+  MatchIdentity info,
+  MatchFormStore store,
+) {
   final existing = store.load(
-      info.event.key, info.matchNumber, info.position.posIndex);
+    info.event.key,
+    info.matchNumber,
+    info.position.posIndex,
+  );
   final sections = <String, Map<String, dynamic>>{
     for (final section in data.sections)
       section.sectionId: Map<String, dynamic>.from(section.fields),

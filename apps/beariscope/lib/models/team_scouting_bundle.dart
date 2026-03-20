@@ -140,13 +140,29 @@ class TeamScoutingBundle {
     double sum = 0;
     int count = 0;
     for (final doc in stratDocs) {
-      final v = doc.data['humanPlayerScore'];
-      if (v is num) {
-        sum += v.toDouble();
+      final v = _humanPlayerScore(doc.data);
+      if (v != null) {
+        sum += v;
         count++;
       }
     }
     return count == 0 ? null : sum / count;
+  }
+
+  static double? _humanPlayerScore(Map<String, dynamic> data) {
+    final auto = data['autoHumanPlayerScore'];
+    final tele = data['teleHumanPlayerScore'];
+    if (auto is num || tele is num) {
+      return (auto is num ? auto.toDouble() : 0.0) +
+          (tele is num ? tele.toDouble() : 0.0);
+    }
+
+    final legacy = data['humanPlayerScore'];
+    if (legacy is num) {
+      return legacy.toDouble();
+    }
+
+    return null;
   }
 
   static int? matchNumber(ScoutingDocument doc) {
