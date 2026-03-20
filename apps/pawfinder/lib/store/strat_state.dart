@@ -33,7 +33,7 @@ String stratQueueIdForIdentity(MatchIdentity identity) =>
 class StratState {
   final List<String> driverSkill;
   final List<String> defensiveSkill;
-  final List<String> defensiveSusceptibility;
+  final List<String> defensiveResilience;
   final List<String> mechanicalStability;
   final double defenseActivityLevel;
   final int autoHumanPlayerScore;
@@ -42,7 +42,7 @@ class StratState {
   const StratState({
     required this.driverSkill,
     required this.defensiveSkill,
-    required this.defensiveSusceptibility,
+    required this.defensiveResilience,
     required this.mechanicalStability,
     required this.defenseActivityLevel,
     required this.autoHumanPlayerScore,
@@ -53,7 +53,7 @@ class StratState {
   const StratState.empty()
     : driverSkill = const [],
       defensiveSkill = const [],
-      defensiveSusceptibility = const [],
+      defensiveResilience = const [],
       mechanicalStability = const [],
       defenseActivityLevel = 0.0,
       autoHumanPlayerScore = 0,
@@ -62,7 +62,7 @@ class StratState {
   StratState copyWith({
     List<String>? driverSkill,
     List<String>? defensiveSkill,
-    List<String>? defensiveSusceptibility,
+    List<String>? defensiveResilience,
     List<String>? mechanicalStability,
     double? defenseActivityLevel,
     int? autoHumanPlayerScore,
@@ -70,8 +70,7 @@ class StratState {
   }) => StratState(
     driverSkill: driverSkill ?? this.driverSkill,
     defensiveSkill: defensiveSkill ?? this.defensiveSkill,
-    defensiveSusceptibility:
-        defensiveSusceptibility ?? this.defensiveSusceptibility,
+    defensiveResilience: defensiveResilience ?? this.defensiveResilience,
     mechanicalStability: mechanicalStability ?? this.mechanicalStability,
     defenseActivityLevel: defenseActivityLevel ?? this.defenseActivityLevel,
     autoHumanPlayerScore: autoHumanPlayerScore ?? this.autoHumanPlayerScore,
@@ -81,7 +80,7 @@ class StratState {
   Map<String, dynamic> toJson() => {
     'driverSkill': driverSkill,
     'defensiveSkill': defensiveSkill,
-    'defensiveSusceptibility': defensiveSusceptibility,
+    'defensiveResilience': defensiveResilience,
     'mechanicalStability': mechanicalStability,
     'defenseActivityLevel': defenseActivityLevel,
     'autoHumanPlayerScore': autoHumanPlayerScore,
@@ -91,9 +90,7 @@ class StratState {
   factory StratState.fromJson(Map<String, dynamic> json) => StratState(
     driverSkill: List<String>.from(json['driverSkill'] ?? []),
     defensiveSkill: List<String>.from(json['defensiveSkill'] ?? []),
-    defensiveSusceptibility: List<String>.from(
-      json['defensiveSusceptibility'] ?? [],
-    ),
+    defensiveResilience: List<String>.from(json['defensiveResilience'] ?? []),
     mechanicalStability: List<String>.from(json['mechanicalStability'] ?? []),
     defenseActivityLevel:
         (json['defenseActivityLevel'] as num?)?.toDouble() ?? 0.0,
@@ -143,7 +140,7 @@ class StratStateNotifier extends _$StratStateNotifier {
     state = state.copyWith(
       driverSkill: List.from(teams),
       defensiveSkill: List.from(teams),
-      defensiveSusceptibility: List.from(teams),
+      defensiveResilience: List.from(teams),
       mechanicalStability: List.from(teams),
     );
     _save();
@@ -165,11 +162,11 @@ class StratStateNotifier extends _$StratStateNotifier {
     _save();
   }
 
-  void reorderDefensiveSusceptibility(int oldIndex, int newIndex) {
+  void reorderDefensiveResilience(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) newIndex -= 1;
-    final list = List<String>.from(state.defensiveSusceptibility);
+    final list = List<String>.from(state.defensiveResilience);
     list.insert(newIndex, list.removeAt(oldIndex));
-    state = state.copyWith(defensiveSusceptibility: list);
+    state = state.copyWith(defensiveResilience: list);
     _save();
   }
 

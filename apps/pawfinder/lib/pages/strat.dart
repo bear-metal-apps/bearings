@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pawfinder/store/strat_state.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:pawfinder/store/strat_state.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class StratPage extends ConsumerStatefulWidget {
   const StratPage({super.key});
@@ -94,9 +93,9 @@ class _StratPageState extends ConsumerState<StratPage> {
               onReorder: notifier.reorderDriverSkill,
             ),
             _RankingList(
-              title: 'Defensive Susceptibility',
-              teams: strat.defensiveSusceptibility,
-              onReorder: notifier.reorderDefensiveSusceptibility,
+              title: 'Defensive Resilience',
+              teams: strat.defensiveResilience,
+              onReorder: notifier.reorderDefensiveResilience,
             ),
             _RankingList(
               title: 'Defensive Skill',

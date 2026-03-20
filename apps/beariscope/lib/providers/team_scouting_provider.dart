@@ -35,7 +35,7 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
   const stratRankingKeys = [
     'driverSkillRanking',
     'defensiveSkillRanking',
-    'defensiveSusceptibilityRanking',
+    'defensiveResilienceRanking',
     'mechanicalStabilityRanking',
   ];
   final teamStr = teamNumber.toString();

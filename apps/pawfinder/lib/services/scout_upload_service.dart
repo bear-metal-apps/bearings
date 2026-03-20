@@ -222,7 +222,7 @@ class ScoutUploadService {
       'meta': payloadMeta,
       'driverSkillRanking': strat.driverSkill,
       'defensiveSkillRanking': strat.defensiveSkill,
-      'defensiveSusceptibilityRanking': strat.defensiveSusceptibility,
+      'defensiveResilienceRanking': strat.defensiveResilience,
       'mechanicalStabilityRanking': strat.mechanicalStability,
       'defenseActivityLevel': strat.defenseActivityLevel,
       'autoHumanPlayerScore': strat.autoHumanPlayerScore,

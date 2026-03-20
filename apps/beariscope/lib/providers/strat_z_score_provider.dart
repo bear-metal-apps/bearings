@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const _kRankingKeys = [
   'driverSkillRanking',
   'defensiveSkillRanking',
-  'defensiveSusceptibilityRanking',
+  'defensiveResilienceRanking',
   'mechanicalStabilityRanking',
 ];
 
@@ -15,20 +15,20 @@ const _kRankingKeys = [
 class StratZScoreData {
   final Map<int, double> driverSkillZ;
   final Map<int, double> defensiveSkillZ;
-  final Map<int, double> defensiveSusceptibilityZ;
+  final Map<int, double> defensiveResilienceZ;
   final Map<int, double> mechanicalStabilityZ;
 
   const StratZScoreData({
     required this.driverSkillZ,
     required this.defensiveSkillZ,
-    required this.defensiveSusceptibilityZ,
+    required this.defensiveResilienceZ,
     required this.mechanicalStabilityZ,
   });
 
   static const empty = StratZScoreData(
     driverSkillZ: {},
     defensiveSkillZ: {},
-    defensiveSusceptibilityZ: {},
+    defensiveResilienceZ: {},
     mechanicalStabilityZ: {},
   );
 
@@ -38,8 +38,8 @@ class StratZScoreData {
         return driverSkillZ;
       case 'defensiveSkillRanking':
         return defensiveSkillZ;
-      case 'defensiveSusceptibilityRanking':
-        return defensiveSusceptibilityZ;
+      case 'defensiveResilienceRanking':
+        return defensiveResilienceZ;
       case 'mechanicalStabilityRanking':
         return mechanicalStabilityZ;
       default:
@@ -99,7 +99,7 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
   return StratZScoreData(
     driverSkillZ: zFor('driverSkillRanking'),
     defensiveSkillZ: zFor('defensiveSkillRanking'),
-    defensiveSusceptibilityZ: zFor('defensiveSusceptibilityRanking'),
+    defensiveResilienceZ: zFor('defensiveResilienceRanking'),
     mechanicalStabilityZ: zFor('mechanicalStabilityRanking'),
   );
 }

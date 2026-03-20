@@ -393,9 +393,9 @@ class _CapabilitiesBody extends StatelessWidget {
           highlight: true,
         ),
         ScoutingDataRow(
-          label: 'Defense Susceptibility',
+          label: 'Defense Resilience',
           value: StratZScoreData.zLabel(
-            stratZScores.defensiveSusceptibilityZ[teamNumber],
+            stratZScores.defensiveResilienceZ[teamNumber],
           ),
           highlight: true,
         ),

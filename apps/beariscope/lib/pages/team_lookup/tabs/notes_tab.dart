@@ -219,7 +219,7 @@ class _NotesBody extends StatelessWidget {
     const keys = {
       'driverSkillRanking': 'Driver',
       'defensiveSkillRanking': 'Def. Skill',
-      'defensiveSusceptibilityRanking': 'Def. Risk',
+      'defensiveResilienceRanking': 'Def. Risk',
       'mechanicalStabilityRanking': 'Mech.',
     };
     final teamStr = teamNumber.toString();
