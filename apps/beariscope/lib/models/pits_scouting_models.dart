@@ -61,7 +61,7 @@ class PitsScoutingSubmission {
   final String autoClimb;
   final Set<String> fuelCollectionLocation;
   final String autoPaths;
-  final String pathwayPreference;
+  final Set<String> pathwayDetails;
   final String trenchCapability;
   final String shooter;
   final int? shooterNumber;
@@ -94,7 +94,7 @@ class PitsScoutingSubmission {
     required this.autoClimb,
     required this.fuelCollectionLocation,
     required this.autoPaths,
-    required this.pathwayPreference,
+    required this.pathwayDetails,
     required this.trenchCapability,
     required this.shooter,
     required this.shooterNumber,
@@ -113,15 +113,19 @@ class PitsScoutingSubmission {
     int season = 2026,
     String? existingId,
   }) {
+    final meta = <String, Object?>{
+      'type': 'pits',
+      'version': 1,
+      'season': season,
+      'event': eventKey,
+      'scoutedBy': scoutedBy,
+    };
+    if (existingId != null) {
+      meta['existingId'] = existingId;
+    }
+
     return {
-      'meta': {
-        'type': 'pits',
-        'version': 1,
-        'season': season,
-        'event': eventKey,
-        'scoutedBy': scoutedBy,
-        if (existingId != null) 'existingId': existingId,
-      },
+      'meta': meta,
       'teamName': teamName,
       'teamNumber': teamNumber,
       'hopperSize': hopperSize,
@@ -142,7 +146,7 @@ class PitsScoutingSubmission {
       'autoClimb': autoClimb,
       'fuelCollectionLocation': fuelCollectionLocation.toList(),
       'autoPaths': autoPaths,
-      'pathwayPreference': pathwayPreference,
+      'pathwayDetails': pathwayDetails.toList(),
       'trenchCapability': trenchCapability,
       'shooter': shooter,
       'shooterNumber': shooterNumber,
@@ -150,7 +154,7 @@ class PitsScoutingSubmission {
       'fuelOuttakeRate': fuelOuttakeRate,
       'averageAccuracy': averageAccuracy,
       'moveWhileShooting': moveWhileShooting.toList(),
-      'rangeFromField': shootingRange.toList(),
+      'shootingRange': shootingRange.toList(),
       'indexerType': indexerType,
       'notes': notes,
     };
