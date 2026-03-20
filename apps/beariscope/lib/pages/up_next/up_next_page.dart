@@ -5,8 +5,8 @@ import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:services/providers/api_provider.dart';
 
 enum _MatchFilter { all, bearMetal }
 
@@ -21,7 +21,7 @@ class UpNextPage extends ConsumerStatefulWidget {
 }
 
 class _UpNextPageState extends ConsumerState<UpNextPage> {
-  _MatchFilter _filter = _MatchFilter.all;
+  _MatchFilter _filter = _MatchFilter.bearMetal;
 
   @override
   Widget build(BuildContext context) {
@@ -30,79 +30,73 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
 
     Future<void> refreshSchedule() async {
       final client = ref.read(honeycombClientProvider);
-      client.invalidateCache('/events?year=2026&year=2025');
-      client.invalidateCache('/matches?year=2026&year=2025');
+      client.invalidateCache('/events?year=2026');
+      client.invalidateCache('/matches?year=2026');
       ref.invalidate(upcomingScheduleProvider);
       try {
         await ref.read(upcomingScheduleProvider.future);
       } catch (_) {}
     }
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Up Next'),
-          leading: controller.isDesktop
-              ? null
-              : IconButton(
-            icon: const Icon(Symbols.menu_rounded),
-            onPressed: controller.openDrawer,
-          ),
-          actions: [
-            PopupMenuButton<_MatchFilter>(
-              icon: Icon(
-                Symbols.sort_rounded,
-                color: _filter == _MatchFilter.bearMetal
-                    ? Theme.of(context).colorScheme.primary
-                    : null,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Up Next'),
+        leading: controller.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: controller.openDrawer,
               ),
-              onSelected: (value) => setState(() => _filter = value),
-              itemBuilder: (context) => [
-                _filterMenuItem(
-                  value: _MatchFilter.all,
-                  label: 'All Matches',
-                  current: _filter,
-                ),
-                _filterMenuItem(
-                  value: _MatchFilter.bearMetal,
-                  label: 'Bear Metal 2046',
-                  current: _filter,
-                ),
-              ],
+        actionsPadding: const EdgeInsets.only(right: 12.0),
+        actions: [
+          PopupMenuButton<_MatchFilter>(
+            icon: Icon(
+              _filter == _MatchFilter.bearMetal
+                  ? Symbols.filter_list_rounded
+                  : Symbols.filter_list_off_rounded,
+              color: _filter == _MatchFilter.bearMetal
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
             ),
-          ],
-        ),
-        body: scheduleAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) =>
-              Center(child: Text('Error fetching schedule: $err')),
-          data: (schedule) {
-            final currentEvents = <Map<String, dynamic>>[];
+            onSelected: (value) => setState(() => _filter = value),
+            itemBuilder: (context) => [
+              _filterMenuItem(
+                value: _MatchFilter.all,
+                label: 'All Matches',
+                current: _filter,
+              ),
+              _filterMenuItem(
+                value: _MatchFilter.bearMetal,
+                label: 'Just 2046',
+                current: _filter,
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: scheduleAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) =>
+            Center(child: Text('Error fetching schedule: $err')),
+        data: (schedule) {
+          final currentEvents = <Map<String, dynamic>>[];
 
-            for (final item in schedule) {
-              if (_filter == _MatchFilter.all) {
-                currentEvents.add(item);
-              } else {
-                final filtered = _filterForTeam(item, 'frc2046');
-                if (filtered != null) currentEvents.add(filtered);
-              }
+          for (final item in schedule) {
+            if (_filter == _MatchFilter.all) {
+              currentEvents.add(item);
+            } else {
+              final filtered = _filterForTeam(item, 'frc2046');
+              if (filtered != null) currentEvents.add(filtered);
             }
+          }
 
-            return TabBarView(
-              children: [
-                _EventList(
-                  items: currentEvents,
-                  emptyMessage: _filter == _MatchFilter.all
-                      ? 'No Current Events found.'
-                      : 'No upcoming matches found for Bear Metal 2046.',
-                  timeFormat: UpNextPage.timeFormat,
-                  onRefresh: refreshSchedule,
-                ),
-              ],
-            );
-          },
-        ),
+          return _EventList(
+            items: currentEvents,
+            emptyMessage: 'No matches found',
+            timeFormat: UpNextPage.timeFormat,
+            onRefresh: refreshSchedule,
+          );
+        },
       ),
     );
   }
@@ -129,10 +123,8 @@ PopupMenuItem<_MatchFilter> _filterMenuItem({
   );
 }
 
-Map<String, dynamic>? _filterForTeam(
-    Map<String, dynamic> item,
-    String teamKey,
-    ) {
+Map<String, dynamic>? _filterForTeam(Map<String, dynamic> item,
+    String teamKey,) {
   final matches = (item['matches'] as List?)
       ?.whereType<Map>()
       .map((m) => Map<String, dynamic>.from(m))
@@ -140,15 +132,11 @@ Map<String, dynamic>? _filterForTeam(
 
   if (matches == null || matches.isEmpty) return null;
 
-  final teamMatches =
-  matches.where((m) => _isTeamInMatch(m, teamKey)).toList();
+  final teamMatches = matches.where((m) => _isTeamInMatch(m, teamKey)).toList();
 
   if (teamMatches.isEmpty) return null;
 
-  return {
-    ...item,
-    'matches': teamMatches,
-  };
+  return {...item, 'matches': teamMatches};
 }
 
 bool _isTeamInMatch(Map<String, dynamic> match, String teamKey) {
@@ -157,9 +145,9 @@ bool _isTeamInMatch(Map<String, dynamic> match, String teamKey) {
 
   for (final alliance in alliances.values) {
     if (alliance is! Map) continue;
-    final keys = (alliance['team_keys'] ??
-        alliance['teamKeys'] ??
-        alliance['teams']) as List?;
+    final keys =
+        (alliance['team_keys'] ?? alliance['teamKeys'] ?? alliance['teams'])
+            as List?;
     if (keys != null && keys.any((k) => k?.toString() == teamKey)) {
       return true;
     }
@@ -182,7 +170,7 @@ class _EventSection extends StatelessWidget {
             ?.whereType<Map>()
             .map((m) => Map<String, dynamic>.from(m))
             .toList() ??
-            const <Map<String, dynamic>>[];
+        const <Map<String, dynamic>>[];
     final eventName = event['name']?.toString() ?? 'Unknown Event';
 
     if (matches.isEmpty) {
@@ -202,8 +190,9 @@ class _EventSection extends StatelessWidget {
           Text(eventName, style: const TextStyle(fontFamily: 'Xolonium')),
           ...matches.map((match) {
             final matchTime = _parseMatchTime(match);
-            final timeLabel =
-            matchTime == null ? 'Time TBD' : timeFormat.format(matchTime);
+            final timeLabel = matchTime == null
+                ? 'Time TBD'
+                : timeFormat.format(matchTime);
 
             String displayName;
             final compLevel = _stringValue(match, 'compLevel', 'comp_level');
@@ -297,11 +286,9 @@ int? _intValue(Map<String, dynamic> map, String primary, String fallback) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-String _defaultMatchName(
-    Map<String, dynamic> match,
+String _defaultMatchName(Map<String, dynamic> match,
     String compLevel,
-    int? matchNumber,
-    ) {
+    int? matchNumber,) {
   if (compLevel.isEmpty) return match['key']?.toString() ?? '';
   if (matchNumber != null) return '$compLevel $matchNumber';
   return compLevel;
