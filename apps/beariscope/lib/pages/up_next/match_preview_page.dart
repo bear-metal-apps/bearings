@@ -127,34 +127,23 @@ class _DriveTeamMatchPreviewPageState
                       .toList() ??
                   const <String>[]
             : const <String>[];
-        final cards = [
-          ...redTeams.map((teamKey) {
-            final number = teamNumberFromKey(teamKey);
-            return number.isEmpty
-                ? [teamKey, teamKey]
-                : ['Team $number', number];
-          }),
-          ...blueTeams.map((teamKey) {
-            final number = teamNumberFromKey(teamKey);
-            return number.isEmpty
-                ? [teamKey, teamKey]
-                : ['Team $number', number];
-          }),
+        final cards = <({String teamKey, Color color})>[
+          ...redTeams.map((teamKey) => (teamKey: teamKey, color: Colors.red)),
+          ...blueTeams.map((teamKey) => (teamKey: teamKey, color: Colors.blue)),
         ];
         final compLevel = match['comp_level']?.toString() ?? '';
         final matchNumber = match['match_number'];
         final number = matchNumber is int
             ? matchNumber
             : int.tryParse(matchNumber?.toString() ?? '');
-        final matchTitle = (compLevel.isEmpty || number == null)
+        final matchTitle = compLevel.isEmpty || number == null
             ? 'Match ${widget.matchKey}'
-            : '${compLevel == 'qm'
-                  ? 'Qualification Match'
-                  : compLevel == 'sf'
-                  ? 'Semifinal Match'
-                  : compLevel == 'f'
-                  ? 'Final Match'
-                  : compLevel.toUpperCase()} $number';
+            : '${switch (compLevel) {
+                'qm' => 'Qualification Match',
+                'sf' => 'Semifinal Match',
+                'f' => 'Final Match',
+                _ => compLevel.toUpperCase(),
+              }} $number';
         final matchVideos = (match['videos'] as List<dynamic>? ?? [])
             .map((e) => Map<String, dynamic>.from(e))
             .toList();
@@ -285,7 +274,10 @@ class _DriveTeamMatchPreviewPageState
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: TeamCard(teamKey: cards[index][1]),
+                            child: TeamCard(
+                              teamKey: cards[index].teamKey,
+                              allianceColor: cards[index].color,
+                            ),
                           );
                         },
                       ),
@@ -311,6 +303,10 @@ class _DriveTeamMatchPreviewPageState
                             color: Theme.of(
                               context,
                             ).colorScheme.surfaceContainerHighest,
+                            colors: cards
+                                .map((c) => c.color.withValues(alpha: 0.4))
+                                .toList(),
+                            activeColors: cards.map((c) => c.color).toList(),
                             spacing: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 8,

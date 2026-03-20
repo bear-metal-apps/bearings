@@ -49,12 +49,14 @@ class _NotesBody extends StatelessWidget {
     int totalCommsLoss = 0;
     int totalCollisions = 0;
     int totalFouls = 0;
+    int totalNoShows = 0;
 
     for (final doc in sortedDocs) {
       if (_field(doc, kSectionAuto, kAutoAStop) == true) totalAStop++;
       if (_field(doc, kSectionTele, kTeleEStop) == true) totalEStop++;
       if (_field(doc, kSectionTele, kTeleLostComms) == true) totalCommsLoss++;
       if (_field(doc, kSectionAuto, kAutoCollided) == true) totalCollisions++;
+      if (_field(doc, kSectionEndgame, kEndNoShow) == true) totalNoShows++;
       final f = _field(doc, kSectionEndgame, kEndFouls);
       if (f is num) totalFouls += f.toInt();
 
@@ -76,6 +78,7 @@ class _NotesBody extends StatelessWidget {
             if (_field(doc, kSectionTele, kTeleEStop) == true) 'E-Stop',
             if (_field(doc, kSectionTele, kTeleLostComms) == true) 'Comms Loss',
             if (_field(doc, kSectionAuto, kAutoCollided) == true) 'Collision',
+            if (_field(doc, kSectionEndgame, kEndNoShow) == true) 'No Show',
             if (f is num && f > 0) '${f.toInt()} Foul${f == 1 ? '' : 's'}',
           ],
           timestamp: doc.timestamp,
@@ -172,6 +175,7 @@ class _NotesBody extends StatelessWidget {
                   totalCollisions,
                 ),
                 scoutingIncidentCountChip(context, 'Total Fouls', totalFouls),
+                scoutingIncidentCountChip(context, 'No Shows', totalNoShows),
               ],
             ),
           ),

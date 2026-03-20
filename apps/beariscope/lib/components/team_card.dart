@@ -19,8 +19,14 @@ import 'package:url_launcher/url_launcher.dart';
 class TeamCard extends ConsumerWidget {
   final String teamKey;
   final double? height;
+  final Color? allianceColor;
 
-  const TeamCard({super.key, required this.teamKey, this.height});
+  const TeamCard({
+    super.key,
+    required this.teamKey,
+    this.height,
+    this.allianceColor,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -76,7 +82,16 @@ class TeamCard extends ConsumerWidget {
             child: InkWell(
               onTap: action,
               borderRadius: BorderRadius.circular(12),
-              child: _TeamCardSummary(team: resolvedTeam),
+              child: DecoratedBox(
+                decoration: allianceColor != null
+                    ? BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: allianceColor!, width: 4),
+                        ),
+                      )
+                    : const BoxDecoration(),
+                child: _TeamCardSummary(team: resolvedTeam),
+              ),
             ),
           ),
           openBuilder: (context, action) => TeamDetailsPage(

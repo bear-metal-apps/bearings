@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/custom_widgets/upload_button.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/app_provider.dart';
@@ -22,7 +23,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
-    final flow = ref.read(scoutingFlowControllerProvider);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
 
@@ -92,12 +92,18 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
           IconButton(
             icon: const Icon(Icons.skip_previous),
             tooltip: 'Previous Match',
-            onPressed: matchNumber > 1 ? () => flow.previousMatch() : null,
+            onPressed: () {
+              ref.read(scoutingFlowControllerProvider).previousMatch();
+              context.go('/match/auto');
+            },
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
             tooltip: 'Next Match',
-            onPressed: () => flow.nextMatch(),
+            onPressed: () {
+              ref.read(scoutingFlowControllerProvider).nextMatch();
+              context.go('/match/auto');
+            },
           ),
         ],
       ),
