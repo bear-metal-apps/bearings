@@ -60,10 +60,10 @@
             "h": 1
           },
           "parameters": {
-            "options": [
+            "options" : [
+              "Not Attempted",
               "Successful",
-              "Attempted",
-              "Not Attempted"
+              "Attempted"
             ]
           }
         },
@@ -170,11 +170,11 @@
           "layout": {
             "x": 0,
             "y": 0,
-            "w": 6,
+            "w": 5.96,
             "h": 1
           },
           "parameters": {
-            "options": [
+            "options" : [
               "P1",
               "P2",
               "P3",
@@ -372,13 +372,13 @@
             "h": 1
           },
           "parameters": {
-            "options": [
-              "Attempted",
-              "N/A",
-              "L1",
-              "L2",
-              "L3"
-            ]
+              "options" : [
+                "N/A",
+                "Attempted",
+                "L1",
+                "L2",
+                "L3"
+              ]
           }
         },
         {
@@ -416,11 +416,11 @@
             "h": 2
           },
           "parameters": {
-            "options": [
+            "options" : [
+              "N/A",
               "Left",
               "Center",
-              "Right",
-              "N/A"
+              "Right"
             ]
           }
         },
@@ -431,11 +431,11 @@
           "layout": {
             "x": 0,
             "y": 4,
-            "w": 6,
+            "w": 5,
             "h": 1
           },
           "parameters": {
-            "options": [
+            "options" : [
               "Passing",
               "Cycling",
               "Shooting",
@@ -443,6 +443,18 @@
             ],
             "multi_select": true
           }
+        },
+        {
+          "alias": "No Show",
+          "fieldId": "no_show",
+          "type": "checkbox",
+          "layout": {
+            "x": 5,
+            "y": 4,
+            "w": 1,
+            "h": 1
+          },
+          "parameters": {}
         },
         {
           "alias": "Next Match",
