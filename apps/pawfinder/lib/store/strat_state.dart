@@ -8,9 +8,27 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'strat_state.g.dart';
 
-// hive key for a given match's strat data
-String _stratKey(MatchIdentity identity) =>
+String stratStorageKey({
+  required String eventKey,
+  required int matchNumber,
+  required String alliance,
+}) => 'STRAT_${eventKey}_${matchNumber}_$alliance';
+
+String stratStorageKeyForIdentity(MatchIdentity identity) => stratStorageKey(
+  eventKey: identity.event.key,
+  matchNumber: identity.matchNumber,
+  alliance: identity.position.allianceKey,
+);
+
+String _stratScoutedByKey(MatchIdentity identity) =>
+    '${stratStorageKeyForIdentity(identity)}_scoutedBy';
+
+// legacy scout-dependent key used before task 11 refactor
+String _legacyStratStorageKey(MatchIdentity identity) =>
     'STRAT_${identityDataKey(identity)}';
+
+String stratQueueIdForIdentity(MatchIdentity identity) =>
+    '$stratQueuePrefix${identity.event.key}:${identity.matchNumber}:${identity.position.allianceKey}';
 
 class StratState {
   final List<String> driverSkill;
@@ -90,7 +108,18 @@ class StratState {
 class StratStateNotifier extends _$StratStateNotifier {
   @override
   StratState build(MatchIdentity identity) {
-    final raw = Hive.box(boxKey).get(_stratKey(identity));
+    final box = Hive.box(boxKey);
+    final stratKey = stratStorageKeyForIdentity(identity);
+    var raw = box.get(stratKey);
+
+    if (raw is! String) {
+      final legacyRaw = box.get(_legacyStratStorageKey(identity));
+      if (legacyRaw is String) {
+        raw = legacyRaw;
+        box.put(stratKey, legacyRaw);
+      }
+    }
+
     if (raw is String) {
       try {
         return StratState.fromJson(jsonDecode(raw));
@@ -99,11 +128,12 @@ class StratStateNotifier extends _$StratStateNotifier {
     return const StratState.empty();
   }
 
-  void _save({bool markForUpload = true}) {
-    Hive.box(boxKey).put(_stratKey(identity), jsonEncode(state.toJson()));
-    if (markForUpload) {
-      // queue only when the scout actually changed something
-      ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
+  void _save() {
+    final box = Hive.box(boxKey);
+    box.put(stratStorageKeyForIdentity(identity), jsonEncode(state.toJson()));
+    final scoutedBy = identity.scout.name.trim();
+    if (scoutedBy.isNotEmpty) {
+      box.put(_stratScoutedByKey(identity), scoutedBy);
     }
   }
 
@@ -116,7 +146,7 @@ class StratStateNotifier extends _$StratStateNotifier {
       defensiveSusceptibility: List.from(teams),
       mechanicalStability: List.from(teams),
     );
-    _save(markForUpload: false);
+    _save();
   }
 
   void reorderDriverSkill(int oldIndex, int newIndex) {

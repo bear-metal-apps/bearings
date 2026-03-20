@@ -1,13 +1,13 @@
-import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
-import 'package:beariscope/models/scouting_document.dart';
+import 'package:beariscope/models/processed_scouting_doc.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:services/providers/api_provider.dart';
 
 final _teamScheduleProvider = FutureProvider.family<List<int>, int>((
   ref,
@@ -80,11 +80,11 @@ class _MatchesBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scoutedByMatchNumber = <int, ScoutingDocument>{};
-    final unknownDocs = <ScoutingDocument>[];
+    final scoutedByMatchNumber = <int, ProcessedScoutingDoc>{};
+    final unknownDocs = <ProcessedScoutingDoc>[];
 
     for (final doc in bundle.matchDocs) {
-      final mn = TeamScoutingBundle.matchNumber(doc);
+      final mn = TeamScoutingBundle.matchNumber(doc.raw);
       if (mn != null) {
         scoutedByMatchNumber[mn] = doc;
       } else {
@@ -131,7 +131,7 @@ class _MatchesBody extends StatelessWidget {
 
 class _MatchItem {
   final int? matchNumber;
-  final ScoutingDocument? doc;
+  final ProcessedScoutingDoc? doc;
   final bool inSchedule;
 
   const _MatchItem({
@@ -185,19 +185,19 @@ class _UnscoutedMatchCard extends StatelessWidget {
 }
 
 class _MatchCard extends StatelessWidget {
-  final ScoutingDocument doc;
+  final ProcessedScoutingDoc doc;
 
   const _MatchCard({required this.doc});
 
   dynamic _f(String section, String id) =>
-      TeamScoutingBundle.getMatchField(doc, section, id);
+      TeamScoutingBundle.getMatchField(doc.raw, section, id);
 
   @override
   Widget build(BuildContext context) {
-    final mn = TeamScoutingBundle.matchNumber(doc);
+    final mn = TeamScoutingBundle.matchNumber(doc.raw);
     final label = mn != null
         ? 'Match $mn'
-        : 'Match (${scoutingShortDate(doc.timestamp)})';
+        : 'Match (${scoutingShortDate(doc.raw.timestamp)})';
 
     final autoFuel = _f(kSectionAuto, kAutoFuelScored);
     final teleFuel = _f(kSectionTele, kTeleFuelScored);
@@ -279,12 +279,12 @@ class _MatchCard extends StatelessWidget {
 }
 
 class _MatchDetailSection extends StatelessWidget {
-  final ScoutingDocument doc;
+  final ProcessedScoutingDoc doc;
 
   const _MatchDetailSection({required this.doc});
 
   dynamic _f(String section, String id) =>
-      TeamScoutingBundle.getMatchField(doc, section, id);
+      TeamScoutingBundle.getMatchField(doc.raw, section, id);
 
   String _quadrants() {
     final qs = [

@@ -152,7 +152,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                             drivetrainType: _readStringField('drivetrainType'),
                             swerveBrand: _readStringField('swerveBrand'),
                             swerveGearRatio: _readStringField(
-                                'swerveGearRatio'),
+                              'swerveGearRatio',
+                            ),
                             wheelType: _readStringField('wheelType'),
                             chassisLength: _readDoubleField('chassisLength'),
                             chassisWidth: _readDoubleField('chassisWidth'),
@@ -202,12 +203,14 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                           );
 
                           try {
-                            await ref.read(honeycombClientProvider).post(
-                              '/scout/ingest',
-                              data: {
-                                'entries': [entry],
-                              },
-                            );
+                            await ref
+                                .read(honeycombClientProvider)
+                                .post(
+                                  '/scout/ingest',
+                                  data: {
+                                    'entries': [entry],
+                                  },
+                                );
                             if (context.mounted) {
                               Navigator.pop(context, true);
                             }
@@ -219,9 +222,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                             }
                           }
                         },
-                        child: Text(widget.scouted == false
-                            ? 'Submit'
-                            : 'Edit'),
+                        child: Text(
+                          widget.scouted == false ? 'Submit' : 'Edit',
+                        ),
                       ),
                     ),
                   ],
@@ -247,8 +250,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
 
         switch (field.type) {
           case PitsFormFieldType.number ||
-          PitsFormFieldType.text ||
-          PitsFormFieldType.multilineText:
+              PitsFormFieldType.text ||
+              PitsFormFieldType.multilineText:
             final text = _normalizeTextValue(field, rawValue);
             _textControllers[field.id] = TextEditingController(text: text);
 
@@ -319,10 +322,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
     final candidates = switch (rawValue) {
       List() => rawValue.map((value) => value.toString()).toSet(),
       Set() => rawValue.map((value) => value.toString()).toSet(),
-      String() =>
-      rawValue
-          .trim()
-          .isEmpty ? <String>{} : {rawValue},
+      String() => rawValue.trim().isEmpty ? <String>{} : {rawValue},
       _ => <String>{},
     };
 
@@ -379,67 +379,59 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
 
   Widget _buildFieldWidget(PitsFormField field) {
     return switch (field.type) {
-      PitsFormFieldType.number =>
-          NumberTextField(
-            labelText: field.displayName,
-            controller: _textControllers[field.id],
-          ),
-      PitsFormFieldType.singleSelect =>
-          DropdownButtonOneChoice(
+      PitsFormFieldType.number => NumberTextField(
+        labelText: field.displayName,
+        controller: _textControllers[field.id],
+      ),
+      PitsFormFieldType.singleSelect => DropdownButtonOneChoice(
+        options: field.options,
+        label: field.displayName,
+        initialValue: _stringValues[field.id],
+        onChanged: (value) {
+          _stringValues[field.id] = value ?? _stringValues[field.id] ?? '';
+        },
+      ),
+      PitsFormFieldType.multiSelect => MultipleChoice(
+        options: field.options,
+        label: field.displayName,
+        initialSelection: _setValues[field.id]?.toList(),
+        onSelectionChanged: (value) {
+          _setValues[field.id] = value;
+        },
+      ),
+      PitsFormFieldType.radio => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(field.displayName),
+          RadioButton(
             options: field.options,
-            label: field.displayName,
             initialValue: _stringValues[field.id],
             onChanged: (value) {
               _stringValues[field.id] = value ?? _stringValues[field.id] ?? '';
             },
           ),
-      PitsFormFieldType.multiSelect =>
-          MultipleChoice(
-            options: field.options,
-            label: field.displayName,
-            initialSelection: _setValues[field.id]?.toList(),
-            onSelectionChanged: (value) {
-              _setValues[field.id] = value;
-            },
-          ),
-      PitsFormFieldType.radio =>
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(field.displayName),
-              RadioButton(
-                options: field.options,
-                initialValue: _stringValues[field.id],
-                onChanged: (value) {
-                  _stringValues[field.id] =
-                      value ?? _stringValues[field.id] ?? '';
-                },
-              ),
-            ],
-          ),
-      PitsFormFieldType.slider =>
-          SegmentedSlider(
-            min: _sliderMin(field),
-            max: _sliderMax(field),
-            divisions: _sliderDivisions(field),
-            label: field.displayName,
-            initialValue: _numberValues[field.id],
-            onChanged: (value) {
-              _numberValues[field.id] = value;
-            },
-          ),
-      PitsFormFieldType.text =>
-          TextField(
-            controller: _textControllers[field.id],
-            decoration: InputDecoration(labelText: field.displayName),
-          ),
-      PitsFormFieldType.multilineText =>
-          TextField(
-            controller: _textControllers[field.id],
-            keyboardType: TextInputType.multiline,
-            maxLines: null,
-            decoration: InputDecoration(labelText: field.displayName),
-          ),
+        ],
+      ),
+      PitsFormFieldType.slider => SegmentedSlider(
+        min: _sliderMin(field),
+        max: _sliderMax(field),
+        divisions: _sliderDivisions(field),
+        label: field.displayName,
+        initialValue: _numberValues[field.id],
+        onChanged: (value) {
+          _numberValues[field.id] = value;
+        },
+      ),
+      PitsFormFieldType.text => TextField(
+        controller: _textControllers[field.id],
+        decoration: InputDecoration(labelText: field.displayName),
+      ),
+      PitsFormFieldType.multilineText => TextField(
+        controller: _textControllers[field.id],
+        keyboardType: TextInputType.multiline,
+        maxLines: null,
+        decoration: InputDecoration(labelText: field.displayName),
+      ),
     };
   }
 

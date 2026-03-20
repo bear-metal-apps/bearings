@@ -123,8 +123,10 @@ PopupMenuItem<_MatchFilter> _filterMenuItem({
   );
 }
 
-Map<String, dynamic>? _filterForTeam(Map<String, dynamic> item,
-    String teamKey,) {
+Map<String, dynamic>? _filterForTeam(
+  Map<String, dynamic> item,
+  String teamKey,
+) {
   final matches = (item['matches'] as List?)
       ?.whereType<Map>()
       .map((m) => Map<String, dynamic>.from(m))
@@ -286,9 +288,11 @@ int? _intValue(Map<String, dynamic> map, String primary, String fallback) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-String _defaultMatchName(Map<String, dynamic> match,
-    String compLevel,
-    int? matchNumber,) {
+String _defaultMatchName(
+  Map<String, dynamic> match,
+  String compLevel,
+  int? matchNumber,
+) {
   if (compLevel.isEmpty) return match['key']?.toString() ?? '';
   if (matchNumber != null) return '$compLevel $matchNumber';
   return compLevel;

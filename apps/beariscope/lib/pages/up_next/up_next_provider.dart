@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';

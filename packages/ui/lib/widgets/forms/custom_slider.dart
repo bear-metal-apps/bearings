@@ -2,17 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class CustomSlider extends StatefulWidget {
-  final String title;
-  final double width;
-  final double height;
-  final int? segmentLength;
-  final int minValue;
-  final int maxValue;
-  final double? initialValue;
-  final Function(double) onChanged;
-  final bool isVertical;
-
   const CustomSlider({
+    super.key,
     required this.onChanged,
     required this.title,
     required this.width,
@@ -22,14 +13,25 @@ class CustomSlider extends StatefulWidget {
     required this.maxValue,
     this.initialValue,
     this.isVertical = false,
-    super.key,
   });
+
+  final String title;
+  final double width;
+  final double height;
+  final int? segmentLength;
+  final int minValue;
+  final int maxValue;
+  final double? initialValue;
+  final ValueChanged<double> onChanged;
+  final bool isVertical;
+
   @override
   State<CustomSlider> createState() => _CustomSliderState();
 }
 
 class _CustomSliderState extends State<CustomSlider> {
-  late double sliderValue = widget.initialValue ?? 0;
+  late double _sliderValue = widget.initialValue ?? 0;
+
   @override
   Widget build(BuildContext context) {
     if (widget.isVertical) {
@@ -50,10 +52,10 @@ class _CustomSliderState extends State<CustomSlider> {
               child: SfSlider.vertical(
                 min: widget.minValue.toDouble(),
                 max: widget.maxValue.toDouble(),
-                value: sliderValue,
+                value: _sliderValue,
                 onChanged: (value) {
                   widget.onChanged(value);
-                  setState(() => sliderValue = value);
+                  setState(() => _sliderValue = value);
                 },
                 interval: 1.0,
                 showTicks: true,
@@ -62,7 +64,6 @@ class _CustomSliderState extends State<CustomSlider> {
                 inactiveColor: Theme.of(
                   context,
                 ).colorScheme.surfaceContainerHighest,
-                // enableTooltip: true,
               ),
             ),
           ],
@@ -86,10 +87,10 @@ class _CustomSliderState extends State<CustomSlider> {
             child: SfSlider(
               min: widget.minValue.toDouble(),
               max: widget.maxValue.toDouble(),
-              value: sliderValue,
+              value: _sliderValue,
               onChanged: (value) {
                 widget.onChanged(value);
-                setState(() => sliderValue = value);
+                setState(() => _sliderValue = value);
               },
               interval: 5.0,
               showTicks: true,

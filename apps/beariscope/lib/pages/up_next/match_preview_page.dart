@@ -431,6 +431,15 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
   bool _initialized = false;
   bool _isSaving = false;
 
+  Future<String> _resolveScoutedBy() async {
+    final userInfo = await ref.read(userInfoProvider.future);
+    final name = userInfo?.name?.trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+    return 'Unknown User';
+  }
+
   @override
   void dispose() {
     for (final c in _controllers.values) {
@@ -471,11 +480,10 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     setState(() => _isSaving = true);
 
     try {
-      final userInfo = ref.read(userInfoProvider).asData?.value;
       final authMe = await ref.read(authMeProvider.future);
       final eventKey = ref.read(currentEventProvider);
 
-      final scoutedBy = userInfo?.name?.trim() ?? 'Unknown User';
+      final scoutedBy = await _resolveScoutedBy();
       final userId = authMe?.user.id ?? '';
 
       final entries = <Map<String, Object?>>[];

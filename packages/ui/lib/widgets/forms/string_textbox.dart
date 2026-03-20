@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
 
-// String textbox widget.
 class StringTextbox extends StatefulWidget {
-  final Color? fillColor;
-  final Color? outlineColor;
-  final String dataName;
-  final Function(String) onChanged;
-  final double width;
-  final double height;
-  final String? initialString;
-
   const StringTextbox({
     super.key,
     this.fillColor,
@@ -20,23 +11,32 @@ class StringTextbox extends StatefulWidget {
     required this.height,
     this.initialString,
   });
+
+  final Color? fillColor;
+  final Color? outlineColor;
+  final String dataName;
+  final ValueChanged<String> onChanged;
+  final double width;
+  final double height;
+  final String? initialString;
+
   @override
   State<StringTextbox> createState() => _StringTextboxState();
 }
 
 class _StringTextboxState extends State<StringTextbox> {
-  TextEditingController controller = TextEditingController();
-  late String value = widget.initialString ?? '';
+  final TextEditingController _controller = TextEditingController();
+  late String _value = widget.initialString ?? '';
 
   @override
   void initState() {
     super.initState();
-    controller.text = value;
+    _controller.text = _value;
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -87,13 +87,12 @@ class _StringTextboxState extends State<StringTextbox> {
               width: 2.0,
             ),
           ),
-          // contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),
-        controller: controller,
-        onChanged: (text) {
+        controller: _controller,
+        onChanged: (_) {
           setState(() {
-            value = controller.text;
-            widget.onChanged(value);
+            _value = _controller.text;
+            widget.onChanged(_value);
           });
         },
       ),

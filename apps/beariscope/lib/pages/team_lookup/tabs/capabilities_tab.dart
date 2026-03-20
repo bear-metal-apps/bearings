@@ -296,7 +296,7 @@ class _CapabilitiesBody extends StatelessWidget {
     if (hasMatchData) {
       for (final doc in bundle.matchDocs) {
         final v = TeamScoutingBundle.getMatchField(
-          doc,
+          doc.raw,
           kSectionEndgame,
           kEndClimb,
         )?.toString();

@@ -32,6 +32,8 @@ dependencies:
   material_symbols_icons: ^4.2906.0
   services:
     path: ../../packages/services
+  ui:
+    path: ../../packages/ui
 
 dev_dependencies:
   flutter_test:
@@ -44,7 +46,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - resources/ui_creator.json
   fonts:
     - family: Papyrus
       fonts:

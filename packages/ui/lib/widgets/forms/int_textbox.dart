@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Number button widget that adds and substracts a numerical value.
 class IntTextbox extends StatefulWidget {
-  final Color? fillColor;
-  final Color? outlineColor;
-  final String dataName;
-  final Function(int) onChanged;
-  final double width;
-  final double height;
-  final int? initialValue;
-
   const IntTextbox({
     super.key,
     this.initialValue,
@@ -22,23 +13,31 @@ class IntTextbox extends StatefulWidget {
     required this.height,
   });
 
+  final Color? fillColor;
+  final Color? outlineColor;
+  final String dataName;
+  final ValueChanged<int> onChanged;
+  final double width;
+  final double height;
+  final int? initialValue;
+
   @override
   State<IntTextbox> createState() => _IntTextboxState();
 }
 
 class _IntTextboxState extends State<IntTextbox> {
-  TextEditingController controller = TextEditingController();
-  late int value = widget.initialValue ?? 0;
+  final TextEditingController _controller = TextEditingController();
+  late int _value = widget.initialValue ?? 0;
 
   @override
   void initState() {
     super.initState();
-    controller.text = value.toString();
+    _controller.text = _value.toString();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -90,15 +89,14 @@ class _IntTextboxState extends State<IntTextbox> {
               width: 2.0,
             ),
           ),
-          // contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),
-        controller: controller,
+        controller: _controller,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onChanged: (text) {
+        onChanged: (_) {
           setState(() {
-            value = int.tryParse(controller.text) ?? 0;
-            widget.onChanged(value);
+            _value = int.tryParse(_controller.text) ?? 0;
+            widget.onChanged(_value);
           });
         },
       ),
