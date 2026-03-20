@@ -1,5 +1,12 @@
 # Changelog
 
+## v26.2.1
+**Released:** 2026-03-20
+
+### CI
+- release: Fix release workflow to stop errors (bef8aad)
+
+
 ## v26.2.0
 **Released:** 2026-03-20
 
