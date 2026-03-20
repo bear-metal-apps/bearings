@@ -106,7 +106,6 @@ class _TeamCardSummary extends ConsumerWidget {
       AsyncData(:final value) => value,
       _ => const <int, TeamRanking>{},
     };
-    final ranking = rankings[team.number];
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -157,15 +156,14 @@ class _TeamCardSummary extends ConsumerWidget {
                   loading: () => const SizedBox.shrink(),
                   error: (_, _) => const SizedBox.shrink(),
                   data: (bundle) => _SummaryMetrics(
-                      bundle: bundle, stratZScores: null,
+                    bundle: bundle,
+                    stratZScores:
+                        ref.watch(stratZScoresProvider).asData?.value ??
+                        StratZScoreData.empty,
+                    ranking: rankings[team.number],
                   ),
                 ),
               ),
-              if (ranking != null)
-                _RankBadge(
-                  rank: ranking.rank,
-                  rankingPoints: ranking.rankingPoints,
-                ),
             ],
           ),
         ],
@@ -177,69 +175,70 @@ class _TeamCardSummary extends ConsumerWidget {
 class _SummaryMetrics extends ConsumerWidget {
   final TeamScoutingBundle bundle;
   final StratZScoreData? stratZScores;
+  final TeamRanking? ranking;
 
   const _SummaryMetrics({
     required this.bundle,
-    required this.stratZScores
+    required this.stratZScores,
+    required this.ranking,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final playingStyles = bundle.getPitsListField('playingStyle');
     final primaryRole = playingStyles.isNotEmpty ? playingStyles.first : null;
-    final trenchCapable = bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
+    final trenchCapable =
+        bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
     final climbCapable = bundle.getPitsField<String>('climbLevel');
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
-    final avgAccuracy = (bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy) + bundle.avgMatchField(kSectionAuto, kAutoFuelAccuracy))/2;
+    final avgAccuracy =
+        (bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy) +
+            bundle.avgMatchField(kSectionAuto, kAutoFuelAccuracy)) /
+        2;
     final hasMatch = bundle.hasMatchData;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ListView(
-        //   children: [
-        //     ListTile(
-        //       leading: Icon(Icons.directions_car),
-        //       title: Text("Driver Skill"),
-        //       trailing: Text("work"),
-        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.driverSkillZ[2046]) ? "null"),
-        //     ),
-        //
-        //     ListTile(
-        //       leading: Icon(Icons.fence),
-        //       title: Text("Defensive Skill"),
-        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.defensiveSkillZ[2046])),
-        //     ),
-        //
-        //     ListTile(
-        //       leading: Icon(Icons.shield),
-        //       title: Text("Defensive Susceptibility"),
-        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.defensiveSusceptibilityZ[2046])),
-        //     ),
-        //
-        //     ListTile(
-        //       leading: Icon(Icons.architecture),
-        //       title: Text("Mech. Stability"),
-        //       // trailing: Text(StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[2046])),
-        //     ),
-        //   ],
-        // ),
-        // SfCartesianChart(
-        //   primaryXAxis: NumericAxis(
-        //     maximum: bundle.matchDocs.length.toDouble(),
-        //   ),
-        //   primaryYAxis: NumericAxis(),
-        //   series: <CartesianSeries>[
-        //     // Renders line chart
-        //     LineSeries<TeamScoutingBundle, DateTime>(
-        //         dataSource: bundle.matchDocs[].data[],
-        //         xValueMapper: (, _) => ,
-        //         yValueMapper: (SalesData sales, _) => sales.sales
-        //     )
-        //   ],
-        // ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                "Driver Skill ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[2046])}",
+              ),
+                Text(
+                  "Defensive Skill ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[2046])}",
+                ),
+                Text(
+                  "Defensive Susceptibility ${StratZScoreData.zLabel(stratZScores!.defensiveSusceptibilityZ[2046])}",
+                ),
+                Text(
+                  "Mechanical Stability ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[2046])}",
+                ),],
+            ),
+            // SfCartesianChart(
+            //     primaryXAxis: NumericAxis(
+            //       maximum: bundle.matchDocs.length.toDouble(),
+            //     ),
+            //     primaryYAxis: NumericAxis(
+            //
+            //     ),
+            //     series: <CartesianSeries>[
+            //       // Renders line chart
+            //       LineSeries<TeamScoutingBundle, DateTime>(
+            //           // dataSource: bundle.matchDocs[].data[],
+            //           xValueMapper: (_, match) => match,
+            //           yValueMapper: (_, _) =>,
+            //       )
+            //     ],
+            //   ),
+          ],
+        ),
         // Role chip + trench status
         if (bundle.hasPitsData) ...[
           Wrap(
@@ -305,32 +304,42 @@ class _SummaryMetrics extends ConsumerWidget {
         // Auto / Tele fuel averages
         if (hasMatch)
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _statPill(
-                context,
-                label: 'Auto',
-                value: avgAutoFuel.toStringAsFixed(1),
+              Row(
+                children: [
+                  _statPill(
+                    context,
+                    label: 'Auto',
+                    value: avgAutoFuel.toStringAsFixed(1),
+                  ),
+                  const SizedBox(width: 8),
+                  _statPill(
+                    context,
+                    label: 'Tele',
+                    value: avgTeleFuel.toStringAsFixed(1),
+                  ),
+                  const SizedBox(width: 8),
+                  _statPill(
+                    context,
+                    label: 'Total',
+                    value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
+                    highlight: true,
+                  ),
+                  const SizedBox(width: 8),
+                  _statPill(
+                    context,
+                    label: 'Accuracy',
+                    value: '${(avgAccuracy).toStringAsFixed(1)}%',
+                    highlight: true,
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              _statPill(
-                context,
-                label: 'Tele',
-                value: avgTeleFuel.toStringAsFixed(1),
-              ),
-              const SizedBox(width: 8),
-              _statPill(
-                context,
-                label: 'Total',
-                value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
-                highlight: true,
-              ),
-              const SizedBox(width: 8),
-              _statPill(
-                context,
-                label: 'Accuracy',
-                value: '${(avgAccuracy).toStringAsFixed(1)}%',
-                highlight: true,
-              ),
+              if (ranking != null)
+                _RankBadge(
+                  rank: ranking!.rank,
+                  rankingPoints: ranking!.rankingPoints,
+                ),
             ],
           ),
       ],

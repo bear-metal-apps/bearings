@@ -23,7 +23,7 @@ extension TeamSortLabel on TeamSortOptions {
   String get label => switch (this) {
     TeamSortOptions.teamNumber => 'Team #',
     TeamSortOptions.rank => 'Rank',
-    TeamSortOptions.custom => 'Rank By',
+    TeamSortOptions.custom => 'Total #',
   };
 }
 
