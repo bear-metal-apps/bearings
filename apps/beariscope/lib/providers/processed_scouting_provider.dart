@@ -14,7 +14,7 @@ final processedScoutingProvider = FutureProvider<List<ProcessedScoutingDoc>>((
   final tbaMatchScores = await ref.watch(tbaMatchScoresProvider.future);
 
   final processedById = <String, ProcessedScoutingDoc>{
-    for (final doc in allDocs) doc.id: ProcessedScoutingDoc(raw: doc),
+    for (final doc in allDocs) doc.id: _buildProcessedDoc(doc),
   };
 
   final stratDocsByMatchAndAlliance = <String, ScoutingDocument>{};
@@ -57,9 +57,17 @@ final processedScoutingProvider = FutureProvider<List<ProcessedScoutingDoc>>((
   }
 
   return allDocs
-      .map((doc) => processedById[doc.id] ?? ProcessedScoutingDoc(raw: doc))
+      .map((doc) => processedById[doc.id] ?? _buildProcessedDoc(doc))
       .toList();
 });
+
+ProcessedScoutingDoc _buildProcessedDoc(ScoutingDocument doc) {
+  return ProcessedScoutingDoc(
+    raw: doc,
+    autoFuelAccuracy: _cleanAccuracyField(doc, kSectionAuto, kAutoFuelAccuracy),
+    teleFuelAccuracy: _cleanAccuracyField(doc, kSectionTele, kTeleFuelAccuracy),
+  );
+}
 
 void _applyScalars({
   required Map<String, ProcessedScoutingDoc> processedById,
@@ -98,6 +106,16 @@ void _applyScalars({
       raw: doc,
       autoFuelScalar: autoScalar,
       teleFuelScalar: teleScalar,
+      autoFuelAccuracy: _cleanAccuracyField(
+        doc,
+        kSectionAuto,
+        kAutoFuelAccuracy,
+      ),
+      teleFuelAccuracy: _cleanAccuracyField(
+        doc,
+        kSectionTele,
+        kTeleFuelAccuracy,
+      ),
       autoHumanPlayerScore: autoHumanPlayerScore,
       teleHumanPlayerScore: teleHumanPlayerScore,
     );
@@ -117,6 +135,17 @@ double _sumFuel(List<ScoutingDocument> docs, String sectionId, String fieldId) {
 
 String _stratKey(int matchNumber, String alliance) =>
     '$matchNumber:${alliance.toLowerCase()}';
+
+double? _cleanAccuracyField(
+  ScoutingDocument doc,
+  String sectionId,
+  String fieldId,
+) {
+  final value = TeamScoutingBundle.getMatchField(doc, sectionId, fieldId);
+  if (value is! num) return null;
+  final accuracy = value.toDouble();
+  return accuracy == 0.0 ? null : accuracy;
+}
 
 int? _matchNumberFromMeta(ScoutingDocument doc) {
   final value = doc.meta?['matchNumber'];

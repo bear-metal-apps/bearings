@@ -1,7 +1,9 @@
+import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -9,6 +11,8 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
+
+import '../../providers/team_scouting_provider.dart';
 
 class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
@@ -37,6 +41,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
       AsyncData(:final value) => value,
       _ => const <int, TeamRanking>{},
     };
+    bool isAscending = ref.read(teamSortProvider.notifier).getIsAscending();
 
     Future<void> onRefresh() async {
       final client = ref.read(honeycombClientProvider);
@@ -71,20 +76,37 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           ),
           leading: const Icon(Symbols.search_rounded),
           trailing: [
-            PopupMenuButton<TeamSort>(
+            PopupMenuButton<TeamSortOptions>(
               icon: Icon(Symbols.sort_rounded),
               tooltip: 'Sort',
-              itemBuilder: (context) => TeamSort.values
+              itemBuilder: (context) => TeamSortOptions.values
                   .map(
-                    (sort) => CheckedPopupMenuItem<TeamSort>(
+                    (sort) => CheckedPopupMenuItem<TeamSortOptions>(
                       value: sort,
-                      checked: selectedSort == sort,
-                      child: Text(sort.label),
+                      checked: selectedSort.sort == sort,
+                      child: Row(
+                        children: [
+                          Text(sort.label),
+                          if(selectedSort.sort == sort) Icon(isAscending? Icons.arrow_drop_up: Icons.arrow_drop_down)
+                        ],
+                      ),
                     ),
                   )
                   .toList(),
-              onSelected: (TeamSort newSort) {
-                ref.read(teamSortProvider.notifier).setSort(newSort);
+              onSelected: (TeamSortOptions newSort) {
+                if(ref.read(teamSortProvider.notifier).getSort() == newSort){
+                  isAscending = !isAscending;
+                }
+                ref.read(teamSortProvider.notifier).setSort(newSort, isAscending);
+                // if(ref.read(teamSortProvider.notifier).getSort() == TeamSortOptions.custom){
+                //   Scaffold.of(context).showBottomSheet((BuildContext context) {
+                //     return ListView(
+                //             children: [
+                //               SortByFieldItem(itemName: "Hi")
+                //             ]
+                //         );
+                //   });
+                // }
               },
             ),
           ],
@@ -120,23 +142,48 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 
           // Apply sort
           filteredTeams = List.of(filteredTeams);
-          switch (selectedSort) {
-            case TeamSort.teamNumberAsc:
-              filteredTeams.sort((a, b) => a.number.compareTo(b.number));
-            case TeamSort.teamNumberDesc:
-              filteredTeams.sort((a, b) => b.number.compareTo(a.number));
-            case TeamSort.rankAsc:
+          switch (selectedSort.sort) {
+            case TeamSortOptions.teamNumber:
+              if(isAscending){
+                filteredTeams.sort((a, b) => a.number.compareTo(b.number));
+              }else{
+                filteredTeams.sort((a, b) => b.number.compareTo(a.number));
+              }
+            case TeamSortOptions.rank:
+              if(isAscending){
+                filteredTeams.sort((a, b) {
+                  // Teams without a rank go to the end
+                  final rankA = rankings[a.number]?.rank ?? 999999;
+                  final rankB = rankings[b.number]?.rank ?? 999999;
+                  return rankA.compareTo(rankB);
+                });
+              }else{
+                filteredTeams.sort((a, b) {
+                  final rankA = rankings[a.number]?.rank ?? 0;
+                  final rankB = rankings[b.number]?.rank ?? 0;
+                  return rankB.compareTo(rankA);
+                });
+              }
+            case TeamSortOptions.custom:
               filteredTeams.sort((a, b) {
                 // Teams without a rank go to the end
-                final rankA = rankings[a.number]?.rank ?? 999999;
-                final rankB = rankings[b.number]?.rank ?? 999999;
-                return rankA.compareTo(rankB);
-              });
-            case TeamSort.rankDesc:
-              filteredTeams.sort((a, b) {
-                final rankA = rankings[a.number]?.rank ?? 0;
-                final rankB = rankings[b.number]?.rank ?? 0;
-                return rankB.compareTo(rankA);
+                final rankA = ref.watch(teamScoutingProvider(a.number)).when(
+                  data: (bundle) =>
+                      bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
+                  error: (_, _) => 0,
+                  loading: () => 0,
+                );
+                final rankB = ref.watch(teamScoutingProvider(b.number)).when(
+                  data: (bundle) =>
+                  bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
+                  error: (_, _) => 0,
+                  loading: () => 0,
+                );
+                if (isAscending) {
+                  return rankA.compareTo(rankB);
+                } else {
+                  return rankB.compareTo(rankA);
+                }
               });
           }
 
@@ -153,6 +200,86 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+
+class SortByFieldItem extends StatefulWidget{
+  final String itemName;
+  VoidCallback? onAddNew;
+
+
+  SortByFieldItem({
+    super.key,
+    required this.itemName,
+    this.onAddNew,
+
+  });
+
+
+  @override
+  State<StatefulWidget> createState() {
+    return SortByFieldItemState();
+  }
+}
+
+class SortByFieldItemState extends State<SortByFieldItem>{
+  String sectionId = '';
+  String dataId = '';
+
+  List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list){
+    List<DropdownMenuItem<String>> finalList = [];
+    list.forEach((item){
+      finalList.add(
+        DropdownMenuItem(
+            child: Text(item),
+            onTap: (){
+              sectionId = item;
+              },
+        )
+      );
+    });
+    return finalList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card.filled(
+      elevation: 2.0,
+      child: Row(
+        children: [
+          // DropdownButtonFormField(
+          //     items: generateDropdownMenuItems(kSectionsList),
+          //     onChanged: (item){
+          //
+          //     }
+          // ),
+          // DropdownButtonFormField(
+          //     items: ,
+          //     onChanged: (item){
+          //     }
+          // ),
+          TextField(
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            decoration: InputDecoration(
+              labelText: 'Weight',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (newValue){
+            },
+          ),
+          FilledButton.icon(
+              onPressed: (){
+                widget.onAddNew;
+              },
+              label: Icon(Icons.add_circle_outline),
+          )
+        ],
       ),
     );
   }

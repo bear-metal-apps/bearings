@@ -1,23 +1,40 @@
+import 'package:beariscope/models/match_field_ids.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 
-enum TeamSort { teamNumberAsc, teamNumberDesc, rankAsc, rankDesc }
+class TeamSort{
+  TeamSortOptions sort = TeamSortOptions.teamNumber;
+  bool isAscending = true;
 
-extension TeamSortLabel on TeamSort {
+  TeamSort(
+      this.sort,
+      this.isAscending
+      );
+}
+enum TeamSortOptions {
+  teamNumber,
+  rank,
+  custom,
+}
+
+
+extension TeamSortLabel on TeamSortOptions {
   String get label => switch (this) {
-    TeamSort.teamNumberAsc => 'Team # (asc)',
-    TeamSort.teamNumberDesc => 'Team # (desc)',
-    TeamSort.rankAsc => 'Rank (asc)',
-    TeamSort.rankDesc => 'Rank (desc)',
+    TeamSortOptions.teamNumber => 'Team #',
+    TeamSortOptions.rank => 'Rank',
+    TeamSortOptions.custom => 'Total #',
   };
 }
 
 class TeamSortNotifier extends Notifier<TeamSort> {
   @override
-  TeamSort build() => TeamSort.teamNumberAsc;
+  TeamSort build() => TeamSort(TeamSortOptions.teamNumber, true);
+  void setSort(TeamSortOptions sort, bool isAscending) => state = TeamSort(sort, isAscending);
 
-  void setSort(TeamSort sort) => state = sort;
+  TeamSortOptions getSort() => state.sort;
+
+  bool getIsAscending() => state.isAscending;
 }
 
 final teamSortProvider = NotifierProvider<TeamSortNotifier, TeamSort>(

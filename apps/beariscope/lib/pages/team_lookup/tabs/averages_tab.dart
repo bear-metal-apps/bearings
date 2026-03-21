@@ -80,20 +80,14 @@ class _AveragesBodyState extends State<_AveragesBody> {
 
     final n = bundle.matchDocs.length;
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
-    final avgAutoAccuracy = bundle.avgMatchField(
-      kSectionAuto,
-      kAutoFuelAccuracy,
-    );
+    final avgAutoAccuracy = bundle.avgMatchAccuracy(kSectionAuto);
     final autoL1Rate = bundle.rateMatchField(
       kSectionAuto,
       kAutoClimbL1,
       (v) => v == 'Successful',
     );
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
-    final avgTeleAccuracy = bundle.avgMatchField(
-      kSectionTele,
-      kTeleFuelAccuracy,
-    );
+    final avgTeleAccuracy = bundle.avgMatchAccuracy(kSectionTele);
     final avgAutoFuelPassed = bundle.avgMatchField(
       kSectionAuto,
       kAutoFuelPassed,
@@ -206,7 +200,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Auto Accuracy',
-                  value: _fmtPct(avgAutoAccuracy),
+                  value: avgAutoAccuracy != null
+                      ? _fmtPct(avgAutoAccuracy)
+                      : '—',
                 ),
                 ScoutingDataRow(
                   label: 'Auto L1 Climb Rate',
@@ -219,7 +215,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Tele Accuracy',
-                  value: _fmtPct(avgTeleAccuracy),
+                  value: avgTeleAccuracy != null
+                      ? _fmtPct(avgTeleAccuracy)
+                      : '—',
                 ),
                 ScoutingDataRow(
                   label: 'Avg Fuel Passed (Auto)',
@@ -300,10 +298,74 @@ class _AveragesBodyState extends State<_AveragesBody> {
           ),
           textAlign: TextAlign.center,
         ),
+        if (bundle.hasStratData) ...[
+          const SizedBox(height: kScoutingSectionGap),
+          const ScoutingSectionHeader(
+            title: 'Z-Score Metrics',
+            icon: Symbols.analytics_rounded,
+          ),
+          const SizedBox(height: kScoutingHeaderGap),
+          _zScoreCard(context, widget.stratZScores),
+        ],
       ],
     );
   }
 
   static String _fmtDec(double v) => v.toStringAsFixed(1);
   static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
+
+  // ---------------------------------------------------------------------------
+  // Z-score card
+  // ---------------------------------------------------------------------------
+
+  Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores) {
+    return _specsCard(
+      context,
+      rows: [
+        ScoutingDataRow(
+          label: 'Driver Skill',
+          value: StratZScoreData.zLabel(
+            stratZScores.driverSkillZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Defensive Skill',
+          value: StratZScoreData.zLabel(
+            stratZScores.defensiveSkillZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Defense Resilience',
+          value: StratZScoreData.zLabel(
+            stratZScores.defensiveResilienceZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Mech. Stability',
+          value: StratZScoreData.zLabel(
+            stratZScores.mechanicalStabilityZ[widget.teamNumber],
+          ),
+          highlight: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _specsCard(BuildContext context, {required List<Widget> rows}) {
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: rows,
+        ),
+      ),
+    );
+  }
 }

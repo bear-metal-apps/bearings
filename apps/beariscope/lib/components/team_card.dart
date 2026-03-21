@@ -17,6 +17,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../providers/strat_z_score_provider.dart';
+
 class TeamCard extends ConsumerWidget {
   final String teamKey;
   final double? height;
@@ -117,7 +119,6 @@ class _TeamCardSummary extends ConsumerWidget {
       AsyncData(:final value) => value,
       _ => const <int, TeamRanking>{},
     };
-    final ranking = rankings[team.number];
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -159,23 +160,21 @@ class _TeamCardSummary extends ConsumerWidget {
               ),
             ],
           ),
-          const Spacer(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: bundleAsync.when(
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, _) => const SizedBox.shrink(),
-                  data: (bundle) => _SummaryMetrics(bundle: bundle),
-                ),
+          const SizedBox(height: 12), // Replaced the Spacer with fixed padding
+          Expanded(
+            // Let the metrics take up the rest of the vertical space
+            child: bundleAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+              data: (bundle) => _SummaryMetrics(
+                teamNumber: team.number,
+                bundle: bundle,
+                stratZScores:
+                    ref.watch(stratZScoresProvider).asData?.value ??
+                    StratZScoreData.empty,
+                ranking: rankings[team.number],
               ),
-              if (ranking != null)
-                _RankBadge(
-                  rank: ranking.rank,
-                  rankingPoints: ranking.rankingPoints,
-                ),
-            ],
+            ),
           ),
         ],
       ),
@@ -183,30 +182,41 @@ class _TeamCardSummary extends ConsumerWidget {
   }
 }
 
-class _SummaryMetrics extends StatelessWidget {
+class _SummaryMetrics extends ConsumerWidget {
+  final int teamNumber;
   final TeamScoutingBundle bundle;
+  final StratZScoreData? stratZScores;
+  final TeamRanking? ranking;
 
-  const _SummaryMetrics({required this.bundle});
+  const _SummaryMetrics({
+    required this.teamNumber,
+    required this.bundle,
+    required this.stratZScores,
+    required this.ranking,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final playingStyles = bundle.getPitsListField('playingStyle');
     final primaryRole = playingStyles.isNotEmpty ? playingStyles.first : null;
     final trenchCapable =
         bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
+    final climbCapable = bundle.getPitsField<String>('climbLevel');
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
+    final avgAccuracy = bundle.avgMatchAccuracyTotal();
     final hasMatch = bundle.hasMatchData;
+    final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Role chip + trench status
+        // 1. CHIPS: Pinned to the top right below the header
         if (bundle.hasPitsData) ...[
           Wrap(
             spacing: 6,
-            runSpacing: 4,
+            runSpacing: 6,
             children: [
               if (primaryRole != null)
                 Chip(
@@ -229,7 +239,11 @@ class _SummaryMetrics extends StatelessWidget {
                   builder: (context) {
                     final color = Theme.of(context).colorScheme.secondary;
                     return Chip(
-                      avatar: Icon(Icons.merge_type, size: 14, color: color),
+                      avatar: Icon(
+                        Symbols.merge_type_rounded,
+                        size: 14,
+                        color: color,
+                      ),
                       label: Text(
                         'Trench',
                         style: TextStyle(fontSize: 12, color: color),
@@ -242,32 +256,110 @@ class _SummaryMetrics extends StatelessWidget {
                     );
                   },
                 ),
+              if (climbCapable != null)
+                Builder(
+                  builder: (context) {
+                    final color = Theme.of(context).colorScheme.secondary;
+                    return Chip(
+                      avatar: Icon(
+                        Symbols.stairs_rounded,
+                        size: 14,
+                        color: color,
+                      ),
+                      label: Text(
+                        'Climb $climbCapable',
+                        style: TextStyle(fontSize: 12, color: color),
+                      ),
+                      backgroundColor: color.withValues(alpha: 0.12),
+                      side: BorderSide(color: color.withValues(alpha: 0.4)),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    );
+                  },
+                ),
             ],
           ),
-          const SizedBox(height: 8),
         ],
-        // Auto / Tele fuel averages
+
+        // 2. SPACER: Pushes the Z-Scores and Averages to the bottom of the card
+        const Spacer(),
+
+        // 3. Z-SCORES: Pushed to the bottom by the spacer
+        if (hasZScores)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Driver Skill: ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive Skill: ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive Resilience: ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Mechanical Stability: ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+        const SizedBox(height: 12),
+
+        // 4. AVERAGES: Remaining stuck to the very bottom
         if (hasMatch)
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _statPill(
-                context,
-                label: 'Auto',
-                value: avgAutoFuel.toStringAsFixed(1),
+              Row(
+                children: [
+                  _statPill(
+                    context,
+                    label: 'Auto',
+                    value: avgAutoFuel.toStringAsFixed(1),
+                  ),
+                  const SizedBox(width: 12),
+                  _statPill(
+                    context,
+                    label: 'Tele',
+                    value: avgTeleFuel.toStringAsFixed(1),
+                  ),
+                  const SizedBox(width: 12),
+                  _statPill(
+                    context,
+                    label: 'Total',
+                    value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
+                    highlight: true,
+                  ),
+                  const SizedBox(width: 12),
+                  _statPill(
+                    context,
+                    label: 'Accuracy',
+                    value: avgAccuracy != null
+                        ? '${avgAccuracy.toStringAsFixed(1)}%'
+                        : '—',
+                    highlight: true,
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              _statPill(
-                context,
-                label: 'Tele',
-                value: avgTeleFuel.toStringAsFixed(1),
-              ),
-              const SizedBox(width: 8),
-              _statPill(
-                context,
-                label: 'Total',
-                value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
-                highlight: true,
-              ),
+              if (ranking != null)
+                _RankBadge(
+                  rank: ranking!.rank,
+                  rankingPoints: ranking!.rankingPoints,
+                ),
             ],
           ),
       ],

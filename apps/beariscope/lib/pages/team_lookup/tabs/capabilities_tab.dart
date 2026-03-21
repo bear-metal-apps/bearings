@@ -79,16 +79,6 @@ class _CapabilitiesBody extends StatelessWidget {
         ),
         const SizedBox(height: kScoutingHeaderGap),
         _climbCard(context),
-        if (bundle.hasStratData) ...[
-          const SizedBox(height: kScoutingSectionGap),
-          const ScoutingSectionHeader(
-            title: 'Z-Score Metrics',
-            icon: Symbols.analytics_rounded,
-          ),
-          const SizedBox(height: kScoutingHeaderGap),
-          _zScoreCard(context),
-        ],
-        const SizedBox(height: 16),
       ],
     );
   }
@@ -229,7 +219,7 @@ class _CapabilitiesBody extends StatelessWidget {
     ]);
     // Keep observed tele accuracy alongside the pits claim for direct comparison.
     final actualTeleAccuracy = bundle.hasMatchData
-        ? bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy)
+        ? bundle.avgMatchAccuracy(kSectionTele)
         : null;
 
     return _specsCard(
@@ -263,12 +253,11 @@ class _CapabilitiesBody extends StatelessWidget {
               ? '${pitsAccuracy.toStringAsFixed(1)}%'
               : '—',
         ),
-        if (actualTeleAccuracy != null)
-          ScoutingDataRow(
-            label: 'Observed Tele Accuracy',
-            value: _fmtPct(actualTeleAccuracy),
-            highlight: true,
-          ),
+        ScoutingDataRow(
+          label: 'Observed Tele Accuracy',
+          value: actualTeleAccuracy != null ? _fmtPct(actualTeleAccuracy) : '—',
+          highlight: true,
+        ),
       ],
     );
   }
@@ -321,11 +310,11 @@ class _CapabilitiesBody extends StatelessWidget {
       rows: [
         ScoutingDataRow(label: 'Mechanism', value: climbMethod),
         ScoutingDataRow(
-          label: 'Claimed Levels',
+          label: 'Climb Levels',
           value: _joinedOrDash(climbLevels),
         ),
         ScoutingDataRow(
-          label: 'Claimed Consistency',
+          label: 'Climb Consistency',
           value: climbConsistency != null
               ? '${climbConsistency.toStringAsFixed(1)} / 10'
               : '—',
@@ -368,44 +357,6 @@ class _CapabilitiesBody extends StatelessWidget {
             highlight: true,
           ),
         ],
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Z-score card
-  // ---------------------------------------------------------------------------
-
-  Widget _zScoreCard(BuildContext context) {
-    return _specsCard(
-      context,
-      rows: [
-        ScoutingDataRow(
-          label: 'Driver Skill',
-          value: StratZScoreData.zLabel(stratZScores.driverSkillZ[teamNumber]),
-          highlight: true,
-        ),
-        ScoutingDataRow(
-          label: 'Defensive Skill',
-          value: StratZScoreData.zLabel(
-            stratZScores.defensiveSkillZ[teamNumber],
-          ),
-          highlight: true,
-        ),
-        ScoutingDataRow(
-          label: 'Defense Resilience',
-          value: StratZScoreData.zLabel(
-            stratZScores.defensiveResilienceZ[teamNumber],
-          ),
-          highlight: true,
-        ),
-        ScoutingDataRow(
-          label: 'Mech. Stability',
-          value: StratZScoreData.zLabel(
-            stratZScores.mechanicalStabilityZ[teamNumber],
-          ),
-          highlight: true,
-        ),
       ],
     );
   }

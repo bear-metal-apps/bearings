@@ -32,6 +32,12 @@ class StratZScoreData {
     mechanicalStabilityZ: {},
   );
 
+  bool hasDataForTeam(int teamNumber) =>
+      driverSkillZ.containsKey(teamNumber) ||
+      defensiveSkillZ.containsKey(teamNumber) ||
+      defensiveResilienceZ.containsKey(teamNumber) ||
+      mechanicalStabilityZ.containsKey(teamNumber);
+
   Map<int, double> zForKey(String key) {
     switch (key) {
       case 'driverSkillRanking':
