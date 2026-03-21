@@ -1,5 +1,14 @@
 # Changelog
 
+## v26.2.2
+**Released:** 2026-03-21
+
+### Features
+- beariscope: Improve up next page sorting and ux (f04af86)
+- beariscope: Add tba beta site toggle (acba6c4)
+- beariscope: Improve team card, add sorting to team lookup (53575ab)
+
+
 ## v26.2.1
 **Released:** 2026-03-20
 
