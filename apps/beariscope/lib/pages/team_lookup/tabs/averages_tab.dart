@@ -80,20 +80,14 @@ class _AveragesBodyState extends State<_AveragesBody> {
 
     final n = bundle.matchDocs.length;
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
-    final avgAutoAccuracy = bundle.avgMatchField(
-      kSectionAuto,
-      kAutoFuelAccuracy,
-    );
+    final avgAutoAccuracy = bundle.avgMatchAccuracy(kSectionAuto);
     final autoL1Rate = bundle.rateMatchField(
       kSectionAuto,
       kAutoClimbL1,
       (v) => v == 'Successful',
     );
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
-    final avgTeleAccuracy = bundle.avgMatchField(
-      kSectionTele,
-      kTeleFuelAccuracy,
-    );
+    final avgTeleAccuracy = bundle.avgMatchAccuracy(kSectionTele);
     final avgAutoFuelPassed = bundle.avgMatchField(
       kSectionAuto,
       kAutoFuelPassed,
@@ -206,7 +200,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Auto Accuracy',
-                  value: _fmtPct(avgAutoAccuracy),
+                  value: avgAutoAccuracy != null
+                      ? _fmtPct(avgAutoAccuracy)
+                      : '—',
                 ),
                 ScoutingDataRow(
                   label: 'Auto L1 Climb Rate',
@@ -219,7 +215,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Tele Accuracy',
-                  value: _fmtPct(avgTeleAccuracy),
+                  value: avgTeleAccuracy != null
+                      ? _fmtPct(avgTeleAccuracy)
+                      : '—',
                 ),
                 ScoutingDataRow(
                   label: 'Avg Fuel Passed (Auto)',
@@ -316,9 +314,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
   static String _fmtDec(double v) => v.toStringAsFixed(1);
   static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
 
-// ---------------------------------------------------------------------------
-// Z-score card
-// ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Z-score card
+  // ---------------------------------------------------------------------------
 
   Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores) {
     return _specsCard(
@@ -326,7 +324,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
       rows: [
         ScoutingDataRow(
           label: 'Driver Skill',
-          value: StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber]),
+          value: StratZScoreData.zLabel(
+            stratZScores.driverSkillZ[widget.teamNumber],
+          ),
           highlight: true,
         ),
         ScoutingDataRow(
@@ -353,6 +353,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
       ],
     );
   }
+
   Widget _specsCard(BuildContext context, {required List<Widget> rows}) {
     return Card(
       elevation: 0,
@@ -368,4 +369,3 @@ class _AveragesBodyState extends State<_AveragesBody> {
     );
   }
 }
-

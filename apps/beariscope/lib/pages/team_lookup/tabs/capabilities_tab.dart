@@ -219,7 +219,7 @@ class _CapabilitiesBody extends StatelessWidget {
     ]);
     // Keep observed tele accuracy alongside the pits claim for direct comparison.
     final actualTeleAccuracy = bundle.hasMatchData
-        ? bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy)
+        ? bundle.avgMatchAccuracy(kSectionTele)
         : null;
 
     return _specsCard(
@@ -253,12 +253,11 @@ class _CapabilitiesBody extends StatelessWidget {
               ? '${pitsAccuracy.toStringAsFixed(1)}%'
               : '—',
         ),
-        if (actualTeleAccuracy != null)
-          ScoutingDataRow(
-            label: 'Observed Tele Accuracy',
-            value: _fmtPct(actualTeleAccuracy),
-            highlight: true,
-          ),
+        ScoutingDataRow(
+          label: 'Observed Tele Accuracy',
+          value: actualTeleAccuracy != null ? _fmtPct(actualTeleAccuracy) : '—',
+          highlight: true,
+        ),
       ],
     );
   }

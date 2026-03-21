@@ -19,6 +19,7 @@ class TeamScoutingBundle {
   });
 
   bool get hasMatchData => matchDocs.isNotEmpty;
+
   bool get hasPitsData => pitsDoc != null;
 
   bool get hasStratData => stratDocs.isNotEmpty;
@@ -52,6 +53,28 @@ class TeamScoutingBundle {
       }
     }
     return count == 0 ? 0.0 : sum / count;
+  }
+
+  double? avgMatchAccuracy(String sectionId) {
+    if (matchDocs.isEmpty) return null;
+    double sum = 0;
+    int count = 0;
+    for (final doc in matchDocs) {
+      final val = doc.accuracyForSection(sectionId);
+      if (val != null && val != 0.0) {
+        sum += val;
+        count++;
+      }
+    }
+    return count == 0 ? null : sum / count;
+  }
+
+  double? avgMatchAccuracyTotal() {
+    final autoAccuracy = avgMatchAccuracy(kSectionAuto);
+    final teleAccuracy = avgMatchAccuracy(kSectionTele);
+    final values = <double>[?autoAccuracy, ?teleAccuracy];
+    if (values.isEmpty) return null;
+    return values.reduce((a, b) => a + b) / values.length;
   }
 
   double sumMatchField(String sectionId, String fieldId) {
