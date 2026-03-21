@@ -8,6 +8,7 @@ import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
+import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -364,7 +365,7 @@ class TeamDetailsPage extends ConsumerWidget {
             PopupMenuButton<_TeamAction>(
               icon: const Icon(Icons.more_vert),
               tooltip: 'More options',
-              onSelected: (action) => _handleAction(context, action),
+              onSelected: (action) => _handleAction(context, action, ref),
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: _TeamAction.openTba,
@@ -424,11 +425,11 @@ class TeamDetailsPage extends ConsumerWidget {
     );
   }
 
-  void _handleAction(BuildContext context, _TeamAction action) {
+  void _handleAction(BuildContext context, _TeamAction action, WidgetRef ref) {
     switch (action) {
       case _TeamAction.openTba:
         launchUrl(
-          Uri.parse('https://www.thebluealliance.com/team/$teamNumber'),
+          ref.tbaWebsiteUri('/team/$teamNumber'),
           mode: LaunchMode.externalApplication,
         );
       case _TeamAction.openStatbotics:

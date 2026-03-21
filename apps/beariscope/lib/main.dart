@@ -11,6 +11,7 @@ import 'package:beariscope/pages/picklists/picklists_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
+import 'package:beariscope/pages/settings/advanced_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
@@ -22,6 +23,7 @@ import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/utilities/utilities_page.dart';
 import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
+import 'package:beariscope/providers/shared_preferences_provider.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -42,7 +44,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferences.getInstance();
+  final sharedPreferences = await SharedPreferences.getInstance();
   setUrlStrategy(PathUrlStrategy());
 
   await Hive.initFlutter();
@@ -50,7 +52,7 @@ Future<void> main() async {
   await Hive.openBox<String>('scouting_data');
 
   // happy easter
-  if (Random().nextInt(100) == 0) {
+  if (Random().nextInt(500) == 0) {
     final player = AudioPlayer();
     await player.play(AssetSource('sounds/jingle.wav'), volume: 1000);
   }
@@ -69,6 +71,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
         auth0ConfigProvider.overrideWith((ref) {
           return const Auth0Config(
             domain: 'bearmetal2046.us.auth0.com',
@@ -137,40 +140,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'create',
                 builder: (_, _) => const PicklistsCreatePage(),
               ),
-              GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
-              GoRoute(
-                path: 'about',
-                builder: (_, _) => const AboutSettingsPage(),
-              ),
-              GoRoute(
-                path: 'licenses',
-                builder: (_, _) {
-                  return FutureBuilder<(PackageInfo, String)>(
-                    future:
-                        Future.wait([
-                          PackageInfo.fromPlatform(),
-                          loadReleaseCodename(),
-                        ]).then(
-                          (results) => (
-                            results[0] as PackageInfo,
-                            (results[1] as String).trim(),
-                          ),
-                        ),
-                    builder: (context, snapshot) {
-                      final version = snapshot.data?.$1.version ?? '...';
-                      final codename = snapshot.data?.$2 ?? '';
-                      final displayVersion =
-                          codename.isNotEmpty && codename != 'Unknown'
-                          ? '$version $codename'
-                          : version;
-                      return LicensePage(
-                        applicationName: 'Beariscope',
-                        applicationVersion: displayVersion,
-                      );
-                    },
-                  );
-                },
-              ),
             ],
           ),
           GoRoute(
@@ -205,6 +174,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'appearance',
             builder: (_, _) => const AppearanceSettingsPage(),
+          ),
+          GoRoute(
+            path: 'advanced',
+            builder: (_, _) => const AdvancedSettingsPage(),
           ),
           GoRoute(
             path: 'user_selection',

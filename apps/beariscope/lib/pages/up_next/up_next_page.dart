@@ -3,15 +3,23 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum _MatchFilter { all, bearMetal }
 
-enum _EventAction { openTba, openStatbotics, openFrcEvents }
+enum _EventAction {
+  openTba,
+  openStatbotics,
+  openNexus,
+  openFrcEvents,
+  changeEventInSettings,
+}
 
 class UpNextPage extends ConsumerStatefulWidget {
   const UpNextPage({super.key});
@@ -80,9 +88,8 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
           PopupMenuButton<_EventAction>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'More options',
-            onSelected: (action) => _handleAction(action, currentEventKey),
-            itemBuilder: (context) =>
-            const [
+            onSelected: (action) => _handleAction(action, currentEventKey, ref),
+            itemBuilder: (context) => const [
               PopupMenuItem(
                 value: _EventAction.openTba,
                 child: ListTile(
@@ -100,10 +107,26 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                 ),
               ),
               PopupMenuItem(
+                value: _EventAction.openNexus,
+                child: ListTile(
+                  leading: Icon(Symbols.open_in_new_rounded),
+                  title: Text('Open in Nexus'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
                 value: _EventAction.openFrcEvents,
                 child: ListTile(
                   leading: Icon(Symbols.open_in_new_rounded),
                   title: Text('Open in FRC Events'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: _EventAction.changeEventInSettings,
+                child: ListTile(
+                  leading: Icon(Symbols.settings_rounded),
+                  title: Text('Change Event in Settings'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -116,20 +139,14 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
             padding: const EdgeInsets.only(bottom: 8),
             child: eventDetails.when(
               loading: () => const SizedBox.shrink(),
-              error: (_, _) =>
-                  Text('Showing Matches for $currentEventKey', style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodySmall),
-              data: (event) =>
-                  Text(
-                    'Showing Matches for ${event['name']?.toString() ??
-                        currentEventKey}',
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodySmall,
-                  ),
+              error: (_, _) => Text(
+                'Showing Matches for $currentEventKey',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              data: (event) => Text(
+                'Showing Matches for ${event['name']?.toString() ?? currentEventKey}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ),
           ),
         ),
@@ -154,11 +171,11 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
     );
   }
 
-  void _handleAction(_EventAction action, String eventKey) {
+  void _handleAction(_EventAction action, String eventKey, WidgetRef ref) {
     switch (action) {
       case _EventAction.openTba:
         launchUrl(
-          Uri.parse('https://www.thebluealliance.com/event/$eventKey'),
+          ref.tbaWebsiteUri('/event/$eventKey'),
           mode: LaunchMode.externalApplication,
         );
       case _EventAction.openStatbotics:
@@ -166,14 +183,20 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
           Uri.parse('https://www.statbotics.io/event/$eventKey'),
           mode: LaunchMode.externalApplication,
         );
+      case _EventAction.openNexus:
+        launchUrl(
+          Uri.parse('https://frc.nexus/en/event/$eventKey/team/2046'),
+          mode: LaunchMode.externalApplication,
+        );
       case _EventAction.openFrcEvents:
         launchUrl(
           Uri.parse(
-            'https://frc-events.firstinspires.org/${eventKey.substring(
-                0, 4)}/${eventKey.substring(4)}',
+            'https://frc-events.firstinspires.org/${eventKey.substring(0, 4)}/${eventKey.substring(4)}',
           ),
           mode: LaunchMode.externalApplication,
         );
+      case _EventAction.changeEventInSettings:
+        context.push('/settings');
     }
   }
 }
