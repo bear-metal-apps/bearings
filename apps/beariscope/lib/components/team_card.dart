@@ -3,15 +3,18 @@ import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
-import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
+import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
+import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
+import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
@@ -23,8 +26,14 @@ import '../providers/strat_z_score_provider.dart';
 class TeamCard extends ConsumerWidget {
   final String teamKey;
   final double? height;
+  final Color? allianceColor;
 
-  const TeamCard({super.key, required this.teamKey, this.height});
+  const TeamCard({
+    super.key,
+    required this.teamKey,
+    this.height,
+    this.allianceColor,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,7 +70,6 @@ class TeamCard extends ConsumerWidget {
           );
         }
 
-        // Capture in a non-nullable local so closures below don't need `!`.
         final resolvedTeam = team;
 
         return OpenContainer(
@@ -80,7 +88,16 @@ class TeamCard extends ConsumerWidget {
             child: InkWell(
               onTap: action,
               borderRadius: BorderRadius.circular(12),
-              child: _TeamCardSummary(team: resolvedTeam),
+              child: DecoratedBox(
+                decoration: allianceColor != null
+                    ? BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: allianceColor!, width: 4),
+                        ),
+                      )
+                    : const BoxDecoration(),
+                child: _TeamCardSummary(team: resolvedTeam),
+              ),
             ),
           ),
           openBuilder: (context, action) => TeamDetailsPage(
@@ -215,7 +232,7 @@ class _SummaryMetrics extends ConsumerWidget {
                   "Defensive Skill ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[2046])}",
                 ),
                 Text(
-                  "Defensive Susceptibility ${StratZScoreData.zLabel(stratZScores!.defensiveSusceptibilityZ[2046])}",
+                  "Defensive Resilience ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[2046])}",
                 ),
                 Text(
                   "Mechanical Stability ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[2046])}",
@@ -437,7 +454,7 @@ class TeamDetailsPage extends ConsumerWidget {
             PopupMenuButton<_TeamAction>(
               icon: const Icon(Icons.more_vert),
               tooltip: 'More options',
-              onSelected: (action) => _handleAction(context, action),
+              onSelected: (action) => _handleAction(context, action, ref),
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: _TeamAction.openTba,
@@ -497,11 +514,11 @@ class TeamDetailsPage extends ConsumerWidget {
     );
   }
 
-  void _handleAction(BuildContext context, _TeamAction action) {
+  void _handleAction(BuildContext context, _TeamAction action, WidgetRef ref) {
     switch (action) {
       case _TeamAction.openTba:
         launchUrl(
-          Uri.parse('https://www.thebluealliance.com/team/$teamNumber'),
+          ref.tbaWebsiteUri('/team/$teamNumber'),
           mode: LaunchMode.externalApplication,
         );
       case _TeamAction.openStatbotics:

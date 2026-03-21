@@ -1,6 +1,6 @@
 name: ui
 description: Shared presentational Flutter widgets for Bear Metal apps
-version: 1.0.0+1
+version: 26.2.1+12
 resolution: workspace
 publish_to: none
 
@@ -18,4 +18,6 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 flutter:
-# following page: https://dart.dev/tools/pub/pubspec
+  # following page: https://dart.dev/tools/pub/pubspec
+  assets:
+    - assets/forms/ui_creator.json

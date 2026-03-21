@@ -1,6 +1,6 @@
-import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/providers/strat_z_score_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +55,8 @@ class _AveragesBodyState extends State<_AveragesBody> {
     if (_lastN == null) return widget.bundle;
     final sorted = [...widget.bundle.matchDocs]
       ..sort((a, b) {
-        final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
-        final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+        final ma = TeamScoutingBundle.matchNumber(a.raw) ?? -1;
+        final mb = TeamScoutingBundle.matchNumber(b.raw) ?? -1;
         return mb.compareTo(ma);
       });
     final limited = sorted.take(_lastN!).toList();
@@ -132,8 +132,34 @@ class _AveragesBodyState extends State<_AveragesBody> {
       kTeleStoppedWorking,
       (v) => v == true,
     );
-    final mostCommonPlayStyle =
-        bundle.modalMatchField(kSectionEndgame, kEndPlayStyle) ?? '—';
+
+    const playStyleOptions = ['Passing', 'Cycling', 'Shooting', 'Defense'];
+    final rawPlayStyle = bundle.modalMatchField(kSectionEndgame, kEndPlayStyle);
+
+    String mostCommonPlayStyle = '—';
+
+    if (rawPlayStyle != null) {
+      final input = rawPlayStyle.toString();
+
+      // extract all individual number using a Regex
+      final matches = RegExp(r'\d+').allMatches(input);
+
+      if (matches.isNotEmpty) {
+        // map each number found to its corresponding option string
+        final selectedNames = matches.map((m) {
+          final index = int.parse(m.group(0)!);
+          return (index >= 0 && index < playStyleOptions.length)
+              ? playStyleOptions[index]
+              : 'Unknown';
+        }).toList();
+
+        // join them with commas
+        mostCommonPlayStyle = selectedNames.join(', ');
+      } else {
+        // fallback if no digits were found but string isn't empty
+        mostCommonPlayStyle = input.isEmpty ? '—' : input;
+      }
+    }
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -180,7 +206,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Auto Accuracy',
-                  value: _fmt10Pct(avgAutoAccuracy),
+                  value: _fmtPct(avgAutoAccuracy),
                 ),
                 ScoutingDataRow(
                   label: 'Auto L1 Climb Rate',
@@ -193,7 +219,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(
                   label: 'Tele Accuracy',
-                  value: _fmt10Pct(avgTeleAccuracy),
+                  value: _fmtPct(avgTeleAccuracy),
                 ),
                 ScoutingDataRow(
                   label: 'Avg Fuel Passed (Auto)',
@@ -289,7 +315,6 @@ class _AveragesBodyState extends State<_AveragesBody> {
 
   static String _fmtDec(double v) => v.toStringAsFixed(1);
   static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
-  static String _fmt10Pct(double v) => '${(v * 10).toStringAsFixed(1)}%';
 
 // ---------------------------------------------------------------------------
 // Z-score card
@@ -312,9 +337,9 @@ class _AveragesBodyState extends State<_AveragesBody> {
           highlight: true,
         ),
         ScoutingDataRow(
-          label: 'Defense Susceptibility',
+          label: 'Defense Resilience',
           value: StratZScoreData.zLabel(
-            stratZScores.defensiveSusceptibilityZ[widget.teamNumber],
+            stratZScores.defensiveResilienceZ[widget.teamNumber],
           ),
           highlight: true,
         ),

@@ -1,6 +1,6 @@
 name: core
 description: Shared raw Dart models and utilities for Bear Metal apps
-version: 1.0.0+1
+version: 26.2.1+12
 resolution: workspace
 publish_to: none
 
@@ -13,6 +13,7 @@ dependencies:
   riverpod: ^3.0.0
   riverpod_annotation: ^4.0.0
   universal_platform: ^1.1.0
+  uuid: ^4.5.1
 
 dev_dependencies:
   build_runner: ^2.5.4

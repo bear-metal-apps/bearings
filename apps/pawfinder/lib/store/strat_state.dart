@@ -8,72 +8,94 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'strat_state.g.dart';
 
-// hive key for a given match's strat data
-String _stratKey(MatchIdentity identity) =>
+String stratStorageKey({
+  required String eventKey,
+  required int matchNumber,
+  required String alliance,
+}) => 'STRAT_${eventKey}_${matchNumber}_$alliance';
+
+String stratStorageKeyForIdentity(MatchIdentity identity) => stratStorageKey(
+  eventKey: identity.event.key,
+  matchNumber: identity.matchNumber,
+  alliance: identity.position.allianceKey,
+);
+
+String _stratScoutedByKey(MatchIdentity identity) =>
+    '${stratStorageKeyForIdentity(identity)}_scoutedBy';
+
+// legacy scout-dependent key used before task 11 refactor
+String _legacyStratStorageKey(MatchIdentity identity) =>
     'STRAT_${identityDataKey(identity)}';
+
+String stratQueueIdForIdentity(MatchIdentity identity) =>
+    '$stratQueuePrefix${identity.event.key}:${identity.matchNumber}:${identity.position.allianceKey}';
 
 class StratState {
   final List<String> driverSkill;
   final List<String> defensiveSkill;
-  final List<String> defensiveSusceptibility;
+  final List<String> defensiveResilience;
   final List<String> mechanicalStability;
   final double defenseActivityLevel;
-  final int humanPlayerScore;
+  final int autoHumanPlayerScore;
+  final int teleHumanPlayerScore;
 
   const StratState({
     required this.driverSkill,
     required this.defensiveSkill,
-    required this.defensiveSusceptibility,
+    required this.defensiveResilience,
     required this.mechanicalStability,
     required this.defenseActivityLevel,
-    required this.humanPlayerScore,
+    required this.autoHumanPlayerScore,
+    required this.teleHumanPlayerScore,
   });
 
   // empty state for a match that hasn't been filled in yet
   const StratState.empty()
     : driverSkill = const [],
       defensiveSkill = const [],
-      defensiveSusceptibility = const [],
+      defensiveResilience = const [],
       mechanicalStability = const [],
       defenseActivityLevel = 0.0,
-      humanPlayerScore = 0;
+      autoHumanPlayerScore = 0,
+      teleHumanPlayerScore = 0;
 
   StratState copyWith({
     List<String>? driverSkill,
     List<String>? defensiveSkill,
-    List<String>? defensiveSusceptibility,
+    List<String>? defensiveResilience,
     List<String>? mechanicalStability,
     double? defenseActivityLevel,
-    int? humanPlayerScore,
+    int? autoHumanPlayerScore,
+    int? teleHumanPlayerScore,
   }) => StratState(
     driverSkill: driverSkill ?? this.driverSkill,
     defensiveSkill: defensiveSkill ?? this.defensiveSkill,
-    defensiveSusceptibility:
-        defensiveSusceptibility ?? this.defensiveSusceptibility,
+    defensiveResilience: defensiveResilience ?? this.defensiveResilience,
     mechanicalStability: mechanicalStability ?? this.mechanicalStability,
     defenseActivityLevel: defenseActivityLevel ?? this.defenseActivityLevel,
-    humanPlayerScore: humanPlayerScore ?? this.humanPlayerScore,
+    autoHumanPlayerScore: autoHumanPlayerScore ?? this.autoHumanPlayerScore,
+    teleHumanPlayerScore: teleHumanPlayerScore ?? this.teleHumanPlayerScore,
   );
 
   Map<String, dynamic> toJson() => {
     'driverSkill': driverSkill,
     'defensiveSkill': defensiveSkill,
-    'defensiveSusceptibility': defensiveSusceptibility,
+    'defensiveResilience': defensiveResilience,
     'mechanicalStability': mechanicalStability,
     'defenseActivityLevel': defenseActivityLevel,
-    'humanPlayerScore': humanPlayerScore,
+    'autoHumanPlayerScore': autoHumanPlayerScore,
+    'teleHumanPlayerScore': teleHumanPlayerScore,
   };
 
   factory StratState.fromJson(Map<String, dynamic> json) => StratState(
     driverSkill: List<String>.from(json['driverSkill'] ?? []),
     defensiveSkill: List<String>.from(json['defensiveSkill'] ?? []),
-    defensiveSusceptibility: List<String>.from(
-      json['defensiveSusceptibility'] ?? [],
-    ),
+    defensiveResilience: List<String>.from(json['defensiveResilience'] ?? []),
     mechanicalStability: List<String>.from(json['mechanicalStability'] ?? []),
     defenseActivityLevel:
         (json['defenseActivityLevel'] as num?)?.toDouble() ?? 0.0,
-    humanPlayerScore: (json['humanPlayerScore'] as num?)?.toInt() ?? 0,
+    autoHumanPlayerScore: (json['autoHumanPlayerScore'] as num?)?.toInt() ?? 0,
+    teleHumanPlayerScore: (json['teleHumanPlayerScore'] as num?)?.toInt() ?? 0,
   );
 }
 
@@ -83,7 +105,18 @@ class StratState {
 class StratStateNotifier extends _$StratStateNotifier {
   @override
   StratState build(MatchIdentity identity) {
-    final raw = Hive.box(boxKey).get(_stratKey(identity));
+    final box = Hive.box(boxKey);
+    final stratKey = stratStorageKeyForIdentity(identity);
+    var raw = box.get(stratKey);
+
+    if (raw is! String) {
+      final legacyRaw = box.get(_legacyStratStorageKey(identity));
+      if (legacyRaw is String) {
+        raw = legacyRaw;
+        box.put(stratKey, legacyRaw);
+      }
+    }
+
     if (raw is String) {
       try {
         return StratState.fromJson(jsonDecode(raw));
@@ -92,11 +125,12 @@ class StratStateNotifier extends _$StratStateNotifier {
     return const StratState.empty();
   }
 
-  void _save({bool markForUpload = true}) {
-    Hive.box(boxKey).put(_stratKey(identity), jsonEncode(state.toJson()));
-    if (markForUpload) {
-      // queue only when the scout actually changed something
-      ref.read(uploadQueueProvider.notifier).addIfNotPresent(identity);
+  void _save() {
+    final box = Hive.box(boxKey);
+    box.put(stratStorageKeyForIdentity(identity), jsonEncode(state.toJson()));
+    final scoutedBy = identity.scout.name.trim();
+    if (scoutedBy.isNotEmpty) {
+      box.put(_stratScoutedByKey(identity), scoutedBy);
     }
   }
 
@@ -106,10 +140,10 @@ class StratStateNotifier extends _$StratStateNotifier {
     state = state.copyWith(
       driverSkill: List.from(teams),
       defensiveSkill: List.from(teams),
-      defensiveSusceptibility: List.from(teams),
+      defensiveResilience: List.from(teams),
       mechanicalStability: List.from(teams),
     );
-    _save(markForUpload: false);
+    _save();
   }
 
   void reorderDriverSkill(int oldIndex, int newIndex) {
@@ -128,11 +162,11 @@ class StratStateNotifier extends _$StratStateNotifier {
     _save();
   }
 
-  void reorderDefensiveSusceptibility(int oldIndex, int newIndex) {
+  void reorderDefensiveResilience(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) newIndex -= 1;
-    final list = List<String>.from(state.defensiveSusceptibility);
+    final list = List<String>.from(state.defensiveResilience);
     list.insert(newIndex, list.removeAt(oldIndex));
-    state = state.copyWith(defensiveSusceptibility: list);
+    state = state.copyWith(defensiveResilience: list);
     _save();
   }
 
@@ -149,14 +183,33 @@ class StratStateNotifier extends _$StratStateNotifier {
     _save();
   }
 
-  void incrementHumanPlayer() {
-    state = state.copyWith(humanPlayerScore: state.humanPlayerScore + 1);
+  void incrementAutoHumanPlayer() {
+    state = state.copyWith(
+      autoHumanPlayerScore: state.autoHumanPlayerScore + 1,
+    );
     _save();
   }
 
-  void decrementHumanPlayer() {
-    if (state.humanPlayerScore <= 0) return;
-    state = state.copyWith(humanPlayerScore: state.humanPlayerScore - 1);
+  void decrementAutoHumanPlayer() {
+    if (state.autoHumanPlayerScore <= 0) return;
+    state = state.copyWith(
+      autoHumanPlayerScore: state.autoHumanPlayerScore - 1,
+    );
+    _save();
+  }
+
+  void incrementTeleHumanPlayer() {
+    state = state.copyWith(
+      teleHumanPlayerScore: state.teleHumanPlayerScore + 1,
+    );
+    _save();
+  }
+
+  void decrementTeleHumanPlayer() {
+    if (state.teleHumanPlayerScore <= 0) return;
+    state = state.copyWith(
+      teleHumanPlayerScore: state.teleHumanPlayerScore - 1,
+    );
     _save();
   }
 }

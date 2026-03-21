@@ -61,9 +61,9 @@
           },
           "parameters": {
             "options" : [
+              "Not Attempted",
               "Successful",
-              "Attempted",
-              "Not Attempted"
+              "Attempted"
             ]
           }
         },
@@ -170,7 +170,7 @@
           "layout": {
             "x": 0,
             "y": 0,
-            "w": 6,
+            "w": 5.96,
             "h": 1
           },
           "parameters": {
@@ -373,8 +373,8 @@
           },
           "parameters": {
               "options" : [
-                "Attempted",
                 "N/A",
+                "Attempted",
                 "L1",
                 "L2",
                 "L3"
@@ -417,10 +417,10 @@
           },
           "parameters": {
             "options" : [
+              "N/A",
               "Left",
               "Center",
-              "Right",
-              "N/A"
+              "Right"
             ]
           }
         },
@@ -431,7 +431,7 @@
           "layout": {
             "x": 0,
             "y": 4,
-            "w": 6,
+            "w": 5,
             "h": 1
           },
           "parameters": {
@@ -443,6 +443,18 @@
             ],
             "multi_select": true
           }
+        },
+        {
+          "alias": "No Show",
+          "fieldId": "no_show",
+          "type": "checkbox",
+          "layout": {
+            "x": 5,
+            "y": 4,
+            "w": 1,
+            "h": 1
+          },
+          "parameters": {}
         },
         {
           "alias": "Next Match",

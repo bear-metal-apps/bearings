@@ -1,83 +1,141 @@
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 
-final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
+final upNextProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final client = ref.watch(honeycombClientProvider);
-  final eventsFuture = client.get<List<dynamic>>(
-    '/events?team=2046&year=2026',
+  final currentEventKey = ref.watch(currentEventProvider);
+
+  final matches = await client.get<List<dynamic>>(
+    '/matches',
+    queryParams: {'event': currentEventKey},
     cachePolicy: CachePolicy.cacheFirst,
   );
-  final matchesFuture = client.get<List<dynamic>>(
-    '/matches?team=2046&year=2026',
-    cachePolicy: CachePolicy.cacheFirst,
-  );
 
-  final results = await Future.wait([eventsFuture, matchesFuture]);
-
-  final events = results[0]
+  final eventMatches = matches
       .whereType<Map>()
-      .map((e) => Map<String, dynamic>.from(e))
-      .toList();
+      .map((match) => Map<String, dynamic>.from(match))
+      .where((match) => eventKeyForMatch(match) == currentEventKey)
+      .toList()
+    ..sort(compareMatchesForUpNext);
 
-  final matches = results[1]
-      .whereType<Map>()
-      .map((e) => Map<String, dynamic>.from(e))
-      .toList();
-
-  final matchesByEvent = <String, List<Map<String, dynamic>>>{};
-  for (final match in matches) {
-    final eventKey =
-        match['eventKey']?.toString() ?? match['event_key']?.toString();
-    if (eventKey != null && eventKey.isNotEmpty) {
-      matchesByEvent.putIfAbsent(eventKey, () => []).add(match);
-    }
-  }
-
-  for (final list in matchesByEvent.values) {
-    list.sort((a, b) => _matchNumber(a).compareTo(_matchNumber(b)));
-  }
-
-  final schedule = events
-      .map(
-        (event) => <String, dynamic>{
-          'event': event,
-          'matches': matchesByEvent[event['key']?.toString() ?? ''] ?? const [],
-        },
-      )
-      .toList();
-
-  schedule.sort((a, b) {
-    final dateA =
-        _parseDate(
-          (a['event'] as Map<String, dynamic>)['startDate'] ??
-              (a['event'] as Map<String, dynamic>)['start_date'],
-        ) ??
-        DateTime(9999);
-    final dateB =
-        _parseDate(
-          (b['event'] as Map<String, dynamic>)['startDate'] ??
-              (b['event'] as Map<String, dynamic>)['start_date'],
-        ) ??
-        DateTime(9999);
-    return dateA.compareTo(dateB);
-  });
-
-  return schedule;
+  return eventMatches;
 });
 
-int _matchNumber(Map<String, dynamic> match) {
-  final value = match['matchNumber'] ?? match['match_number'];
-  if (value is int) {
-    return value;
+final currentEventDetailsProvider = FutureProvider<Map<String, dynamic>>((
+    ref,) async {
+  final client = ref.watch(honeycombClientProvider);
+  final currentEventKey = ref.watch(currentEventProvider);
+  final year = DateTime
+      .now()
+      .year;
+
+  final events = await client.get<List<dynamic>>(
+    '/events',
+    queryParams: {'year': year, 'key': currentEventKey},
+    cachePolicy: CachePolicy.cacheFirst,
+  );
+
+  final event = events
+      .whereType<Map>()
+      .map((e) => Map<String, dynamic>.from(e))
+      .where((e) => e['key']?.toString() == currentEventKey)
+      .cast<Map<String, dynamic>>()
+      .toList();
+
+  if (event.isNotEmpty) {
+    return event.first;
   }
-  return int.tryParse(value?.toString() ?? '') ?? 0;
+
+  return <String, dynamic>{'key': currentEventKey};
+});
+
+String? eventKeyFromMatchKey(String matchKey) {
+  final parts = matchKey.split('_');
+  if (parts.isEmpty) return null;
+  return parts.first;
 }
 
-DateTime? _parseDate(dynamic value) {
-  if (value is String) {
-    return DateTime.tryParse(value);
+String? eventKeyForMatch(Map<String, dynamic> match) {
+  return match['eventKey']?.toString() ?? match['event_key']?.toString();
+}
+
+int compareMatchesForUpNext(Map<String, dynamic> a,
+    Map<String, dynamic> b,) {
+  final levelA = compLevelRank(compLevelForMatch(a));
+  final levelB = compLevelRank(compLevelForMatch(b));
+  if (levelA != levelB) return levelA.compareTo(levelB);
+
+  final numberA = matchSortNumber(a);
+  final numberB = matchSortNumber(b);
+  if (numberA != numberB) return numberA.compareTo(numberB);
+
+  return matchKeyForSort(a).compareTo(matchKeyForSort(b));
+}
+
+String matchDisplayName(Map<String, dynamic> match) {
+  final compLevel = compLevelForMatch(match);
+  final matchNumber = matchNumberForMatch(match);
+  final setNumber = setNumberForMatch(match);
+
+  switch (compLevel) {
+    case 'qm':
+      return 'Qualification Match ${matchNumber ?? ''}'.trim();
+    case 'sf':
+      return 'Semifinal Match ${setNumber ?? matchNumber ?? ''}'.trim();
+    case 'f':
+      return 'Final Match ${matchNumber ?? ''}'.trim();
+    default:
+      return defaultMatchName(match, compLevel, matchNumber);
   }
-  return null;
+}
+
+String compLevelForMatch(Map<String, dynamic> match) {
+  return match['compLevel']?.toString() ?? match['comp_level']?.toString() ??
+      '';
+}
+
+int? matchNumberForMatch(Map<String, dynamic> match) {
+  final value = match['matchNumber'] ?? match['match_number'];
+  if (value is int) return value;
+  return int.tryParse(value?.toString() ?? '');
+}
+
+int? setNumberForMatch(Map<String, dynamic> match) {
+  final value = match['setNumber'] ?? match['set_number'];
+  if (value is int) return value;
+  return int.tryParse(value?.toString() ?? '');
+}
+
+int matchSortNumber(Map<String, dynamic> match) {
+  final compLevel = compLevelForMatch(match);
+  return switch (compLevel) {
+    'qm' => matchNumberForMatch(match) ?? 0,
+    'sf' => setNumberForMatch(match) ?? matchNumberForMatch(match) ?? 0,
+    'f' => matchNumberForMatch(match) ?? 0,
+    _ => matchNumberForMatch(match) ?? setNumberForMatch(match) ?? 0,
+  };
+}
+
+int compLevelRank(String compLevel) {
+  return switch (compLevel) {
+    'qm' => 0,
+    'sf' => 1,
+    'f' => 2,
+    _ => 3,
+  };
+}
+
+String matchKeyForSort(Map<String, dynamic> match) {
+  return match['key']?.toString() ?? '';
+}
+
+String defaultMatchName(Map<String, dynamic> match,
+    String compLevel,
+    int? matchNumber,) {
+  if (compLevel.isEmpty) return match['key']?.toString() ?? '';
+  if (matchNumber != null) return '$compLevel $matchNumber';
+  return compLevel;
 }

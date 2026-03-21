@@ -3,40 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:pressable_flutter/pressable_flutter.dart';
 
 class Dropdown extends StatefulWidget {
-  final String title;
+  const Dropdown({
+    super.key,
+    this.initialIndex,
+    required this.title,
+    required this.backgroundColor,
+    required this.items,
+    required this.width,
+    required this.height,
+    this.onChanged,
+  });
 
+  final String title;
   final List<String> items;
-  final Function(String?)? onChanged;
+  final ValueChanged<String?>? onChanged;
   final double width;
   final double height;
   final Color backgroundColor;
   final int? initialIndex;
 
-  const Dropdown({
-    this.initialIndex,
-    required this.title,
-    required this.backgroundColor,
-
-    required this.items,
-    required this.width,
-    required this.height,
-    this.onChanged,
-    super.key,
-  });
-
   @override
   State<Dropdown> createState() => _DropdownState();
 }
 
-typedef MenuEntry = DropdownMenuEntry<String>;
-
 class _DropdownState extends State<Dropdown> {
-  late String dropdownValue;
+  late String _dropdownValue;
 
   @override
   void initState() {
     super.initState();
-    dropdownValue = widget.items.first;
+    _dropdownValue = widget.items.first;
   }
 
   @override
@@ -44,13 +40,12 @@ class _DropdownState extends State<Dropdown> {
     return SizedBox(
       width: widget.width,
       height: widget.height,
-
       child: Pressable(
         child: DropdownButtonFormField<String>(
           borderRadius: BorderRadius.circular(10),
           initialValue: widget.initialIndex != null
               ? widget.items[widget.initialIndex!]
-              : dropdownValue,
+              : _dropdownValue,
           isExpanded: true,
           dropdownColor: widget.backgroundColor,
           style: TextStyle(
@@ -71,13 +66,16 @@ class _DropdownState extends State<Dropdown> {
                 : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey, width: 1.0),
+              borderSide: const BorderSide(color: Colors.grey, width: 1.0),
             ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
           ),
           items: widget.items
               .map(
-                (String value) =>
+                (value) =>
                     DropdownMenuItem<String>(value: value, child: Text(value)),
               )
               .toList(),
