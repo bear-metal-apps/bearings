@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:pawfinder/custom_widgets/upload_button.dart';
+import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/app_provider.dart';
@@ -88,6 +88,10 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
           ],
         ),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: UploadStatusIndicator(),
+          ),
           LightSwitch(value: false),
           IconButton(
             icon: const Icon(Icons.skip_previous),

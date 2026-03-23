@@ -43,7 +43,7 @@ jobs:
 
       - name: Get Bearitone user ID
         id: get-user-id
-        run: echo "user-id=$(gh api \"/users/${{ steps.app-token.outputs.app-slug }}[bot]\" --jq .id)" >> "$GITHUB_OUTPUT"
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
@@ -149,12 +149,6 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.tag_name }}
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -163,6 +157,10 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: dart pub get
+
+      - name: Accept Android Licenses
+        run: |
+          yes | flutter doctor --android-licenses
 
       - name: Build Beariscope Android APK
         working-directory: ${{ env.BEARISCOPE_DIR }}
@@ -205,7 +203,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y appstream libgtk-3-dev libwebkit2gtk-4.1-dev \
             cmake clang ninja-build libcanberra-gtk-module libcanberra-gtk3-module \
-            libsecret-1-dev
+            libsecret-1-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
       - name: Resolve workspace dependencies
         run: dart pub get
@@ -272,7 +270,7 @@ jobs:
         run: |
           mkdir -p artifacts
           cd "${{ env.BEARISCOPE_DIR }}/build/web"
-          zip -r "../../../artifacts/beariscope-web-${{ needs.prepare.outputs.version }}.zip" .
+          zip -r "$GITHUB_WORKSPACE/artifacts/beariscope-web-${{ needs.prepare.outputs.version }}.zip" .
 
       - name: Upload web artifact
         uses: actions/upload-artifact@v4
@@ -334,12 +332,6 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.tag_name }}
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -348,6 +340,10 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: dart pub get
+
+      - name: Accept Android Licenses
+        run: |
+          yes | flutter doctor --android-licenses
 
       - name: Build Pawfinder Android APK
         working-directory: ${{ env.PAWFINDER_DIR }}

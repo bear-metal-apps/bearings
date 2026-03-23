@@ -1,6 +1,6 @@
 name: pawfinder
 description: "Bear Metal's Scouting App"
-version: 1.0.0+1
+version: 26.2.2+13
 resolution: workspace
 publish_to: none
 
@@ -26,12 +26,15 @@ dependencies:
   pressable_flutter: ^1.0.4
   mobile_scanner: ^7.0.1
   flutter_secure_storage: ^10.0.0
+  flutter_secure_storage_windows: ^4.1.0
   auto_size_text: ^3.0.0
   flutter_animate: ^4.5.2
   google_fonts: ^8.0.2
   material_symbols_icons: ^4.2906.0
   services:
     path: ../../packages/services
+  ui:
+    path: ../../packages/ui
 
 dev_dependencies:
   flutter_test:
@@ -44,7 +47,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - resources/ui_creator.json
   fonts:
     - family: Papyrus
       fonts:

@@ -62,3 +62,5 @@ melos:
         - melos run format:check
         - melos run analyze
         - melos run test
+dependencies:
+  syncfusion_flutter_charts: ^32.2.9

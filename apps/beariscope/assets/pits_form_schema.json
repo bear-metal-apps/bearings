@@ -1,0 +1,363 @@
+{
+  "meta": {
+    "season": 2026,
+    "author": "Bear Metal",
+    "version": 1,
+    "type": "pits"
+  },
+  "sections": [
+    {
+      "id": "bot",
+      "displayName": "Bot",
+      "fields": [
+        {
+          "id": "hopperSize",
+          "displayName": "Hopper Size (Max. Fuel Quantity)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "motorType",
+          "displayName": "Motor Type",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "X60",
+              "X44",
+              "Neo Vortex",
+              "Neo",
+              "Falcon",
+              "Other"
+            ]
+          },
+          "defaultValue": "X60"
+        },
+        {
+          "id": "drivetrainType",
+          "displayName": "Drivetrain Type",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "Swerve",
+              "Tank",
+              "Mecanum"
+            ]
+          },
+          "defaultValue": "Swerve"
+        },
+        {
+          "id": "swerveBrand",
+          "displayName": "Swerve Brand",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "REV",
+              "WCP",
+              "SDS",
+              "Thrifty Bot",
+              "Andymark",
+              "No Swerve"
+            ]
+          },
+          "defaultValue": "REV"
+        },
+        {
+          "id": "swerveGearRatio",
+          "displayName": "Swerve Gear Ratio",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "L1",
+              "L2",
+              "L3",
+              "L4",
+              "No Swerve"
+            ]
+          },
+          "defaultValue": "L1"
+        },
+        {
+          "id": "wheelType",
+          "displayName": "Wheel Type",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "Colson",
+              "Pneumatic",
+              "Spike",
+              "Billet",
+              "Other"
+            ]
+          },
+          "defaultValue": "Colson"
+        },
+        {
+          "id": "chassisLength",
+          "displayName": "Chassis Length (in)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "chassisWidth",
+          "displayName": "Chassis Width (in)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "chassisHeight",
+          "displayName": "Chassis Height (in)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "horizontalExtensionLimit",
+          "displayName": "Horizontal Extension Limit (in)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "verticalExtensionLimit",
+          "displayName": "Vertical Extension Limit (in)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "weight",
+          "displayName": "Weight (lbs)",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "trenchCapability",
+          "displayName": "Trench Capability",
+          "type": "radio",
+          "params": {
+            "options": [
+              "Trench Capable",
+              "Trench Incapable"
+            ]
+          },
+          "defaultValue": "Trench Capable"
+        }
+      ]
+    },
+    {
+      "id": "climb",
+      "displayName": "Climb",
+      "fields": [
+        {
+          "id": "climbMethod",
+          "displayName": "Climb Method",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "Rotation",
+              "Elevator",
+              "Arm",
+              "No Climb",
+              "Other"
+            ]
+          },
+          "defaultValue": "Rotation"
+        },
+        {
+          "id": "climbLevel",
+          "displayName": "Climb Level",
+          "type": "multi_select",
+          "params": {
+            "options": [
+              "Level 1",
+              "Level 2",
+              "Level 3"
+            ]
+          },
+          "defaultValue": []
+        },
+        {
+          "id": "climbConsistency",
+          "displayName": "Climb Consistency out of 10",
+          "type": "slider",
+          "params": {
+            "min": 0,
+            "max": 10,
+            "divisions": 10
+          },
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "id": "auto",
+      "displayName": "Auto",
+      "fields": [
+        {
+          "id": "autoClimb",
+          "displayName": "Auto Climb",
+          "type": "radio",
+          "params": {
+            "options": [
+              "Climb",
+              "No Climb"
+            ]
+          },
+          "defaultValue": "Climb"
+        },
+        {
+          "id": "fuelCollectionLocation",
+          "displayName": "Fuel Collection Location",
+          "type": "multi_select",
+          "params": {
+            "options": [
+              "Outpost",
+              "Depot",
+              "Neutral Zone"
+            ]
+          },
+          "defaultValue": []
+        },
+        {
+          "id": "autoPaths",
+          "displayName": "Auto Paths",
+          "type": "multiline_text",
+          "params": {},
+          "defaultValue": ""
+        },
+        {
+          "id": "pathwayDetails",
+          "displayName": "Auto Pathway Details",
+          "type": "multi_select",
+          "params": {
+            "options": [
+              "Bump Capable",
+              "Trench Capable",
+              "Never Over Bump"
+            ]
+          },
+          "defaultValue": []
+        }
+      ]
+    },
+    {
+      "id": "outtake",
+      "displayName": "Outtake",
+      "fields": [
+        {
+          "id": "shooter",
+          "displayName": "Shooter",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "Turret",
+              "Adjustable Hood",
+              "Drum",
+              "Stationary",
+              "Other"
+            ]
+          },
+          "defaultValue": "Turret"
+        },
+        {
+          "id": "shooterNumber",
+          "displayName": "Number of Shooters",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "collectorType",
+          "displayName": "Collector Type",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "4 Bar",
+              "Linear",
+              "Pivot"
+            ]
+          },
+          "defaultValue": "4 Bar"
+        },
+        {
+          "id": "fuelOuttakeRate",
+          "displayName": "Fuel Outtake Rate/sec",
+          "type": "number",
+          "params": {},
+          "required": false
+        },
+        {
+          "id": "averageAccuracy",
+          "displayName": "Average Accuracy %",
+          "type": "slider",
+          "params": {
+            "min": 0,
+            "max": 100,
+            "divisions": 20
+          },
+          "defaultValue": 0
+        },
+        {
+          "id": "moveWhileShooting",
+          "displayName": "Move while Shooting?",
+          "type": "multi_select",
+          "params": {
+            "options": [
+              "Mobile Shooting",
+              "Stationary Shooting"
+            ]
+          },
+          "defaultValue": []
+        },
+        {
+          "id": "shootingRange",
+          "displayName": "Shooting Range",
+          "type": "multi_select",
+          "params": {
+            "options": [
+              "Full Field",
+              "From Depot",
+              "From Trench",
+              "From Outpost",
+              "From Tower"
+            ]
+          },
+          "defaultValue": []
+        }
+      ]
+    },
+    {
+      "id": "indexer",
+      "displayName": "Indexer",
+      "fields": [
+        {
+          "id": "indexerType",
+          "displayName": "Indexer Type",
+          "type": "single_select",
+          "params": {
+            "options": [
+              "Dye Rotor",
+              "Spindexer",
+              "Roller Bed",
+              "Belt Bed",
+              "Dual Spindexer",
+              "Other"
+            ]
+          },
+          "defaultValue": "Dye Rotor"
+        },
+        {
+          "id": "notes",
+          "displayName": "Additional Comments",
+          "type": "multiline_text",
+          "params": {},
+          "defaultValue": ""
+        }
+      ]
+    }
+  ]
+}

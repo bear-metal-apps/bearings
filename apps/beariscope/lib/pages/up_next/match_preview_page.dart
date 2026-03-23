@@ -1,14 +1,20 @@
 import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/models/drive_team_note.dart';
+import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/drive_team_notes_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+enum _TeamAction { openTba, openStatbotics, openYouTube }
 
 final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
   ref,
@@ -81,10 +87,32 @@ class _DriveTeamMatchPreviewPageState
           return teamKey.replaceFirst(RegExp('^frc'), '');
         }
 
-        bool containsTeam(List<String> teamKeys, String teamNumber) {
-          return teamKeys.any(
-            (teamKey) => teamNumberFromKey(teamKey) == teamNumber,
-          );
+        void handleAction(
+          BuildContext context,
+          _TeamAction action,
+          String key,
+        ) {
+          switch (action) {
+            case _TeamAction.openTba:
+              launchUrl(
+                ref.tbaWebsiteUri('/match/${widget.matchKey}'),
+                mode: LaunchMode.externalApplication,
+              );
+            case _TeamAction.openStatbotics:
+              launchUrl(
+                Uri.parse('https://www.statbotics.io/match/${widget.matchKey}'),
+                mode: LaunchMode.externalApplication,
+              );
+            case _TeamAction.openYouTube:
+              key == 'null'
+                  ? ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No video available')),
+                    )
+                  : launchUrl(
+                      Uri.parse('https://www.youtube.com/watch?v=$key'),
+                      mode: LaunchMode.externalApplication,
+                    );
+          }
         }
 
         final match = Map<String, dynamic>.from(data);
@@ -101,29 +129,14 @@ class _DriveTeamMatchPreviewPageState
                       .toList() ??
                   const <String>[]
             : const <String>[];
-        final cards = [
-          ...redTeams.map((teamKey) {
-            final number = teamNumberFromKey(teamKey);
-            return {
-              'display': number.isEmpty ? teamKey : 'Team $number',
-              'number': number,
-              'color': Colors.red, // Assign red color here
-            };
-          }),
-          ...blueTeams.map((teamKey) {
-            final number = teamNumberFromKey(teamKey);
-            return {
-              'display': number.isEmpty ? teamKey : 'Team $number',
-              'number': number,
-              'color': Colors.blue, // Assign blue color here
-            };
-          }),
+        final cards = <({String teamKey, Color color})>[
+          ...redTeams.map((teamKey) => (teamKey: teamKey, color: Colors.red)),
+          ...blueTeams.map((teamKey) => (teamKey: teamKey, color: Colors.blue)),
         ];
-        final compLevel = match['comp_level']?.toString() ?? '';
-        final matchNumber = match['match_number'];
-        final number = matchNumber is int
-            ? matchNumber
-            : int.tryParse(matchNumber?.toString() ?? '');
+        final compLevel = compLevelForMatch(match);
+        final number = compLevel == 'sf'
+            ? setNumberForMatch(match) ?? matchNumberForMatch(match)
+            : matchNumberForMatch(match);
         final matchTitle = compLevel.isEmpty || number == null
             ? 'Match ${widget.matchKey}'
             : '${switch (compLevel) {
@@ -132,9 +145,53 @@ class _DriveTeamMatchPreviewPageState
                 'f' => 'Final Match',
                 _ => compLevel.toUpperCase(),
               }} $number';
+        final matchVideos = (match['videos'] as List<dynamic>? ?? [])
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+        final video = matchVideos.firstWhere(
+          (e) => e['type'] == 'youtube',
+          orElse: () => <String, dynamic>{},
+        );
 
         return Scaffold(
-          appBar: AppBar(title: Text(matchTitle)),
+          appBar: AppBar(
+            title: Text(matchTitle),
+            actions: [
+              PopupMenuButton<_TeamAction>(
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'More options',
+                onSelected: (action) =>
+                    handleAction(context, action, video['key'].toString()),
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: _TeamAction.openTba,
+                    child: ListTile(
+                      leading: Icon(Symbols.open_in_new_rounded),
+                      title: Text('Open in TBA'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _TeamAction.openStatbotics,
+                    child: ListTile(
+                      leading: Icon(Symbols.open_in_new_rounded),
+                      title: Text('Open in Statbotics'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _TeamAction.openYouTube,
+                    child: ListTile(
+                      leading: Icon(Symbols.open_in_new_rounded),
+                      title: Text('Watch Match Video'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
           body: LayoutBuilder(
             builder: (context, constraints) {
               if (cards.isEmpty) {
@@ -202,7 +259,6 @@ class _DriveTeamMatchPreviewPageState
                       },
                     ),
                   ),
-
                   Expanded(
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (notification) {
@@ -220,8 +276,8 @@ class _DriveTeamMatchPreviewPageState
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: TeamCard(
-                              teamKey: cards[index]['number'] as String,
-                              allianceColor: cards[index]['color'] as Color,
+                              teamKey: cards[index].teamKey,
+                              allianceColor: cards[index].color,
                             ),
                           );
                         },
@@ -249,13 +305,9 @@ class _DriveTeamMatchPreviewPageState
                               context,
                             ).colorScheme.surfaceContainerHighest,
                             colors: cards
-                                .map(
-                                  (c) => (c['color'] as Color).withOpacity(0.4),
-                                )
+                                .map((c) => c.color.withValues(alpha: 0.4))
                                 .toList(),
-                            activeColors: cards
-                                .map((c) => c['color'] as Color)
-                                .toList(),
+                            activeColors: cards.map((c) => c.color).toList(),
                             spacing: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 8,
@@ -279,22 +331,18 @@ class _DriveTeamMatchPreviewPageState
                         width: 586,
                         child: FilledButton(
                           onPressed: () {
-                            final is2046OnRed = containsTeam(redTeams, '2046');
-                            final is2046OnBlue = containsTeam(
-                              blueTeams,
-                              '2046',
-                            );
-                            final allianceTeams = is2046OnRed
-                                ? redTeams
-                                : is2046OnBlue
-                                ? blueTeams
-                                : const <String>[];
-                            final memberKeys = allianceTeams
-                                .where((k) => teamNumberFromKey(k) != '2046')
+                            final filteredRedTeams = redTeams
+                                .where(
+                                  (teamKey) =>
+                                      teamNumberFromKey(teamKey) != '2046',
+                                )
                                 .toList();
-                            final allianceLabel = is2046OnRed
-                                ? 'Red Alliance'
-                                : 'Blue Alliance';
+                            final filteredBlueTeams = blueTeams
+                                .where(
+                                  (teamKey) =>
+                                      teamNumberFromKey(teamKey) != '2046',
+                                )
+                                .toList();
                             showModalBottomSheet(
                               context: context,
                               showDragHandle: true,
@@ -302,8 +350,8 @@ class _DriveTeamMatchPreviewPageState
                               useSafeArea: true,
                               builder: (context) => _DriveTeamNotesSheet(
                                 matchKey: widget.matchKey,
-                                allianceMemberTeamKeys: memberKeys,
-                                allianceLabel: allianceLabel,
+                                redAllianceTeamKeys: filteredRedTeams,
+                                blueAllianceTeamKeys: filteredBlueTeams,
                               ),
                             );
                           },
@@ -363,13 +411,13 @@ class _DriveTeamMatchPreviewPageState
 
 class _DriveTeamNotesSheet extends ConsumerStatefulWidget {
   final String matchKey;
-  final List<String> allianceMemberTeamKeys;
-  final String allianceLabel;
+  final List<String> redAllianceTeamKeys;
+  final List<String> blueAllianceTeamKeys;
 
   const _DriveTeamNotesSheet({
     required this.matchKey,
-    required this.allianceMemberTeamKeys,
-    required this.allianceLabel,
+    required this.redAllianceTeamKeys,
+    required this.blueAllianceTeamKeys,
   });
 
   @override
@@ -379,11 +427,19 @@ class _DriveTeamNotesSheet extends ConsumerStatefulWidget {
 
 class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
   final Map<String, TextEditingController> _controllers = {};
-
   final Map<String, String> _existingIds = {};
 
   bool _initialized = false;
   bool _isSaving = false;
+
+  Future<String> _resolveScoutedBy() async {
+    final userInfo = await ref.read(userInfoProvider.future);
+    final name = userInfo?.name?.trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+    return 'Unknown User';
+  }
 
   @override
   void dispose() {
@@ -398,7 +454,12 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     if (_initialized) return;
     _initialized = true;
 
-    for (final teamKey in widget.allianceMemberTeamKeys) {
+    final allTeamKeys = [
+      ...widget.redAllianceTeamKeys,
+      ...widget.blueAllianceTeamKeys,
+    ];
+
+    for (final teamKey in allTeamKeys) {
       final teamNumber = teamKey.replaceFirst(RegExp(r'^frc'), '');
       final teamNum = int.tryParse(teamNumber);
       final controller = TextEditingController();
@@ -420,11 +481,10 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     setState(() => _isSaving = true);
 
     try {
-      final userInfo = ref.read(userInfoProvider).asData?.value;
       final authMe = await ref.read(authMeProvider.future);
       final eventKey = ref.read(currentEventProvider);
 
-      final scoutedBy = userInfo?.name?.trim() ?? 'Unknown User';
+      final scoutedBy = await _resolveScoutedBy();
       final userId = authMe?.user.id ?? '';
 
       final entries = <Map<String, Object?>>[];
@@ -463,6 +523,59 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     }
   }
 
+  Widget _buildAllianceSection(
+    ThemeData theme,
+    String label,
+    List<String> teamKeys,
+  ) {
+    if (teamKeys.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (final teamKey in teamKeys)
+          Builder(
+            builder: (context) {
+              final teamNumber = teamKey.replaceFirst(RegExp(r'^frc'), '');
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    teamNumber.isEmpty ? teamKey : teamNumber,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _controllers[teamNumber],
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Notes',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final notesAsync = ref.watch(myDriveTeamNotesProvider(widget.matchKey));
@@ -480,12 +593,11 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
       data: (existingNotes) {
         _initControllers(existingNotes);
 
-        if (widget.allianceMemberTeamKeys.isEmpty) {
+        if (widget.redAllianceTeamKeys.isEmpty &&
+            widget.blueAllianceTeamKeys.isEmpty) {
           return const Padding(
             padding: EdgeInsets.all(32),
-            child: Center(
-              child: Text('Cannot load notes — 2046 not found in this match.'),
-            ),
+            child: Center(child: Text('Cannot load notes for this match.')),
           );
         }
 
@@ -496,46 +608,16 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  widget.allianceLabel,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
+                _buildAllianceSection(
+                  theme,
+                  'Red Alliance',
+                  widget.redAllianceTeamKeys,
                 ),
-                const SizedBox(height: 8),
-                for (final teamKey in widget.allianceMemberTeamKeys) ...[
-                  Builder(
-                    builder: (context) {
-                      final teamNumber = teamKey.replaceFirst(
-                        RegExp(r'^frc'),
-                        '',
-                      );
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            teamNumber.isEmpty ? teamKey : teamNumber,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: _controllers[teamNumber],
-                            maxLines: null,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Notes',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                _buildAllianceSection(
+                  theme,
+                  'Blue Alliance',
+                  widget.blueAllianceTeamKeys,
+                ),
                 const SizedBox(height: 4),
                 SizedBox(
                   width: double.infinity,
