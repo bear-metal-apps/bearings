@@ -214,12 +214,12 @@ class _NotesBody extends StatelessWidget {
       TeamScoutingBundle.getMatchField(doc, section, fieldId);
 
   /// Formats the team's ranking positions across all four strat dimensions,
-  /// e.g. "Driver: #1  ·  Def. Skill: #3  ·  Def. Risk: #2  ·  Mech.: #1".
+  /// e.g. "Driver: #1  ·  Def. Skill: #3  ·  Def. Resilience: #2  ·  Mech.: #1".
   static String _formatStratRanks(ScoutingDocument doc, int teamNumber) {
     const keys = {
       'driverSkillRanking': 'Driver',
       'defensiveSkillRanking': 'Def. Skill',
-      'defensiveResilienceRanking': 'Def. Risk',
+      'defensiveResilienceRanking': 'Def. Resilience',
       'mechanicalStabilityRanking': 'Mech.',
     };
     final teamStr = teamNumber.toString();
