@@ -24,6 +24,7 @@ import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/utilities/utilities_page.dart';
 import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:beariscope/providers/shared_preferences_provider.dart';
+import 'package:beariscope/utils/create_theme.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -34,7 +35,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/providers/auth_provider.dart';
@@ -339,8 +339,8 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
 
     final app = MaterialApp.router(
       routerConfig: router,
-      theme: _createTheme(Brightness.light, accentColor),
-      darkTheme: _createTheme(Brightness.dark, accentColor),
+      theme: createTheme(Brightness.light, accentColor),
+      darkTheme: createTheme(Brightness.dark, accentColor),
       themeMode: themeMode,
       debugShowCheckedModeBanner: false,
     );
@@ -351,43 +351,6 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
 
     return app;
   }
-}
-
-ThemeData _createTheme(Brightness brightness, Color accentColor) {
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: accentColor,
-    brightness: brightness,
-  );
-
-  final baseTheme = ThemeData(
-    brightness: brightness,
-    useMaterial3: true,
-    colorScheme: colorScheme,
-    iconTheme: IconThemeData(
-      fill: 0.0,
-      weight: 600,
-      color: colorScheme.onSurface,
-    ),
-    textTheme: GoogleFonts.nunitoSansTextTheme(
-      ThemeData(brightness: brightness, colorScheme: colorScheme).textTheme,
-    ),
-  );
-
-  return baseTheme.copyWith(
-    appBarTheme: baseTheme.appBarTheme.copyWith(
-      centerTitle: false,
-      titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
-        fontFamily: 'Xolonium',
-        fontSize: 20,
-      ),
-    ),
-    dialogTheme: baseTheme.dialogTheme.copyWith(
-      titleTextStyle: baseTheme.textTheme.headlineSmall!.copyWith(
-        fontFamily: 'Xolonium',
-        fontSize: 20,
-      ),
-    ),
-  );
 }
 
 List<PlatformMenu> _buildMacMenus(GoRouter router) {
