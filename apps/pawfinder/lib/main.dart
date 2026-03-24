@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/pages/flow/config_page.dart';
 import 'package:pawfinder/pages/flow/match_select_page.dart';
@@ -15,8 +17,10 @@ import 'package:pawfinder/pages/splash_screen.dart';
 import 'package:pawfinder/pages/strat.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
+import 'package:pawfinder/services/scout_upload_service.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/connectivity_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -145,12 +149,33 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
+  bool? _wasOnline;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(deviceAuthServiceProvider).initialize();
     });
+    _connectivitySubscription = ref.listenManual<AsyncValue<bool>>(
+      connectivityProvider,
+      (previous, next) {
+        final currentOnline = next.value;
+        final previousOnline = previous?.value ?? _wasOnline;
+        _wasOnline = currentOnline;
+        if (currentOnline == true && previousOnline != true) {
+          unawaited(ref.read(scoutUploadServiceProvider).drainIfOnline());
+        }
+      },
+      fireImmediately: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription?.close();
+    super.dispose();
   }
 
   @override

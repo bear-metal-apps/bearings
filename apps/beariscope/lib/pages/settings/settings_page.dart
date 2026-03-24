@@ -104,8 +104,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ListTile(
                   leading: const Icon(Symbols.palette_rounded),
                   title: const Text('Appearance'),
-                  subtitle: const Text('Theme, UI Options'),
+                  subtitle: const Text('Theme, Accent Color'),
                   onTap: () => context.push('/settings/appearance'),
+                ),
+                ListTile(
+                  leading: const Icon(Symbols.tune_rounded),
+                  title: const Text('Advanced'),
+                  subtitle: const Text('Experimental options'),
+                  onTap: () => context.push('/settings/advanced'),
                 ),
               ],
             ),

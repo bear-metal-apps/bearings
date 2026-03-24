@@ -3,90 +3,52 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:pawfinder/data/local_data.dart';
-import 'package:pawfinder/data/match_json_gen.dart';
-import 'package:pawfinder/models/scouting_session.dart';
 
-Map<String, dynamic> _identityToJson(MatchIdentity id) => {
-  'event': id.event.toJson(),
-  'matchNumber': id.matchNumber,
-  'position': id.position.name,
-  'scoutName': id.scout.name,
-  'scoutUuid': id.scout.uuid,
-};
+const stratQueuePrefix = 'strat:';
 
-MatchIdentity? _identityFromJson(dynamic raw) {
-  try {
-    final m = Map<String, dynamic>.from(raw as Map);
-    return (
-      event: ScoutingEvent.fromJson(Map<String, dynamic>.from(m['event'])),
-      matchNumber: m['matchNumber'] as int,
-      position: ScoutPosition.values.firstWhere((p) => p.name == m['position']),
-      scout: Scout(
-        name: m['scoutName'] as String,
-        uuid: m['scoutUuid'] as String,
-      ),
-    );
-  } catch (_) {
-    return null;
-  }
-}
-
-class UploadQueueNotifier extends Notifier<List<MatchIdentity>> {
+class UploadQueueNotifier extends Notifier<List<String>> {
   static const _hiveKey = 'upload_queue';
 
   @override
-  List<MatchIdentity> build() {
+  List<String> build() {
     final box = Hive.box(boxKey);
     final raw = box.get(_hiveKey);
     if (raw is! String) return [];
     try {
       final list = jsonDecode(raw) as List;
-      return list.map(_identityFromJson).whereType<MatchIdentity>().toList();
+      return list.whereType<String>().toList();
     } catch (_) {
       return [];
     }
   }
 
-  /// Add a single match identity to the upload queue.
-  void add(MatchIdentity identity) {
-    state = [...state, identity];
+  void enqueue(String documentId) {
+    if (documentId.isEmpty) return;
+    if (state.contains(documentId)) return;
+    state = [...state, documentId];
     _persist();
   }
 
-  void addIfNotPresent(MatchIdentity identity) {
-    final key = matchBaseKey(identity);
-    final idx = state.indexWhere((e) => matchBaseKey(e) == key);
-    if (idx != -1) {
-      // update the scout to reflect whoever just made a change so that scoutedBy in the upload is attributed correctly
-      final updated = List<MatchIdentity>.from(state);
-      updated[idx] = identity;
-      state = updated;
-      _persist();
-      return;
-    }
-    add(identity);
-  }
-
-  void removeUploaded(List<MatchIdentity> uploaded) {
-    final keys = uploaded.map(matchBaseKey).toSet();
-    state = state.where((e) => !keys.contains(matchBaseKey(e))).toList();
+  void markUploaded(List<String> ids) {
+    if (ids.isEmpty) return;
+    final uploaded = ids.toSet();
+    state = state.where((id) => !uploaded.contains(id)).toList();
     _persist();
   }
 
-  void restoreAll(List<MatchIdentity> identities) {
-    // Prepend so that the failed entries show up at the front.
-    state = [...identities, ...state];
+  void restoreAll(List<String> ids) {
+    if (ids.isEmpty) return;
+    final merged = <String>[...ids, ...state];
+    final seen = <String>{};
+    state = merged.where((id) => seen.add(id)).toList();
     _persist();
   }
 
   void _persist() {
-    Hive.box(
-      boxKey,
-    ).put(_hiveKey, jsonEncode(state.map(_identityToJson).toList()));
+    Hive.box(boxKey).put(_hiveKey, jsonEncode(state));
   }
 }
 
-final uploadQueueProvider =
-    NotifierProvider<UploadQueueNotifier, List<MatchIdentity>>(
-      UploadQueueNotifier.new,
-    );
+final uploadQueueProvider = NotifierProvider<UploadQueueNotifier, List<String>>(
+  UploadQueueNotifier.new,
+);

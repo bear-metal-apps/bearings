@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:core/core.dart' show MatchFormData;
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_form_store.dart';
 import 'package:pawfinder/data/ui_json_serialization.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 
@@ -47,6 +49,7 @@ class SectionJsonData {
   Map<String, dynamic> toJson() => {'sectionId': sectionId, 'fields': fields};
 }
 
+@Deprecated('use MatchFormData and MatchFormStore instead')
 class MetaJsonData {
   final int season;
   final int version;
@@ -81,6 +84,7 @@ class MetaJsonData {
   };
 }
 
+@Deprecated('use MatchFormData and MatchFormStore instead')
 class MatchJsonData {
   final MetaJsonData meta;
   final int? teamNumber;
@@ -120,7 +124,8 @@ class MatchJsonData {
   }
 }
 
-// reads each field value out of hive
+@Deprecated('use MatchFormData and MatchFormStore instead')
+// legacy read helper used by existing upload flow before full migration
 SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
   final section = SectionJsonData(sectionId: config.sectionId, fields: {});
   final box = Hive.box(boxKey);
@@ -133,6 +138,7 @@ SectionJsonData generateSectionJsonHive(PageConfig config, MatchIdentity info) {
   return section;
 }
 
+@Deprecated('use MatchFormData and MatchFormStore instead')
 MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) {
   // keep the name of the scout who last saved data
   final storedScout = Hive.box(boxKey).get(matchScoutedByKey(info)) as String?;
@@ -145,8 +151,19 @@ MetaJsonData generateMetaJsonHive(Meta config, MatchIdentity info) {
   );
 }
 
-// assembles the full match json from hive for upload
+@Deprecated('use MatchFormData and MatchFormStore instead')
+// reads from new one-document storage when available, falls back to legacy keys
 MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
+  final store = MatchFormStore();
+  final stored = store.load(
+    info.event.key,
+    info.matchNumber,
+    info.position.posIndex,
+  );
+  if (stored != null) {
+    return _toLegacyMatchJson(stored);
+  }
+
   final box = Hive.box(boxKey);
   final rawTeam = box.get(matchTeamKey(info));
   final teamNumber = rawTeam is int ? rawTeam : null;
@@ -162,24 +179,97 @@ MatchJsonData generateMatchJsonHive(MatchConfig config, MatchIdentity info) {
   );
 }
 
-// restores saved match json data back into hive (editing old matches)
+@Deprecated('use MatchFormData and MatchFormStore instead')
+// compatibility: store full document under one key
 void loadMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
-  final dataBox = Hive.box(boxKey);
+  final store = MatchFormStore();
+  store.save(_toMatchFormData(data, info, store));
+}
 
-  for (final section in data.sections) {
-    section.fields.forEach(
-      (k, v) => dataBox.put(matchDataKey(info, section.sectionId, k), v),
+@Deprecated('use MatchFormData and MatchFormStore instead')
+// compatibility: store full document under one key
+void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
+  final store = MatchFormStore();
+  store.save(_toMatchFormData(data, info, store));
+}
+
+@Deprecated('use MatchFormData and MatchFormStore instead')
+MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
+  final store = MatchFormStore();
+  final stored = store.load(
+    info.event.key,
+    info.matchNumber,
+    info.position.posIndex,
+  );
+  if (stored != null) return _toLegacyMatchJson(stored);
+
+  // legacy compatibility while old callers still exist
+  final jsonRaw = Hive.box(boxKey).get('${matchBaseKey(info)}_JSON') as String?;
+  if (jsonRaw == null) return null;
+  try {
+    return MatchJsonData.fromJson(
+      Map<String, dynamic>.from(jsonDecode(jsonRaw) as Map),
     );
+  } catch (_) {
+    return null;
   }
 }
 
-// saves the full match json snapshot under the scout-agnostic base key
-void insertMatchJsonToHive(MatchJsonData data, MatchIdentity info) {
-  Hive.box(boxKey).put("${matchBaseKey(info)}_JSON", jsonEncode(data.toJson()));
+MatchJsonData _toLegacyMatchJson(MatchFormData data) {
+  return MatchJsonData(
+    meta: MetaJsonData(
+      season: data.season,
+      version: data.configVersion,
+      type: 'match',
+      event: data.eventKey,
+      scoutedBy: data.scoutedBy ?? '',
+    ),
+    teamNumber: data.teamNumber,
+    matchNumber: data.matchNumber,
+    pos: data.pos,
+    sections: data.sections.entries
+        .map(
+          (entry) => SectionJsonData(
+            sectionId: entry.key,
+            fields: Map<String, dynamic>.from(entry.value),
+          ),
+        )
+        .toList(),
+  );
 }
 
-MatchJsonData? getMatchJsonFromHive(MatchIdentity info) {
-  final jsonRaw = Hive.box(boxKey).get("${matchBaseKey(info)}_JSON") as String?;
-  if (jsonRaw == null) return null;
-  return MatchJsonData.fromJson(jsonDecode(jsonRaw));
+MatchFormData _toMatchFormData(
+  MatchJsonData data,
+  MatchIdentity info,
+  MatchFormStore store,
+) {
+  final existing = store.load(
+    info.event.key,
+    info.matchNumber,
+    info.position.posIndex,
+  );
+  final sections = <String, Map<String, dynamic>>{
+    for (final section in data.sections)
+      section.sectionId: Map<String, dynamic>.from(section.fields),
+  };
+
+  if (existing != null) {
+    return existing.copyWith(
+      season: data.meta.season,
+      configVersion: data.meta.version,
+      teamNumber: data.teamNumber,
+      scoutedBy: data.meta.scoutedBy,
+      sections: sections,
+    );
+  }
+
+  return MatchFormData.blank(
+    eventKey: data.meta.event.isEmpty ? info.event.key : data.meta.event,
+    matchNumber: data.matchNumber,
+    pos: data.pos,
+    season: data.meta.season,
+    configVersion: data.meta.version,
+    teamNumber: data.teamNumber,
+    scoutedBy: data.meta.scoutedBy,
+  ).copyWith(sections: sections);
 }

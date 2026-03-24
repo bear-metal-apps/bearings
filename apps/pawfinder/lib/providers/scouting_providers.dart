@@ -1,12 +1,18 @@
 import 'dart:convert';
 
-import 'package:services/providers/api_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Provider;
 import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_form_store.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:services/providers/api_provider.dart';
 
 part 'scouting_providers.g.dart';
+
+final matchFormStoreProvider = Provider<MatchFormStore>((ref) {
+  return MatchFormStore();
+});
 
 List<ScoutingMatch> _parseAndSortMatches(List<dynamic> rawData) {
   final matches = rawData
@@ -153,30 +159,19 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
   }
 
   void setMatchNumber(int matchNumber) {
-    state = state.copyWith(matchNumber: matchNumber, resetVersion: 0);
+    state = state.copyWith(matchNumber: matchNumber);
   }
 
   void nextMatch() {
     if (state.matchNumber != null) {
-      state = state.copyWith(
-        matchNumber: state.matchNumber! + 1,
-        resetVersion: 0,
-      );
+      state = state.copyWith(matchNumber: state.matchNumber! + 1);
     }
   }
 
   void previousMatch() {
     if (state.matchNumber != null && state.matchNumber! > 1) {
-      state = state.copyWith(
-        matchNumber: state.matchNumber! - 1,
-        resetVersion: 0,
-      );
+      state = state.copyWith(matchNumber: state.matchNumber! - 1);
     }
-  }
-
-  /// increments version to force a hard rebuild of the MatchPage widgets
-  void triggerResetUI() {
-    state = state.copyWith(resetVersion: state.resetVersion + 1);
   }
 
   void setEvent(ScoutingEvent event) {
@@ -219,12 +214,6 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
 
   void clear() {
     state = const ScoutingSession();
-  }
-}
-
-extension on int? {
-  int? operator +(int other) {
-    return null;
   }
 }
 

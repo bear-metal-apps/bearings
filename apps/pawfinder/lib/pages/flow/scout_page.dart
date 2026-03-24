@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pawfinder/custom_widgets/upload_button.dart';
+import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
@@ -49,7 +49,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
           onPressed: () => context.go('/config'),
         ),
         title: const Text('Select Scout'),
-        actions: [UploadButton()],
+        actions: const [UploadStatusIndicator()],
         actionsPadding: EdgeInsets.only(right: 8),
       ),
       body: Padding(
@@ -115,7 +115,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                         },
                         itemBuilder: (context, index) {
                           final scout = filtered[index];
-                          final isSelected = _selectedScout == scout;
+                          final isSelected = _selectedScout?.uuid == scout.uuid;
                           return ListTile(
                             contentPadding: EdgeInsets.symmetric(horizontal: 4),
                             leading: CircleAvatar(

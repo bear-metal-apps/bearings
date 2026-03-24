@@ -3,18 +3,19 @@ import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
-import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
+import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
+import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
+import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:services/providers/permissions_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:beariscope/pages/team_lookup/team_providers.dart';
+import 'package:services/providers/permissions_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,8 +24,14 @@ import '../providers/strat_z_score_provider.dart';
 class TeamCard extends ConsumerWidget {
   final String teamKey;
   final double? height;
+  final Color? allianceColor;
 
-  const TeamCard({super.key, required this.teamKey, this.height});
+  const TeamCard({
+    super.key,
+    required this.teamKey,
+    this.height,
+    this.allianceColor,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,7 +68,6 @@ class TeamCard extends ConsumerWidget {
           );
         }
 
-        // Capture in a non-nullable local so closures below don't need `!`.
         final resolvedTeam = team;
 
         return OpenContainer(
@@ -80,7 +86,16 @@ class TeamCard extends ConsumerWidget {
             child: InkWell(
               onTap: action,
               borderRadius: BorderRadius.circular(12),
-              child: _TeamCardSummary(team: resolvedTeam),
+              child: DecoratedBox(
+                decoration: allianceColor != null
+                    ? BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: allianceColor!, width: 4),
+                        ),
+                      )
+                    : const BoxDecoration(),
+                child: _TeamCardSummary(team: resolvedTeam),
+              ),
             ),
           ),
           openBuilder: (context, action) => TeamDetailsPage(
@@ -147,24 +162,21 @@ class _TeamCardSummary extends ConsumerWidget {
               ),
             ],
           ),
-          const Spacer(),
-          Row(
-            // crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: bundleAsync.when(
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, _) => const SizedBox.shrink(),
-                  data: (bundle) => _SummaryMetrics(
-                    bundle: bundle,
-                    stratZScores:
-                        ref.watch(stratZScoresProvider).asData?.value ??
-                        StratZScoreData.empty,
-                    ranking: rankings[team.number],
-                  ),
-                ),
+          const SizedBox(height: 12), // Replaced the Spacer with fixed padding
+          Expanded(
+            // Let the metrics take up the rest of the vertical space
+            child: bundleAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+              data: (bundle) => _SummaryMetrics(
+                teamNumber: team.number,
+                bundle: bundle,
+                stratZScores:
+                    ref.watch(stratZScoresProvider).asData?.value ??
+                    StratZScoreData.empty,
+                ranking: rankings[team.number],
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -173,11 +185,13 @@ class _TeamCardSummary extends ConsumerWidget {
 }
 
 class _SummaryMetrics extends ConsumerWidget {
+  final int teamNumber;
   final TeamScoutingBundle bundle;
   final StratZScoreData? stratZScores;
   final TeamRanking? ranking;
 
   const _SummaryMetrics({
+    required this.teamNumber,
     required this.bundle,
     required this.stratZScores,
     required this.ranking,
@@ -193,11 +207,9 @@ class _SummaryMetrics extends ConsumerWidget {
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
-    final avgAccuracy =
-        (bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy) +
-            bundle.avgMatchField(kSectionAuto, kAutoFuelAccuracy)) /
-        2;
+    final avgAccuracy = bundle.avgMatchAccuracyTotal();
     final hasMatch = bundle.hasMatchData;
+    final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,10 +252,11 @@ class _SummaryMetrics extends ConsumerWidget {
           ],
         ),
         // Role chip + trench status
+        // 1. CHIPS: Pinned to the top right below the header
         if (bundle.hasPitsData) ...[
           Wrap(
             spacing: 6,
-            runSpacing: 4,
+            runSpacing: 6,
             children: [
               if (primaryRole != null)
                 Chip(
@@ -266,7 +279,11 @@ class _SummaryMetrics extends ConsumerWidget {
                   builder: (context) {
                     final color = Theme.of(context).colorScheme.secondary;
                     return Chip(
-                      avatar: Icon(Icons.merge_type, size: 14, color: color),
+                      avatar: Icon(
+                        Symbols.merge_type_rounded,
+                        size: 14,
+                        color: color,
+                      ),
                       label: Text(
                         'Trench',
                         style: TextStyle(fontSize: 12, color: color),
@@ -284,7 +301,11 @@ class _SummaryMetrics extends ConsumerWidget {
                   builder: (context) {
                     final color = Theme.of(context).colorScheme.secondary;
                     return Chip(
-                      avatar: Icon(Icons.stairs, size: 14, color: color),
+                      avatar: Icon(
+                        Symbols.stairs_rounded,
+                        size: 14,
+                        color: color,
+                      ),
                       label: Text(
                         'Climb $climbCapable',
                         style: TextStyle(fontSize: 12, color: color),
@@ -299,9 +320,46 @@ class _SummaryMetrics extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
         ],
-        // Auto / Tele fuel averages
+
+        // 2. SPACER: Pushes the Z-Scores and Averages to the bottom of the card
+        const Spacer(),
+
+        // 3. Z-SCORES: Pushed to the bottom by the spacer
+        if (hasZScores)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Driver Skill: ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive Skill: ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive Resilience: ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Mechanical Stability: ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+        const SizedBox(height: 12),
+
+        // 4. AVERAGES: Remaining stuck to the very bottom
         if (hasMatch)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -313,24 +371,26 @@ class _SummaryMetrics extends ConsumerWidget {
                     label: 'Auto',
                     value: avgAutoFuel.toStringAsFixed(1),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   _statPill(
                     context,
                     label: 'Tele',
                     value: avgTeleFuel.toStringAsFixed(1),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   _statPill(
                     context,
                     label: 'Total',
                     value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
                     highlight: true,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   _statPill(
                     context,
                     label: 'Accuracy',
-                    value: '${(avgAccuracy).toStringAsFixed(1)}%',
+                    value: avgAccuracy != null
+                        ? '${avgAccuracy.toStringAsFixed(1)}%'
+                        : '—',
                     highlight: true,
                   ),
                 ],
@@ -437,7 +497,7 @@ class TeamDetailsPage extends ConsumerWidget {
             PopupMenuButton<_TeamAction>(
               icon: const Icon(Icons.more_vert),
               tooltip: 'More options',
-              onSelected: (action) => _handleAction(context, action),
+              onSelected: (action) => _handleAction(context, action, ref),
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: _TeamAction.openTba,
@@ -497,11 +557,11 @@ class TeamDetailsPage extends ConsumerWidget {
     );
   }
 
-  void _handleAction(BuildContext context, _TeamAction action) {
+  void _handleAction(BuildContext context, _TeamAction action, WidgetRef ref) {
     switch (action) {
       case _TeamAction.openTba:
         launchUrl(
-          Uri.parse('https://www.thebluealliance.com/team/$teamNumber'),
+          ref.tbaWebsiteUri('/team/$teamNumber'),
           mode: LaunchMode.externalApplication,
         );
       case _TeamAction.openStatbotics:

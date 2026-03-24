@@ -134,3 +134,6 @@ const kEndNotes = 'notes';
 
 /// Preferred play style(s): "Passing" | "Cycling" | "Shooting" | "Defense" (multi-select).
 const kEndPlayStyle = 'play_style';
+
+/// Didn't show up to the match
+const kEndNoShow = 'no_show';
