@@ -38,6 +38,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/connectivity_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/release/release_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -326,6 +327,9 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Initialize endpoint preference from SharedPreferences
+      ref.read(honeycombEndpointPreferenceProvider.notifier).initialize();
+      // Try silent login
       ref.read(authProvider).trySilentLogin();
     });
   }
