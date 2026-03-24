@@ -104,16 +104,6 @@ class AboutSettingsPage extends ConsumerWidget {
                   'FRC Nexus',
                 ),
               ),
-              ListTile(
-                title: const Text('FRC Colors'),
-                subtitle: const Text('Primary & secondary team colors'),
-                trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap: () => _launchUrl(
-                  context,
-                  Uri.parse('https://frc-colors.com/'),
-                  'FRC Colors',
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 16),
