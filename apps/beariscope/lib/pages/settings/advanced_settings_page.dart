@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:beariscope/components/settings_group.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,11 +18,14 @@ class AdvancedSettingsPage extends ConsumerStatefulWidget {
 
 class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
   final TextEditingController _customHoneycombUrlController =
-  TextEditingController();
+      TextEditingController();
+  final TextEditingController _customEventKeyController =
+      TextEditingController();
 
   @override
   void dispose() {
     _customHoneycombUrlController.dispose();
+    _customEventKeyController.dispose();
     super.dispose();
   }
 
@@ -49,11 +53,22 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
     );
   }
 
+  void _syncCustomEventKeyController(String eventKey) {
+    if (_customEventKeyController.text == eventKey) return;
+
+    _customEventKeyController.value = TextEditingValue(
+      text: eventKey,
+      selection: TextSelection.collapsed(offset: eventKey.length),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final useBetaTbaWebsite = ref.watch(useBetaTbaWebsiteProvider);
     final endpointSelection = ref.watch(honeycombEndpointPreferenceProvider);
+    final currentEventKey = ref.watch(currentEventProvider);
     _syncCustomUrlController(endpointSelection);
+    _syncCustomEventKeyController(currentEventKey);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Advanced')),
@@ -61,7 +76,7 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           SettingsGroup(
-            title: 'Data Sources',
+            title: 'External Links',
             children: [
               SwitchListTile(
                 secondary: const Icon(Symbols.experiment_rounded),
@@ -78,6 +93,34 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
           ),
           const SizedBox(height: 16),
           SettingsGroup(
+            title: 'Custom Event',
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  controller: _customEventKeyController,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    icon: const Icon(Symbols.event_rounded),
+                    labelText: 'Custom event key',
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    unawaited(
+                      ref
+                          .read(currentEventProvider.notifier)
+                          .setEventKey(value),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SettingsGroup(
             title: 'Server Connection',
             children: [
               RadioListTile<HoneycombEndpointMode>(
@@ -85,39 +128,35 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                 groupValue: endpointSelection.mode,
                 title: const Text('Azure'),
                 subtitle: const Text('Use the main Azure server'),
-                onChanged: (_) =>
-                    unawaited(
-                      ref
-                          .read(honeycombEndpointPreferenceProvider.notifier)
-                          .setAzure(),
-                    ),
+                onChanged: (_) => unawaited(
+                  ref
+                      .read(honeycombEndpointPreferenceProvider.notifier)
+                      .setAzure(),
+                ),
               ),
               RadioListTile<HoneycombEndpointMode>(
                 value: HoneycombEndpointMode.cloudflare,
                 groupValue: endpointSelection.mode,
                 title: const Text('Proxy'),
                 subtitle: const Text(
-                    'Proxy the server through Cloudflare, useful if Azure is blocked'),
-                onChanged: (_) =>
-                    unawaited(
-                      ref
-                          .read(honeycombEndpointPreferenceProvider.notifier)
-                          .setCloudflare(),
-                    ),
+                  'Proxy the server through Cloudflare, useful if Azure is blocked',
+                ),
+                onChanged: (_) => unawaited(
+                  ref
+                      .read(honeycombEndpointPreferenceProvider.notifier)
+                      .setCloudflare(),
+                ),
               ),
               RadioListTile<HoneycombEndpointMode>(
                 value: HoneycombEndpointMode.custom,
                 groupValue: endpointSelection.mode,
                 title: const Text('Custom URL'),
                 subtitle: const Text('Use a custom server'),
-                onChanged: (_) =>
-                    unawaited(
-                      ref
-                          .read(honeycombEndpointPreferenceProvider.notifier)
-                          .setCustomUrl(
-                        _customHoneycombUrlController.text,
-                      ),
-                    ),
+                onChanged: (_) => unawaited(
+                  ref
+                      .read(honeycombEndpointPreferenceProvider.notifier)
+                      .setCustomUrl(_customHoneycombUrlController.text),
+                ),
               ),
               if (endpointSelection.mode == HoneycombEndpointMode.custom)
                 Padding(
@@ -128,9 +167,11 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
                       labelText: 'Custom URL',
-                      helperText: 'Enter the endpoint origin, such as https://example.com',
+                      helperText:
+                          'Enter the endpoint origin, such as https://example.com',
                       errorText: _customUrlError(
-                          _customHoneycombUrlController.text),
+                        _customHoneycombUrlController.text,
+                      ),
                       border: const OutlineInputBorder(),
                     ),
                     onChanged: (value) {
