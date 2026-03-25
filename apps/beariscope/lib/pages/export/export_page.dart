@@ -96,7 +96,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         for (final key in const [
           'driverSkillRanking',
           'defensiveSkillRanking',
-          'defensiveSusceptibilityRanking',
+          'defensiveResilienceRanking',
           'mechanicalStabilityRanking',
         ]) {
           final list = doc.data[key];
@@ -191,7 +191,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Export'),
+        title: const Text('Export Data'),
         leading: controller.isDesktop
             ? null
             : IconButton(icon: const Icon(Symbols.menu_rounded), onPressed: controller.openDrawer),
@@ -445,287 +445,274 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 24),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Error Margins',
-                                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                              color: colorScheme.primary,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          SfSliderTheme(
-                                            data: SfSliderThemeData(
-                                              activeTrackHeight: 8,
-                                              inactiveTrackHeight: 8,
-                                              thumbRadius: 12,
-                                              overlayRadius: 20,
-                                              activeTrackColor: colorScheme.primary,
-                                              inactiveTrackColor: colorScheme.surfaceContainerHighest,
-                                              thumbColor: colorScheme.primary,
-                                              overlayColor: colorScheme.primary.withAlpha(50),
-                                              tooltipBackgroundColor: colorScheme.primaryContainer,
-                                              tooltipTextStyle: Theme.of(
-                                                context,
-                                              ).textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer),
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 2),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                      const SizedBox(height: 16),
+                                      SfSliderTheme(
+                                        data: SfSliderThemeData(
+                                          activeTrackHeight: 8,
+                                          inactiveTrackHeight: 8,
+                                          thumbRadius: 12,
+                                          overlayRadius: 20,
+                                          activeTrackColor: colorScheme.primary,
+                                          inactiveTrackColor: colorScheme.surfaceContainerHighest,
+                                          thumbColor: colorScheme.primary,
+                                          overlayColor: colorScheme.primary.withAlpha(50),
+                                          tooltipBackgroundColor: colorScheme.primaryContainer,
+                                          tooltipTextStyle: Theme.of(
+                                            context,
+                                          ).textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 2),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
                                                     children: [
-                                                      Row(
-                                                        children: [
-                                                          SizedBox(
-                                                            width: 70,
-                                                            child: Text(
-                                                              'Good',
-                                                              style: Theme.of(context).textTheme.labelSmall,
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            child: SfSliderTheme(
-                                                              data: SfSliderThemeData(
-                                                                activeTrackHeight: 8,
-                                                                inactiveTrackHeight: 8,
-                                                                thumbRadius: 12,
-                                                                overlayRadius: 20,
-                                                                inactiveTrackColor: Theme.of(
-                                                                  context,
-                                                                ).colorScheme.surfaceContainerHighest,
-                                                                tooltipBackgroundColor: Theme.of(
-                                                                  context,
-                                                                ).colorScheme.primaryContainer,
-                                                                tooltipTextStyle: Theme.of(context).textTheme.labelSmall
-                                                                    ?.copyWith(
-                                                                      color: Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.onPrimaryContainer,
-                                                                    ),
-                                                              ),
-                                                              child: SfSlider(
-                                                                min: 0.0,
-                                                                max: (_colorThresholds.warning - 0.01).clamp(0.0, 1.0),
-                                                                value: _colorThresholds.good.clamp(
-                                                                  0.0,
-                                                                  (_colorThresholds.warning - 0.01),
-                                                                ),
-                                                                stepSize: 0.01,
-                                                                enableTooltip: true,
-                                                                tooltipTextFormatterCallback:
-                                                                    (actualValue, formattedText) =>
-                                                                        '${(actualValue * 100).toStringAsFixed(0)}%',
-                                                                onChanged: (dynamic newValue) {
-                                                                  final nv = (newValue as double).clamp(
-                                                                    0.0,
-                                                                    (_colorThresholds.warning - 0.01),
-                                                                  );
-                                                                  setState(() {
-                                                                    _colorThresholds = ColorThresholds(
-                                                                      good: nv,
-                                                                      warning: _colorThresholds.warning,
-                                                                      bad: _colorThresholds.bad,
-                                                                    );
-                                                                  });
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 45,
-                                                            child: Text(
-                                                              '${(_colorThresholds.good * 100).toStringAsFixed(0)}%',
-                                                              style: Theme.of(context).textTheme.labelSmall,
-                                                              textAlign: TextAlign.end,
-                                                            ),
-                                                          ),
-                                                        ],
+                                                      SizedBox(
+                                                        width: 70,
+                                                        child: Text(
+                                                          'Good',
+                                                          style: Theme.of(context).textTheme.labelSmall,
+                                                        ),
                                                       ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        'Values at or below this boundary are treated as accurate enough to stay uncolored. Crossing this boundary marks the cell with yellow.',
-                                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                      Expanded(
+                                                        child: SfSliderTheme(
+                                                          data: SfSliderThemeData(
+                                                            activeTrackHeight: 8,
+                                                            inactiveTrackHeight: 8,
+                                                            thumbRadius: 12,
+                                                            overlayRadius: 20,
+                                                            inactiveTrackColor: Theme.of(
+                                                              context,
+                                                            ).colorScheme.surfaceContainerHighest,
+                                                            tooltipBackgroundColor: Theme.of(
+                                                              context,
+                                                            ).colorScheme.primaryContainer,
+                                                            tooltipTextStyle: Theme.of(context).textTheme.labelSmall
+                                                                ?.copyWith(
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).colorScheme.onPrimaryContainer,
+                                                                ),
+                                                          ),
+                                                          child: SfSlider(
+                                                            min: 0.0,
+                                                            max: (_colorThresholds.warning - 0.01).clamp(0.0, 1.0),
+                                                            value: _colorThresholds.good.clamp(
+                                                              0.0,
+                                                              (_colorThresholds.warning - 0.01),
+                                                            ),
+                                                            stepSize: 0.01,
+                                                            enableTooltip: true,
+                                                            tooltipTextFormatterCallback:
+                                                                (actualValue, formattedText) =>
+                                                                    '${(actualValue * 100).toStringAsFixed(0)}%',
+                                                            onChanged: (dynamic newValue) {
+                                                              final nv = (newValue as double).clamp(
+                                                                0.0,
+                                                                (_colorThresholds.warning - 0.01),
+                                                              );
+                                                              setState(() {
+                                                                _colorThresholds = ColorThresholds(
+                                                                  good: nv,
+                                                                  warning: _colorThresholds.warning,
+                                                                  bad: _colorThresholds.bad,
+                                                                );
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 45,
+                                                        child: Text(
+                                                          '${(_colorThresholds.good * 100).toStringAsFixed(0)}%',
+                                                          style: Theme.of(context).textTheme.labelSmall,
+                                                          textAlign: TextAlign.end,
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 2),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          SizedBox(
-                                                            width: 70,
-                                                            child: Text(
-                                                              'Warning',
-                                                              style: Theme.of(context).textTheme.labelSmall,
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            child: SfSliderTheme(
-                                                              data: SfSliderThemeData(
-                                                                activeTrackHeight: 8,
-                                                                inactiveTrackHeight: 8,
-                                                                thumbRadius: 12,
-                                                                overlayRadius: 20,
-                                                                inactiveTrackColor: Theme.of(
-                                                                  context,
-                                                                ).colorScheme.surfaceContainerHighest,
-                                                                tooltipBackgroundColor: Theme.of(
-                                                                  context,
-                                                                ).colorScheme.primaryContainer,
-                                                                tooltipTextStyle: Theme.of(context).textTheme.labelSmall
-                                                                    ?.copyWith(
-                                                                      color: Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.onPrimaryContainer,
-                                                                    ),
-                                                              ),
-                                                              child: SfSlider(
-                                                                min: (_colorThresholds.good + 0.01).clamp(0.0, 1.0),
-                                                                max: (_colorThresholds.bad - 0.01).clamp(0.0, 1.0),
-                                                                value: _colorThresholds.warning.clamp(
-                                                                  (_colorThresholds.good + 0.01),
-                                                                  (_colorThresholds.bad - 0.01),
-                                                                ),
-                                                                stepSize: 0.01,
-                                                                enableTooltip: true,
-                                                                tooltipTextFormatterCallback:
-                                                                    (actualValue, formattedText) =>
-                                                                        '${(actualValue * 100).toStringAsFixed(0)}%',
-                                                                onChanged: (dynamic newValue) {
-                                                                  final nv = (newValue as double).clamp(
-                                                                    (_colorThresholds.good + 0.01),
-                                                                    (_colorThresholds.bad - 0.01),
-                                                                  );
-                                                                  setState(() {
-                                                                    _colorThresholds = ColorThresholds(
-                                                                      good: _colorThresholds.good,
-                                                                      warning: nv,
-                                                                      bad: _colorThresholds.bad,
-                                                                    );
-                                                                  });
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 45,
-                                                            child: Text(
-                                                              '${(_colorThresholds.warning * 100).toStringAsFixed(0)}%',
-                                                              style: Theme.of(context).textTheme.labelSmall,
-                                                              textAlign: TextAlign.end,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        'Crossing this boundary marks the cell with orange so moderate deviation stands out.',
-                                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    'Values at or below this boundary are treated as accurate enough to stay uncolored. Crossing this boundary marks the cell with yellow.',
+                                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 2),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          SizedBox(
-                                                            width: 70,
-                                                            child: Text(
-                                                              'Bad',
-                                                              style: Theme.of(context).textTheme.labelSmall,
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            child: SfSliderTheme(
-                                                              data: SfSliderThemeData(
-                                                                activeTrackHeight: 8,
-                                                                inactiveTrackHeight: 8,
-                                                                thumbRadius: 12,
-                                                                overlayRadius: 20,
-                                                                inactiveTrackColor: Theme.of(
-                                                                  context,
-                                                                ).colorScheme.surfaceContainerHighest,
-                                                                tooltipBackgroundColor: Theme.of(
-                                                                  context,
-                                                                ).colorScheme.primaryContainer,
-                                                                tooltipTextStyle: Theme.of(context).textTheme.labelSmall
-                                                                    ?.copyWith(
-                                                                      color: Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.onPrimaryContainer,
-                                                                    ),
-                                                              ),
-                                                              child: SfSlider(
-                                                                min: (_colorThresholds.warning + 0.01).clamp(0.0, 1.0),
-                                                                max: 1.0,
-                                                                value: _colorThresholds.bad.clamp(
-                                                                  (_colorThresholds.warning + 0.01),
-                                                                  1.0,
-                                                                ),
-                                                                stepSize: 0.01,
-                                                                enableTooltip: true,
-                                                                tooltipTextFormatterCallback:
-                                                                    (actualValue, formattedText) =>
-                                                                        '${(actualValue * 100).toStringAsFixed(0)}%',
-                                                                onChanged: (dynamic newValue) {
-                                                                  final nv = (newValue as double).clamp(
-                                                                    (_colorThresholds.warning + 0.01),
-                                                                    1.0,
-                                                                  );
-                                                                  setState(() {
-                                                                    _colorThresholds = ColorThresholds(
-                                                                      good: _colorThresholds.good,
-                                                                      warning: _colorThresholds.warning,
-                                                                      bad: nv,
-                                                                    );
-                                                                  });
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 45,
-                                                            child: Text(
-                                                              '${(_colorThresholds.bad * 100).toStringAsFixed(0)}%',
-                                                              style: Theme.of(context).textTheme.labelSmall,
-                                                              textAlign: TextAlign.end,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        'Crossing this boundary marks the cell with red for large mismatches.',
-                                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 16),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 2),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      SizedBox(
+                                                        width: 70,
+                                                        child: Text(
+                                                          'Warning',
+                                                          style: Theme.of(context).textTheme.labelSmall,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: SfSliderTheme(
+                                                          data: SfSliderThemeData(
+                                                            activeTrackHeight: 8,
+                                                            inactiveTrackHeight: 8,
+                                                            thumbRadius: 12,
+                                                            overlayRadius: 20,
+                                                            inactiveTrackColor: Theme.of(
+                                                              context,
+                                                            ).colorScheme.surfaceContainerHighest,
+                                                            tooltipBackgroundColor: Theme.of(
+                                                              context,
+                                                            ).colorScheme.primaryContainer,
+                                                            tooltipTextStyle: Theme.of(context).textTheme.labelSmall
+                                                                ?.copyWith(
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).colorScheme.onPrimaryContainer,
+                                                                ),
+                                                          ),
+                                                          child: SfSlider(
+                                                            min: (_colorThresholds.good + 0.01).clamp(0.0, 1.0),
+                                                            max: (_colorThresholds.bad - 0.01).clamp(0.0, 1.0),
+                                                            value: _colorThresholds.warning.clamp(
+                                                              (_colorThresholds.good + 0.01),
+                                                              (_colorThresholds.bad - 0.01),
+                                                            ),
+                                                            stepSize: 0.01,
+                                                            enableTooltip: true,
+                                                            tooltipTextFormatterCallback:
+                                                                (actualValue, formattedText) =>
+                                                                    '${(actualValue * 100).toStringAsFixed(0)}%',
+                                                            onChanged: (dynamic newValue) {
+                                                              final nv = (newValue as double).clamp(
+                                                                (_colorThresholds.good + 0.01),
+                                                                (_colorThresholds.bad - 0.01),
+                                                              );
+                                                              setState(() {
+                                                                _colorThresholds = ColorThresholds(
+                                                                  good: _colorThresholds.good,
+                                                                  warning: nv,
+                                                                  bad: _colorThresholds.bad,
+                                                                );
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 45,
+                                                        child: Text(
+                                                          '${(_colorThresholds.warning * 100).toStringAsFixed(0)}%',
+                                                          style: Theme.of(context).textTheme.labelSmall,
+                                                          textAlign: TextAlign.end,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    'Crossing this boundary marks the cell with orange so moderate deviation stands out.',
+                                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 2),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      SizedBox(
+                                                        width: 70,
+                                                        child: Text(
+                                                          'Bad',
+                                                          style: Theme.of(context).textTheme.labelSmall,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: SfSliderTheme(
+                                                          data: SfSliderThemeData(
+                                                            activeTrackHeight: 8,
+                                                            inactiveTrackHeight: 8,
+                                                            thumbRadius: 12,
+                                                            overlayRadius: 20,
+                                                            inactiveTrackColor: Theme.of(
+                                                              context,
+                                                            ).colorScheme.surfaceContainerHighest,
+                                                            tooltipBackgroundColor: Theme.of(
+                                                              context,
+                                                            ).colorScheme.primaryContainer,
+                                                            tooltipTextStyle: Theme.of(context).textTheme.labelSmall
+                                                                ?.copyWith(
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).colorScheme.onPrimaryContainer,
+                                                                ),
+                                                          ),
+                                                          child: SfSlider(
+                                                            min: (_colorThresholds.warning + 0.01).clamp(0.0, 1.0),
+                                                            max: 1.0,
+                                                            value: _colorThresholds.bad.clamp(
+                                                              (_colorThresholds.warning + 0.01),
+                                                              1.0,
+                                                            ),
+                                                            stepSize: 0.01,
+                                                            enableTooltip: true,
+                                                            tooltipTextFormatterCallback:
+                                                                (actualValue, formattedText) =>
+                                                                    '${(actualValue * 100).toStringAsFixed(0)}%',
+                                                            onChanged: (dynamic newValue) {
+                                                              final nv = (newValue as double).clamp(
+                                                                (_colorThresholds.warning + 0.01),
+                                                                1.0,
+                                                              );
+                                                              setState(() {
+                                                                _colorThresholds = ColorThresholds(
+                                                                  good: _colorThresholds.good,
+                                                                  warning: _colorThresholds.warning,
+                                                                  bad: nv,
+                                                                );
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 45,
+                                                        child: Text(
+                                                          '${(_colorThresholds.bad * 100).toStringAsFixed(0)}%',
+                                                          style: Theme.of(context).textTheme.labelSmall,
+                                                          textAlign: TextAlign.end,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    'Crossing this boundary marks the cell with red for large mismatches.',
+                                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -746,124 +733,111 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                         ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                                       ),
                                       const SizedBox(height: 16),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Adjustment Limits',
-                                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                              color: colorScheme.primary,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          SfSliderTheme(
-                                            data: SfSliderThemeData(
-                                              activeTrackHeight: 8,
-                                              inactiveTrackHeight: 8,
-                                              thumbRadius: 12,
-                                              overlayRadius: 20,
-                                              activeTrackColor: colorScheme.primary,
-                                              inactiveTrackColor: colorScheme.surfaceContainerHighest,
-                                              thumbColor: colorScheme.primary,
-                                              overlayColor: colorScheme.primary.withAlpha(50),
-                                              tooltipBackgroundColor: colorScheme.primaryContainer,
-                                              tooltipTextStyle: Theme.of(
-                                                context,
-                                              ).textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer),
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                      SfSliderTheme(
+                                        data: SfSliderThemeData(
+                                          activeTrackHeight: 8,
+                                          inactiveTrackHeight: 8,
+                                          thumbRadius: 12,
+                                          overlayRadius: 20,
+                                          activeTrackColor: colorScheme.primary,
+                                          inactiveTrackColor: colorScheme.surfaceContainerHighest,
+                                          thumbColor: colorScheme.primary,
+                                          overlayColor: colorScheme.primary.withAlpha(50),
+                                          tooltipBackgroundColor: colorScheme.primaryContainer,
+                                          tooltipTextStyle: Theme.of(
+                                            context,
+                                          ).textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 100,
-                                                      child: Text(
-                                                        'Min deviation',
-                                                        style: Theme.of(context).textTheme.labelSmall,
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: SfSlider(
-                                                        min: 0.0,
-                                                        max: 0.50,
-                                                        value: _correctionThresholds.minDeviation,
-                                                        stepSize: 0.01,
-                                                        enableTooltip: true,
-                                                        tooltipTextFormatterCallback: (actualValue, formattedText) =>
-                                                            '${(actualValue * 100).toStringAsFixed(0)}%',
-                                                        onChanged: (dynamic v) => setState(
-                                                          () => _correctionThresholds = _correctionThresholds.copyWith(
-                                                            minDeviation: v as double,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 45,
-                                                      child: Text(
-                                                        '${(_correctionThresholds.minDeviation * 100).toStringAsFixed(0)}%',
-                                                        style: Theme.of(context).textTheme.labelSmall,
-                                                        textAlign: TextAlign.end,
-                                                      ),
-                                                    ),
-                                                  ],
+                                                SizedBox(
+                                                  width: 100,
+                                                  child: Text(
+                                                    'Min deviation',
+                                                    style: Theme.of(context).textTheme.labelSmall,
+                                                  ),
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  'The app will only attempt to fix the data if it differs from the official total by more than this percentage.',
-                                                  style: Theme.of(
-                                                    context,
-                                                  ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                                Expanded(
+                                                  child: SfSlider(
+                                                    min: 0.0,
+                                                    max: 0.50,
+                                                    value: _correctionThresholds.minDeviation,
+                                                    stepSize: 0.01,
+                                                    enableTooltip: true,
+                                                    tooltipTextFormatterCallback: (actualValue, formattedText) =>
+                                                        '${(actualValue * 100).toStringAsFixed(0)}%',
+                                                    onChanged: (dynamic v) => setState(
+                                                      () => _correctionThresholds = _correctionThresholds.copyWith(
+                                                        minDeviation: v as double,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
-                                                const SizedBox(height: 8),
-                                                Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 100,
-                                                      child: Text(
-                                                        'Max scalar',
-                                                        style: Theme.of(context).textTheme.labelSmall,
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: SfSlider(
-                                                        min: 1.0,
-                                                        max: 10.0,
-                                                        value: _correctionThresholds.maxScalar,
-                                                        stepSize: 0.1,
-                                                        enableTooltip: true,
-                                                        tooltipTextFormatterCallback: (actualValue, formattedText) =>
-                                                            '${(actualValue).toStringAsFixed(1)}x',
-                                                        onChanged: (dynamic v) => setState(
-                                                          () => _correctionThresholds = _correctionThresholds.copyWith(
-                                                            maxScalar: v as double,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 45,
-                                                      child: Text(
-                                                        '${_correctionThresholds.maxScalar.toStringAsFixed(1)}x',
-                                                        style: Theme.of(context).textTheme.labelSmall,
-                                                        textAlign: TextAlign.end,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  'To prevent wildly impossible corrections (like multiplying a scouted score by 5 just to force the math to work), this sets a limit. If correcting the data requires multiplying it by more than this number, the app won\'t apply the correction.',
-                                                  style: Theme.of(
-                                                    context,
-                                                  ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                                SizedBox(
+                                                  width: 45,
+                                                  child: Text(
+                                                    '${(_correctionThresholds.minDeviation * 100).toStringAsFixed(0)}%',
+                                                    style: Theme.of(context).textTheme.labelSmall,
+                                                    textAlign: TextAlign.end,
+                                                  ),
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'The app will only attempt to fix the data if it differs from the official total by more than this percentage.',
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: 100,
+                                                  child: Text(
+                                                    'Max scalar',
+                                                    style: Theme.of(context).textTheme.labelSmall,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: SfSlider(
+                                                    min: 1.0,
+                                                    max: 10.0,
+                                                    value: _correctionThresholds.maxScalar,
+                                                    stepSize: 0.1,
+                                                    enableTooltip: true,
+                                                    tooltipTextFormatterCallback: (actualValue, formattedText) =>
+                                                        '${(actualValue).toStringAsFixed(1)}x',
+                                                    onChanged: (dynamic v) => setState(
+                                                      () => _correctionThresholds = _correctionThresholds.copyWith(
+                                                        maxScalar: v as double,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 45,
+                                                  child: Text(
+                                                    '${_correctionThresholds.maxScalar.toStringAsFixed(1)}x',
+                                                    style: Theme.of(context).textTheme.labelSmall,
+                                                    textAlign: TextAlign.end,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'To prevent wildly impossible corrections (like multiplying a scouted score by 5 just to force the math to work), this sets a limit. If correcting the data requires multiplying it by more than this number, the app will cap the scalar.',
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),

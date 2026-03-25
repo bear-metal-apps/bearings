@@ -71,7 +71,7 @@ class _MainViewState extends ConsumerState<MainView> {
     _NavItem(
       route: '/export',
       icon: Symbols.table_chart_rounded,
-      label: 'Export',
+      label: 'Export Data',
       group: 'Insights',
     ),
     // _NavItem(

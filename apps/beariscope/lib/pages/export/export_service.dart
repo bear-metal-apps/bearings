@@ -14,14 +14,14 @@ class ExportService {
   static const _stratRankingKeys = [
     'driverSkillRanking',
     'defensiveSkillRanking',
-    'defensiveSusceptibilityRanking',
+    'defensiveResilienceRanking',
     'mechanicalStabilityRanking',
   ];
 
   static const _stratRankingHeaders = [
     'Driver Skill Rank',
     'Def. Skill Rank',
-    'Def. Susceptibility Rank',
+    'Def. Resilience Rank',
     'Mech. Stability Rank',
   ];
 
@@ -547,7 +547,7 @@ class ExportService {
       'Team #',
       'Driver Skill Z',
       'Def. Skill Z',
-      'Def. Susceptibility Z',
+      'Def. Resilience Z',
       'Mech. Stability Z',
     ];
     for (var col = 0; col < headers.length; col++) {
