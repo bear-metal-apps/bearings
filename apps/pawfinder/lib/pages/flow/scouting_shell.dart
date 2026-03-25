@@ -113,7 +113,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
                 builder: (context) => AlertDialog(
                   title: const Text('Reset Match Inputs'),
                   content: const Text(
-                    'This will clear all answers on the current match page. Continue?',
+                    'This will clear all stored inputs for this match across all pages and sections, and will delete any saved team/base data for this match. Continue?',
                   ),
                   actions: [
                     TextButton(
