@@ -2,6 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
@@ -15,10 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:riverpod/src/framework.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/processed_scouting_doc.dart';
 import '../providers/strat_z_score_provider.dart';
 
 class TeamCard extends ConsumerWidget {
@@ -36,7 +39,7 @@ class TeamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamsAsync = ref.watch(teamsProvider);
-    final cardHeight = height ?? 256;
+    final cardHeight = height ?? 320;
 
     return teamsAsync.when(
       loading: () => SizedBox(
@@ -214,43 +217,49 @@ class _SummaryMetrics extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 3. Z-SCORES: Pushed to the bottom by the spacer
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                "Driver Skill ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[2046])}",
+            SizedBox(
+              height: 150,
+              width: 250,
+              child: SfCartesianChart(
+                primaryXAxis: NumericAxis(),
+                primaryYAxis: NumericAxis(
+                ),
+                series: _buildLineSeries(bundle.matchDocs),
+                plotAreaBorderWidth: 0,
               ),
-                Text(
-                  "Defensive Skill ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[2046])}",
-                ),
-                Text(
-                  "Defensive Susceptibility ${StratZScoreData.zLabel(stratZScores!.defensiveSusceptibilityZ[2046])}",
-                ),
-                Text(
-                  "Mechanical Stability ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[2046])}",
-                ),],
             ),
-            // SfCartesianChart(
-            //     primaryXAxis: NumericAxis(
-            //       maximum: bundle.matchDocs.length.toDouble(),
-            //     ),
-            //     primaryYAxis: NumericAxis(
-            //
-            //     ),
-            //     series: <CartesianSeries>[
-            //       // Renders line chart
-            //       LineSeries<TeamScoutingBundle, DateTime>(
-            //           // dataSource: bundle.matchDocs[].data[],
-            //           xValueMapper: (_, match) => match,
-            //           yValueMapper: (_, _) =>,
-            //       )
-            //     ],
-            //   ),
+            if (hasZScores)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Driver: ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive: ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Resilience: ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Stability: ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
           ],
         ),
+
         // Role chip + trench status
         // 1. CHIPS: Pinned to the top right below the header
         if (bundle.hasPitsData) ...[
@@ -324,38 +333,6 @@ class _SummaryMetrics extends ConsumerWidget {
 
         // 2. SPACER: Pushes the Z-Scores and Averages to the bottom of the card
         const Spacer(),
-
-        // 3. Z-SCORES: Pushed to the bottom by the spacer
-        if (hasZScores)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "Driver Skill: ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[teamNumber])}",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "Defensive Skill: ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[teamNumber])}",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "Defensive Resilience: ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[teamNumber])}",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "Mechanical Stability: ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[teamNumber])}",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ],
-          ),
 
         const SizedBox(height: 12),
 
@@ -584,6 +561,35 @@ class TeamDetailsPage extends ConsumerWidget {
         );
     }
   }
+}
+
+List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(List<ProcessedScoutingDoc> data) {
+  return <LineSeries<ProcessedScoutingDoc, num>>[
+    LineSeries<ProcessedScoutingDoc, num>(
+      dataSource: data,
+      xValueMapper: (ProcessedScoutingDoc match, int index) => index,
+      yValueMapper: (ProcessedScoutingDoc match, int index) => TeamScoutingBundle.getMatchField(match.raw, kSectionTele, kTeleFuelScored) + TeamScoutingBundle.getMatchField(match.raw, kSectionAuto, kAutoFuelScored),
+      name: 'Total',
+      // markerSettings: const MarkerSettings(isVisible: true),
+      color: Colors.green,
+    ),
+    LineSeries<ProcessedScoutingDoc, num>(
+      dataSource: data,
+      xValueMapper: (ProcessedScoutingDoc match, int index) => index,
+      yValueMapper: (ProcessedScoutingDoc match, int index) => TeamScoutingBundle.getMatchField(match.raw, kSectionTele, kTeleFuelScored),
+      name: 'Tele',
+      // markerSettings: const MarkerSettings(isVisible: true),
+      color: Colors.blue,
+    ),
+    LineSeries<ProcessedScoutingDoc, num>(
+      dataSource: data,
+      xValueMapper: (ProcessedScoutingDoc match, int index) => index,
+      yValueMapper: (ProcessedScoutingDoc match, int index) => TeamScoutingBundle.getMatchField(match.raw, kSectionAuto, kAutoFuelScored),
+      name: 'Auto',
+      // markerSettings: const MarkerSettings(isVisible: true),
+      color: Colors.red,
+    )
+  ];
 }
 
 enum _TeamAction { openTba, openStatbotics, openFrcEvents, copyNumber }
