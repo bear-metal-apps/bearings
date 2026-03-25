@@ -15,7 +15,7 @@ class StratPage extends ConsumerStatefulWidget {
 }
 
 class _StratPageState extends ConsumerState<StratPage> {
-  StratResetController? _resetController;
+  ResetController? _resetController;
 
   void _handleStratReset() {
     _applyStratReset();

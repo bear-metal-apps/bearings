@@ -15,12 +15,12 @@ class StratShell extends ConsumerStatefulWidget {
 }
 
 class _StratShellState extends ConsumerState<StratShell> {
-  late final StratResetController _resetController;
+  late final ResetController _resetController;
 
   @override
   void initState() {
     super.initState();
-    _resetController = StratResetController();
+    _resetController = ResetController();
   }
 
   @override

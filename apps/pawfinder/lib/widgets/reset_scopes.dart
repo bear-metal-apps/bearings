@@ -1,35 +1,31 @@
 import 'package:flutter/widgets.dart';
 
-class MatchResetController extends ChangeNotifier {
+class ResetController extends ChangeNotifier {
   void trigger() => notifyListeners();
 }
 
-class MatchResetScope extends InheritedNotifier<MatchResetController> {
+class MatchResetScope extends InheritedNotifier<ResetController> {
   const MatchResetScope({
     super.key,
-    required MatchResetController controller,
+    required ResetController controller,
     required super.child,
   }) : super(notifier: controller);
 
-  static MatchResetController? of(BuildContext context) {
+  static ResetController? of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<MatchResetScope>()
         ?.notifier;
   }
 }
 
-class StratResetController extends ChangeNotifier {
-  void trigger() => notifyListeners();
-}
-
-class StratResetScope extends InheritedNotifier<StratResetController> {
+class StratResetScope extends InheritedNotifier<ResetController> {
   const StratResetScope({
     super.key,
-    required StratResetController controller,
+    required ResetController controller,
     required super.child,
   }) : super(notifier: controller);
 
-  static StratResetController? of(BuildContext context) {
+  static ResetController? of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<StratResetScope>()
         ?.notifier;

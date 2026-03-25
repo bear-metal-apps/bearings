@@ -33,7 +33,7 @@ class _MatchPageState extends ConsumerState<MatchPage> {
   int _localResetVersion = 0;
   MatchConfig? _cachedConfig;
   MatchIdentity? _cachedIdentity;
-  MatchResetController? _resetController;
+  ResetController? _resetController;
 
   void _handleResetTrigger() {
     _resetPageData();

@@ -19,12 +19,12 @@ class ScoutingShell extends ConsumerStatefulWidget {
 }
 
 class _ScoutingShellState extends ConsumerState<ScoutingShell> {
-  late final MatchResetController _resetController;
+  late final ResetController _resetController;
 
   @override
   void initState() {
     super.initState();
-    _resetController = MatchResetController();
+    _resetController = ResetController();
   }
 
   @override
