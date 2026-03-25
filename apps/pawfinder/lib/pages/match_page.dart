@@ -30,7 +30,6 @@ class MatchPage extends ConsumerStatefulWidget {
 }
 
 class _MatchPageState extends ConsumerState<MatchPage> {
-  int _localResetVersion = 0;
   MatchConfig? _cachedConfig;
   MatchIdentity? _cachedIdentity;
   MatchResetController? _resetController;
@@ -58,7 +57,6 @@ class _MatchPageState extends ConsumerState<MatchPage> {
     box.delete('${matchBaseKey(identity)}_JSON');
     _markMatchDirty(identity);
     ref.read(scoutingSessionProvider.notifier).triggerResetUI();
-    setState(() => _localResetVersion++);
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
@@ -104,7 +102,7 @@ class _MatchPageState extends ConsumerState<MatchPage> {
           ref,
           config,
           identity,
-          (session.resetVersion ?? 0) + _localResetVersion,
+          (session.resetVersion ?? 0),
         );
       },
     );
