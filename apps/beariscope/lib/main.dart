@@ -5,6 +5,7 @@ import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/pages/export/export_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/picklists/picklists_page.dart';
@@ -17,7 +18,7 @@ import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
-import 'package:beariscope/pages/settings/team_role.dart';
+import 'package:beariscope/pages/settings/team_role_settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
@@ -133,6 +134,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 const NoTransitionPage(child: TeamLookupPage()),
           ),
           GoRoute(
+            path: '/export',
+            pageBuilder: (_, _) => const NoTransitionPage(child: ExportPage()),
+          ),
+          GoRoute(
             path: '/picklists',
             pageBuilder: (_, _) =>
                 const NoTransitionPage(child: PicklistsPage()),
@@ -184,7 +189,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'user_selection',
             builder: (_, _) => const ScoutSelectionPage(),
           ),
-          GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
+          GoRoute(
+              path: 'roles', builder: (_, _) => const TeamRoleSettingsPage()),
           GoRoute(
             path: 'device_provisioning',
             builder: (_, _) => const DeviceProvisioningPage(),

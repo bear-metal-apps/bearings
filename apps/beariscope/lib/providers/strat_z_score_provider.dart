@@ -54,7 +54,7 @@ class StratZScoreData {
   }
 
   static String zLabel(double? z) {
-    if (z == null) return '—';
+    if (z == null) return '-';
     final sign = z >= 0 ? '+' : '\u2212';
     return '$sign${z.abs().toStringAsFixed(2)}\u03c3'; // sigma male
   }
