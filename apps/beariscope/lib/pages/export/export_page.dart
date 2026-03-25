@@ -163,7 +163,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         ),
       );
 
-      final filename = 'export_$stamp.xlsx';
+      final filename = 'export_${eventKey}_$stamp.xlsx';
 
       if (mounted) {
         await saveOrShareExcel(context, bytes, filename);

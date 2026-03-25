@@ -7,7 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   desktop_webview_window
   flutter_secure_storage_windows
-        share_plus
+  share_plus
   url_launcher_windows
   window_size
   window_to_front

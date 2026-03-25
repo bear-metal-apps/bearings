@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> saveOrShareExcel(
@@ -11,14 +11,22 @@ Future<void> saveOrShareExcel(
   String filename,
 ) async {
   if (Platform.isIOS || Platform.isAndroid) {
-    await Share.shareXFiles([
-      XFile.fromData(
-        Uint8List.fromList(bytes),
-        name: filename,
-        mimeType:
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      ),
-    ]);
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/$filename');
+    await file.writeAsBytes(bytes, flush: true);
+
+    await Share.shareXFiles(
+      [
+        XFile(
+          file.path,
+          mimeType:
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          name: filename,
+        ),
+      ],
+      subject: filename,
+      sharePositionOrigin: _getShareOrigin(context),
+    );
     return;
   }
 
@@ -36,4 +44,10 @@ Future<void> saveOrShareExcel(
       context,
     ).showSnackBar(SnackBar(content: Text('Saved $filename')));
   }
+}
+
+Rect _getShareOrigin(BuildContext context) {
+  final box = context.findRenderObject() as RenderBox?;
+  if (box == null) return Rect.zero;
+  return box.localToGlobal(Offset.zero) & box.size;
 }

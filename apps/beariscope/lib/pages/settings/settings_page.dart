@@ -92,7 +92,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ListTile(
                   leading: const Icon(Symbols.person_rounded),
                   title: const Text('Account'),
-                  subtitle: const Text('Your Profile Picture, Details'),
+                  subtitle: const Text('Your Profile, Picture, Details'),
                   onTap: () => context.push('/settings/account'),
                 ),
                 // ListTile(
