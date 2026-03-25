@@ -55,7 +55,6 @@ class _MatchPageState extends ConsumerState<MatchPage> {
         box.delete(matchDataKey(identity, section.sectionId, data.fieldId));
       }
     }
-    box.delete(matchTeamKey(identity));
     box.delete('${matchBaseKey(identity)}_JSON');
     _markMatchDirty(identity);
     ref.read(scoutingSessionProvider.notifier).triggerResetUI();
