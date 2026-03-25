@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,
@@ -46,7 +47,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
     if (savedMode != null) {
       state = ThemeMode.values.firstWhere(
-        (mode) => mode.toString() == savedMode,
+            (mode) => mode.toString() == savedMode,
         orElse: () => ThemeMode.system,
       );
     }
@@ -95,6 +96,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 contentPadding: EdgeInsets.all(16),
                 trailing: DropdownMenu<ThemeMode>(
                   // width: 140,
+                  requestFocusOnTap: false,
                   initialSelection: themeMode,
                   inputDecorationTheme: const InputDecorationTheme(
                     border: OutlineInputBorder(),
@@ -127,13 +129,53 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 child: GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: accentColors.length,
+                  itemCount: accentColors.length + 1,
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 48,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                   ),
                   itemBuilder: (context, index) {
+                    if (index == accentColors.length) {
+                      return GestureDetector(
+                        onTap: () async {
+                          final Color newColor = await showColorPickerDialog(
+                            context,
+                            selectedColor,
+                            title: Text('Custom Color', style: Theme.of(context).textTheme.titleLarge),
+                            width: 44,
+                            height: 44,
+                            spacing: 3,
+                            runSpacing: 3,
+                            borderRadius: 22,
+                            wheelDiameter: 169,
+                            enableOpacity: true,
+                            showColorCode: true,
+                            pickersEnabled: const <ColorPickerType, bool>{
+                              ColorPickerType.both: false,
+                              ColorPickerType.primary: false,
+                              ColorPickerType.accent: false,
+                              ColorPickerType.bw: false,
+                              ColorPickerType.custom: false,
+                              ColorPickerType.wheel: true,
+                            },
+                          );
+                          ref.read(accentColorProvider.notifier).setColor(newColor);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                              width: 2,
+                            ),
+                          ),
+                          child: const Icon(Symbols.add_rounded, size: 24),
+                        ),
+                      );
+                    }
+
+
                     final color = accentColors[index];
                     final isSelected =
                         color.toARGB32() == selectedColor.toARGB32();
@@ -148,19 +190,19 @@ class AppearanceSettingsPage extends ConsumerWidget {
                           shape: BoxShape.circle,
                           border: isSelected
                               ? Border.all(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                  width: 2,
-                                )
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface,
+                            width: 2,
+                          )
                               : null,
                         ),
                         child: isSelected
                             ? Icon(
-                                Symbols.check_rounded,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              )
+                          Symbols.check_rounded,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          size: 20,
+                        )
                             : null,
                       ),
                     );
