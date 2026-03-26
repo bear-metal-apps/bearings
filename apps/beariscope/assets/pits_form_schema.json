@@ -145,6 +145,18 @@
             ]
           },
           "defaultValue": "Trench Capable"
+        },
+        {
+          "id": "towerCapability",
+          "displayName": "Tower Capability (Can Drive Through?)",
+          "type": "radio",
+          "params": {
+            "options": [
+              "Fits Inside Tower",
+              "Doesn't Fit Inside Tower"
+            ]
+          },
+          "defaultValue": "Trench Capable"
         }
       ]
     },
