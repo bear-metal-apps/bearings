@@ -226,8 +226,7 @@ class _SummaryMetrics extends ConsumerWidget {
               width: 250,
               child: SfCartesianChart(
                 primaryXAxis: NumericAxis(),
-                primaryYAxis: NumericAxis(
-                ),
+                primaryYAxis: NumericAxis(),
                 series: _buildLineSeries(bundle.matchDocs),
                 plotAreaBorderWidth: 0,
               ),
@@ -237,22 +236,22 @@ class _SummaryMetrics extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "Driver: ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[teamNumber])}",
+                    "Driver: ${formattedRank(stratZScores!.driverSkillZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Defensive: ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[teamNumber])}",
+                    "Defensive: ${formattedRank(stratZScores!.defensiveSkillZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Resilience: ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[teamNumber])}",
+                    "Resilience: ${formattedRank(stratZScores!.defensiveResilienceZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Stability: ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[teamNumber])}",
+                    "Stability: ${formattedRank(stratZScores!.mechanicalStabilityZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

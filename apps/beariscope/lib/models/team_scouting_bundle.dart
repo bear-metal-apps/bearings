@@ -24,6 +24,7 @@ class TeamScoutingBundle {
 
   bool get hasStratData => stratDocs.isNotEmpty;
 
+
   static dynamic getMatchField(
     ScoutingDocument doc,
     String sectionId,

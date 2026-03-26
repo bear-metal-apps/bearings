@@ -17,6 +17,7 @@ class AveragesTab extends ConsumerWidget {
     final async = ref.watch(teamScoutingProvider(teamNumber));
     final stratZScores =
         ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
+    ref.read(stratZScoresProvider);
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -47,23 +48,30 @@ class _AveragesBody extends StatefulWidget {
 
 class _AveragesBodyState extends State<_AveragesBody> {
   // null for all matches, otherwise n matches
-  int? _lastN;
+  static int? _lastN;
 
   static const _presets = [null, 1, 2, 3, 5];
 
   TeamScoutingBundle get _filteredBundle {
     if (_lastN == null) return widget.bundle;
-    final sorted = [...widget.bundle.matchDocs]
+    final sortedMatch = [...widget.bundle.matchDocs]
       ..sort((a, b) {
         final ma = TeamScoutingBundle.matchNumber(a.raw) ?? -1;
         final mb = TeamScoutingBundle.matchNumber(b.raw) ?? -1;
         return mb.compareTo(ma);
       });
-    final limited = sorted.take(_lastN!).toList();
+    final sortedStrat = [...widget.bundle.stratDocs]
+      ..sort((a, b) {
+        final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
+        final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+        return mb.compareTo(ma);
+      });
+    final limitedMatch = sortedMatch.take(_lastN!).toList();
+    final limitedStrat = sortedStrat.take(_lastN!).toList();
     return TeamScoutingBundle(
-      matchDocs: limited,
+      matchDocs: limitedMatch,
       pitsDoc: widget.bundle.pitsDoc,
-      stratDocs: widget.bundle.stratDocs,
+      stratDocs: limitedStrat,
       driveTeamDocs: widget.bundle.driveTeamDocs,
     );
   }

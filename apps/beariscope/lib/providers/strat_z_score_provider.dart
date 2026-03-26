@@ -1,8 +1,12 @@
 import 'dart:math';
 
 import 'package:beariscope/models/scouting_document.dart';
+import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../models/team_scouting_bundle.dart';
 
 const _kRankingKeys = [
   'driverSkillRanking',
@@ -58,6 +62,58 @@ class StratZScoreData {
     final sign = z >= 0 ? '+' : '\u2212';
     return '$sign${z.abs().toStringAsFixed(2)}\u03c3'; // sigma male
   }
+
+
+}
+
+class StratRanksData {
+  final Map<int, double> driverSkillRank;
+  final Map<int, double> defensiveSkillRank;
+  final Map<int, double> defensiveResilienceRank;
+  final Map<int, double> mechanicalStabilityRank;
+
+  const StratRanksData({
+    required this.driverSkillRank,
+    required this.defensiveSkillRank,
+    required this.defensiveResilienceRank,
+    required this.mechanicalStabilityRank,
+  });
+
+  static const empty = StratZScoreData(
+    driverSkillZ: {},
+    defensiveSkillZ: {},
+    defensiveResilienceZ: {},
+    mechanicalStabilityZ: {},
+  );
+
+  bool hasDataForTeam(int teamNumber) =>
+      driverSkillRank.containsKey(teamNumber) ||
+          defensiveSkillRank.containsKey(teamNumber) ||
+          defensiveResilienceRank.containsKey(teamNumber) ||
+          mechanicalStabilityRank.containsKey(teamNumber);
+
+  Map<int, double> zForKey(String key) {
+    switch (key) {
+      case 'driverSkillRanking':
+        return driverSkillRank;
+      case 'defensiveSkillRanking':
+        return defensiveSkillRank;
+      case 'defensiveResilienceRanking':
+        return defensiveResilienceRank;
+      case 'mechanicalStabilityRanking':
+        return mechanicalStabilityRank;
+      default:
+        return {};
+    }
+  }
+
+  static String zLabel(double? z) {
+    if (z == null) return '—';
+    final sign = z >= 0 ? '+' : '\u2212';
+    return '$sign${z.abs().toStringAsFixed(2)}\u03c3'; // sigma male
+  }
+
+
 }
 
 Map<int, double> _sdScorer(Map<int, double> teamAverages) {
@@ -73,6 +129,27 @@ Map<int, double> _sdScorer(Map<int, double> teamAverages) {
     return MapEntry(team, (z.isNaN || z.isInfinite) ? 0.0 : z);
   });
 }
+
+StratZScoreData _computeStratRanks(StratZScoreData zScoreData){
+  return StratZScoreData(
+    defensiveResilienceZ: changeToRanks(zScoreData.defensiveResilienceZ), 
+    driverSkillZ:  changeToRanks(zScoreData.driverSkillZ), 
+    defensiveSkillZ:  changeToRanks(zScoreData.defensiveSkillZ), 
+    mechanicalStabilityZ:  changeToRanks(zScoreData.mechanicalStabilityZ)
+  );
+}
+
+Map<int,double> changeToRanks(Map<int,double> input){
+  var entries = input.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+
+  return Map.fromEntries(
+    entries.asMap().entries.map(
+          (e) => MapEntry(e.value.key, e.key + 1),
+    ),
+  );
+}
+
 
 StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
   final rawScores = <String, Map<int, List<double>>>{
@@ -96,7 +173,7 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
     final perTeam = rawScores[key]!;
     if (perTeam.isEmpty) return {};
     final averages = perTeam.map(
-      (team, scores) =>
+          (team, scores) =>
           MapEntry(team, scores.fold(0.0, (a, b) => a + b) / scores.length),
     );
     return _sdScorer(averages);
@@ -112,9 +189,38 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
 
 final stratZScoresProvider = FutureProvider<StratZScoreData>((ref) async {
   final allDocs = await ref.watch(scoutingDataProvider.future);
-  final stratDocs = allDocs
-      .where((doc) => doc.meta?['type']?.toString() == 'strat')
-      .toList();
-  if (stratDocs.isEmpty) return StratZScoreData.empty;
-  return _computeStratZScores(stratDocs);
+  // if(null == null){
+    final stratDocs = allDocs
+        .where((doc) => doc.meta?['type']?.toString() == 'strat')
+        .toList();
+    if (stratDocs.isEmpty) return StratZScoreData.empty;
+    return _computeStratRanks(_computeStratZScores(stratDocs));
+  // } else {
+  //   final sortedStrat = allDocs
+  //     ..sort((a, b) {
+  //       final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
+  //       final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+  //       return mb.compareTo(ma);
+  //     });
+  //   final limitedStrat = sortedStrat.take(_lastN!).toList();
+  //   final stratDocs = allDocs
+  //       .where((doc) => doc.meta?['type']?.toString() == 'strat')
+  //       .toList();
+  //   if (stratDocs.isEmpty) return StratZScoreData.empty;
+  //   return _computeStratZScores(stratDocs);
+  // }
 });
+
+
+String formattedRank(double rank){
+    switch(rank.floor().toString().characters.last){
+      case'1':
+        return "${rank.floor()}st";
+      case'2':
+        return "${rank.floor()}nd";
+      case'3':
+        return "${rank.floor()}rd";
+      default:
+        return "${rank.floor()}th";
+    }
+}
