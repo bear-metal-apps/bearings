@@ -15,9 +15,7 @@ class AveragesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(teamScoutingProvider(teamNumber));
-    final stratZScores =
-        ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
-    ref.read(stratZScoresProvider);
+    final stratZScores = ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -53,27 +51,31 @@ class _AveragesBodyState extends State<_AveragesBody> {
   static const _presets = [null, 1, 2, 3, 5];
 
   TeamScoutingBundle get _filteredBundle {
-    if (_lastN == null) return widget.bundle;
-    final sortedMatch = [...widget.bundle.matchDocs]
-      ..sort((a, b) {
-        final ma = TeamScoutingBundle.matchNumber(a.raw) ?? -1;
-        final mb = TeamScoutingBundle.matchNumber(b.raw) ?? -1;
-        return mb.compareTo(ma);
-      });
-    final sortedStrat = [...widget.bundle.stratDocs]
-      ..sort((a, b) {
-        final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
-        final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
-        return mb.compareTo(ma);
-      });
-    final limitedMatch = sortedMatch.take(_lastN!).toList();
-    final limitedStrat = sortedStrat.take(_lastN!).toList();
-    return TeamScoutingBundle(
-      matchDocs: limitedMatch,
-      pitsDoc: widget.bundle.pitsDoc,
-      stratDocs: limitedStrat,
-      driveTeamDocs: widget.bundle.driveTeamDocs,
-    );
+    if (_lastN == null){
+      return widget.bundle;
+    }else if(_lastN == 0) {
+      return TeamScoutingBundle(
+          matchDocs: widget.bundle.matchDocs,
+          pitsDoc: widget.bundle.pitsDoc,
+          stratDocs: widget.bundle.stratDocs,
+          driveTeamDocs: widget.bundle.driveTeamDocs,
+          weight: 2
+      );
+    }else {
+      final sortedMatch = [...widget.bundle.matchDocs]
+        ..sort((a, b) {
+          final ma = TeamScoutingBundle.matchNumber(a.raw) ?? -1;
+          final mb = TeamScoutingBundle.matchNumber(b.raw) ?? -1;
+          return mb.compareTo(ma);
+        });
+      final limitedMatch = sortedMatch.take(_lastN!).toList();
+      return TeamScoutingBundle(
+        matchDocs: limitedMatch,
+        pitsDoc: widget.bundle.pitsDoc,
+        stratDocs: widget.bundle.stratDocs,
+        driveTeamDocs: widget.bundle.driveTeamDocs,
+      );
+    }
   }
 
   String _label(int? n) => n == null ? 'All' : 'Last $n';
@@ -326,36 +328,29 @@ class _AveragesBodyState extends State<_AveragesBody> {
   // Z-score card
   // ---------------------------------------------------------------------------
 
-  Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores) {
+  Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores){
+    var stratRanks = stratZScores.changeToRanks();
     return _specsCard(
       context,
       rows: [
         ScoutingDataRow(
           label: 'Driver Skill',
-          value: StratZScoreData.zLabel(
-            stratZScores.driverSkillZ[widget.teamNumber],
-          ),
+          value: '${formattedRank(stratRanks.driverSkillZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber])}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Defensive Skill',
-          value: StratZScoreData.zLabel(
-            stratZScores.defensiveSkillZ[widget.teamNumber],
-          ),
+          value: '${formattedRank(stratRanks.defensiveSkillZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.defensiveSkillZ[widget.teamNumber])}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Defense Resilience',
-          value: StratZScoreData.zLabel(
-            stratZScores.defensiveResilienceZ[widget.teamNumber],
-          ),
+          value: '${formattedRank(stratRanks.defensiveResilienceZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.defensiveResilienceZ[widget.teamNumber])}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Mech. Stability',
-          value: StratZScoreData.zLabel(
-            stratZScores.mechanicalStabilityZ[widget.teamNumber],
-          ),
+          value: '${formattedRank(stratRanks.mechanicalStabilityZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[widget.teamNumber])}]',
           highlight: true,
         ),
       ],

@@ -39,7 +39,7 @@ class TeamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamsAsync = ref.watch(teamsProvider);
-    final cardHeight = height ?? 320;
+    final cardHeight = height ?? 330;
 
     return teamsAsync.when(
       loading: () => SizedBox(
@@ -175,7 +175,7 @@ class _TeamCardSummary extends ConsumerWidget {
                 teamNumber: team.number,
                 bundle: bundle,
                 stratZScores:
-                    ref.watch(stratZScoresProvider).asData?.value ??
+                    ref.watch(stratZScoresProvider).asData?.value.changeToRanks() ??
                     StratZScoreData.empty,
                 ranking: rankings[team.number],
               ),
@@ -206,7 +206,7 @@ class _SummaryMetrics extends ConsumerWidget {
     final primaryRole = playingStyles.isNotEmpty ? playingStyles.first : null;
     final trenchCapable =
         bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
-    final climbCapable = bundle.getPitsField<String>('climbLevel');
+    final climbCapable = bundle.getPitsField<String>('climbMethod');
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
@@ -214,16 +214,27 @@ class _SummaryMetrics extends ConsumerWidget {
     final hasMatch = bundle.hasMatchData;
     final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
 
+    const playStyleOptions = ['Passing', 'Cycling', 'Shooting', 'Defense'];
+    final matches = RegExp(r'\d+').allMatches(bundle.modalMatchField(kSectionEndgame, kEndPlayStyle).toString());
+    final selectedNames = matches.map((m) {
+      final index = int.parse(m.group(0)!);
+      return (index >= 0 && index < playStyleOptions.length)
+          ? playStyleOptions[index]
+          : 'Unknown';
+    }).toList();
+
+    // join them with commas
+    var mostCommonPlayStyle = selectedNames.join(', ');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 3. Z-SCORES: Pushed to the bottom by the spacer
-        Row(
+      Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SizedBox(
               height: 150,
-              width: 250,
               child: SfCartesianChart(
                 primaryXAxis: NumericAxis(),
                 primaryYAxis: NumericAxis(),
@@ -232,24 +243,22 @@ class _SummaryMetrics extends ConsumerWidget {
               ),
             ),
             if (hasZScores)
-              Column(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 16,
                 children: [
                   Text(
                     "Driver: ${formattedRank(stratZScores!.driverSkillZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 2),
                   Text(
                     "Defensive: ${formattedRank(stratZScores!.defensiveSkillZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 2),
                   Text(
                     "Resilience: ${formattedRank(stratZScores!.defensiveResilienceZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 2),
                   Text(
                     "Stability: ${formattedRank(stratZScores!.mechanicalStabilityZ[teamNumber]!)}",
                     style: Theme.of(context).textTheme.bodySmall,
@@ -266,10 +275,10 @@ class _SummaryMetrics extends ConsumerWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              if (primaryRole != null)
+              if (mostCommonPlayStyle != 'Unknown' && mostCommonPlayStyle != '')
                 Chip(
                   label: Text(
-                    primaryRole,
+                    mostCommonPlayStyle,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -304,18 +313,18 @@ class _SummaryMetrics extends ConsumerWidget {
                     );
                   },
                 ),
-              if (climbCapable != null)
+              if (climbCapable != null && climbCapable != 'No Climb')
                 Builder(
                   builder: (context) {
                     final color = Theme.of(context).colorScheme.secondary;
                     return Chip(
                       avatar: Icon(
-                        Symbols.stairs_rounded,
+                        Symbols.arrow_upload_ready_rounded,
                         size: 14,
                         color: color,
                       ),
                       label: Text(
-                        'Climb $climbCapable',
+                        '$climbCapable',
                         style: TextStyle(fontSize: 12, color: color),
                       ),
                       backgroundColor: color.withValues(alpha: 0.12),

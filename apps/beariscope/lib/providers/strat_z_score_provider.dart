@@ -57,55 +57,26 @@ class StratZScoreData {
     }
   }
 
-  static String zLabel(double? z) {
-    if (z == null) return '—';
-    final sign = z >= 0 ? '+' : '\u2212';
-    return '$sign${z.abs().toStringAsFixed(2)}\u03c3'; // sigma male
+  StratZScoreData changeToRanks(){
+    return StratZScoreData(
+        driverSkillZ: mapToRanks(driverSkillZ),
+        defensiveSkillZ: mapToRanks(defensiveSkillZ),
+        defensiveResilienceZ: mapToRanks(defensiveResilienceZ),
+        mechanicalStabilityZ: mapToRanks(mechanicalStabilityZ)
+    );
   }
 
+  Map<int,double> mapToRanks(Map<int,double> input){
+    var entries = input.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
-}
-
-class StratRanksData {
-  final Map<int, double> driverSkillRank;
-  final Map<int, double> defensiveSkillRank;
-  final Map<int, double> defensiveResilienceRank;
-  final Map<int, double> mechanicalStabilityRank;
-
-  const StratRanksData({
-    required this.driverSkillRank,
-    required this.defensiveSkillRank,
-    required this.defensiveResilienceRank,
-    required this.mechanicalStabilityRank,
-  });
-
-  static const empty = StratZScoreData(
-    driverSkillZ: {},
-    defensiveSkillZ: {},
-    defensiveResilienceZ: {},
-    mechanicalStabilityZ: {},
-  );
-
-  bool hasDataForTeam(int teamNumber) =>
-      driverSkillRank.containsKey(teamNumber) ||
-          defensiveSkillRank.containsKey(teamNumber) ||
-          defensiveResilienceRank.containsKey(teamNumber) ||
-          mechanicalStabilityRank.containsKey(teamNumber);
-
-  Map<int, double> zForKey(String key) {
-    switch (key) {
-      case 'driverSkillRanking':
-        return driverSkillRank;
-      case 'defensiveSkillRanking':
-        return defensiveSkillRank;
-      case 'defensiveResilienceRanking':
-        return defensiveResilienceRank;
-      case 'mechanicalStabilityRanking':
-        return mechanicalStabilityRank;
-      default:
-        return {};
-    }
+    return Map.fromEntries(
+      entries.asMap().entries.map(
+            (e) => MapEntry(e.value.key, e.key + 1),
+      ),
+    );
   }
+
 
   static String zLabel(double? z) {
     if (z == null) return '—';
@@ -128,26 +99,6 @@ Map<int, double> _sdScorer(Map<int, double> teamAverages) {
     final z = (avg - mean) / sd;
     return MapEntry(team, (z.isNaN || z.isInfinite) ? 0.0 : z);
   });
-}
-
-StratZScoreData _computeStratRanks(StratZScoreData zScoreData){
-  return StratZScoreData(
-    defensiveResilienceZ: changeToRanks(zScoreData.defensiveResilienceZ), 
-    driverSkillZ:  changeToRanks(zScoreData.driverSkillZ), 
-    defensiveSkillZ:  changeToRanks(zScoreData.defensiveSkillZ), 
-    mechanicalStabilityZ:  changeToRanks(zScoreData.mechanicalStabilityZ)
-  );
-}
-
-Map<int,double> changeToRanks(Map<int,double> input){
-  var entries = input.entries.toList()
-    ..sort((a, b) => b.value.compareTo(a.value));
-
-  return Map.fromEntries(
-    entries.asMap().entries.map(
-          (e) => MapEntry(e.value.key, e.key + 1),
-    ),
-  );
 }
 
 
@@ -190,27 +141,12 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
 final stratZScoresProvider = FutureProvider<StratZScoreData>((ref) async {
   final allDocs = await ref.watch(scoutingDataProvider.future);
   // if(null == null){
-    final stratDocs = allDocs
-        .where((doc) => doc.meta?['type']?.toString() == 'strat')
-        .toList();
-    if (stratDocs.isEmpty) return StratZScoreData.empty;
-    return _computeStratRanks(_computeStratZScores(stratDocs));
-  // } else {
-  //   final sortedStrat = allDocs
-  //     ..sort((a, b) {
-  //       final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
-  //       final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
-  //       return mb.compareTo(ma);
-  //     });
-  //   final limitedStrat = sortedStrat.take(_lastN!).toList();
-  //   final stratDocs = allDocs
-  //       .where((doc) => doc.meta?['type']?.toString() == 'strat')
-  //       .toList();
-  //   if (stratDocs.isEmpty) return StratZScoreData.empty;
-  //   return _computeStratZScores(stratDocs);
-  // }
+  final stratDocs = allDocs
+      .where((doc) => doc.meta?['type']?.toString() == 'strat')
+      .toList();
+  if (stratDocs.isEmpty) return StratZScoreData.empty;
+  return _computeStratZScores(stratDocs);
 });
-
 
 String formattedRank(double rank){
     switch(rank.floor().toString().characters.last){
