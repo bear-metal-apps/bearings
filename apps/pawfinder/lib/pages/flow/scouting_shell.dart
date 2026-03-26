@@ -92,6 +92,11 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
             padding: EdgeInsets.only(right: 8),
             child: UploadStatusIndicator(),
           ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Reset Match Data',
+            onPressed: () => _confirmResetCurrentMatch(context),
+          ),
           LightSwitch(value: false),
           IconButton(
             icon: const Icon(Icons.skip_previous),
@@ -142,6 +147,31 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmResetCurrentMatch(BuildContext context) async {
+    final shouldReset = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Match Data'),
+        content: const Text(
+          'This will clear all saved data for the current match and position.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldReset != true || !mounted) return;
+    ref.read(scoutingFlowControllerProvider).resetCurrentMatchData();
   }
 
   int _currentTabIndex(BuildContext context) {

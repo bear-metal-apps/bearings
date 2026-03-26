@@ -22,7 +22,7 @@ dependencies:
   hive_ce: ^2.15.1
   hive_ce_flutter: ^2.3.3
   shared_preferences: ^2.3.0
-  syncfusion_flutter_sliders: ^32.1.21
+  syncfusion_flutter_sliders: ^33.1.45
   pressable_flutter: ^1.0.4
   mobile_scanner: ^7.0.1
   flutter_secure_storage: ^10.0.0
@@ -35,6 +35,7 @@ dependencies:
     path: ../../packages/services
   ui:
     path: ../../packages/ui
+  core: ^26.2.2+13
 
 dev_dependencies:
   flutter_test:

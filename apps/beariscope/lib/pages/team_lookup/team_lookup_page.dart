@@ -231,7 +231,7 @@ class SortByFieldItemState extends State<SortByFieldItem>{
 
   List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list){
     List<DropdownMenuItem<String>> finalList = [];
-    list.forEach((item){
+    for (var item in list) {
       finalList.add(
         DropdownMenuItem(
             child: Text(item),
@@ -240,7 +240,7 @@ class SortByFieldItemState extends State<SortByFieldItem>{
               },
         )
       );
-    });
+    }
     return finalList;
   }
 

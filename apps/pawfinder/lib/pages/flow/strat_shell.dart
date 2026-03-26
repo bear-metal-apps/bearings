@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:pawfinder/store/strat_state.dart';
 
 class StratShell extends ConsumerWidget {
   final Widget child;
@@ -57,6 +59,15 @@ class StratShell extends ConsumerWidget {
           ],
         ),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: UploadStatusIndicator(),
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Reset Strat Data',
+            onPressed: () => _confirmResetStratData(context, ref),
+          ),
           Row(
             children: [
               IconButton(
@@ -75,5 +86,37 @@ class StratShell extends ConsumerWidget {
       ),
       body: child,
     );
+  }
+
+  Future<void> _confirmResetStratData(BuildContext context, WidgetRef ref) async {
+    final shouldReset = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Strat Data'),
+        content: const Text(
+          'This will clear all strategy data for the current match.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldReset != true || !context.mounted) return;
+
+    final identity = ref
+        .read(scoutingSessionProvider.notifier)
+        .createMatchIdentity();
+    if (identity == null) return;
+
+    ref.read(stratStateProvider(identity).notifier).reset();
+    ref.read(scoutingSessionProvider.notifier).incrementStratResetCounter();
   }
 }

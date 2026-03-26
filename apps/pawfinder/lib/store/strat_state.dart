@@ -212,4 +212,12 @@ class StratStateNotifier extends _$StratStateNotifier {
     );
     _save();
   }
+
+  void reset() {
+    final box = Hive.box(boxKey);
+    box.delete(stratStorageKeyForIdentity(identity));
+    box.delete(_stratScoutedByKey(identity));
+    ref.read(uploadQueueProvider.notifier).markUploaded([stratQueueIdForIdentity(identity)]);
+    state = const StratState.empty();
+  }
 }
