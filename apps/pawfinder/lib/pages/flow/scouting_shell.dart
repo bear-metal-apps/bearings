@@ -13,16 +13,35 @@ import 'package:animate_do/animate_do.dart';
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
 
-
   const ScoutingShell({super.key, required this.child});
 
   @override
   ConsumerState<ScoutingShell> createState() => _ScoutingShellState();
 }
 
-class _ScoutingShellState extends ConsumerState<ScoutingShell> {
-  int _selectedIndex = 0; // tracks the active tab
+class _ScoutingShellState extends ConsumerState<ScoutingShell>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _matchNumberController;
+  late final Animation<double> _matchNumberOpacity;
   bool _shouldFlashTele = true; // controls the flashing state
+
+  @override
+  void initState() {
+    super.initState();
+    _matchNumberController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _matchNumberOpacity = Tween<double>(begin: 1.0, end: 0.5).animate(
+      CurvedAnimation(parent: _matchNumberController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _matchNumberController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +156,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
 
         onDestinationSelected: (index) {
           setState(() {
-            _selectedIndex = index;
             if (index == 1) {
               _shouldFlashTele = false;
             }
