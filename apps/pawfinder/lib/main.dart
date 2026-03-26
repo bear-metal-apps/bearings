@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pawfinder/custom_widgets/page_transitions.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/pages/flow/config_page.dart';
 import 'package:pawfinder/pages/flow/match_select_page.dart';
@@ -15,12 +16,15 @@ import 'package:pawfinder/pages/match_page.dart';
 import 'package:pawfinder/pages/provisioning_page.dart';
 import 'package:pawfinder/pages/splash_screen.dart';
 import 'package:pawfinder/pages/strat.dart';
+import 'package:pawfinder/pages/welcome_page.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
 import 'package:pawfinder/services/scout_upload_service.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/auth_provider.dart';
 import 'package:services/providers/connectivity_provider.dart';
+import 'package:services/services.dart';
+import 'package:core/core.dart' show DeviceOS;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +37,22 @@ Future<void> main() async {
           final deviceAuth = ref.watch(deviceAuthServiceProvider);
           return HoneycombClient(ref, tokenOverride: deviceAuth.getAccessToken);
         }),
+        auth0ConfigProvider.overrideWith((ref) {
+          return const Auth0Config(
+            domain: 'bearmetal2046.us.auth0.com',
+            clientId: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            audience: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            redirectUris: {
+              DeviceOS.ios: 'io.github.bearmetal2046.pawfinder://callback',
+              DeviceOS.macos: 'io.github.bearmetal2046.pawfinder://callback',
+              DeviceOS.android: 'io.github.bearmetal2046.pawfinder://callback',
+              DeviceOS.web: 'https://scout.bearmet.al/auth.html',
+              DeviceOS.windows: 'http://localhost:4000/auth',
+              DeviceOS.linux: 'http://localhost:4000/auth',
+            },
+            storageKeyPrefix: 'pawfinder_',
+          );
+        }),
       ],
       child: const MyApp(),
     ),
@@ -42,9 +62,13 @@ Future<void> main() async {
 final routerProvider = Provider<GoRouter>((ref) {
   final authStatus = ref.watch(authStatusProvider.notifier);
   return GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/welcome',
     refreshListenable: authStatus,
     routes: [
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomePage(),
+      ),
       GoRoute(
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
@@ -67,13 +91,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/scout',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: ScoutPage()),
+        pageBuilder: (context, state) => SlideRightTransitionPage(
+          key: state.pageKey,
+          child: const ScoutPage(),
+        ),
       ),
       GoRoute(
         path: '/match-select',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: MatchSelectPage()),
+        pageBuilder: (context, state) => SlideRightTransitionPage(
+          key: state.pageKey,
+          child: const MatchSelectPage(),
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -82,21 +110,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/match/auto',
-            pageBuilder: (context, state) => NoTransitionPage<void>(
+            pageBuilder: (context, state) => MatchSectionTransitionPage(
               key: state.pageKey,
               child: const MatchPage(index: 0),
             ),
           ),
           GoRoute(
             path: '/match/tele',
-            pageBuilder: (context, state) => NoTransitionPage<void>(
+            pageBuilder: (context, state) => MatchSectionTransitionPage(
               key: state.pageKey,
               child: const MatchPage(index: 1),
             ),
           ),
           GoRoute(
             path: '/match/end',
-            pageBuilder: (context, state) => NoTransitionPage<void>(
+            pageBuilder: (context, state) => MatchSectionTransitionPage(
               key: state.pageKey,
               child: const MatchPage(index: 2),
             ),
@@ -124,14 +152,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/splash' ? null : '/splash';
       }
 
-      // go to provision page if device is not provisioned
+      // stay on welcome/provision if device is not provisioned
       if (auth == AuthStatus.unauthenticated) {
-        return location == '/provision' ? null : '/provision';
+        if (location == '/welcome' || location == '/provision') return null;
+        return '/welcome';
       }
 
-      // if on provision/splash and authed then go to config
+      // if on welcome/provision/splash and authed then go to config
       if (auth == AuthStatus.authenticated) {
-        if (location == '/provision' || location == '/splash') {
+        if (location == '/welcome' || location == '/provision' || location == '/splash') {
           return '/config';
         }
       }
