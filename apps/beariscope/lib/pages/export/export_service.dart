@@ -6,6 +6,7 @@ import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:beariscope/pages/export/export_options.dart';
 import 'package:beariscope/pages/export/ui_creator_schema.dart';
+import 'package:beariscope/pages/scout_audit/scout_audit_logic.dart';
 import 'package:excel/excel.dart';
 
 class ExportService {
@@ -34,6 +35,7 @@ class ExportService {
     required String eventKey,
     Map<int, Map<String, ({int auto, int tele, List<int> teams})>>?
     tbaMatchData,
+    ScoutAuditSnapshot? auditSnapshot,
   }) {
     final excel = Excel.createExcel();
     var isFirstSheet = true;
@@ -103,6 +105,19 @@ class ExportService {
         docs: rawDocs,
         options: options,
         eventKey: eventKey,
+      );
+    }
+
+    if (options.sheets.correctionTodoList && auditSnapshot != null) {
+      final sheetName = 'Correction To-Do List';
+      if (isFirstSheet) {
+        excel.rename('Sheet1', sheetName);
+        isFirstSheet = false;
+      }
+      _buildCorrectionTodoSheet(
+        excel: excel,
+        sheetName: sheetName,
+        snapshot: auditSnapshot,
       );
     }
 
@@ -571,9 +586,125 @@ class ExportService {
         sheet
             .cell(CellIndex.indexByColumnRow(columnIndex: i + 1, rowIndex: row))
             .value = z != null
-            ? DoubleCellValue(double.parse(z.toStringAsFixed(3)))
+            ? DoubleCellValue(double.parse(z.toStringAsFixed(8)))
             : TextCellValue('');
       }
+    }
+  }
+
+  static void _buildCorrectionTodoSheet({
+    required Excel excel,
+    required String sheetName,
+    required ScoutAuditSnapshot snapshot,
+  }) {
+    final sheet = excel[sheetName];
+    final headerStyle = CellStyle(
+      bold: true,
+      backgroundColorHex: ExcelColor.fromHexString('#DBEAFE'),
+    );
+
+    const headers = [
+      'Match #',
+      'Type',
+      'Team(s) / Alliance',
+      'Details',
+      'Claimed By',
+      'Done?',
+    ];
+
+    for (var col = 0; col < headers.length; col++) {
+      final cell = sheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0),
+      );
+      cell.value = TextCellValue(headers[col]);
+      cell.cellStyle = headerStyle;
+    }
+
+    final rows =
+        <({int matchNumber, String type, String teams, String details})>[];
+
+    for (final issue in snapshot.incorrect) {
+      rows.add((
+        matchNumber: issue.matchNumber,
+        type: 'Incorrect',
+        teams:
+            '${issue.teams.join(', ')} (${issue.alliance == 'red' ? 'Red' : 'Blue'})',
+        details: '${(issue.deviation * 100).toStringAsFixed(0)}% off TBA',
+      ));
+    }
+
+    for (final issue in snapshot.incompleteMatches) {
+      final missing = issue.missingSlots.map((slot) => slot.label).join(', ');
+      rows.add((
+        matchNumber: issue.matchNumber,
+        type: 'Incomplete',
+        teams: '$missing missing',
+        details: '${issue.scoutedCount}/6 scouted',
+      ));
+    }
+
+    for (final issue in snapshot.notInTba) {
+      rows.add((
+        matchNumber: issue.matchNumber,
+        type: 'Not in TBA',
+        teams: issue.teamNumber == null
+            ? issue.positionLabel
+            : '${issue.teamNumber} · ${issue.positionLabel}',
+        details: '—',
+      ));
+    }
+
+    for (final issue in snapshot.duplicates) {
+      rows.add((
+        matchNumber: issue.matchNumber,
+        type: 'Duplicate',
+        teams: issue.teamNumber == null
+            ? _posLabel(issue.pos)
+            : '${issue.teamNumber} · ${_posLabel(issue.pos)}',
+        details: '${issue.entries.length} entries',
+      ));
+    }
+
+    rows.sort((a, b) {
+      final byMatch = a.matchNumber.compareTo(b.matchNumber);
+      if (byMatch != 0) return byMatch;
+      return a.type.compareTo(b.type);
+    });
+
+    for (var i = 0; i < rows.length; i++) {
+      final row = rows[i];
+      final rowIndex = i + 1;
+
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex))
+          .value = IntCellValue(
+        row.matchNumber,
+      );
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: rowIndex))
+          .value = TextCellValue(
+        row.type,
+      );
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: rowIndex))
+          .value = TextCellValue(
+        row.teams,
+      );
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: rowIndex))
+          .value = TextCellValue(
+        row.details,
+      );
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: rowIndex))
+          .value = TextCellValue(
+        '',
+      );
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: rowIndex))
+          .value = TextCellValue(
+        'FALSE',
+      );
     }
   }
 
@@ -635,7 +766,8 @@ class ExportService {
   }
 
   /// Preview counts for the export summary.
-  static ({int match, int stratRaw, int stratZScore}) previewCounts(
+  static ({int match, int stratRaw, int stratZScore, int correctionTodo})
+  previewCounts(
     List<ScoutingDocument> docs,
     ExportOptions options,
     String eventKey,
@@ -644,6 +776,7 @@ class ExportService {
       match: previewCount(docs, options, eventKey),
       stratRaw: previewStratRawCount(docs, options, eventKey),
       stratZScore: previewStratZScoreCount(docs, options, eventKey),
+      correctionTodo: options.sheets.correctionTodoList ? 1 : 0,
     );
   }
 
@@ -852,5 +985,17 @@ class ExportService {
       return ExcelColor.fromHexString('#FED7AA'); // Orange
     }
     return ExcelColor.fromHexString('#FECACA'); // Red
+  }
+
+  static String _posLabel(int pos) {
+    return switch (pos) {
+      0 => 'Red 1',
+      1 => 'Red 2',
+      2 => 'Red 3',
+      3 => 'Blue 1',
+      4 => 'Blue 2',
+      5 => 'Blue 3',
+      _ => 'Unknown Position',
+    };
   }
 }

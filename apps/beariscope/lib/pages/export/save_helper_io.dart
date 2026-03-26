@@ -40,9 +40,25 @@ Future<void> saveOrShareExcel(
 
   await File(path).writeAsBytes(bytes, flush: true);
   if (context.mounted) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Saved $filename')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Saved $filename'),
+        action: SnackBarAction(
+          label: 'Show in Folder',
+          onPressed: () async {
+            final file = File(path);
+
+            if (Platform.isWindows) {
+              await Process.run('explorer', ['/select,', file.path]);
+            } else if (Platform.isMacOS) {
+              await Process.run('open', ['-R', file.path]);
+            } else if (Platform.isLinux) {
+              await Process.run('xdg-open', [file.parent.path]);
+            }
+          },
+        ),
+      ),
+    );
   }
 }
 

@@ -7,6 +7,8 @@ import 'package:beariscope/pages/export/export_service.dart';
 import 'package:beariscope/pages/export/save_helper.dart';
 import 'package:beariscope/pages/export/ui_creator_schema.dart';
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/scout_audit/scout_audit_logic.dart';
+import 'package:beariscope/pages/scout_audit/scout_audit_preferences_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/processed_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
@@ -41,6 +43,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
   ColorThresholds _colorThresholds = ColorThresholds.defaults;
   CorrectionThresholds _correctionThresholds = CorrectionThresholds.defaults;
+  double _incorrectDataThreshold = kDefaultIncorrectDataThreshold;
 
   UiCreatorSchema? _schema;
   String? _schemaError;
@@ -49,6 +52,12 @@ class _ExportPageState extends ConsumerState<ExportPage> {
   void initState() {
     super.initState();
     _loadSchema();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final savedThreshold = ref.read(scoutAuditIncorrectThresholdProvider);
+      if (mounted && savedThreshold != _incorrectDataThreshold) {
+        setState(() => _incorrectDataThreshold = savedThreshold);
+      }
+    });
   }
 
   @override
@@ -79,6 +88,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       sheets: _sheets,
       colorThresholds: _colorThresholds,
       correctionThresholds: _correctionThresholds,
+      incorrectDataThreshold: _incorrectDataThreshold,
     );
   }
 
@@ -142,14 +152,32 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final stamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
 
       Map<int, Map<String, ({int auto, int tele, List<int> teams})>>? tbaMatchData;
-      if (_sheets.hasMatchData && _colorCodeAccuracy) {
+      List<Map<String, dynamic>>? rawTbaMatches;
+      if ((_sheets.hasMatchData && _colorCodeAccuracy) || _sheets.correctionTodoList) {
         try {
           final client = ref.read(honeycombClientProvider);
           final raw = await client.get<List<dynamic>>('/matches', queryParams: {'event': eventKey});
+          rawTbaMatches = raw.whereType<Map>().map((entry) => Map<String, dynamic>.from(entry)).toList(growable: false);
           tbaMatchData = _parseTbaMatches(raw);
-        } catch (_) {
+        } catch (error) {
+          if (_sheets.correctionTodoList && mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Correction To-Do List requires TBA match data: $error')));
+            return;
+          }
           tbaMatchData = null;
         }
+      }
+
+      ScoutAuditSnapshot? auditSnapshot;
+      if (_sheets.correctionTodoList && rawTbaMatches != null) {
+        auditSnapshot = buildScoutAuditSnapshot(
+          docs: rawDocs,
+          tbaMatches: rawTbaMatches,
+          eventKey: eventKey,
+          incorrectThreshold: options.incorrectDataThreshold,
+        );
       }
 
       final bytes = await Future.microtask(
@@ -160,6 +188,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
           options: options,
           eventKey: eventKey,
           tbaMatchData: tbaMatchData,
+          auditSnapshot: auditSnapshot,
         ),
       );
 
@@ -259,6 +288,15 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                       value: _sheets.stratZScore,
                                       onChanged: (v) => setState(() {
                                         _sheets = _sheets.copyWith(stratZScore: v);
+                                      }),
+                                    ),
+                                    const Divider(height: 16),
+                                    _SheetCheckbox(
+                                      label: 'Correction To-Do List',
+                                      subtitle: 'Current Scout Audit issues',
+                                      value: _sheets.correctionTodoList,
+                                      onChanged: (v) => setState(() {
+                                        _sheets = _sheets.copyWith(correctionTodoList: v);
                                       }),
                                     ),
                                   ],
@@ -845,6 +883,71 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                 const SizedBox(height: 16),
                               ],
 
+                              if (_sheets.correctionTodoList) ...[
+                                _SectionCard(
+                                  title: 'Correction To-Do Threshold',
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Incorrect Data rows are included when alliance deviation is above this threshold.',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      SfSliderTheme(
+                                        data: SfSliderThemeData(
+                                          activeTrackHeight: 8,
+                                          inactiveTrackHeight: 8,
+                                          thumbRadius: 12,
+                                          overlayRadius: 20,
+                                          activeTrackColor: colorScheme.primary,
+                                          inactiveTrackColor: colorScheme.surfaceContainerHighest,
+                                          thumbColor: colorScheme.primary,
+                                          overlayColor: colorScheme.primary.withAlpha(50),
+                                          tooltipBackgroundColor: colorScheme.primaryContainer,
+                                          tooltipTextStyle: Theme.of(
+                                            context,
+                                          ).textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 100,
+                                              child: Text('Threshold', style: Theme.of(context).textTheme.labelSmall),
+                                            ),
+                                            Expanded(
+                                              child: SfSlider(
+                                                min: 0.05,
+                                                max: 1.0,
+                                                value: _incorrectDataThreshold,
+                                                stepSize: 0.01,
+                                                enableTooltip: true,
+                                                tooltipTextFormatterCallback: (actualValue, _) =>
+                                                    '${(actualValue * 100).toStringAsFixed(0)}%',
+                                                onChanged: (dynamic value) {
+                                                  setState(() => _incorrectDataThreshold = value as double);
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 45,
+                                              child: Text(
+                                                '${(_incorrectDataThreshold * 100).toStringAsFixed(0)}%',
+                                                textAlign: TextAlign.end,
+                                                style: Theme.of(context).textTheme.labelSmall,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+
                               Card(
                                 color: colorScheme.surfaceContainer,
                                 elevation: 0,
@@ -874,6 +977,11 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                                 icon: Symbols.trending_up_rounded,
                                                 label:
                                                     '${counts.stratZScore} Z-Score${counts.stratZScore == 1 ? '' : 's'}',
+                                              ),
+                                            if (_sheets.correctionTodoList)
+                                              const _PreviewChip(
+                                                icon: Symbols.rule_rounded,
+                                                label: 'Correction To-Do List',
                                               ),
                                           ],
                                         ),

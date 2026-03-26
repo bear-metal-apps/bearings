@@ -1,16 +1,16 @@
+import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/models/match_field_ids.dart';
+import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:beariscope/pages/main_view.dart';
-import 'package:beariscope/components/beariscope_card.dart';
-import 'package:beariscope/components/team_card.dart';
-import 'package:beariscope/pages/team_lookup/team_model.dart';
+import 'package:services/providers/api_provider.dart';
 
 import '../../providers/team_scouting_provider.dart';
 
@@ -87,17 +87,24 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                       child: Row(
                         children: [
                           Text(sort.label),
-                          if(selectedSort.sort == sort) Icon(isAscending? Icons.arrow_drop_up: Icons.arrow_drop_down)
+                          if (selectedSort.sort == sort)
+                            Icon(
+                              isAscending
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                            ),
                         ],
                       ),
                     ),
                   )
                   .toList(),
               onSelected: (TeamSortOptions newSort) {
-                if(ref.read(teamSortProvider.notifier).getSort() == newSort){
+                if (ref.read(teamSortProvider.notifier).getSort() == newSort) {
                   isAscending = !isAscending;
                 }
-                ref.read(teamSortProvider.notifier).setSort(newSort, isAscending);
+                ref
+                    .read(teamSortProvider.notifier)
+                    .setSort(newSort, isAscending);
                 // if(ref.read(teamSortProvider.notifier).getSort() == TeamSortOptions.custom){
                 //   Scaffold.of(context).showBottomSheet((BuildContext context) {
                 //     return ListView(
@@ -144,20 +151,20 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           filteredTeams = List.of(filteredTeams);
           switch (selectedSort.sort) {
             case TeamSortOptions.teamNumber:
-              if(isAscending){
+              if (isAscending) {
                 filteredTeams.sort((a, b) => a.number.compareTo(b.number));
-              }else{
+              } else {
                 filteredTeams.sort((a, b) => b.number.compareTo(a.number));
               }
             case TeamSortOptions.rank:
-              if(isAscending){
+              if (isAscending) {
                 filteredTeams.sort((a, b) {
                   // Teams without a rank go to the end
                   final rankA = rankings[a.number]?.rank ?? 999999;
                   final rankB = rankings[b.number]?.rank ?? 999999;
                   return rankA.compareTo(rankB);
                 });
-              }else{
+              } else {
                 filteredTeams.sort((a, b) {
                   final rankA = rankings[a.number]?.rank ?? 0;
                   final rankB = rankings[b.number]?.rank ?? 0;
@@ -167,18 +174,24 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             case TeamSortOptions.custom:
               filteredTeams.sort((a, b) {
                 // Teams without a rank go to the end
-                final rankA = ref.watch(teamScoutingProvider(a.number)).when(
-                  data: (bundle) =>
-                      bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
-                  error: (_, _) => 0,
-                  loading: () => 0,
-                );
-                final rankB = ref.watch(teamScoutingProvider(b.number)).when(
-                  data: (bundle) =>
-                  bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
-                  error: (_, _) => 0,
-                  loading: () => 0,
-                );
+                final rankA = ref
+                    .watch(teamScoutingProvider(a.number))
+                    .when(
+                      data: (bundle) =>
+                          bundle.avgMatchField(kSectionTele, kTeleFuelScored) +
+                          bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
+                      error: (_, _) => 0,
+                      loading: () => 0,
+                    );
+                final rankB = ref
+                    .watch(teamScoutingProvider(b.number))
+                    .when(
+                      data: (bundle) =>
+                          bundle.avgMatchField(kSectionTele, kTeleFuelScored) +
+                          bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
+                      error: (_, _) => 0,
+                      loading: () => 0,
+                    );
                 if (isAscending) {
                   return rankA.compareTo(rankB);
                 } else {
@@ -205,19 +218,11 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   }
 }
 
-
-class SortByFieldItem extends StatefulWidget{
+class SortByFieldItem extends StatefulWidget {
   final String itemName;
   VoidCallback? onAddNew;
 
-
-  SortByFieldItem({
-    super.key,
-    required this.itemName,
-    this.onAddNew,
-
-  });
-
+  SortByFieldItem({super.key, required this.itemName, this.onAddNew});
 
   @override
   State<StatefulWidget> createState() {
@@ -225,20 +230,20 @@ class SortByFieldItem extends StatefulWidget{
   }
 }
 
-class SortByFieldItemState extends State<SortByFieldItem>{
+class SortByFieldItemState extends State<SortByFieldItem> {
   String sectionId = '';
   String dataId = '';
 
-  List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list){
+  List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list) {
     List<DropdownMenuItem<String>> finalList = [];
-    list.forEach((item){
+    list.forEach((item) {
       finalList.add(
         DropdownMenuItem(
-            child: Text(item),
-            onTap: (){
-              sectionId = item;
-              },
-        )
+          child: Text(item),
+          onTap: () {
+            sectionId = item;
+          },
+        ),
       );
     });
     return finalList;
@@ -263,22 +268,19 @@ class SortByFieldItemState extends State<SortByFieldItem>{
           // ),
           TextField(
             keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly
-            ],
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: InputDecoration(
               labelText: 'Weight',
               border: OutlineInputBorder(),
             ),
-            onChanged: (newValue){
-            },
+            onChanged: (newValue) {},
           ),
           FilledButton.icon(
-              onPressed: (){
-                widget.onAddNew;
-              },
-              label: Icon(Icons.add_circle_outline),
-          )
+            onPressed: () {
+              widget.onAddNew;
+            },
+            label: Icon(Icons.add_circle_outline),
+          ),
         ],
       ),
     );

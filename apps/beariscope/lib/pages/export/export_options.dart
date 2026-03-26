@@ -54,15 +54,22 @@ class ExportSheets {
   final bool processedMatch;
   final bool stratRaw;
   final bool stratZScore;
+  final bool correctionTodoList;
 
   const ExportSheets({
     this.rawMatch = true,
     this.processedMatch = false,
     this.stratRaw = false,
     this.stratZScore = false,
+    this.correctionTodoList = false,
   });
 
-  bool get hasAny => rawMatch || processedMatch || stratRaw || stratZScore;
+  bool get hasAny =>
+      rawMatch ||
+      processedMatch ||
+      stratRaw ||
+      stratZScore ||
+      correctionTodoList;
 
   bool get hasMatchData => rawMatch || processedMatch;
 
@@ -73,12 +80,14 @@ class ExportSheets {
     bool? processedMatch,
     bool? stratRaw,
     bool? stratZScore,
+    bool? correctionTodoList,
   }) {
     return ExportSheets(
       rawMatch: rawMatch ?? this.rawMatch,
       processedMatch: processedMatch ?? this.processedMatch,
       stratRaw: stratRaw ?? this.stratRaw,
       stratZScore: stratZScore ?? this.stratZScore,
+      correctionTodoList: correctionTodoList ?? this.correctionTodoList,
     );
   }
 }
@@ -92,6 +101,7 @@ class ExportOptions {
   final ExportSheets sheets;
   final ColorThresholds colorThresholds;
   final CorrectionThresholds correctionThresholds;
+  final double incorrectDataThreshold;
 
   const ExportOptions({
     this.matchFrom,
@@ -102,6 +112,7 @@ class ExportOptions {
     this.sheets = const ExportSheets(),
     this.colorThresholds = const ColorThresholds(),
     this.correctionThresholds = const CorrectionThresholds(),
+    this.incorrectDataThreshold = 0.20,
   });
 
   ExportOptions copyWith({
@@ -113,6 +124,7 @@ class ExportOptions {
     ExportSheets? sheets,
     ColorThresholds? colorThresholds,
     CorrectionThresholds? correctionThresholds,
+    double? incorrectDataThreshold,
   }) {
     return ExportOptions(
       matchFrom: matchFrom ?? this.matchFrom,
@@ -123,6 +135,8 @@ class ExportOptions {
       sheets: sheets ?? this.sheets,
       colorThresholds: colorThresholds ?? this.colorThresholds,
       correctionThresholds: correctionThresholds ?? this.correctionThresholds,
+      incorrectDataThreshold:
+          incorrectDataThreshold ?? this.incorrectDataThreshold,
     );
   }
 }

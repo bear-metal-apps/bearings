@@ -10,14 +10,11 @@ class HoneycombEndpointSelection {
   final HoneycombEndpointMode mode;
   final String? customUrl;
 
-  const HoneycombEndpointSelection({
-    required this.mode,
-    this.customUrl,
-  });
+  const HoneycombEndpointSelection({required this.mode, this.customUrl});
 
   const HoneycombEndpointSelection.azure()
-      : mode = HoneycombEndpointMode.azure,
-        customUrl = null;
+    : mode = HoneycombEndpointMode.azure,
+      customUrl = null;
 
   String get baseUrl {
     switch (mode) {
@@ -52,10 +49,7 @@ class HoneycombEndpointPreference extends _$HoneycombEndpointPreference {
     final modeName = prefs.getString(_endpointModeKey);
     final mode = HoneycombEndpointMode.values
         .cast<HoneycombEndpointMode?>()
-        .firstWhere(
-          (entry) => entry?.name == modeName,
-      orElse: () => null,
-    );
+        .firstWhere((entry) => entry?.name == modeName, orElse: () => null);
 
     if (mode != null) {
       state = HoneycombEndpointSelection(
@@ -65,15 +59,14 @@ class HoneycombEndpointPreference extends _$HoneycombEndpointPreference {
     }
   }
 
-  Future<void> setSelection(HoneycombEndpointMode mode, {
+  Future<void> setSelection(
+    HoneycombEndpointMode mode, {
     String? customUrl,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_endpointModeKey, mode.name);
 
-    if (customUrl != null && customUrl
-        .trim()
-        .isNotEmpty) {
+    if (customUrl != null && customUrl.trim().isNotEmpty) {
       await prefs.setString(_endpointCustomUrlKey, customUrl.trim());
     } else {
       await prefs.remove(_endpointCustomUrlKey);
