@@ -63,6 +63,7 @@ class PitsScoutingSubmission {
   final String autoPaths;
   final Set<String> pathwayDetails;
   final String trenchCapability;
+  final String towerCapability;
   final String shooter;
   final int? shooterNumber;
   final String collectorType;
@@ -96,6 +97,7 @@ class PitsScoutingSubmission {
     required this.autoPaths,
     required this.pathwayDetails,
     required this.trenchCapability,
+    required this.towerCapability,
     required this.shooter,
     required this.shooterNumber,
     required this.collectorType,
@@ -148,6 +150,7 @@ class PitsScoutingSubmission {
       'autoPaths': autoPaths,
       'pathwayDetails': pathwayDetails.toList(),
       'trenchCapability': trenchCapability,
+      'towerCapability': towerCapability,
       'shooter': shooter,
       'shooterNumber': shooterNumber,
       'collectorType': collectorType,

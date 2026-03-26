@@ -5,10 +5,12 @@ import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/pages/export/export_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/picklists/picklists_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
+import 'package:beariscope/pages/scout_audit/scout_audit_page.dart';
 import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/advanced_settings_page.dart';
@@ -17,11 +19,12 @@ import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
-import 'package:beariscope/pages/settings/team_role.dart';
+import 'package:beariscope/pages/settings/team_role_settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/utilities/utilities_page.dart';
+import 'package:beariscope/providers/app_boot_provider.dart';
 import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:beariscope/providers/shared_preferences_provider.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
@@ -38,6 +41,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/connectivity_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/release/release_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -137,6 +141,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
           GoRoute(
+            path: '/export',
+            pageBuilder: (_, _) => const NoTransitionPage(child: ExportPage()),
+          ),
+          GoRoute(
             path: '/picklists',
             pageBuilder: (_, _) =>
                 const NoTransitionPage(child: PicklistsPage()),
@@ -151,6 +159,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/corrections',
             pageBuilder: (_, _) =>
                 const NoTransitionPage(child: CorrectionsPage()),
+          ),
+          GoRoute(
+            path: '/scout_audit',
+            pageBuilder: (_, _) =>
+                const NoTransitionPage(child: ScoutAuditPage()),
           ),
           GoRoute(
             path: '/pits_scouting',
@@ -190,7 +203,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'user_selection',
             builder: (_, _) => const ScoutSelectionPage(),
           ),
-          GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
+          GoRoute(
+            path: 'roles',
+            builder: (_, _) => const TeamRoleSettingsPage(),
+          ),
           GoRoute(
             path: 'device_provisioning',
             builder: (_, _) => const DeviceProvisioningPage(),
@@ -231,9 +247,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (_, state) {
       final auth = ref.watch(authStatusProvider);
       final location = state.matchedLocation;
+      final bootReady = ref.watch(appBootProvider.select((s) => s.isReady));
 
-      // splash while authing
-      if (auth == AuthStatus.authenticating) {
+      // splash while booting
+      if (!bootReady) {
         return location == '/splash' ? null : '/splash';
       }
 
@@ -266,7 +283,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (needsPermissions) {
           final authMe = ref.watch(authMeProvider);
           if (authMe.isLoading) {
-            return location == '/splash' ? null : '/splash';
+            return null;
           }
 
           final checker = ref.watch(permissionCheckerProvider);
@@ -333,7 +350,10 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authProvider).trySilentLogin();
+      // Initialize endpoint preference from SharedPreferences
+      ref.read(honeycombEndpointPreferenceProvider.notifier).initialize();
+      // Boot the app explicitly from splash before any route transitions.
+      ref.read(appBootProvider.notifier).start();
     });
   }
 
@@ -344,12 +364,17 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     final accentColor = ref.watch(accentColorProvider);
     final deviceInfo = ref.read(deviceInfoProvider);
 
-    final app = MaterialApp.router(
-      routerConfig: router,
-      theme: _createTheme(Brightness.light, accentColor),
-      darkTheme: _createTheme(Brightness.dark, accentColor),
-      themeMode: themeMode,
-      debugShowCheckedModeBanner: false,
+    // Wrap with builder to ensure HeroineController is available everywhere
+    final app = Builder(
+      builder: (context) {
+        return MaterialApp.router(
+          routerConfig: router,
+          theme: _createTheme(Brightness.light, accentColor),
+          darkTheme: _createTheme(Brightness.dark, accentColor),
+          themeMode: themeMode,
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
 
     if (deviceInfo.deviceOS == DeviceOS.macos) {

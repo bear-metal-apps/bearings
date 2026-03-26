@@ -13,10 +13,11 @@ const _honeycombScope = 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7';
 
 @riverpod
 Dio dio(Ref ref) {
+  final endpointSelection = ref.watch(honeycombEndpointPreferenceProvider);
+
   final dio = Dio(
     BaseOptions(
-      baseUrl:
-          'https://honeycomb-a3d3bbaacjhsaxbu.westus2-01.azurewebsites.net/api',
+      baseUrl: endpointSelection.baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),

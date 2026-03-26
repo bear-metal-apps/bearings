@@ -68,6 +68,12 @@ class _MainViewState extends ConsumerState<MainView> {
       label: 'Team Lookup',
       group: 'Insights',
     ),
+    _NavItem(
+      route: '/export',
+      icon: Symbols.table_chart_rounded,
+      label: 'Export Data',
+      group: 'Insights',
+    ),
     // _NavItem(
     //   route: '/picklists',
     //   icon: Symbols.list_alt_rounded,
@@ -81,6 +87,12 @@ class _MainViewState extends ConsumerState<MainView> {
     //   group: 'Scouting',
     // ),
     _NavItem(
+      route: '/scout_audit',
+      icon: Symbols.assignment_rounded,
+      label: 'Scout Audit',
+      group: 'Scouting',
+    ),
+    _NavItem(
       route: '/pits_scouting',
       icon: Symbols.build_rounded,
       label: 'Pits Scouting',
@@ -88,26 +100,45 @@ class _MainViewState extends ConsumerState<MainView> {
     ),
   ];
 
+  List<_NavItem> _visibleNavItems(PermissionChecker? permissionChecker) {
+    return [
+      for (final item in _navItems)
+        if (_canShowNavItem(item, permissionChecker)) item,
+    ];
+  }
+
+  bool _canShowNavItem(_NavItem item, PermissionChecker? permissionChecker) {
+    return switch (item.route) {
+      '/scout_audit' =>
+        permissionChecker?.hasPermission(PermissionKey.scoutsManage) ?? false,
+      '/pits_scouting' =>
+        permissionChecker?.hasPermission(PermissionKey.driveTeamUpload) ??
+            false,
+      _ => true,
+    };
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  int get _selectedIndex {
+  int _selectedIndexFor(List<_NavItem> items) {
     final location = GoRouterState.of(context).uri.toString();
-    final idx = _navItems.indexWhere((n) => location.startsWith(n.route));
+    final idx = items.indexWhere((n) => location.startsWith(n.route));
     return idx;
   }
 
-  bool get _isAtTopLevel {
+  bool _isAtTopLevelFor(List<_NavItem> items) {
     final location = GoRouterState.of(context).uri.toString();
     // just checks if we're at a top level nav item (not a nested route)
-    return _navItems.any((n) => n.route == location);
+    return items.any((n) => n.route == location);
   }
 
-  void _onDestinationSelected(int index, bool isDesktop) {
-    if (index == _selectedIndex) {
+  void _onDestinationSelected(int index, bool isDesktop, List<_NavItem> items) {
+    if (index < 0 || index >= items.length) return;
+    if (index == _selectedIndexFor(items)) {
       if (!isDesktop) Navigator.pop(context);
       return;
     }
-    context.go(_navItems[index].route);
+    context.go(items[index].route);
     if (!isDesktop) Navigator.pop(context);
   }
 
@@ -116,7 +147,10 @@ class _MainViewState extends ConsumerState<MainView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 700;
-        final isAtTopLevel = _isAtTopLevel;
+        final permissionChecker = ref.watch(permissionCheckerProvider);
+        final visibleNavItems = _visibleNavItems(permissionChecker);
+        final selectedIndex = _selectedIndexFor(visibleNavItems);
+        final isAtTopLevel = _isAtTopLevelFor(visibleNavItems);
 
         final isOnline = switch (ref.watch(connectivityProvider)) {
           AsyncData(:final value) => value,
@@ -126,8 +160,9 @@ class _MainViewState extends ConsumerState<MainView> {
         final navigationDrawer = SizedBox(
           width: _drawerWidth,
           child: NavigationDrawer(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (i) => _onDestinationSelected(i, isDesktop),
+            selectedIndex: selectedIndex == -1 ? null : selectedIndex,
+            onDestinationSelected: (i) =>
+                _onDestinationSelected(i, isDesktop, visibleNavItems),
             children: _buildNavChildren(isOnline: isOnline),
           ),
         );
@@ -143,7 +178,6 @@ class _MainViewState extends ConsumerState<MainView> {
 
         // checks for showing no perms banner
         final authMeLoaded = ref.watch(authMeProvider).hasValue;
-        final permissionChecker = ref.watch(permissionCheckerProvider);
         final hasNoPermissions =
             authMeLoaded &&
             permissionChecker != null &&
@@ -199,6 +233,8 @@ class _MainViewState extends ConsumerState<MainView> {
 
   List<Widget> _buildNavChildren({required bool isOnline}) {
     final children = <Widget>[];
+    final permissionChecker = ref.watch(permissionCheckerProvider);
+    final visibleNavItems = _visibleNavItems(permissionChecker);
 
     children.add(
       Padding(
@@ -245,7 +281,7 @@ class _MainViewState extends ConsumerState<MainView> {
     );
 
     String? currentGroup;
-    for (final entry in _navItems.indexed) {
+    for (final entry in visibleNavItems.indexed) {
       final index = entry.$1;
       final item = entry.$2;
       if (item.group != currentGroup) {
@@ -272,8 +308,8 @@ class _MainViewState extends ConsumerState<MainView> {
         NavigationDrawerDestination(
           icon: TweenAnimationBuilder<double>(
             tween: Tween<double>(
-              begin: _selectedIndex == index ? 0.0 : 1.0,
-              end: _selectedIndex == index ? 1.0 : 0.0,
+              begin: _selectedIndexFor(visibleNavItems) == index ? 0.0 : 1.0,
+              end: _selectedIndexFor(visibleNavItems) == index ? 1.0 : 0.0,
             ),
             duration: _animationDuration,
             curve: Curves.fastOutSlowIn,

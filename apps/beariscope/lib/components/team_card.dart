@@ -201,6 +201,8 @@ class _SummaryMetrics extends ConsumerWidget {
     final primaryRole = playingStyles.isNotEmpty ? playingStyles.first : null;
     final trenchCapable =
         bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
+    final towerCapable =
+        bundle.getPitsField<String>('towerCapability') == 'Fits Inside Tower';
     final climbCapable = bundle.getPitsField<String>('climbLevel');
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
@@ -246,6 +248,28 @@ class _SummaryMetrics extends ConsumerWidget {
                       ),
                       label: Text(
                         'Trench',
+                        style: TextStyle(fontSize: 12, color: color),
+                      ),
+                      backgroundColor: color.withValues(alpha: 0.12),
+                      side: BorderSide(color: color.withValues(alpha: 0.4)),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    );
+                  },
+                ),
+              if (towerCapable)
+                Builder(
+                  builder: (context) {
+                    final color = Theme.of(context).colorScheme.secondary;
+                    return Chip(
+                      avatar: Icon(
+                        Symbols.exit_to_app_rounded,
+                        size: 14,
+                        color: color,
+                      ),
+                      label: Text(
+                        'Tower',
                         style: TextStyle(fontSize: 12, color: color),
                       ),
                       backgroundColor: color.withValues(alpha: 0.12),
