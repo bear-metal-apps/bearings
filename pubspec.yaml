@@ -63,5 +63,6 @@ melos:
         - melos run analyze
         - melos run test
 dependencies:
+  animate_do: ^4.2.0
   flex_color_picker: ^3.8.0
   syncfusion_flutter_charts: ^32.2.9
