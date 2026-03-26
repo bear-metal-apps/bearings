@@ -140,7 +140,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
             child: eventDetails.when(
               loading: () => const SizedBox.shrink(),
               error: (_, _) => Text(
-                'Showing Matches for $currentEventKey',
+                'Showing Matches for ${_filter == _MatchFilter.bearMetal ? '2046 at' : 'All Teams'} $currentEventKey',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               data: (event) => Text(
