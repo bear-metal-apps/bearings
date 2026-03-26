@@ -8,9 +8,11 @@ import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
+import 'package:animate_do/animate_do.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
+
 
   const ScoutingShell({super.key, required this.child});
 
@@ -19,12 +21,17 @@ class ScoutingShell extends ConsumerStatefulWidget {
 }
 
 class _ScoutingShellState extends ConsumerState<ScoutingShell> {
+  int _selectedIndex = 0; // tracks the active tab
+  bool _shouldFlashTele = true; // controls the flashing state
+
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
     final notifier = ref.read(scoutingSessionProvider.notifier);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
+
+
 
     // always contains the correct team even when navigating via prev/next.
     ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_, next) {
@@ -117,6 +124,12 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
         indicatorColor: Theme.of(context).colorScheme.primary,
 
         onDestinationSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+            if (index == 1) {
+              _shouldFlashTele = false;
+            }
+          });
           switch (index) {
             case 0:
               context.go('/match/auto');
@@ -129,10 +142,17 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
               break;
           }
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(icon: Icon(Icons.bolt), label: 'Auto'),
           NavigationDestination(
-            icon: Icon(Icons.stacked_bar_chart_sharp),
+
+            icon: _shouldFlashTele
+                ? Flash(
+              infinite: true,
+              delay: const Duration(seconds: 20),
+              child: const Icon(Icons.stacked_bar_chart_sharp),
+            )
+                : const Icon(Icons.stacked_bar_chart_sharp),
             label: 'Tele',
           ),
           NavigationDestination(
