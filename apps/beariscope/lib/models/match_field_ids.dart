@@ -118,6 +118,9 @@ const kEndPlayedDefenseOnShift = 'played_defense_on_shift';
 /// Whether the robot played defense while off its scoring shift.
 const kEndPlayedDefenseOffShift = 'played_defense_off_shift';
 
+/// Whether the robot was interfered by defense, which can interfere with accuracy and movement
+const kEndDefendedAgainst = 'defended_against';
+
 /// Number of fouls committed.
 const kEndFouls = 'fouls';
 

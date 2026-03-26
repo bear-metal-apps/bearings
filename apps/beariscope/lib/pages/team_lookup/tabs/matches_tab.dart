@@ -225,6 +225,10 @@ class _MatchCard extends StatelessWidget {
           '$foulsCount Foul${foulsCount == 1 ? '' : 's'}',
         ),
     ];
+    final interferences = [
+      if (_f(kSectionEndgame, kEndDefendedAgainst) == true)
+        scoutingIncidentChip(context, 'Defended'),
+    ];
 
     // Summary subtitle shown in the collapsed tile.
     final autoStr = autoFuel is num ? autoFuel.toInt().toString() : '—';
@@ -259,6 +263,12 @@ class _MatchCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Wrap(spacing: 4, runSpacing: 2, children: incidents),
+              ),
+            ],
+            if (interferences.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(spacing: 4, runSpacing: 2, children: interferences),
               ),
             ],
           ],
@@ -437,6 +447,11 @@ class _MatchDetailSection extends StatelessWidget {
                 context,
                 'Defense Off Shift',
                 _f(kSectionEndgame, kEndPlayedDefenseOffShift),
+              ),
+              _row(
+                context,
+                'Defended Against',
+                _f(kSectionEndgame, kEndDefendedAgainst),
               ),
               _row(context, 'Play Style', _f(kSectionEndgame, kEndPlayStyle)),
               _row(context, 'No Show', _f(kSectionEndgame, kEndNoShow)),
