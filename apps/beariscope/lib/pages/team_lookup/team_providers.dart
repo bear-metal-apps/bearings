@@ -3,21 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 
-class TeamSort{
+class TeamSort {
   TeamSortOptions sort = TeamSortOptions.teamNumber;
   bool isAscending = true;
 
-  TeamSort(
-      this.sort,
-      this.isAscending
-      );
-}
-enum TeamSortOptions {
-  teamNumber,
-  rank,
-  custom,
+  TeamSort(this.sort, this.isAscending);
 }
 
+enum TeamSortOptions { teamNumber, rank, custom }
 
 extension TeamSortLabel on TeamSortOptions {
   String get label => switch (this) {
@@ -30,7 +23,8 @@ extension TeamSortLabel on TeamSortOptions {
 class TeamSortNotifier extends Notifier<TeamSort> {
   @override
   TeamSort build() => TeamSort(TeamSortOptions.teamNumber, true);
-  void setSort(TeamSortOptions sort, bool isAscending) => state = TeamSort(sort, isAscending);
+  void setSort(TeamSortOptions sort, bool isAscending) =>
+      state = TeamSort(sort, isAscending);
 
   TeamSortOptions getSort() => state.sort;
 

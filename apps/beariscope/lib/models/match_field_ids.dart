@@ -3,11 +3,7 @@ library;
 const kSectionAuto = 'auto';
 const kSectionTele = 'tele';
 const kSectionEndgame = 'endgame';
-const kSectionsList = [
-  kSectionAuto,
-  kSectionTele,
-  kSectionEndgame,
-];
+const kSectionsList = [kSectionAuto, kSectionTele, kSectionEndgame];
 
 /// Number of fuel balls scored during auto.
 const kAutoFuelScored = 'fuel_scored';
@@ -54,9 +50,7 @@ const kAutoQuadrant3 = 'quadrant_3';
 /// Whether the robot collected from quadrant 4 during auto.
 const kAutoQuadrant4 = 'quadrant_4';
 
-const kAutoDataList = [
-
-];
+const kAutoDataList = [];
 
 /// Number of fuel balls scored during teleop.
 const kTeleFuelScored = 'fuel_scored';
@@ -109,10 +103,8 @@ const kTeleDataList = [
   kTeleUnderTrench,
   kTeleCollecting,
   kTeleDefense,
-  kTeleStoppedWorking
+  kTeleStoppedWorking,
 ];
-
-
 
 /// Climb level achieved: "L1" | "L2" | "L3" (absent/null = no climb).
 const kEndClimb = 'climb';
