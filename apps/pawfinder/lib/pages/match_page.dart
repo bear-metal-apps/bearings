@@ -60,7 +60,7 @@ class MatchPage extends ConsumerWidget {
         }
 
         return MatchFormRenderer(
-          key: ValueKey('$eventKey:$matchNumber:$pos'),
+          key: ValueKey('$eventKey:$matchNumber:$pos:${session.formResetCounter}'),
           page: config.pages[index],
           initialData: hydratedData,
           onChanged: (next) {

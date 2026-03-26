@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pawfinder/data/local_data.dart';
+import 'package:pawfinder/data/match_form_store.dart';
 import 'package:pawfinder/data/upload_queue.dart';
 import 'package:pawfinder/services/scout_upload_service.dart';
 import 'package:pawfinder/store/strat_state.dart';
@@ -61,6 +62,25 @@ class ScoutingFlowController {
     markCurrentStratForUpload();
     unawaited(_ref.read(scoutUploadServiceProvider).drainIfOnline());
     _ref.read(scoutingSessionProvider.notifier).previousMatch();
+    return true;
+  }
+
+  bool resetCurrentMatchData() {
+    final session = _ref.read(scoutingSessionProvider);
+    final eventKey = session.event?.key;
+    final matchNumber = session.matchNumber;
+    final pos = session.position?.posIndex;
+    if (eventKey == null || matchNumber == null || pos == null) return false;
+
+    final store = _ref.read(matchFormStoreProvider);
+    final existing = store.load(eventKey, matchNumber, pos);
+    if (existing != null) {
+      _ref.read(uploadQueueProvider.notifier).markUploaded([existing.id]);
+    }
+
+    Hive.box(boxKey).delete(MatchFormStore.keyFor(eventKey, matchNumber, pos));
+    final notifier = _ref.read(scoutingSessionProvider.notifier);
+    notifier.incrementFormResetCounter();
     return true;
   }
 }

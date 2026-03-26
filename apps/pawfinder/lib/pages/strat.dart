@@ -63,6 +63,7 @@ class _StratPageState extends ConsumerState<StratPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
+          key: ValueKey(session.stratResetCounter),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(width: size.width),

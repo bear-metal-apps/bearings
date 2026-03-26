@@ -162,6 +162,24 @@ class ScoutingSessionNotifier extends _$ScoutingSessionNotifier {
     state = state.copyWith(matchNumber: matchNumber);
   }
 
+  void refreshCurrentMatch() {
+    final matchNumber = state.matchNumber;
+    if (matchNumber == null) return;
+    state = state.copyWith(matchNumber: matchNumber);
+  }
+
+  void incrementFormResetCounter() {
+    state = state.copyWith(
+      formResetCounter: state.formResetCounter + 1,
+    );
+  }
+
+  void incrementStratResetCounter() {
+    state = state.copyWith(
+      stratResetCounter: state.stratResetCounter + 1,
+    );
+  }
+
   void nextMatch() {
     if (state.matchNumber != null) {
       state = state.copyWith(matchNumber: state.matchNumber! + 1);

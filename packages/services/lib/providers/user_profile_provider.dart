@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -146,8 +145,8 @@ class UserProfileService {
     final response = await client.post<Map<String, dynamic>>(
       '/profile/photo-upload',
       data: {
-        if (contentType != null) 'contentType': contentType,
-        if (fileExtension != null) 'fileExtension': fileExtension,
+        'contentType': ?contentType,
+        'fileExtension': ?fileExtension,
         'fileSizeBytes': bytes.length,
       },
     );
@@ -166,7 +165,7 @@ class UserProfileService {
       options: Options(
         headers: {
           'x-ms-blob-type': 'BlockBlob',
-          if (contentType != null) 'Content-Type': contentType,
+          'Content-Type': ?contentType,
         },
       ),
     );

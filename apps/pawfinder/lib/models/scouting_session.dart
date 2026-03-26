@@ -8,12 +8,16 @@ class ScoutingSession {
   final ScoutPosition? position;
   final Scout? scout;
   final int? matchNumber;
+  final int formResetCounter;
+  final int stratResetCounter;
 
   const ScoutingSession({
     this.event,
     this.position,
     this.scout,
     this.matchNumber,
+    this.formResetCounter = 0,
+    this.stratResetCounter = 0,
   });
 
   bool get isConfigured =>
@@ -24,12 +28,16 @@ class ScoutingSession {
     ScoutPosition? position,
     Scout? scout,
     int? matchNumber,
+    int? formResetCounter,
+    int? stratResetCounter,
   }) {
     return ScoutingSession(
       event: event ?? this.event,
       position: position ?? this.position,
       scout: scout ?? this.scout,
       matchNumber: matchNumber ?? this.matchNumber,
+      formResetCounter: formResetCounter ?? this.formResetCounter,
+      stratResetCounter: stratResetCounter ?? this.stratResetCounter,
     );
   }
 }
