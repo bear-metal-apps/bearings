@@ -132,7 +132,7 @@ class _TeamCardSummary extends ConsumerWidget {
           Expanded(
             child: bundleAsync.when(
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
               data: (bundle) => _SummaryMetrics(
                 teamNumber: team.number,
                 bundle: bundle,

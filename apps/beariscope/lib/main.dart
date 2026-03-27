@@ -98,12 +98,23 @@ Future<void> main() async {
   );
 }
 
+class RouterRefreshNotifier extends ChangeNotifier {
+  RouterRefreshNotifier(this.ref) {
+    ref.listen(appBootProvider, (_, __) => notifyListeners());
+    ref.listen(authStatusProvider, (_, __) => notifyListeners());
+    ref.listen(postSignInFlowPendingProvider, (_, __) => notifyListeners());
+    ref.listen(authMeProvider, (_, __) => notifyListeners());
+  }
+
+  final Ref ref;
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authStatus = ref.watch(authStatusProvider.notifier);
+  final refreshNotifier = RouterRefreshNotifier(ref);
 
   return GoRouter(
     initialLocation: '/splash',
-    refreshListenable: authStatus,
+    refreshListenable: refreshNotifier,
     routes: [
       GoRoute(
         path: '/splash',
@@ -238,9 +249,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (_, state) {
-      final auth = ref.watch(authStatusProvider);
+      final auth = ref.read(authStatusProvider);
       final location = state.matchedLocation;
-      final bootReady = ref.watch(appBootProvider.select((s) => s.isReady));
+      final bootReady = ref.read(appBootProvider).isReady;
 
       // splash while booting
       if (!bootReady) {
@@ -254,7 +265,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // if on welcome and authed then leave
       if (auth == AuthStatus.authenticated) {
-        final pendingPostSignInFlow = ref.watch(postSignInFlowPendingProvider);
+        final pendingPostSignInFlow = ref.read(postSignInFlowPendingProvider);
+
         if (pendingPostSignInFlow) {
           if (location != '/post_sign_in_onboarding') {
             return '/post_sign_in_onboarding';
@@ -274,19 +286,18 @@ final routerProvider = Provider<GoRouter>((ref) {
             isDeviceProvisioningRoute;
 
         if (needsPermissions) {
-          final authMe = ref.watch(authMeProvider);
+          final authMe = ref.read(authMeProvider);
+
           if (authMe.isLoading) {
             return null;
           }
 
-          final checker = ref.watch(permissionCheckerProvider);
+          final checker = ref.read(permissionCheckerProvider);
 
           if (isRoleManagementRoute) {
             final canManageRoles =
                 checker?.hasPermission(PermissionKey.usersRolesManage) ?? false;
-            if (!canManageRoles) {
-              return '/settings';
-            }
+            if (!canManageRoles) return '/settings';
           }
 
           if (isScoutManagementRoute) {
@@ -296,25 +307,19 @@ final routerProvider = Provider<GoRouter>((ref) {
                   PermissionKey.scoutsManage,
                 ]) ??
                 false;
-            if (!canViewScouts) {
-              return '/settings';
-            }
+            if (!canViewScouts) return '/settings';
           }
 
           if (isPicklistCreateRoute) {
             final canManagePicklists =
                 checker?.hasPermission(PermissionKey.picklistsManage) ?? false;
-            if (!canManagePicklists) {
-              return '/picklists';
-            }
+            if (!canManagePicklists) return '/picklists';
           }
 
           if (isDeviceProvisioningRoute) {
             final canProvision =
                 checker?.hasPermission(PermissionKey.deviceProvision) ?? false;
-            if (!canProvision) {
-              return '/settings';
-            }
+            if (!canProvision) return '/settings';
           }
         }
 

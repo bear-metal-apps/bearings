@@ -1,12 +1,9 @@
 import 'dart:math';
 
 import 'package:beariscope/models/scouting_document.dart';
-import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../models/team_scouting_bundle.dart';
 
 const _kRankingKeys = [
   'driverSkillRanking',
