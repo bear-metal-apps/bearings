@@ -61,7 +61,7 @@
           },
           "parameters": {
             "options" : [
-              "Not Attempted",
+              "N/A",
               "Successful",
               "Attempted"
             ]
@@ -382,38 +382,14 @@
           }
         },
         {
-          "alias": "On Shift Defense",
-          "fieldId": "played_defense_on_shift",
-          "type": "checkbox",
-          "layout": {
-            "x": 0,
-            "y": 1,
-            "w": 1.5,
-            "h": 2
-          },
-          "parameters": {}
-        },
-        {
-          "alias": "Off Shift Defense",
-          "fieldId": "played_defense_off_shift",
-          "type": "checkbox",
-          "layout": {
-            "x": 1.5,
-            "y": 1,
-            "w": 1.5,
-            "h": 2
-          },
-          "parameters": {}
-        },
-        {
           "alias": "Climb Pos",
           "fieldId": "climb_location",
           "type": "segmented_button",
           "layout": {
-            "x": 3,
+            "x": 0,
             "y": 1,
-            "w": 3,
-            "h": 2
+            "w": 6,
+            "h": 1
           },
           "parameters": {
             "options" : [
@@ -423,6 +399,42 @@
               "Right"
             ]
           }
+        },
+        {
+          "alias": "On Shift Defense",
+          "fieldId": "played_defense_on_shift",
+          "type": "checkbox",
+          "layout": {
+            "x": 0,
+            "y": 2,
+            "w": 2,
+            "h": 1
+          },
+          "parameters": {}
+        },
+        {
+          "alias": "Off Shift Defense",
+          "fieldId": "played_defense_off_shift",
+          "type": "checkbox",
+          "layout": {
+            "x": 2,
+            "y": 2,
+            "w": 2,
+            "h": 1
+          },
+          "parameters": {}
+        },
+        {
+          "alias": "Defended by Opponents",
+          "fieldId": "defended_against",
+          "type": "checkbox",
+          "layout": {
+            "x": 4,
+            "y": 2,
+            "w": 2,
+            "h": 1
+          },
+          "parameters": {}
         },
         {
           "alias": "Preferred Play Style",
@@ -439,7 +451,8 @@
               "Passing",
               "Cycling",
               "Shooting",
-              "Defense"
+              "Defense",
+              "Bulldozing"
             ],
             "multi_select": true
           }

@@ -5,7 +5,6 @@ class NumberButton extends StatefulWidget {
   const NumberButton({
     super.key,
     this.initialValue,
-    this.negativeAllowed,
     this.onChanged,
     this.backgroundColor,
     required this.dataName,
@@ -20,7 +19,6 @@ class NumberButton extends StatefulWidget {
   final ValueChanged<int>? onChanged;
   final double width;
   final double height;
-  final bool? negativeAllowed;
   final int? initialValue;
 
   @override
@@ -29,8 +27,6 @@ class NumberButton extends StatefulWidget {
 
 class _NumberButtonState extends State<NumberButton> {
   late int _currentVariable = widget.initialValue ?? 0;
-
-  bool get _isNegativeAllowed => widget.negativeAllowed ?? true;
 
   @override
   void didUpdateWidget(covariant NumberButton oldWidget) {
@@ -100,12 +96,8 @@ class _NumberButtonState extends State<NumberButton> {
                     ),
                     onPressed: () {
                       setState(() {
-                        if (_isNegativeAllowed) {
+                        if (_currentVariable > 0) {
                           _currentVariable--;
-                        } else {
-                          if (_currentVariable > 0) {
-                            _currentVariable--;
-                          }
                         }
                       });
                       widget.onChanged?.call(_currentVariable);

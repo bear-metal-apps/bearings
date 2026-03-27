@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +20,9 @@ class ScoutingShell extends ConsumerStatefulWidget {
 }
 
 class _ScoutingShellState extends ConsumerState<ScoutingShell> {
+  int _selectedIndex = 0; // tracks the active tab
+  bool _shouldFlashTele = true; // controls the flashing state
+
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(scoutingSessionProvider);
@@ -117,6 +121,12 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
         indicatorColor: Theme.of(context).colorScheme.primary,
 
         onDestinationSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+            if (index == 1) {
+              _shouldFlashTele = false;
+            }
+          });
           switch (index) {
             case 0:
               context.go('/match/auto');
@@ -129,10 +139,16 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
               break;
           }
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(icon: Icon(Icons.bolt), label: 'Auto'),
           NavigationDestination(
-            icon: Icon(Icons.stacked_bar_chart_sharp),
+            icon: _shouldFlashTele
+                ? Flash(
+                    infinite: true,
+                    delay: const Duration(seconds: 20),
+                    child: const Icon(Icons.stacked_bar_chart_sharp),
+                  )
+                : const Icon(Icons.stacked_bar_chart_sharp),
             label: 'Tele',
           ),
           NavigationDestination(

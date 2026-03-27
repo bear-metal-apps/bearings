@@ -9,49 +9,41 @@ part of 'secure_storage_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(secureStorage)
-final secureStorageProvider = SecureStorageProvider._();
+@ProviderFor(tokenStorage)
+final tokenStorageProvider = TokenStorageProvider._();
 
-final class SecureStorageProvider
+final class TokenStorageProvider
     extends
         $FunctionalProvider<
-          FlutterSecureStorage,
-          FlutterSecureStorage,
-          FlutterSecureStorage
+          AsyncValue<TokenStorage>,
+          TokenStorage,
+          FutureOr<TokenStorage>
         >
-    with $Provider<FlutterSecureStorage> {
-  SecureStorageProvider._()
+    with $FutureModifier<TokenStorage>, $FutureProvider<TokenStorage> {
+  TokenStorageProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'secureStorageProvider',
+        name: r'tokenStorageProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$secureStorageHash();
+  String debugGetCreateSourceHash() => _$tokenStorageHash();
 
   @$internal
   @override
-  $ProviderElement<FlutterSecureStorage> $createElement(
+  $FutureProviderElement<TokenStorage> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FlutterSecureStorage create(Ref ref) {
-    return secureStorage(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(FlutterSecureStorage value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<FlutterSecureStorage>(value),
-    );
+  FutureOr<TokenStorage> create(Ref ref) {
+    return tokenStorage(ref);
   }
 }
 
-String _$secureStorageHash() => r'273dc403a965c1f24962aaf4d40776611a26f8b8';
+String _$tokenStorageHash() => r'631acced66260d668911a1b213724b44a5425861';

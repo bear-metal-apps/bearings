@@ -2,9 +2,7 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 
-final upNextProvider = FutureProvider<List<Map<String, dynamic>>>((
-  ref,
-) async {
+final upNextProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final client = ref.watch(honeycombClientProvider);
   final currentEventKey = ref.watch(currentEventProvider);
 
@@ -14,23 +12,23 @@ final upNextProvider = FutureProvider<List<Map<String, dynamic>>>((
     cachePolicy: CachePolicy.cacheFirst,
   );
 
-  final eventMatches = matches
-      .whereType<Map>()
-      .map((match) => Map<String, dynamic>.from(match))
-      .where((match) => eventKeyForMatch(match) == currentEventKey)
-      .toList()
-    ..sort(compareMatchesForUpNext);
+  final eventMatches =
+      matches
+          .whereType<Map>()
+          .map((match) => Map<String, dynamic>.from(match))
+          .where((match) => eventKeyForMatch(match) == currentEventKey)
+          .toList()
+        ..sort(compareMatchesForUpNext);
 
   return eventMatches;
 });
 
 final currentEventDetailsProvider = FutureProvider<Map<String, dynamic>>((
-    ref,) async {
+  ref,
+) async {
   final client = ref.watch(honeycombClientProvider);
   final currentEventKey = ref.watch(currentEventProvider);
-  final year = DateTime
-      .now()
-      .year;
+  final year = DateTime.now().year;
 
   final events = await client.get<List<dynamic>>(
     '/events',
@@ -62,8 +60,7 @@ String? eventKeyForMatch(Map<String, dynamic> match) {
   return match['eventKey']?.toString() ?? match['event_key']?.toString();
 }
 
-int compareMatchesForUpNext(Map<String, dynamic> a,
-    Map<String, dynamic> b,) {
+int compareMatchesForUpNext(Map<String, dynamic> a, Map<String, dynamic> b) {
   final levelA = compLevelRank(compLevelForMatch(a));
   final levelB = compLevelRank(compLevelForMatch(b));
   if (levelA != levelB) return levelA.compareTo(levelB);
@@ -93,7 +90,8 @@ String matchDisplayName(Map<String, dynamic> match) {
 }
 
 String compLevelForMatch(Map<String, dynamic> match) {
-  return match['compLevel']?.toString() ?? match['comp_level']?.toString() ??
+  return match['compLevel']?.toString() ??
+      match['comp_level']?.toString() ??
       '';
 }
 
@@ -132,9 +130,11 @@ String matchKeyForSort(Map<String, dynamic> match) {
   return match['key']?.toString() ?? '';
 }
 
-String defaultMatchName(Map<String, dynamic> match,
-    String compLevel,
-    int? matchNumber,) {
+String defaultMatchName(
+  Map<String, dynamic> match,
+  String compLevel,
+  int? matchNumber,
+) {
   if (compLevel.isEmpty) return match['key']?.toString() ?? '';
   if (matchNumber != null) return '$compLevel $matchNumber';
   return compLevel;

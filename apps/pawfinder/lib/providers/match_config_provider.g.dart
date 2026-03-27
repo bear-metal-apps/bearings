@@ -46,4 +46,4 @@ final class MatchConfigProvider
   }
 }
 
-String _$matchConfigHash() => r'c62188bafbfe53417ba0e1ce9a5056184426dd9e';
+String _$matchConfigHash() => r'7c41d51f01da8da22ff64097a4d92f6d57108c42';

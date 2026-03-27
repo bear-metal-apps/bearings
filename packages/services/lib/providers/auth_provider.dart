@@ -5,7 +5,6 @@ import 'package:core/providers/device_info_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:http/http.dart' as http;
@@ -76,8 +75,8 @@ Auth0Config auth0Config(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Auth auth(Ref ref) {
-  final storage = ref.watch(secureStorageProvider);
+Future<Auth> auth(Ref ref) async {
+  final storage = await ref.watch(tokenStorageProvider.future);
   final deviceInfo = ref.watch(deviceInfoProvider);
   final config = ref.watch(auth0ConfigProvider);
 
@@ -97,7 +96,7 @@ Auth auth(Ref ref) {
 
 class Auth {
   final Ref ref;
-  final FlutterSecureStorage storage;
+  final TokenStorage storage;
   final Auth0Config config;
   final String redirectUri;
 

@@ -106,8 +106,9 @@ String _$auth0ConfigHash() => r'640f847a5e3de0e4d682dcc18e12bbede8bfafd3';
 @ProviderFor(auth)
 final authProvider = AuthProvider._();
 
-final class AuthProvider extends $FunctionalProvider<Auth, Auth, Auth>
-    with $Provider<Auth> {
+final class AuthProvider
+    extends $FunctionalProvider<AsyncValue<Auth>, Auth, FutureOr<Auth>>
+    with $FutureModifier<Auth>, $FutureProvider<Auth> {
   AuthProvider._()
     : super(
         from: null,
@@ -124,21 +125,13 @@ final class AuthProvider extends $FunctionalProvider<Auth, Auth, Auth>
 
   @$internal
   @override
-  $ProviderElement<Auth> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $FutureProviderElement<Auth> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
 
   @override
-  Auth create(Ref ref) {
+  FutureOr<Auth> create(Ref ref) {
     return auth(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Auth value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Auth>(value),
-    );
   }
 }
 
-String _$authHash() => r'b0e9403e68684cdfccf49ca9b6eade5ce99eb663';
+String _$authHash() => r'774fd96e6431b8e250894e325fb78e1e479592a3';

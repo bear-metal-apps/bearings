@@ -49,14 +49,14 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
     }
 
     try {
-      await ref
-          .read(deviceAuthServiceProvider)
-          .provision(
-            clientId: credentials.clientId,
-            clientSecret: credentials.clientSecret,
-            domain: credentials.domain,
-            audience: credentials.audience,
-          );
+      final service = await ref.read(deviceAuthServiceProvider.future);
+
+      await service.provision(
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        domain: credentials.domain,
+        audience: credentials.audience,
+      );
     } catch (e) {
       if (mounted) {
         setState(() {

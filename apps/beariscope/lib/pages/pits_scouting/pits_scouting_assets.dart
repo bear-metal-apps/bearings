@@ -179,6 +179,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                             trenchCapability: _readStringField(
                               'trenchCapability',
                             ),
+                            towerCapability: _readStringField(
+                              'towerCapability',
+                            ),
                             shooter: _readStringField('shooter'),
                             shooterNumber: _readIntField('shooterNumber'),
                             collectorType: _readStringField('collectorType'),
