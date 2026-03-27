@@ -100,12 +100,17 @@ class _AveragesBodyState extends State<_AveragesBody> {
       kSectionTele,
       kTeleFuelPoached,
     );
+    // final avgMatchesWithDefenseInterference = bundle.rateMatchField(
+    //   kSectionEndgame,
+    //   kEndDefendedAgainst,
+    //   math mathy math things ig idrk we can after auburn prob
+    // );
     final totalAvgFuel = avgAutoFuel + avgTeleFuel;
 
     final endgameClimbRate = bundle.rateMatchField(
       kSectionEndgame,
       kEndClimb,
-      (v) => v != null && v.toString().isNotEmpty,
+      (v) => v == true,
     );
     final mostCommonClimb =
         bundle.modalMatchField(kSectionEndgame, kEndClimb) ?? '—';
@@ -231,6 +236,10 @@ class _AveragesBodyState extends State<_AveragesBody> {
                   label: 'Avg Fuel Poached',
                   value: _fmtDec(avgTeleFuelPoached),
                 ),
+                // ScoutingDataRow(
+                //     label: '% of Matches w/ Def. Interference',
+                //     value: 'WIP'
+                // ),
               ],
             ),
           ),
