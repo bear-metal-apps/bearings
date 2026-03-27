@@ -27,8 +27,8 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      build_number: ${{ steps.meta.outputs.build_number }}
-      full_version: ${{ steps.meta.outputs.full_version }}
+      build_number: ${{ steps.build.outputs.build_number }}
+      full_version: ${{ steps.build.outputs.full_version }}
       release_name: ${{ steps.meta.outputs.release_name }}
       tag_name: ${{ steps.meta.outputs.tag_name }}
       version: ${{ steps.meta.outputs.version }}
@@ -73,23 +73,34 @@ jobs:
 
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve workspace dependencies
+        run: dart pub get
+
       - name: Compute release metadata
         id: meta
         run: |
           version="${{ steps.normalize.outputs.version }}"
-          build_number="${{ github.run_number }}"
           tag_name="v${version}"
-          full_version="${version}+${build_number}"
           release_name="${version} - ${{ inputs.codename }}"
-
-          echo "build_number=${build_number}" >> "$GITHUB_OUTPUT"
-          echo "full_version=${full_version}" >> "$GITHUB_OUTPUT"
+          
           echo "release_name=${release_name}" >> "$GITHUB_OUTPUT"
           echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: Resolve workspace dependencies
-        run: dart pub get
+      - name: Apply unified release version
+        run: |
+          dart run tool/update_workspace_release.dart \
+            --version=${{ steps.meta.outputs.version }} \
+            --codename=${{ inputs.codename }}
+
+      - name: Read build number
+        id: build
+        run: |
+          build_number=$(grep '^version:' apps/beariscope/pubspec.yaml | sed 's/.*+//')
+          full_version="${{ steps.meta.outputs.version }}+${build_number}"
+          echo "build_number=${build_number}" >> "$GITHUB_OUTPUT"
+          echo "full_version=${full_version}" >> "$GITHUB_OUTPUT"
+
 
       - name: Generate release notes
         uses: orhun/git-cliff-action@v4
@@ -104,13 +115,6 @@ jobs:
         with:
           config: cliff.toml
           args: --unreleased --tag ${{ steps.meta.outputs.tag_name }} --prepend CHANGELOG.md
-
-      - name: Apply unified release version
-        run: |
-          dart run tool/update_workspace_release.dart \
-            --version=${{ steps.meta.outputs.version }} \
-            --build-number=${{ steps.meta.outputs.build_number }} \
-            --codename=${{ inputs.codename }}
 
       - name: Upload changelog artifact
         uses: actions/upload-artifact@v4
@@ -133,7 +137,7 @@ jobs:
             packages/ui/pubspec.yaml \
             backend/honeycomb/pubspec.yaml
 
-          git commit -m "chore(release): cut v${{ steps.meta.outputs.version }} [skip ci]"
+          git commit -m "chore(release): bump version to v${{ steps.meta.outputs.version }} [skip ci]"
           git push
 
           git tag -a "${{ steps.meta.outputs.tag_name }}" -m "Release ${{ steps.meta.outputs.version }} - ${{ inputs.codename }}"
@@ -277,6 +281,34 @@ jobs:
         with:
           name: beariscope-web
           path: artifacts/beariscope-web-${{ needs.prepare.outputs.version }}.zip
+  
+  deploy-beariscope-web:
+    needs:
+      - prepare
+      - build-beariscope-web
+    runs-on: ubuntu-latest
+    if: needs.build-beariscope-web.result == 'success'
+    
+    steps:
+      - name: Download web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: beariscope-web
+          path: web-artifact
+
+      - name: Unzip web bundle
+        run: |
+          mkdir -p web-build
+          unzip "web-artifact/beariscope-web-${{ needs.prepare.outputs.version }}.zip" -d web-build
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "upload"
+          app_location: "web-build"
+          output_location: ""
+          skip_app_build: true
 
   build-beariscope-windows:
     needs: prepare
