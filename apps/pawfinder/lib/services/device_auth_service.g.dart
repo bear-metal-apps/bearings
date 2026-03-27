@@ -15,11 +15,13 @@ final deviceAuthServiceProvider = DeviceAuthServiceProvider._();
 final class DeviceAuthServiceProvider
     extends
         $FunctionalProvider<
+          AsyncValue<DeviceAuthService>,
           DeviceAuthService,
-          DeviceAuthService,
-          DeviceAuthService
+          FutureOr<DeviceAuthService>
         >
-    with $Provider<DeviceAuthService> {
+    with
+        $FutureModifier<DeviceAuthService>,
+        $FutureProvider<DeviceAuthService> {
   DeviceAuthServiceProvider._()
     : super(
         from: null,
@@ -36,22 +38,14 @@ final class DeviceAuthServiceProvider
 
   @$internal
   @override
-  $ProviderElement<DeviceAuthService> $createElement(
+  $FutureProviderElement<DeviceAuthService> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  DeviceAuthService create(Ref ref) {
+  FutureOr<DeviceAuthService> create(Ref ref) {
     return deviceAuthService(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(DeviceAuthService value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<DeviceAuthService>(value),
-    );
   }
 }
 
-String _$deviceAuthServiceHash() => r'3acd279f7e04f6ba50b0eb548c55ea9f1ea1f240';
+String _$deviceAuthServiceHash() => r'6c5e23c0ae3c4a9fee5c95d6e4e8fe52842b4bab';

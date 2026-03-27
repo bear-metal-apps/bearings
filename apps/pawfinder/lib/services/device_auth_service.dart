@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:services/providers/auth_provider.dart';
-import 'package:services/providers/secure_storage_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/secure_storage_provider.dart';
 
 part 'device_auth_service.g.dart';
 
@@ -27,14 +26,14 @@ class _CachedToken {
 }
 
 @Riverpod(keepAlive: true)
-DeviceAuthService deviceAuthService(Ref ref) {
-  final storage = ref.watch(secureStorageProvider);
+Future<DeviceAuthService> deviceAuthService(Ref ref) async {
+  final storage = await ref.watch(tokenStorageProvider.future);
   return DeviceAuthService(ref, storage);
 }
 
 class DeviceAuthService {
   final Ref _ref;
-  final FlutterSecureStorage _storage;
+  final TokenStorage _storage;
   _CachedToken? _cachedToken;
 
   DeviceAuthService(this._ref, this._storage);

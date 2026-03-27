@@ -52,7 +52,6 @@ String _$honeycombEndpointPreferenceHash() =>
 abstract class _$HoneycombEndpointPreference
     extends $Notifier<HoneycombEndpointSelection> {
   HoneycombEndpointSelection build();
-
   @$mustCallSuper
   @override
   void runBuild() {
@@ -74,8 +73,14 @@ abstract class _$HoneycombEndpointPreference
   }
 }
 
+/// A single shared [InternetConnection] instance used by both the reactive
+/// stream and one-off awaitable checks in the request/auth paths.
+
 @ProviderFor(internetConnection)
 final internetConnectionProvider = InternetConnectionProvider._();
+
+/// A single shared [InternetConnection] instance used by both the reactive
+/// stream and one-off awaitable checks in the request/auth paths.
 
 final class InternetConnectionProvider
     extends
@@ -85,6 +90,8 @@ final class InternetConnectionProvider
           InternetConnection
         >
     with $Provider<InternetConnection> {
+  /// A single shared [InternetConnection] instance used by both the reactive
+  /// stream and one-off awaitable checks in the request/auth paths.
   InternetConnectionProvider._()
     : super(
         from: null,
@@ -122,12 +129,17 @@ final class InternetConnectionProvider
 String _$internetConnectionHash() =>
     r'8ba749d98f89cacadd857d395058f84b70e2ae55';
 
+/// Streams `true` when the device has internet access, `false` when offline.
+
 @ProviderFor(connectivity)
 final connectivityProvider = ConnectivityProvider._();
+
+/// Streams `true` when the device has internet access, `false` when offline.
 
 final class ConnectivityProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, Stream<bool>>
     with $FutureModifier<bool>, $StreamProvider<bool> {
+  /// Streams `true` when the device has internet access, `false` when offline.
   ConnectivityProvider._()
     : super(
         from: null,

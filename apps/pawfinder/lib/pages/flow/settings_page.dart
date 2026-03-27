@@ -187,7 +187,8 @@ class SettingsPage extends ConsumerWidget {
     );
 
     if (shouldDeprovision ?? false) {
-      await ref.read(deviceAuthServiceProvider).deprovision();
+      final auth = await ref.read(deviceAuthServiceProvider.future);
+      await auth.deprovision();
       if (context.mounted) {
         context.go('/provision');
       }

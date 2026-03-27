@@ -57,7 +57,7 @@ class HoneycombClient {
         if (tokenOverride != null) {
           token = await tokenOverride!();
         } else {
-          final authService = _ref.read(authProvider);
+          final authService = await _ref.read(authProvider.future);
           token = await authService.getAccessToken([_honeycombScope]);
         }
       } on OfflineAuthException {

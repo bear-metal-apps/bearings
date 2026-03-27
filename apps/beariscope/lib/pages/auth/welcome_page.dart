@@ -2,8 +2,8 @@ import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:services/providers/auth_provider.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:services/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends ConsumerWidget {
@@ -11,8 +11,6 @@ class WelcomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.read(authProvider);
-
     return Scaffold(
       body: Center(
         child: Column(
@@ -43,6 +41,10 @@ class WelcomePage extends ConsumerWidget {
                           .setPending();
 
                       try {
+                        final auth = await ref.read(
+                          authProvider.future,
+                        ); // ✅ FIX
+
                         await auth.login([
                           'openid',
                           'profile',
@@ -56,7 +58,9 @@ class WelcomePage extends ConsumerWidget {
                             .clearPending();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('No internet connection')),
+                            const SnackBar(
+                              content: Text('No internet connection'),
+                            ),
                           );
                         }
                       } catch (e) {
@@ -67,7 +71,7 @@ class WelcomePage extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Sign in failed: $e'),
-                              duration: Duration(seconds: 8),
+                              duration: const Duration(seconds: 8),
                             ),
                           );
                         }

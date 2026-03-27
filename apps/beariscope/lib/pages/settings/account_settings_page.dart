@@ -1,5 +1,5 @@
-import 'package:beariscope/pages/settings/image_crop_dialog.dart';
 import 'package:beariscope/components/settings_group.dart';
+import 'package:beariscope/pages/settings/image_crop_dialog.dart';
 import 'package:beariscope/utils/image_processor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -320,7 +320,8 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
     try {
       await ref.read(honeycombClientProvider).delete('/profile');
       if (context.mounted) {
-        await ref.read(authProvider).logout();
+        final auth = await ref.read(authProvider.future);
+        await auth.logout();
       }
     } catch (error) {
       if (mounted) {
@@ -358,7 +359,8 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         false;
 
     if (confirmed && context.mounted) {
-      await ref.read(authProvider).logout(federated: true);
+      final auth = await ref.read(authProvider.future);
+      await auth.logout(federated: true);
     }
   }
 

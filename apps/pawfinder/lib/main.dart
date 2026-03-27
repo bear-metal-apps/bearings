@@ -30,8 +30,15 @@ Future<void> main() async {
       overrides: [
         // use client_credentials token instead of PKCE user auth.
         honeycombClientProvider.overrideWith((ref) {
-          final deviceAuth = ref.watch(deviceAuthServiceProvider);
-          return HoneycombClient(ref, tokenOverride: deviceAuth.getAccessToken);
+          return HoneycombClient(
+            ref,
+            tokenOverride: () async {
+              final deviceAuth = await ref.read(
+                deviceAuthServiceProvider.future,
+              );
+              return deviceAuth.getAccessToken();
+            },
+          );
         }),
       ],
       child: const MyApp(),
@@ -155,8 +162,9 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(deviceAuthServiceProvider).initialize();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final service = await ref.read(deviceAuthServiceProvider.future);
+      await service.initialize();
     });
     _connectivitySubscription = ref.listenManual<AsyncValue<bool>>(
       connectivityProvider,

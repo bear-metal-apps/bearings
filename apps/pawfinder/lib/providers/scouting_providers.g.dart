@@ -360,7 +360,7 @@ final class ScoutingSessionNotifierProvider
 }
 
 String _$scoutingSessionNotifierHash() =>
-    r'0414d76f527894bac3498f90e75f91ad352b2ed0';
+    r'f03175de972d1cb09c4008f5ad7558d949d385fa';
 
 abstract class _$ScoutingSessionNotifier extends $Notifier<ScoutingSession> {
   ScoutingSession build();

@@ -28,7 +28,6 @@ class NumberButton extends StatefulWidget {
 class _NumberButtonState extends State<NumberButton> {
   late int _currentVariable = widget.initialValue ?? 0;
 
-
   @override
   void didUpdateWidget(covariant NumberButton oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -97,11 +96,10 @@ class _NumberButtonState extends State<NumberButton> {
                     ),
                     onPressed: () {
                       setState(() {
-                          if (_currentVariable > 0) {
-                            _currentVariable--;
-                          }
+                        if (_currentVariable > 0) {
+                          _currentVariable--;
                         }
-                      );
+                      });
                       widget.onChanged?.call(_currentVariable);
                     },
                   ),

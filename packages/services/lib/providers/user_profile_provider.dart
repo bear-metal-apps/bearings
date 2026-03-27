@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -12,7 +10,7 @@ const _auth0Domain = 'bearmetal2046.us.auth0.com';
 
 @Riverpod(keepAlive: true)
 Future<UserInfo?> userInfo(Ref ref) async {
-  final auth = ref.watch(authProvider);
+  final auth = await ref.watch(authProvider.future);
   final authStatus = ref.watch(authStatusProvider);
   final dio = ref.watch(dioProvider);
 
@@ -146,8 +144,8 @@ class UserProfileService {
     final response = await client.post<Map<String, dynamic>>(
       '/profile/photo-upload',
       data: {
-        if (contentType != null) 'contentType': contentType,
-        if (fileExtension != null) 'fileExtension': fileExtension,
+        'contentType': ?contentType,
+        'fileExtension': ?fileExtension,
         'fileSizeBytes': bytes.length,
       },
     );
@@ -164,10 +162,7 @@ class UserProfileService {
       uploadUrl,
       data: bytes,
       options: Options(
-        headers: {
-          'x-ms-blob-type': 'BlockBlob',
-          if (contentType != null) 'Content-Type': contentType,
-        },
+        headers: {'x-ms-blob-type': 'BlockBlob', 'Content-Type': ?contentType},
       ),
     );
 

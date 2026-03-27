@@ -1,9 +1,9 @@
 import 'package:beariscope/components/settings_group.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flex_color_picker/flex_color_picker.dart';
 
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,
@@ -47,7 +47,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
     if (savedMode != null) {
       state = ThemeMode.values.firstWhere(
-            (mode) => mode.toString() == savedMode,
+        (mode) => mode.toString() == savedMode,
         orElse: () => ThemeMode.system,
       );
     }
@@ -142,7 +142,10 @@ class AppearanceSettingsPage extends ConsumerWidget {
                           final Color newColor = await showColorPickerDialog(
                             context,
                             selectedColor,
-                            title: Text('Custom Color', style: Theme.of(context).textTheme.titleLarge),
+                            title: Text(
+                              'Custom Color',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
                             width: 44,
                             height: 44,
                             spacing: 3,
@@ -160,7 +163,9 @@ class AppearanceSettingsPage extends ConsumerWidget {
                               ColorPickerType.wheel: true,
                             },
                           );
-                          ref.read(accentColorProvider.notifier).setColor(newColor);
+                          ref
+                              .read(accentColorProvider.notifier)
+                              .setColor(newColor);
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -174,7 +179,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         ),
                       );
                     }
-
 
                     final color = accentColors[index];
                     final isSelected =
@@ -190,19 +194,19 @@ class AppearanceSettingsPage extends ConsumerWidget {
                           shape: BoxShape.circle,
                           border: isSelected
                               ? Border.all(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface,
-                            width: 2,
-                          )
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  width: 2,
+                                )
                               : null,
                         ),
                         child: isSelected
                             ? Icon(
-                          Symbols.check_rounded,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          size: 20,
-                        )
+                                Symbols.check_rounded,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                size: 20,
+                              )
                             : null,
                       ),
                     );

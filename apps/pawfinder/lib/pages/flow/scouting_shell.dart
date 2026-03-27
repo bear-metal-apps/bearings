@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +9,9 @@ import 'package:pawfinder/data/match_json_gen.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
-import 'package:animate_do/animate_do.dart';
 
 class ScoutingShell extends ConsumerStatefulWidget {
   final Widget child;
-
 
   const ScoutingShell({super.key, required this.child});
 
@@ -30,8 +29,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
     final notifier = ref.read(scoutingSessionProvider.notifier);
     final matchNumber = session.matchNumber ?? 0;
     final position = session.position;
-
-
 
     // always contains the correct team even when navigating via prev/next.
     ref.listen<AsyncValue<int?>>(teamNumberForSessionProvider, (_, next) {
@@ -145,13 +142,12 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
         destinations: [
           NavigationDestination(icon: Icon(Icons.bolt), label: 'Auto'),
           NavigationDestination(
-
             icon: _shouldFlashTele
                 ? Flash(
-              infinite: true,
-              delay: const Duration(seconds: 20),
-              child: const Icon(Icons.stacked_bar_chart_sharp),
-            )
+                    infinite: true,
+                    delay: const Duration(seconds: 20),
+                    child: const Icon(Icons.stacked_bar_chart_sharp),
+                  )
                 : const Icon(Icons.stacked_bar_chart_sharp),
             label: 'Tele',
           ),

@@ -80,7 +80,8 @@ class AppBootNotifier extends Notifier<AppBootState> {
       await Future<void>.delayed(Duration.zero);
 
       state = AppBootState.stage(AppBootStage.restoringSession);
-      await ref.read(authProvider).trySilentLogin();
+      final auth = await ref.read(authProvider.future);
+      await auth.trySilentLogin();
 
       state = AppBootState.stage(AppBootStage.loadingPermissions);
       await ref.read(authMeProvider.future);
