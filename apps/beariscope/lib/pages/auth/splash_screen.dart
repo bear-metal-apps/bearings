@@ -1,28 +1,56 @@
+import 'package:beariscope/providers/app_boot_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bootState = ref.watch(appBootProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 16,
-          children: [
-            SvgPicture.asset(
-              'assets/beariscope_head.svg',
-              height: 128,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcATop,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Animate(
+                onPlay: (controller) => controller.repeat(),
+                effects: [
+                  ShimmerEffect(
+                    color: Colors.white.withValues(alpha: isDark ? 0.6 : 0.2),
+                    duration: 1200.ms,
+                  ),
+                ],
+                child: SvgPicture.asset(
+                  'assets/beariscope_head.svg',
+                  height: 128,
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.primary,
+                    BlendMode.srcATop,
+                  ),
+                ),
               ),
-            ),
-            const CircularProgressIndicator(),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                    bootState.message,
+                    key: ValueKey(bootState.message),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  )
+                  .animate(key: ValueKey(bootState.message))
+                  .fadeIn(duration: 250.ms, curve: Curves.easeOut)
+                  .slideY(
+                    begin: 0.35,
+                    end: 0,
+                    duration: 250.ms,
+                    curve: Curves.easeOut,
+                  ),
+            ],
+          ),
         ),
       ),
     );

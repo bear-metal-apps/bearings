@@ -100,6 +100,7 @@ class MatchFormData {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'meta': {
         'season': season,
         'version': configVersion,

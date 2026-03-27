@@ -47,7 +47,7 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'a87fda2698f6ed56419ea101c507cb0312a9cad3';
+String _$dioHash() => r'bddf1795c656314b551e19b22dde15213e6462e0';
 
 @ProviderFor(honeycombClient)
 final honeycombClientProvider = HoneycombClientProvider._();

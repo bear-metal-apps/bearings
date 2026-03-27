@@ -5,14 +5,15 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/rbac_management_provider.dart';
 
-class TeamRolesPage extends ConsumerStatefulWidget {
-  const TeamRolesPage({super.key});
+class TeamRoleSettingsPage extends ConsumerStatefulWidget {
+  const TeamRoleSettingsPage({super.key});
 
   @override
-  ConsumerState<TeamRolesPage> createState() => _TeamRolesPageState();
+  ConsumerState<TeamRoleSettingsPage> createState() =>
+      _TeamRoleSettingsPageState();
 }
 
-class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
+class _TeamRoleSettingsPageState extends ConsumerState<TeamRoleSettingsPage>
     with SingleTickerProviderStateMixin {
   int _selectedTab = 0;
   late final TabController _tabController;
@@ -713,12 +714,30 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                                     else
                                       Wrap(
                                         spacing: 8,
-                                        runSpacing: 8,
+                                        runSpacing: 4,
                                         children: user.roles.map((roleId) {
                                           final roleName =
                                               roleMap[roleId]?.name ??
                                               'Unknown Role';
-                                          return Chip(label: Text(roleName));
+                                          return Chip(
+                                            label: Text(
+                                              roleName,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            labelPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: -2,
+                                                ),
+                                            visualDensity:
+                                                VisualDensity.standard,
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
+                                          );
                                         }).toList(),
                                       ),
                                   ],
@@ -883,7 +902,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                                     const SizedBox(height: 10),
                                     Wrap(
                                       spacing: 8,
-                                      runSpacing: 8,
+                                      runSpacing: 4,
                                       children: role.permissions.map((
                                         permissionKey,
                                       ) {
@@ -896,7 +915,21 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                                             label: Text(
                                               metadataEntry?.name ??
                                                   'Unknown Permission',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
                                             ),
+                                            padding: EdgeInsets.zero,
+                                            labelPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: -2,
+                                                ),
+                                            visualDensity:
+                                                VisualDensity.standard,
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
                                           ),
                                         );
                                       }).toList(),
