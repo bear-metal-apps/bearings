@@ -1,5 +1,15 @@
 # Changelog
 
+## v26.3.2
+**Released:** 2026-03-27
+
+### Features
+- beariscope: Update team card with graph, z-score ranks (2f89b18)
+- beariscope: Add version number to splash and welcome page (fea68e6)
+- beariscope: Show scouter name alongside matches and pits (4119af8)
+- beariscope: Add matches with 0 teams scouted to audit page (dc2c238)
+
+
 ## v26.3.1
 **Released:** 2026-03-27
 
