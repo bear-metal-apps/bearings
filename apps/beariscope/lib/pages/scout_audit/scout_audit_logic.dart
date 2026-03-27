@@ -246,19 +246,30 @@ ScoutAuditSnapshot buildScoutAuditSnapshot({
   }
 
   final incomplete = <IncompleteMatchIssue>[];
-  for (final entry in byMatch.entries) {
-    final truth = schedule[entry.key];
+
+  // find the highest match number that has any scouting data
+  final highestScoutedMatch = byMatch.keys.isEmpty
+      ? 0
+      : byMatch.keys.reduce((a, b) => a > b ? a : b);
+
+  // check all matches in the schedule up to the highest scouted match
+  for (final matchNumber in schedule.keys) {
+    // only flag matches up to the highest scouted match
+    if (matchNumber > highestScoutedMatch) continue;
+
+    final truth = schedule[matchNumber];
     if (truth == null) continue;
 
     final seenPositions = <int>{};
-    for (final doc in entry.value) {
+    final matchDocuments = byMatch[matchNumber] ?? [];
+    for (final doc in matchDocuments) {
       final pos = _posOf(doc);
       if (pos != null && pos >= 0 && pos < 6) {
         seenPositions.add(pos);
       }
     }
 
-    if (seenPositions.isEmpty || seenPositions.length >= 6) continue;
+    if (seenPositions.length >= 6) continue;
 
     final missing = <AuditSlot>[];
     for (var pos = 0; pos < 6; pos++) {
@@ -279,7 +290,7 @@ ScoutAuditSnapshot buildScoutAuditSnapshot({
 
     incomplete.add(
       IncompleteMatchIssue(
-        matchNumber: entry.key,
+        matchNumber: matchNumber,
         scoutedCount: seenPositions.length,
         missingSlots: missing,
       ),
