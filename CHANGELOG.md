@@ -1,5 +1,17 @@
 # Changelog
 
+## v26.3.0
+**Released:** 2026-03-27
+
+### Features
+- beariscope: Add team colors to team cards (28959f5)
+- repo: Pits scouting and playstyles changes (3496f3c)
+- beariscope: Add data export, scout audit pages, ui tweaks (44729b2)
+- beariscope: Add custom color picker to theme selector (a8bd335)
+- pawfinder: Add defended to post match (276bfd3)
+- ci: Update AppImageBuilder and release workflows (3160ac5)
+
+
 ## v26.2.2
 **Released:** 2026-03-21
 
