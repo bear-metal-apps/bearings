@@ -1,18 +1,17 @@
+import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/models/pits_scouting_models.dart';
+import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
-import 'package:beariscope/models/pits_scouting_models.dart';
-import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:services/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
-import 'package:beariscope/components/beariscope_card.dart';
+import 'package:services/providers/api_provider.dart';
 
 class PitsScoutingHomePage extends ConsumerStatefulWidget {
   const PitsScoutingHomePage({super.key});
@@ -193,10 +192,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       ),
     );
   }
-
-  // --------------------------------------------------------------------------
-  // Map view
-  // --------------------------------------------------------------------------
 
   Widget _buildMapView(
     BuildContext context, {

@@ -11,6 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
 
+String? _pitsScouterName(ScoutingDocument? doc) {
+  final scoutedBy = doc?.meta?['scoutedBy']?.toString().trim() ?? '';
+  return scoutedBy.isNotEmpty ? scoutedBy : null;
+}
+
 class PitsScoutingTeamCard extends ConsumerWidget {
   final String teamName;
   final int teamNumber;
@@ -27,34 +32,50 @@ class PitsScoutingTeamCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ScoutingDocument? existingDoc;
+    if (scouted) {
+      final eventKey = ref.read(currentEventProvider);
+      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
+      final pitsDocs =
+          allDocs
+              .where(
+                (doc) =>
+                    doc.meta?['type'] == 'pits' &&
+                    doc.meta?['event'] == eventKey &&
+                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+              )
+              .toList()
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      existingDoc = pitsDocs.firstOrNull;
+    }
+
+    final scouterName = _pitsScouterName(existingDoc);
+
     return BeariscopeCard(
       title: teamName,
       subtitle: '$teamNumber',
-      trailing: Text(
-        scouted ? 'Scouted' : 'Not Scouted',
-        style: TextStyle(
-          color: scouted ? Colors.green : Colors.red,
-          fontWeight: FontWeight.bold,
-        ),
+      trailing: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            scouted ? 'Scouted' : 'Not Scouted',
+            style: TextStyle(
+              color: scouted ? Colors.green : Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (scouterName != null)
+            Text(
+              'by $scouterName',
+              style: TextStyle(
+                color: scouted ? Colors.green : Colors.red,
+                fontSize: 12,
+              ),
+            ),
+        ],
       ),
       onTap: () async {
-        ScoutingDocument? existingDoc;
-        if (scouted) {
-          final eventKey = ref.read(currentEventProvider);
-          final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
-          final pitsDocs =
-              allDocs
-                  .where(
-                    (doc) =>
-                        doc.meta?['type'] == 'pits' &&
-                        doc.meta?['event'] == eventKey &&
-                        (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
-                  )
-                  .toList()
-                ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-          existingDoc = pitsDocs.firstOrNull;
-        }
-
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
