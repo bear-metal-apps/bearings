@@ -20,7 +20,7 @@ class TeamScoutingBundle {
     required this.pitsDoc,
     required this.stratDocs,
     required this.driveTeamDocs,
-    this.weight = 1
+    this.weight = 1,
   });
 
   bool get hasMatchData => matchDocs.isNotEmpty;
@@ -28,7 +28,6 @@ class TeamScoutingBundle {
   bool get hasPitsData => pitsDoc != null;
 
   bool get hasStratData => stratDocs.isNotEmpty;
-
 
   static dynamic getMatchField(
     ScoutingDocument doc,
@@ -47,14 +46,17 @@ class TeamScoutingBundle {
     return null;
   }
 
-  double avgMatchField(String sectionId, String fieldId){
+  double avgMatchField(String sectionId, String fieldId) {
     if (matchDocs.isEmpty) return 0.0;
     double sum = 0;
     int count = 0;
     for (final doc in matchDocs) {
       final val = getMatchField(doc.raw, sectionId, fieldId);
       if (val is num) {
-        sum += val.toDouble() * _scalarFor(doc, sectionId, fieldId) * pow(weight, count);
+        sum +=
+            val.toDouble() *
+            _scalarFor(doc, sectionId, fieldId) *
+            pow(weight, count);
         count++;
       }
     }

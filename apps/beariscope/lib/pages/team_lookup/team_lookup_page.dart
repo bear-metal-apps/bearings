@@ -243,18 +243,13 @@ class SortByFieldItemState extends State<SortByFieldItem> {
   List<DropdownMenuEntry<String>> generateDropdownMenuItems(List<String> list) {
     List<DropdownMenuEntry<String>> finalList = [];
     list.forEach((item) {
-      finalList.add(
-        DropdownMenuEntry(
-            value: item,
-            label: item
-        ),
-      );
+      finalList.add(DropdownMenuEntry(value: item, label: item));
     });
     return finalList;
   }
 
-  List<String> sectionIdToDataPointsList(String sectionId){
-    switch(sectionId){
+  List<String> sectionIdToDataPointsList(String sectionId) {
+    switch (sectionId) {
       case 'auto':
         return kAutoDataList;
       case 'tele':
@@ -263,38 +258,34 @@ class SortByFieldItemState extends State<SortByFieldItem> {
         return kEndgameDataList;
       default:
         return kTeleDataList;
-
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Row(
-          children: [
-            DropdownMenu<String>(
-              dropdownMenuEntries: generateDropdownMenuItems(kSectionsList),
-              onSelected: (item){
-                if(item != null){
-                  sectionId = item;
-                }
-              },
+        children: [
+          DropdownMenu<String>(
+            dropdownMenuEntries: generateDropdownMenuItems(kSectionsList),
+            onSelected: (item) {
+              if (item != null) {
+                sectionId = item;
+              }
+            },
+          ),
+          DropdownMenu<String>(
+            dropdownMenuEntries: generateDropdownMenuItems(
+              sectionIdToDataPointsList(sectionId),
             ),
-            DropdownMenu<String>(
-              dropdownMenuEntries: generateDropdownMenuItems(sectionIdToDataPointsList(sectionId)),
-              onSelected: (item){
-                if(item != null){
-                  dataId = item;
-                }
-              },
-            ),
-            SizedBox.shrink(
-              child: TextField(
-                  onChanged: (text){
-
-                  },
-              ),
-            )
-          ]
+            onSelected: (item) {
+              if (item != null) {
+                dataId = item;
+              }
+            },
+          ),
+          SizedBox.shrink(child: TextField(onChanged: (text) {})),
+        ],
       ),
       trailing: ElevatedButton(
         onPressed: () {

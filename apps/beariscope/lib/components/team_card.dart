@@ -175,7 +175,11 @@ class _TeamCardSummary extends ConsumerWidget {
                 teamNumber: team.number,
                 bundle: bundle,
                 stratZScores:
-                    ref.watch(stratZScoresProvider).asData?.value.changeToRanks() ??
+                    ref
+                        .watch(stratZScoresProvider)
+                        .asData
+                        ?.value
+                        .changeToRanks() ??
                     StratZScoreData.empty,
                 ranking: rankings[team.number],
               ),
@@ -215,7 +219,9 @@ class _SummaryMetrics extends ConsumerWidget {
     final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
 
     const playStyleOptions = ['Passing', 'Cycling', 'Shooting', 'Defense'];
-    final matches = RegExp(r'\d+').allMatches(bundle.modalMatchField(kSectionEndgame, kEndPlayStyle).toString());
+    final matches = RegExp(r'\d+').allMatches(
+      bundle.modalMatchField(kSectionEndgame, kEndPlayStyle).toString(),
+    );
     final selectedNames = matches.map((m) {
       final index = int.parse(m.group(0)!);
       return (index >= 0 && index < playStyleOptions.length)
@@ -230,7 +236,7 @@ class _SummaryMetrics extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 3. Z-SCORES: Pushed to the bottom by the spacer
-      Column(
+        Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SizedBox(
@@ -248,19 +254,19 @@ class _SummaryMetrics extends ConsumerWidget {
                 spacing: 8,
                 children: [
                   Text(
-                    "Driver: ${formattedRank(stratZScores!.driverSkillZ[teamNumber]?? 0)}",
+                    "Driver: ${formattedRank(stratZScores!.driverSkillZ[teamNumber] ?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    "Defensive: ${formattedRank(stratZScores!.defensiveSkillZ[teamNumber]?? 0)}",
+                    "Defensive: ${formattedRank(stratZScores!.defensiveSkillZ[teamNumber] ?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    "Resilience: ${formattedRank(stratZScores!.defensiveResilienceZ[teamNumber]?? 0)}",
+                    "Resilience: ${formattedRank(stratZScores!.defensiveResilienceZ[teamNumber] ?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    "Stability: ${formattedRank(stratZScores!.mechanicalStabilityZ[teamNumber]?? 0)}",
+                    "Stability: ${formattedRank(stratZScores!.mechanicalStabilityZ[teamNumber] ?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -571,12 +577,24 @@ class TeamDetailsPage extends ConsumerWidget {
   }
 }
 
-List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(List<ProcessedScoutingDoc> data) {
+List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(
+  List<ProcessedScoutingDoc> data,
+) {
   return <LineSeries<ProcessedScoutingDoc, num>>[
     LineSeries<ProcessedScoutingDoc, num>(
       dataSource: data,
       xValueMapper: (ProcessedScoutingDoc match, int index) => index,
-      yValueMapper: (ProcessedScoutingDoc match, int index) => TeamScoutingBundle.getMatchField(match.raw, kSectionTele, kTeleFuelScored) + TeamScoutingBundle.getMatchField(match.raw, kSectionAuto, kAutoFuelScored),
+      yValueMapper: (ProcessedScoutingDoc match, int index) =>
+          TeamScoutingBundle.getMatchField(
+            match.raw,
+            kSectionTele,
+            kTeleFuelScored,
+          ) +
+          TeamScoutingBundle.getMatchField(
+            match.raw,
+            kSectionAuto,
+            kAutoFuelScored,
+          ),
       name: 'Total',
       // markerSettings: const MarkerSettings(isVisible: true),
       color: Colors.green,
@@ -584,7 +602,12 @@ List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(List<ProcessedScout
     LineSeries<ProcessedScoutingDoc, num>(
       dataSource: data,
       xValueMapper: (ProcessedScoutingDoc match, int index) => index,
-      yValueMapper: (ProcessedScoutingDoc match, int index) => TeamScoutingBundle.getMatchField(match.raw, kSectionTele, kTeleFuelScored),
+      yValueMapper: (ProcessedScoutingDoc match, int index) =>
+          TeamScoutingBundle.getMatchField(
+            match.raw,
+            kSectionTele,
+            kTeleFuelScored,
+          ),
       name: 'Tele',
       // markerSettings: const MarkerSettings(isVisible: true),
       color: Colors.blue,
@@ -592,11 +615,16 @@ List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(List<ProcessedScout
     LineSeries<ProcessedScoutingDoc, num>(
       dataSource: data,
       xValueMapper: (ProcessedScoutingDoc match, int index) => index,
-      yValueMapper: (ProcessedScoutingDoc match, int index) => TeamScoutingBundle.getMatchField(match.raw, kSectionAuto, kAutoFuelScored),
+      yValueMapper: (ProcessedScoutingDoc match, int index) =>
+          TeamScoutingBundle.getMatchField(
+            match.raw,
+            kSectionAuto,
+            kAutoFuelScored,
+          ),
       name: 'Auto',
       // markerSettings: const MarkerSettings(isVisible: true),
       color: Colors.red,
-    )
+    ),
   ];
 }
 

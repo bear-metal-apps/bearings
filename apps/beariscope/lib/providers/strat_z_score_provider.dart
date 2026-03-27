@@ -57,34 +57,29 @@ class StratZScoreData {
     }
   }
 
-  StratZScoreData changeToRanks(){
+  StratZScoreData changeToRanks() {
     return StratZScoreData(
-        driverSkillZ: mapToRanks(driverSkillZ),
-        defensiveSkillZ: mapToRanks(defensiveSkillZ),
-        defensiveResilienceZ: mapToRanks(defensiveResilienceZ),
-        mechanicalStabilityZ: mapToRanks(mechanicalStabilityZ)
+      driverSkillZ: mapToRanks(driverSkillZ),
+      defensiveSkillZ: mapToRanks(defensiveSkillZ),
+      defensiveResilienceZ: mapToRanks(defensiveResilienceZ),
+      mechanicalStabilityZ: mapToRanks(mechanicalStabilityZ),
     );
   }
 
-  Map<int,double> mapToRanks(Map<int,double> input){
+  Map<int, double> mapToRanks(Map<int, double> input) {
     var entries = input.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Map.fromEntries(
-      entries.asMap().entries.map(
-            (e) => MapEntry(e.value.key, e.key + 1),
-      ),
+      entries.asMap().entries.map((e) => MapEntry(e.value.key, e.key + 1)),
     );
   }
-
 
   static String zLabel(double? z) {
     if (z == null) return '-';
     final sign = z >= 0 ? '+' : '\u2212';
     return '$sign${z.abs().toStringAsFixed(2)}\u03c3';
   }
-
-
 }
 
 Map<int, double> _sdScorer(Map<int, double> teamAverages) {
@@ -100,7 +95,6 @@ Map<int, double> _sdScorer(Map<int, double> teamAverages) {
     return MapEntry(team, (z.isNaN || z.isInfinite) ? 0.0 : z);
   });
 }
-
 
 StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
   final rawScores = <String, Map<int, List<double>>>{
@@ -124,7 +118,7 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
     final perTeam = rawScores[key]!;
     if (perTeam.isEmpty) return {};
     final averages = perTeam.map(
-          (team, scores) =>
+      (team, scores) =>
           MapEntry(team, scores.fold(0.0, (a, b) => a + b) / scores.length),
     );
     return _sdScorer(averages);
@@ -148,15 +142,15 @@ final stratZScoresProvider = FutureProvider<StratZScoreData>((ref) async {
   return _computeStratZScores(stratDocs);
 });
 
-String formattedRank(double rank){
-    switch(rank.floor().toString().characters.last){
-      case'1':
-        return "${rank.floor()}st";
-      case'2':
-        return "${rank.floor()}nd";
-      case'3':
-        return "${rank.floor()}rd";
-      default:
-        return "${rank.floor()}th";
-    }
+String formattedRank(double rank) {
+  switch (rank.floor().toString().characters.last) {
+    case '1':
+      return "${rank.floor()}st";
+    case '2':
+      return "${rank.floor()}nd";
+    case '3':
+      return "${rank.floor()}rd";
+    default:
+      return "${rank.floor()}th";
+  }
 }

@@ -130,6 +130,4 @@ const kEndPlayStyle = 'play_style';
 /// Didn't show up to the match
 const kEndNoShow = 'no_show';
 
-const List<String> kEndgameDataList = [
-
-];
+const List<String> kEndgameDataList = [];

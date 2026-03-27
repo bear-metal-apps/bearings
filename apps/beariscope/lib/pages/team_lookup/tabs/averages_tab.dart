@@ -15,7 +15,8 @@ class AveragesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(teamScoutingProvider(teamNumber));
-    final stratZScores = ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
+    final stratZScores =
+        ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -51,17 +52,17 @@ class _AveragesBodyState extends State<_AveragesBody> {
   static const _presets = [null, 1, 2, 3, 5];
 
   TeamScoutingBundle get _filteredBundle {
-    if (_lastN == null){
+    if (_lastN == null) {
       return widget.bundle;
-    }else if(_lastN == 0) {
+    } else if (_lastN == 0) {
       return TeamScoutingBundle(
-          matchDocs: widget.bundle.matchDocs,
-          pitsDoc: widget.bundle.pitsDoc,
-          stratDocs: widget.bundle.stratDocs,
-          driveTeamDocs: widget.bundle.driveTeamDocs,
-          weight: 2
+        matchDocs: widget.bundle.matchDocs,
+        pitsDoc: widget.bundle.pitsDoc,
+        stratDocs: widget.bundle.stratDocs,
+        driveTeamDocs: widget.bundle.driveTeamDocs,
+        weight: 2,
       );
-    }else {
+    } else {
       final sortedMatch = [...widget.bundle.matchDocs]
         ..sort((a, b) {
           final ma = TeamScoutingBundle.matchNumber(a.raw) ?? -1;
@@ -328,29 +329,33 @@ class _AveragesBodyState extends State<_AveragesBody> {
   // Z-score card
   // ---------------------------------------------------------------------------
 
-  Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores){
+  Widget _zScoreCard(BuildContext context, StratZScoreData stratZScores) {
     var stratRanks = stratZScores.changeToRanks();
     return _specsCard(
       context,
       rows: [
         ScoutingDataRow(
           label: 'Driver Skill',
-          value: '${formattedRank(stratRanks.driverSkillZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber]?? 0)}]',
+          value:
+              '${formattedRank(stratRanks.driverSkillZ[widget.teamNumber] ?? 0)}[${StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber] ?? 0)}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Defensive Skill',
-          value: '${formattedRank(stratRanks.defensiveSkillZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.defensiveSkillZ[widget.teamNumber]?? 0)}]',
+          value:
+              '${formattedRank(stratRanks.defensiveSkillZ[widget.teamNumber] ?? 0)}[${StratZScoreData.zLabel(stratZScores.defensiveSkillZ[widget.teamNumber] ?? 0)}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Defense Resilience',
-          value: '${formattedRank(stratRanks.defensiveResilienceZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.defensiveResilienceZ[widget.teamNumber]?? 0)}]',
+          value:
+              '${formattedRank(stratRanks.defensiveResilienceZ[widget.teamNumber] ?? 0)}[${StratZScoreData.zLabel(stratZScores.defensiveResilienceZ[widget.teamNumber] ?? 0)}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Mech. Stability',
-          value: '${formattedRank(stratRanks.mechanicalStabilityZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[widget.teamNumber]?? 0)}]',
+          value:
+              '${formattedRank(stratRanks.mechanicalStabilityZ[widget.teamNumber] ?? 0)}[${StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[widget.teamNumber] ?? 0)}]',
           highlight: true,
         ),
       ],
@@ -372,4 +377,3 @@ class _AveragesBodyState extends State<_AveragesBody> {
     );
   }
 }
-
