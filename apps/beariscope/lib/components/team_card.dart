@@ -245,22 +245,22 @@ class _SummaryMetrics extends ConsumerWidget {
             if (hasZScores)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 16,
+                spacing: 8,
                 children: [
                   Text(
-                    "Driver: ${formattedRank(stratZScores!.driverSkillZ[teamNumber]!)}",
+                    "Driver: ${formattedRank(stratZScores!.driverSkillZ[teamNumber]?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    "Defensive: ${formattedRank(stratZScores!.defensiveSkillZ[teamNumber]!)}",
+                    "Defensive: ${formattedRank(stratZScores!.defensiveSkillZ[teamNumber]?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    "Resilience: ${formattedRank(stratZScores!.defensiveResilienceZ[teamNumber]!)}",
+                    "Resilience: ${formattedRank(stratZScores!.defensiveResilienceZ[teamNumber]?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    "Stability: ${formattedRank(stratZScores!.mechanicalStabilityZ[teamNumber]!)}",
+                    "Stability: ${formattedRank(stratZScores!.mechanicalStabilityZ[teamNumber]?? 0)}",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

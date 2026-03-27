@@ -87,24 +87,37 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                       child: Row(
                         children: [
                           Text(sort.label),
-                          if(selectedSort.sort == sort) Icon(isAscending? Icons.arrow_drop_up: Icons.arrow_drop_down)
+                          if (selectedSort.sort == sort)
+                            Icon(
+                              isAscending
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                            ),
                         ],
                       ),
                     ),
                   )
                   .toList(),
               onSelected: (TeamSortOptions newSort) {
-                if(ref.read(teamSortProvider.notifier).getSort() == newSort){
+                if (ref.read(teamSortProvider.notifier).getSort() == newSort) {
                   isAscending = !isAscending;
                 }
-                ref.read(teamSortProvider.notifier).setSort(newSort, isAscending);
-                // if(ref.read(teamSortProvider.notifier).getSort() == TeamSortOptions.custom){
+                ref
+                    .read(teamSortProvider.notifier)
+                    .setSort(newSort, isAscending);
+                // if (ref.read(teamSortProvider.notifier).getSort() ==
+                //     TeamSortOptions.custom) {
                 //   Scaffold.of(context).showBottomSheet((BuildContext context) {
-                //     return ListView(
-                //             children: [
-                //               SortByFieldItem(itemName: "Hi")
-                //             ]
-                //         );
+                //     return SizedBox(
+                //       height: 400,
+                //       child: Expanded(
+                //         child: ListView(
+                //           children: [
+                //             SortByFieldItem(total: 0.0,)
+                //           ],
+                //         ),
+                //       ),
+                //     );
                 //   });
                 // }
               },
@@ -144,20 +157,20 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           filteredTeams = List.of(filteredTeams);
           switch (selectedSort.sort) {
             case TeamSortOptions.teamNumber:
-              if(isAscending){
+              if (isAscending) {
                 filteredTeams.sort((a, b) => a.number.compareTo(b.number));
-              }else{
+              } else {
                 filteredTeams.sort((a, b) => b.number.compareTo(a.number));
               }
             case TeamSortOptions.rank:
-              if(isAscending){
+              if (isAscending) {
                 filteredTeams.sort((a, b) {
                   // Teams without a rank go to the end
                   final rankA = rankings[a.number]?.rank ?? 999999;
                   final rankB = rankings[b.number]?.rank ?? 999999;
                   return rankA.compareTo(rankB);
                 });
-              }else{
+              } else {
                 filteredTeams.sort((a, b) {
                   final rankA = rankings[a.number]?.rank ?? 0;
                   final rankB = rankings[b.number]?.rank ?? 0;
@@ -167,18 +180,24 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             case TeamSortOptions.custom:
               filteredTeams.sort((a, b) {
                 // Teams without a rank go to the end
-                final rankA = ref.watch(teamScoutingProvider(a.number)).when(
-                  data: (bundle) =>
-                      bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
-                  error: (_, _) => 0,
-                  loading: () => 0,
-                );
-                final rankB = ref.watch(teamScoutingProvider(b.number)).when(
-                  data: (bundle) =>
-                  bundle.avgMatchField(kSectionTele, kTeleFuelScored) + bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
-                  error: (_, _) => 0,
-                  loading: () => 0,
-                );
+                final rankA = ref
+                    .watch(teamScoutingProvider(a.number))
+                    .when(
+                      data: (bundle) =>
+                          bundle.avgMatchField(kSectionTele, kTeleFuelScored) +
+                          bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
+                      error: (_, _) => 0,
+                      loading: () => 0,
+                    );
+                final rankB = ref
+                    .watch(teamScoutingProvider(b.number))
+                    .when(
+                      data: (bundle) =>
+                          bundle.avgMatchField(kSectionTele, kTeleFuelScored) +
+                          bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
+                      error: (_, _) => 0,
+                      loading: () => 0,
+                    );
                 if (isAscending) {
                   return rankA.compareTo(rankB);
                 } else {
@@ -205,19 +224,11 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   }
 }
 
-
-class SortByFieldItem extends StatefulWidget{
-  final String itemName;
+class SortByFieldItem extends StatefulWidget {
+  double total;
   VoidCallback? onAddNew;
 
-
-  SortByFieldItem({
-    super.key,
-    required this.itemName,
-    this.onAddNew,
-
-  });
-
+  SortByFieldItem({super.key, required this.total, this.onAddNew});
 
   @override
   State<StatefulWidget> createState() {
@@ -225,61 +236,71 @@ class SortByFieldItem extends StatefulWidget{
   }
 }
 
-class SortByFieldItemState extends State<SortByFieldItem>{
+class SortByFieldItemState extends State<SortByFieldItem> {
   String sectionId = '';
   String dataId = '';
 
-  List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list){
-    List<DropdownMenuItem<String>> finalList = [];
-    list.forEach((item){
+  List<DropdownMenuEntry<String>> generateDropdownMenuItems(List<String> list) {
+    List<DropdownMenuEntry<String>> finalList = [];
+    list.forEach((item) {
       finalList.add(
-        DropdownMenuItem(
-            child: Text(item),
-            onTap: (){
-              sectionId = item;
-              },
-        )
+        DropdownMenuEntry(
+            value: item,
+            label: item
+        ),
       );
     });
     return finalList;
   }
 
+  List<String> sectionIdToDataPointsList(String sectionId){
+    switch(sectionId){
+      case 'auto':
+        return kAutoDataList;
+      case 'tele':
+        return kTeleDataList;
+      case 'endgame':
+        return kEndgameDataList;
+      default:
+        return kTeleDataList;
+
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Card.filled(
-      elevation: 2.0,
-      child: Row(
-        children: [
-          // DropdownButtonFormField(
-          //     items: generateDropdownMenuItems(kSectionsList),
-          //     onChanged: (item){
-          //
-          //     }
-          // ),
-          // DropdownButtonFormField(
-          //     items: ,
-          //     onChanged: (item){
-          //     }
-          // ),
-          TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            decoration: InputDecoration(
-              labelText: 'Weight',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (newValue){
-            },
-          ),
-          FilledButton.icon(
-              onPressed: (){
-                widget.onAddNew;
+    return ListTile(
+      title: Row(
+          children: [
+            DropdownMenu<String>(
+              dropdownMenuEntries: generateDropdownMenuItems(kSectionsList),
+              onSelected: (item){
+                if(item != null){
+                  sectionId = item;
+                }
               },
-              label: Icon(Icons.add_circle_outline),
-          )
-        ],
+            ),
+            DropdownMenu<String>(
+              dropdownMenuEntries: generateDropdownMenuItems(sectionIdToDataPointsList(sectionId)),
+              onSelected: (item){
+                if(item != null){
+                  dataId = item;
+                }
+              },
+            ),
+            SizedBox.shrink(
+              child: TextField(
+                  onChanged: (text){
+
+                  },
+              ),
+            )
+          ]
+      ),
+      trailing: ElevatedButton(
+        onPressed: () {
+          widget.onAddNew;
+        },
+        child: Icon(Icons.add_circle_outline),
       ),
     );
   }

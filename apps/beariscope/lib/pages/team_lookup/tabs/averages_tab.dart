@@ -335,22 +335,22 @@ class _AveragesBodyState extends State<_AveragesBody> {
       rows: [
         ScoutingDataRow(
           label: 'Driver Skill',
-          value: '${formattedRank(stratRanks.driverSkillZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber])}]',
+          value: '${formattedRank(stratRanks.driverSkillZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.driverSkillZ[widget.teamNumber]?? 0)}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Defensive Skill',
-          value: '${formattedRank(stratRanks.defensiveSkillZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.defensiveSkillZ[widget.teamNumber])}]',
+          value: '${formattedRank(stratRanks.defensiveSkillZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.defensiveSkillZ[widget.teamNumber]?? 0)}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Defense Resilience',
-          value: '${formattedRank(stratRanks.defensiveResilienceZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.defensiveResilienceZ[widget.teamNumber])}]',
+          value: '${formattedRank(stratRanks.defensiveResilienceZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.defensiveResilienceZ[widget.teamNumber]?? 0)}]',
           highlight: true,
         ),
         ScoutingDataRow(
           label: 'Mech. Stability',
-          value: '${formattedRank(stratRanks.mechanicalStabilityZ[widget.teamNumber]!)}[${StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[widget.teamNumber])}]',
+          value: '${formattedRank(stratRanks.mechanicalStabilityZ[widget.teamNumber]?? 0)}[${StratZScoreData.zLabel(stratZScores.mechanicalStabilityZ[widget.teamNumber]?? 0)}]',
           highlight: true,
         ),
       ],

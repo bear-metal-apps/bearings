@@ -54,7 +54,7 @@ const kAutoQuadrant3 = 'quadrant_3';
 /// Whether the robot collected from quadrant 4 during auto.
 const kAutoQuadrant4 = 'quadrant_4';
 
-const kAutoDataList = [
+const List<String> kAutoDataList = [
 
 ];
 
@@ -97,7 +97,7 @@ const kTeleDefense = 'defense';
 /// Whether the robot stopped working (mechanically/electrically) during teleop.
 const kTeleStoppedWorking = 'stopped_working';
 
-const kTeleDataList = [
+const List<String> kTeleDataList = [
   kTeleFuelScored,
   kTeleFuelPassed,
   kTeleFuelPoached,
@@ -137,3 +137,7 @@ const kEndPlayStyle = 'play_style';
 
 /// Didn't show up to the match
 const kEndNoShow = 'no_show';
+
+const List<String> kEndgameDataList = [
+
+];
