@@ -1,16 +1,16 @@
-import 'package:beariscope/components/beariscope_card.dart';
-import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/models/match_field_ids.dart';
-import 'package:beariscope/pages/main_view.dart';
-import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/pages/team_lookup/team_model.dart';
 
 import '../../providers/team_scouting_provider.dart';
 
@@ -105,13 +105,19 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                 ref
                     .read(teamSortProvider.notifier)
                     .setSort(newSort, isAscending);
-                // if(ref.read(teamSortProvider.notifier).getSort() == TeamSortOptions.custom){
+                // if (ref.read(teamSortProvider.notifier).getSort() ==
+                //     TeamSortOptions.custom) {
                 //   Scaffold.of(context).showBottomSheet((BuildContext context) {
-                //     return ListView(
-                //             children: [
-                //               SortByFieldItem(itemName: "Hi")
-                //             ]
-                //         );
+                //     return SizedBox(
+                //       height: 400,
+                //       child: Expanded(
+                //         child: ListView(
+                //           children: [
+                //             SortByFieldItem(total: 0.0,)
+                //           ],
+                //         ),
+                //       ),
+                //     );
                 //   });
                 // }
               },
@@ -219,10 +225,10 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 }
 
 class SortByFieldItem extends StatefulWidget {
-  final String itemName;
+  double total;
   VoidCallback? onAddNew;
 
-  SortByFieldItem({super.key, required this.itemName, this.onAddNew});
+  SortByFieldItem({super.key, required this.total, this.onAddNew});
 
   @override
   State<StatefulWidget> createState() {
@@ -234,54 +240,58 @@ class SortByFieldItemState extends State<SortByFieldItem> {
   String sectionId = '';
   String dataId = '';
 
-  List<DropdownMenuItem<String>> generateDropdownMenuItems(List<String> list) {
-    List<DropdownMenuItem<String>> finalList = [];
-    for (var item in list) {
-      finalList.add(
-        DropdownMenuItem(
-          child: Text(item),
-          onTap: () {
-            sectionId = item;
-          },
-        ),
-      );
-    }
+  List<DropdownMenuEntry<String>> generateDropdownMenuItems(List<String> list) {
+    List<DropdownMenuEntry<String>> finalList = [];
+    list.forEach((item) {
+      finalList.add(DropdownMenuEntry(value: item, label: item));
+    });
     return finalList;
+  }
+
+  List<String> sectionIdToDataPointsList(String sectionId) {
+    switch (sectionId) {
+      case 'auto':
+        return kAutoDataList;
+      case 'tele':
+        return kTeleDataList;
+      case 'endgame':
+        return kEndgameDataList;
+      default:
+        return kTeleDataList;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card.filled(
-      elevation: 2.0,
-      child: Row(
+    return ListTile(
+      title: Row(
         children: [
-          // DropdownButtonFormField(
-          //     items: generateDropdownMenuItems(kSectionsList),
-          //     onChanged: (item){
-          //
-          //     }
-          // ),
-          // DropdownButtonFormField(
-          //     items: ,
-          //     onChanged: (item){
-          //     }
-          // ),
-          TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              labelText: 'Weight',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (newValue) {},
-          ),
-          FilledButton.icon(
-            onPressed: () {
-              widget.onAddNew;
+          DropdownMenu<String>(
+            dropdownMenuEntries: generateDropdownMenuItems(kSectionsList),
+            onSelected: (item) {
+              if (item != null) {
+                sectionId = item;
+              }
             },
-            label: Icon(Icons.add_circle_outline),
           ),
+          DropdownMenu<String>(
+            dropdownMenuEntries: generateDropdownMenuItems(
+              sectionIdToDataPointsList(sectionId),
+            ),
+            onSelected: (item) {
+              if (item != null) {
+                dataId = item;
+              }
+            },
+          ),
+          SizedBox.shrink(child: TextField(onChanged: (text) {})),
         ],
+      ),
+      trailing: ElevatedButton(
+        onPressed: () {
+          widget.onAddNew;
+        },
+        child: Icon(Icons.add_circle_outline),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/processed_scouting_doc.dart';
 import 'package:beariscope/models/scouting_document.dart';
@@ -11,11 +13,14 @@ class TeamScoutingBundle {
 
   final List<ScoutingDocument> driveTeamDocs;
 
+  final int weight;
+
   const TeamScoutingBundle({
     required this.matchDocs,
     required this.pitsDoc,
     required this.stratDocs,
     required this.driveTeamDocs,
+    this.weight = 1,
   });
 
   bool get hasMatchData => matchDocs.isNotEmpty;
@@ -48,7 +53,10 @@ class TeamScoutingBundle {
     for (final doc in matchDocs) {
       final val = getMatchField(doc.raw, sectionId, fieldId);
       if (val is num) {
-        sum += val.toDouble() * _scalarFor(doc, sectionId, fieldId);
+        sum +=
+            val.toDouble() *
+            _scalarFor(doc, sectionId, fieldId) *
+            pow(weight, count);
         count++;
       }
     }

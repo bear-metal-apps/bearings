@@ -1,8 +1,12 @@
 import 'dart:math';
 
 import 'package:beariscope/models/scouting_document.dart';
+import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../models/team_scouting_bundle.dart';
 
 const _kRankingKeys = [
   'driverSkillRanking',
@@ -51,6 +55,24 @@ class StratZScoreData {
       default:
         return {};
     }
+  }
+
+  StratZScoreData changeToRanks() {
+    return StratZScoreData(
+      driverSkillZ: mapToRanks(driverSkillZ),
+      defensiveSkillZ: mapToRanks(defensiveSkillZ),
+      defensiveResilienceZ: mapToRanks(defensiveResilienceZ),
+      mechanicalStabilityZ: mapToRanks(mechanicalStabilityZ),
+    );
+  }
+
+  Map<int, double> mapToRanks(Map<int, double> input) {
+    var entries = input.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Map.fromEntries(
+      entries.asMap().entries.map((e) => MapEntry(e.value.key, e.key + 1)),
+    );
   }
 
   static String zLabel(double? z) {
@@ -112,9 +134,23 @@ StratZScoreData _computeStratZScores(List<ScoutingDocument> stratDocs) {
 
 final stratZScoresProvider = FutureProvider<StratZScoreData>((ref) async {
   final allDocs = await ref.watch(scoutingDataProvider.future);
+  // if(null == null){
   final stratDocs = allDocs
       .where((doc) => doc.meta?['type']?.toString() == 'strat')
       .toList();
   if (stratDocs.isEmpty) return StratZScoreData.empty;
   return _computeStratZScores(stratDocs);
 });
+
+String formattedRank(double rank) {
+  switch (rank.floor().toString().characters.last) {
+    case '1':
+      return "${rank.floor()}st";
+    case '2':
+      return "${rank.floor()}nd";
+    case '3':
+      return "${rank.floor()}rd";
+    default:
+      return "${rank.floor()}th";
+  }
+}
