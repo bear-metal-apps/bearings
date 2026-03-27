@@ -80,37 +80,6 @@ class WelcomePage extends ConsumerWidget {
                     label: const Text('Sign In'),
                     icon: const Icon(Symbols.open_in_new_rounded),
                   ),
-                  // OutlinedButton.icon(
-                  //   onPressed: () {
-                  //     showDialog(
-                  //       context: context,
-                  //       builder: (context) {
-                  //         return AlertDialog(
-                  //           title: const Text('Guest Mode'),
-                  //           content: const Text(
-                  //             'Guest Mode lets you try Beariscope without using an account. Data will not be saved or synced to the cloud.',
-                  //           ),
-                  //           actions: [
-                  //             TextButton(
-                  //               onPressed: () {
-                  //                 Navigator.of(context).pop();
-                  //               },
-                  //               child: const Text('Back'),
-                  //             ),
-                  //             TextButton(
-                  //               onPressed: () {
-                  //                 context.go('/home');
-                  //               },
-                  //               child: const Text('Continue'),
-                  //             ),
-                  //           ],
-                  //         );
-                  //       },
-                  //     );
-                  //   },
-                  //   label: const Text('Guest Mode'),
-                  //   icon: const Icon(Symbols.eyeglasses_rounded),
-                  // ),
                 ],
               ),
             ),
