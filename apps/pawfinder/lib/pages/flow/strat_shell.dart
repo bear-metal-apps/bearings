@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
@@ -50,6 +51,7 @@ class _StratShellState extends ConsumerState<StratShell>
 
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
         leading: IconButton(
           icon: const Icon(Icons.close),
           tooltip: 'Exit to Scout Selection',
@@ -116,23 +118,27 @@ class _StratShellState extends ConsumerState<StratShell>
           ),
         ],
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (child, animation) {
-          final slide = Tween<Offset>(
-            begin: const Offset(0.06, 0),
-            end: Offset.zero,
-          ).animate(animation);
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(position: slide, child: child),
-          );
-        },
-        child: KeyedSubtree(
-          key: ValueKey<int>(matchNumber),
-          child: widget.child,
+      body: pawfinderGradientBackground(
+        context: context,
+        vivid: true,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            final slide = Tween<Offset>(
+              begin: const Offset(0.06, 0),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: slide, child: child),
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey<int>(matchNumber),
+            child: widget.child,
+          ),
         ),
       ),
     );

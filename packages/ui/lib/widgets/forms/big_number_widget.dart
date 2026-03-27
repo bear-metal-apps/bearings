@@ -74,37 +74,67 @@ class _BigNumberWidgetState extends State<BigNumberWidget> {
                   itemCount: widget.buttons.length,
                   itemBuilder: (context, index) {
                     final value = widget.buttons[index];
-                    return ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _currentValue += value;
-                          if (_currentValue <= 0) {
-                            _currentValue = 0;
-                          }
-                        });
-                        widget.onChanged?.call(_currentValue);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            widget.backgroundColor ??
-                            Theme.of(context).colorScheme.surface,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onSurface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          side: const BorderSide(
-                            color: Colors.grey,
+                    final scheme = Theme.of(context).colorScheme;
+                    final gradient = LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: value >= 0
+                          ? [
+                              (widget.backgroundColor ?? scheme.primaryContainer)
+                                  .withValues(alpha: 0.94),
+                              scheme.secondaryContainer.withValues(alpha: 0.82),
+                            ]
+                          : [
+                              scheme.errorContainer.withValues(alpha: 0.88),
+                              scheme.surfaceContainerHighest.withValues(alpha: 0.8),
+                            ],
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: gradient,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                            color: scheme.outlineVariant,
                             width: 1.0,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: scheme.shadow.withValues(alpha: 0.08),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      ),
-                      child: Text(
-                        value > 0 ? '+$value' : value.toString(),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _currentValue += value;
+                              if (_currentValue <= 0) {
+                                _currentValue = 0;
+                              }
+                            });
+                            widget.onChanged?.call(_currentValue);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            surfaceTintColor: Colors.transparent,
+                            foregroundColor: scheme.onSecondaryContainer,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: Text(
+                            value > 0 ? '+$value' : value.toString(),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: scheme.onSecondaryContainer,
+                            ),
+                          ),
                         ),
                       ),
                     );

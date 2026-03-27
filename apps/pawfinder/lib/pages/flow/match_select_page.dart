@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
@@ -59,6 +60,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
 
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/scout'),
@@ -67,12 +69,15 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
         actionsPadding: EdgeInsets.only(right: 16),
         actions: const [UploadStatusIndicator()],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
+      body: pawfinderGradientBackground(
+        context: context,
+        vivid: false,
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
@@ -297,6 +302,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
                         curve: Curves.easeOut,
                       ),
               ],
+              ),
             ),
           ),
         ),

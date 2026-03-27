@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/pages/flow/about_page.dart';
@@ -61,6 +62,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
 
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
         title: const Text('Select Comp and Position'),
         actionsPadding: EdgeInsets.only(right: 8),
         actions: [
@@ -83,12 +85,15 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
           const SizedBox(width: 2),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
+      body: pawfinderGradientBackground(
+        context: context,
+        vivid: true,
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text('Position', style: Theme.of(context).textTheme.titleMedium)
@@ -332,6 +337,7 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
                         curve: Curves.easeOut,
                       ),
               ],
+              ),
             ),
           ),
         ),

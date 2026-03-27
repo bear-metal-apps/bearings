@@ -211,6 +211,13 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final usePapyrusFont = ref.watch(papyrusFontProvider);
+    final brightness = ref.watch(brightnessNotifierProvider);
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: const Color.fromARGB(255, 0, 221, 255),
+      brightness: brightness,
+    );
+    final baseTextTheme = ThemeData(brightness: brightness).textTheme;
+    final appFontFamily = GoogleFonts.googleSansFlex().fontFamily;
 
     return MaterialApp.router(
       title: 'Pawfinder',
@@ -220,9 +227,73 @@ class _MyAppState extends ConsumerState<MyApp> {
             ? 'Papyrus'
             : GoogleFonts.googleSansFlex().fontFamily,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 0, 221, 255),
-          brightness: ref.watch(brightnessNotifierProvider),
+        colorScheme: colorScheme,
+        textTheme: baseTextTheme.apply(fontFamily: appFontFamily),
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          centerTitle: false,
+          backgroundColor: colorScheme.surface.withValues(alpha: 0.88),
+          foregroundColor: colorScheme.onSurface,
+          surfaceTintColor: Colors.transparent,
+          titleTextStyle: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface,
+            fontFamily: appFontFamily,
+          ),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          height: 72,
+          elevation: 0,
+          backgroundColor: colorScheme.surface.withValues(alpha: 0.9),
+          indicatorColor: colorScheme.primaryContainer.withValues(alpha: 0.85),
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            return TextStyle(
+              fontSize: 12,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSurfaceVariant,
+              fontFamily: appFontFamily,
+            );
+          }),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(0, 56),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              fontFamily: appFontFamily,
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: colorScheme.outlineVariant),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: colorScheme.outlineVariant),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+          ),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 0,
+          color: colorScheme.surfaceContainerLow,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
@@ -18,6 +19,7 @@ class SettingsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
         title: const Text('Settings'),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -26,94 +28,96 @@ class SettingsPage extends ConsumerWidget {
           },
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-                width: 2,
+      body: pawfinderGradientBackground(
+        context: context,
+        child: ListView(
+          padding: const EdgeInsets.all(24.0),
+          children: [
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 2,
+                ),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Theme',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              isDarkMode
-                                  ? 'Dark theme is currently active'
-                                  : 'Light theme is currently active',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                          size: 32,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Switch(
-                        value: isDarkMode,
-                        onChanged: (value) {
-                          ref
-                              .read(brightnessNotifierProvider.notifier)
-                              .changeBrightness(value);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Theme',
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                isDarkMode
+                                    ? 'Dark theme is currently active'
+                                    : 'Light theme is currently active',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Switch(
+                          value: isDarkMode,
+                          onChanged: (value) {
+                            ref
+                                .read(brightnessNotifierProvider.notifier)
+                                .changeBrightness(value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          ListTile(
-            leading: const Icon(Icons.link_off),
-            title: const Text('Deprovision Device'),
-            subtitle: const Text('Remove stored credentials from this device'),
-            onTap: () => _showPasswordDialog(
-              context,
-              ref,
-              () => _showDeprovisionDialog(context, ref),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.link_off),
+              title: const Text('Deprovision Device'),
+              subtitle: const Text('Remove stored credentials from this device'),
+              onTap: () => _showPasswordDialog(
+                context,
+                ref,
+                () => _showDeprovisionDialog(context, ref),
+              ),
             ),
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.delete_outline),
-            title: const Text('Delete Local Data'),
-            subtitle: const Text(
-              'Clears all cached match data from this device',
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Delete Local Data'),
+              subtitle: const Text(
+                'Clears all cached match data from this device',
+              ),
+              onTap: () => _showPasswordDialog(
+                context,
+                ref,
+                () => _showDeleteCacheDialog(context),
+              ),
             ),
-            onTap: () => _showPasswordDialog(
-              context,
-              ref,
-              () => _showDeleteCacheDialog(context),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

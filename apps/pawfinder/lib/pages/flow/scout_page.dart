@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/models/scouting_session.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
@@ -45,6 +46,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
 
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/config'),
@@ -53,12 +55,15 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
         actions: const [UploadStatusIndicator()],
         actionsPadding: EdgeInsets.only(right: 8),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
+      body: pawfinderGradientBackground(
+        context: context,
+        vivid: false,
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
               children: [
                 SearchBar(
                       hintText: 'Search scouts...',
@@ -207,6 +212,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                         curve: Curves.easeOut,
                       ),
               ],
+              ),
             ),
           ),
         ),

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/services/device_auth_service.dart';
 import 'package:services/providers/device_credentials_provider.dart';
 
@@ -87,7 +88,10 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Provision Device')),
+      appBar: AppBar(
+        title: const Text('Provision Device'),
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
+      ),
       body: _scannerSupported
           ? _buildScannerView(colorScheme)
           : _buildPasteOnlyView(colorScheme),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 import 'package:pawfinder/store/strat_state.dart';
@@ -60,8 +61,10 @@ class _StratPageState extends ConsumerState<StratPage> {
       ref.read(stratStateProvider(id).notifier).initFromSchedule(teams);
     });
 
-    return Scaffold(
-      body: SingleChildScrollView(
+    return pawfinderGradientBackground(
+      context: context,
+      vivid: true,
+      child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

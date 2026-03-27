@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/data/local_data.dart';
 import 'package:pawfinder/data/match_json_gen.dart';
@@ -78,6 +79,8 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell>
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
         leading: IconButton(
           icon: const Icon(Icons.close),
           tooltip: 'Exit to Scout Selection',
@@ -149,7 +152,11 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell>
           ),
         ],
       ),
-      body: ClipRect(child: widget.child),
+      body: pawfinderGradientBackground(
+        context: context,
+        vivid: true,
+        child: ClipRect(child: widget.child),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentTabIndex(context),
         indicatorColor: Theme.of(context).colorScheme.primary,

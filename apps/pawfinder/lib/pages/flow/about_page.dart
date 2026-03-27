@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/providers/app_provider.dart';
 
 class AboutPage extends ConsumerStatefulWidget {
@@ -70,14 +71,19 @@ class _AboutPageState extends ConsumerState<AboutPage> {
     final progress = _tapCount / _tapsRequired;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Column(
+      appBar: AppBar(
+        title: const Text('About'),
+        flexibleSpace: pawfinderAppBarFlexibleSpace(context),
+      ),
+      body: pawfinderGradientBackground(
+        context: context,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 20),
@@ -317,6 +323,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
 
                   const SizedBox(height: 40),
                 ],
+                ),
               ),
             ),
           ),

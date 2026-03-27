@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/pawfinder_gradients.dart';
 import 'package:pawfinder/providers/match_config_provider.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
@@ -59,18 +60,22 @@ class MatchPage extends ConsumerWidget {
           store.save(hydratedData);
         }
 
-        return MatchFormRenderer(
-          key: ValueKey('$eventKey:$matchNumber:$pos'),
-          page: config.pages[index],
-          initialData: hydratedData,
-          onChanged: (next) {
-            final toSave = next.copyWith(scoutedBy: scoutName);
-            store.save(toSave);
-          },
-          onNextPressed: () {
-            ref.read(scoutingFlowControllerProvider).nextMatch();
-            context.go('/match/auto');
-          },
+        return pawfinderGradientBackground(
+          context: context,
+          vivid: true,
+          child: MatchFormRenderer(
+            key: ValueKey('$eventKey:$matchNumber:$pos'),
+            page: config.pages[index],
+            initialData: hydratedData,
+            onChanged: (next) {
+              final toSave = next.copyWith(scoutedBy: scoutName);
+              store.save(toSave);
+            },
+            onNextPressed: () {
+              ref.read(scoutingFlowControllerProvider).nextMatch();
+              context.go('/match/auto');
+            },
+          ),
         );
       },
     );
