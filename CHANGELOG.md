@@ -1,5 +1,13 @@
 # Changelog
 
+## v26.3.1
+**Released:** 2026-03-27
+
+### Bug Fixes
+- beariscope: Fix error in pits scouting page (c41e24e)
+- services: Update token storage to use shared prefrences on web (8828a17)
+
+
 ## v26.3.0
 **Released:** 2026-03-27
 
