@@ -156,7 +156,7 @@
               "Doesn't Fit Inside Tower"
             ]
           },
-          "defaultValue": "Trench Capable"
+          "defaultValue": "Fits Inside Tower"
         }
       ]
     },
