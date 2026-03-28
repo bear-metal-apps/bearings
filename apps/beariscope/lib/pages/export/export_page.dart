@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
+import 'package:services/providers/permissions_provider.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -212,9 +213,23 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     final scoutingAsync = ref.watch(scoutingDataProvider);
     final allDocs = scoutingAsync.value ?? [];
     final currentEvent = ref.watch(currentEventProvider);
+    final permissionChecker = ref.watch(permissionCheckerProvider);
     final options = _buildOptions();
     final allTeams = _allTeams(allDocs, currentEvent);
     final colorScheme = Theme.of(context).colorScheme;
+
+    final canExportNotes = permissionChecker?.hasPermission(PermissionKey.notesRead) ?? false;
+    if (!canExportNotes && _includeNotes) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _includeNotes) {
+          setState(() => _includeNotes = false);
+        }
+      });
+    }
+    final includeNotes = canExportNotes && _includeNotes;
+    if (!canExportNotes) {
+      _includeNotes = false;
+    }
 
     final counts = ExportService.previewCounts(allDocs, options, currentEvent);
 
@@ -431,8 +446,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                         contentPadding: EdgeInsets.zero,
                                         title: const Text('Include Notes'),
                                         subtitle: const Text('Endgame free-text field'),
-                                        value: _includeNotes,
-                                        onChanged: (v) => setState(() => _includeNotes = v),
+                                        value: includeNotes,
+                                        onChanged: canExportNotes ? (v) => setState(() => _includeNotes = v) : null,
                                       ),
                                       SwitchListTile(
                                         contentPadding: EdgeInsets.zero,
