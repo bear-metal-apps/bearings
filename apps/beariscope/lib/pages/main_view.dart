@@ -110,10 +110,10 @@ class _MainViewState extends ConsumerState<MainView> {
   bool _canShowNavItem(_NavItem item, PermissionChecker? permissionChecker) {
     return switch (item.route) {
       '/scout_audit' =>
-        permissionChecker?.hasPermission(PermissionKey.scoutsManage) ?? false,
+        permissionChecker?.hasPermission(PermissionKey.matchCorrect) ?? false,
       '/pits_scouting' =>
-        permissionChecker?.hasPermission(PermissionKey.driveTeamUpload) ??
-            false,
+        (permissionChecker?.hasPermission(PermissionKey.pitsUpload) ?? false) ||
+            (permissionChecker?.hasPermission(PermissionKey.pitsRead) ?? false),
       _ => true,
     };
   }
