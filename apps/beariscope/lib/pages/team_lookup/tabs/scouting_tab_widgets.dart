@@ -193,10 +193,10 @@ Widget scoutingInterferenceChip(BuildContext context, String label) {
       label,
       style: TextStyle(
         fontSize: 11,
-        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
     ),
-    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
     side: BorderSide.none,
     visualDensity: VisualDensity.compact,
     padding: EdgeInsets.zero,

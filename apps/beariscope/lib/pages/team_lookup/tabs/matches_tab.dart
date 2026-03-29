@@ -227,7 +227,7 @@ class _MatchCard extends StatelessWidget {
     ];
     final interferences = [
       if (_f(kSectionEndgame, kEndDefendedAgainst) == true)
-        scoutingIncidentChip(context, 'Defended'),
+        scoutingInterferenceChip(context, 'Defended'),
     ];
 
     // Summary subtitle shown in the collapsed tile.
