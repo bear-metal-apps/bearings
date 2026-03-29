@@ -460,6 +460,11 @@ class _MatchDetailSection extends StatelessWidget {
               ),
               _row(
                 context,
+                'Defended Against',
+                _f(kSectionEndgame, kEndDefendedAgainst),
+              ),
+              _row(
+                context,
                 'Defense Off Shift',
                 _f(kSectionEndgame, kEndPlayedDefenseOffShift),
               ),

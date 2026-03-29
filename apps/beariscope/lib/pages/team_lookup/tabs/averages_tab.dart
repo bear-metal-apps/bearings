@@ -125,6 +125,11 @@ class _AveragesBodyState extends State<_AveragesBody> {
       kEndPlayedDefenseOnShift,
       (v) => v == true,
     );
+    final defendedAgainstRate = bundle.rateMatchField(
+      kSectionEndgame,
+      kEndDefendedAgainst,
+      (v) => v == true,
+    );
     final avgOverBump = bundle.avgMatchField(kSectionTele, kTeleOverBump);
     final avgUnderTrench = bundle.avgMatchField(kSectionTele, kTeleUnderTrench);
     final avgFullHopper = bundle.avgMatchField(
@@ -272,6 +277,10 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ScoutingDataRow(
                   label: 'Defense Frequency (on shift)',
                   value: _fmtPct(defenseRate * 100),
+                ),
+                ScoutingDataRow(
+                  label: 'Defended Against Frequency',
+                  value: _fmtPct(defendedAgainstRate * 100),
                 ),
                 ScoutingDataRow(
                   label: 'Stopped Working Rate',

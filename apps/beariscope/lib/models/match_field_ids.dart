@@ -112,6 +112,9 @@ const kEndClimb = 'climb';
 /// Climb bar position: "Left" | "Center" | "Right".
 const kEndClimbLocation = 'climb_location';
 
+/// Whether the robot was defended against by opponents.
+const kEndDefendedAgainst = 'defended_against';
+
 /// Whether the robot played defense while on its scoring shift.
 const kEndPlayedDefenseOnShift = 'played_defense_on_shift';
 
