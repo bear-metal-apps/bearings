@@ -1,5 +1,20 @@
 # Changelog
 
+## v26.3.3
+**Released:** 2026-03-29
+
+### Bug Fixes
+- beariscope: Fix wromg permissions in main view (74eb823)
+
+
+### Features
+- beariscope: Add permission checks for exporting notes (ce08179)
+- beariscope: Sort match documents by match number (585a2c3)
+- beariscope: Add matches after schedule to scout audit (f31f82d)
+- beariscope: Add anonymization option for scouter names in exports (5c65c49)
+- beariscope: Add defended against to expanded team card (74395ef)
+
+
 ## v26.3.2
 **Released:** 2026-03-27
 

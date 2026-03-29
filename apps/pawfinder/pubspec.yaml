@@ -1,6 +1,6 @@
 name: pawfinder
 description: "Bear Metal's Scouting App"
-version: 26.3.2+16
+version: 26.3.3+17
 resolution: workspace
 publish_to: none
 
