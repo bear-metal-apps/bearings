@@ -300,9 +300,19 @@ ScoutAuditSnapshot buildScoutAuditSnapshot({
   incomplete.sort((a, b) => a.matchNumber.compareTo(b.matchNumber));
 
   final notInTba = <NotInTbaIssue>[];
+  final highestScheduledMatchNumber = schedule.isEmpty
+      ? 0
+      : schedule.keys.reduce((a, b) => a > b ? a : b);
+
   for (final doc in matchDocs) {
     final matchNumber = TeamScoutingBundle.matchNumber(doc);
-    if (matchNumber == null || schedule.containsKey(matchNumber)) continue;
+    if (matchNumber == null) continue;
+
+    final isBeyondSchedule =
+        highestScheduledMatchNumber > 0 &&
+        matchNumber > highestScheduledMatchNumber;
+    final isMissingFromSchedule = !schedule.containsKey(matchNumber);
+    if (!isBeyondSchedule && !isMissingFromSchedule) continue;
 
     notInTba.add(
       NotInTbaIssue(

@@ -98,6 +98,7 @@ class ExportOptions {
   final Set<int>? teamFilter;
   final bool includeNotes;
   final bool colorCodeAccuracy;
+  final bool anonymizeScouters;
   final ExportSheets sheets;
   final ColorThresholds colorThresholds;
   final CorrectionThresholds correctionThresholds;
@@ -109,6 +110,7 @@ class ExportOptions {
     this.teamFilter,
     this.includeNotes = true,
     this.colorCodeAccuracy = false,
+    this.anonymizeScouters = false,
     this.sheets = const ExportSheets(),
     this.colorThresholds = const ColorThresholds(),
     this.correctionThresholds = const CorrectionThresholds(),
@@ -121,6 +123,7 @@ class ExportOptions {
     Set<int>? teamFilter,
     bool? includeNotes,
     bool? colorCodeAccuracy,
+    bool? anonymizeScouters,
     ExportSheets? sheets,
     ColorThresholds? colorThresholds,
     CorrectionThresholds? correctionThresholds,
@@ -132,6 +135,7 @@ class ExportOptions {
       teamFilter: teamFilter ?? this.teamFilter,
       includeNotes: includeNotes ?? this.includeNotes,
       colorCodeAccuracy: colorCodeAccuracy ?? this.colorCodeAccuracy,
+      anonymizeScouters: anonymizeScouters ?? this.anonymizeScouters,
       sheets: sheets ?? this.sheets,
       colorThresholds: colorThresholds ?? this.colorThresholds,
       correctionThresholds: correctionThresholds ?? this.correctionThresholds,
