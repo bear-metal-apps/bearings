@@ -292,7 +292,12 @@ class ExportService {
         1,
         matchNum != null ? IntCellValue(matchNum) : TextCellValue(''),
       );
-      writeCell(2, TextCellValue(doc.meta?['scoutedBy']?.toString() ?? ''));
+      writeCell(
+        2,
+        options.anonymizeScouters
+            ? TextCellValue('')
+            : TextCellValue(doc.meta?['scoutedBy']?.toString() ?? ''),
+      );
 
       for (var i = 0; i < schemaColumns.length; i++) {
         final column = schemaColumns[i];
@@ -449,7 +454,9 @@ class ExportService {
     for (final doc in stratDocs) {
       final matchNum = _matchNumber(doc);
       final alliance = doc.meta?['alliance']?.toString();
-      final scoutedBy = doc.meta?['scoutedBy']?.toString() ?? '';
+      final scoutedBy = options.anonymizeScouters
+          ? ''
+          : doc.meta?['scoutedBy']?.toString() ?? '';
       final teamIds = _stratTeams(doc);
       final teamCellColor = _allianceFill(alliance);
       final ranks = <String, Map<int, int>>{

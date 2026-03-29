@@ -37,6 +37,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
   bool _includeNotes = true;
   bool _colorCodeAccuracy = false;
+  bool _anonymizeScouters = false;
   bool _filterByTeam = false;
   bool _filterByMatchRange = false;
   bool _isExporting = false;
@@ -86,6 +87,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       teamFilter: _filterByTeam && _selectedTeams.isNotEmpty ? Set.unmodifiable(_selectedTeams) : null,
       includeNotes: _includeNotes,
       colorCodeAccuracy: _colorCodeAccuracy,
+      anonymizeScouters: _anonymizeScouters,
       sheets: _sheets,
       colorThresholds: _colorThresholds,
       correctionThresholds: _correctionThresholds,
@@ -455,6 +457,13 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                         subtitle: const Text('Highlight cells by TBA deviation'),
                                         value: _colorCodeAccuracy,
                                         onChanged: (v) => setState(() => _colorCodeAccuracy = v),
+                                      ),
+                                      SwitchListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: const Text('Anonymize Scouters'),
+                                        subtitle: const Text('Remove scouter names from match exports'),
+                                        value: _anonymizeScouters,
+                                        onChanged: (v) => setState(() => _anonymizeScouters = v),
                                       ),
                                     ],
                                   ),
