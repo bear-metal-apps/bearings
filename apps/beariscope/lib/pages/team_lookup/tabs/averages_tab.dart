@@ -247,10 +247,10 @@ class _AveragesBodyState extends State<_AveragesBody> {
                   label: 'Avg Fuel Poached',
                   value: _fmtDec(avgTeleFuelPoached),
                 ),
-                // ScoutingDataRow(
-                //     label: '% of Matches w/ Def. Interference',
-                //     value: 'WIP'
-                // ),
+                ScoutingDataRow(
+                    label: '% of Matches w/ Def. Interference',
+                    value: 'WIP'
+                ),
               ],
             ),
           ),
