@@ -50,7 +50,7 @@ const kAutoQuadrant3 = 'quadrant_3';
 /// Whether the robot collected from quadrant 4 during auto.
 const kAutoQuadrant4 = 'quadrant_4';
 
-const List<String> kAutoDataList = [];
+const kAutoDataList = [];
 
 /// Number of fuel balls scored during teleop.
 const kTeleFuelScored = 'fuel_scored';
@@ -91,7 +91,7 @@ const kTeleDefense = 'defense';
 /// Whether the robot stopped working (mechanically/electrically) during teleop.
 const kTeleStoppedWorking = 'stopped_working';
 
-const List<String> kTeleDataList = [
+const kTeleDataList = [
   kTeleFuelScored,
   kTeleFuelPassed,
   kTeleFuelPoached,
@@ -118,6 +118,9 @@ const kEndPlayedDefenseOnShift = 'played_defense_on_shift';
 /// Whether the robot played defense while off its scoring shift.
 const kEndPlayedDefenseOffShift = 'played_defense_off_shift';
 
+/// Whether the robot was interfered by defense, which can interfere with accuracy and movement
+const kEndDefendedAgainst = 'defended_against';
+
 /// Number of fouls committed.
 const kEndFouls = 'fouls';
 
@@ -129,5 +132,3 @@ const kEndPlayStyle = 'play_style';
 
 /// Didn't show up to the match
 const kEndNoShow = 'no_show';
-
-const List<String> kEndgameDataList = [];

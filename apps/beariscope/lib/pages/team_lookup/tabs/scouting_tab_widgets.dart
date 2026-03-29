@@ -187,6 +187,24 @@ Widget scoutingIncidentChip(BuildContext context, String label) {
   );
 }
 
+Widget scoutingInterferenceChip(BuildContext context, String label) {
+  return Chip(
+    label: Text(
+      label,
+      style: TextStyle(
+        fontSize: 11,
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+      ),
+    ),
+    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+    side: BorderSide.none,
+    visualDensity: VisualDensity.compact,
+    padding: EdgeInsets.zero,
+    labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  );
+}
+
 /// An incident counter chip for the Notes tab summary row.
 ///
 /// The chip is highlighted in [color] only when [count] > 0.

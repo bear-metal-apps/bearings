@@ -1,6 +1,7 @@
-import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:beariscope/models/match_field_ids.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 
 class TeamSort {
   TeamSortOptions sort = TeamSortOptions.teamNumber;
@@ -22,7 +23,6 @@ extension TeamSortLabel on TeamSortOptions {
 class TeamSortNotifier extends Notifier<TeamSort> {
   @override
   TeamSort build() => TeamSort(TeamSortOptions.teamNumber, true);
-
   void setSort(TeamSortOptions sort, bool isAscending) =>
       state = TeamSort(sort, isAscending);
 

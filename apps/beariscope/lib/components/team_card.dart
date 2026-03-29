@@ -15,10 +15,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/permissions_provider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/processed_scouting_doc.dart';
 import '../providers/strat_z_score_provider.dart';
 
 class TeamCard extends ConsumerWidget {
@@ -36,7 +34,7 @@ class TeamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamsAsync = ref.watch(teamsProvider);
-    final cardHeight = height ?? 360;
+    final cardHeight = height ?? 256;
 
     return teamsAsync.when(
       loading: () => SizedBox(
@@ -127,9 +125,44 @@ class _TeamCardSummary extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _TeamCardHeader(team: team),
-          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: Image.network(
+                  'https://www.thebluealliance.com/avatar/${DateTime.now().year}/frc${team.number}.png',
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.account_circle,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  team.name,
+                  style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                team.number.toString(),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12), // Replaced the Spacer with fixed padding
           Expanded(
+            // Let the metrics take up the rest of the vertical space
             child: bundleAsync.when(
               loading: () => const SizedBox.shrink(),
               error: (_, _) => const SizedBox.shrink(),
@@ -137,11 +170,7 @@ class _TeamCardSummary extends ConsumerWidget {
                 teamNumber: team.number,
                 bundle: bundle,
                 stratZScores:
-                    ref
-                        .watch(stratZScoresProvider)
-                        .asData
-                        ?.value
-                        .changeToRanks() ??
+                    ref.watch(stratZScoresProvider).asData?.value ??
                     StratZScoreData.empty,
                 ranking: rankings[team.number],
               ),
@@ -149,52 +178,6 @@ class _TeamCardSummary extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _TeamCardHeader extends StatelessWidget {
-  final Team team;
-
-  const _TeamCardHeader({required this.team});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 32,
-          height: 32,
-          child: Image.network(
-            'https://www.thebluealliance.com/avatar/${DateTime.now().year}/frc${team.number}.png',
-            width: 32,
-            height: 32,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Icon(
-              Icons.account_circle,
-              size: 32,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            team.name,
-            style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          team.number.toString(),
-          style: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -214,236 +197,210 @@ class _SummaryMetrics extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const playStyleOptions = ['Passing', 'Cycling', 'Shooting', 'Defense'];
-
+    final playingStyles = bundle.getPitsListField('playingStyle');
+    final primaryRole = playingStyles.isNotEmpty ? playingStyles.first : null;
     final trenchCapable =
         bundle.getPitsField<String>('trenchCapability') == 'Trench Capable';
-    final climbCapable = bundle.getPitsField<String>('climbMethod');
-
-    final mostCommonPlayStyle = RegExp(r'\d+')
-        .allMatches(
-          bundle.modalMatchField(kSectionEndgame, kEndPlayStyle).toString(),
-        )
-        .map((m) {
-          final index = int.parse(m.group(0)!);
-          return (index >= 0 && index < playStyleOptions.length)
-              ? playStyleOptions[index]
-              : null;
-        })
-        .whereType<String>()
-        .join(', ');
+    final towerCapable =
+        bundle.getPitsField<String>('towerCapability') == 'Fits Inside Tower';
+    final climbCapable = bundle.getPitsField<String>('climbLevel');
 
     final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
     final avgAccuracy = bundle.avgMatchAccuracyTotal();
     final hasMatch = bundle.hasMatchData;
     final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
-    final hasPitsData = bundle.hasPitsData;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (hasPitsData) ...[
-          _ChipsRow(
-            mostCommonPlayStyle: mostCommonPlayStyle,
-            trenchCapable: trenchCapable,
-            climbCapable: climbCapable,
-          ),
-          const SizedBox(height: 8),
-        ],
-
-        const SizedBox(height: 8),
-
-        Expanded(
-          child: SfCartesianChart(
-            margin: EdgeInsets.zero,
-            primaryXAxis: NumericAxis(),
-            primaryYAxis: NumericAxis(),
-            plotAreaBorderWidth: 0,
-            series: _buildLineSeries(bundle.matchDocs),
-          ),
-        ),
-
-        const Divider(height: 8, thickness: 1),
-
-        if (hasZScores) ...[
-          const SizedBox(height: 6),
+        // 1. CHIPS: Pinned to the top right below the header
+        if (bundle.hasPitsData) ...[
           Wrap(
-            spacing: 12,
-            runSpacing: 2,
+            spacing: 6,
+            runSpacing: 6,
             children: [
-              _zScoreLabel(
-                context,
-                'Driver',
-                stratZScores!.driverSkillZ[teamNumber] ?? 0,
-              ),
-              _zScoreLabel(
-                context,
-                'Defense',
-                stratZScores!.defensiveSkillZ[teamNumber] ?? 0,
-              ),
-              _zScoreLabel(
-                context,
-                'Def. Resilience',
-                stratZScores!.defensiveResilienceZ[teamNumber] ?? 0,
-              ),
-              _zScoreLabel(
-                context,
-                'Stability',
-                stratZScores!.mechanicalStabilityZ[teamNumber] ?? 0,
-              ),
+              if (primaryRole != null)
+                Chip(
+                  label: Text(
+                    primaryRole,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              if (trenchCapable)
+                Builder(
+                  builder: (context) {
+                    final color = Theme.of(context).colorScheme.secondary;
+                    return Chip(
+                      avatar: Icon(
+                        Symbols.merge_type_rounded,
+                        size: 14,
+                        color: color,
+                      ),
+                      label: Text(
+                        'Trench',
+                        style: TextStyle(fontSize: 12, color: color),
+                      ),
+                      backgroundColor: color.withValues(alpha: 0.12),
+                      side: BorderSide(color: color.withValues(alpha: 0.4)),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    );
+                  },
+                ),
+              if (towerCapable)
+                Builder(
+                  builder: (context) {
+                    final color = Theme.of(context).colorScheme.secondary;
+                    return Chip(
+                      avatar: Icon(
+                        Symbols.exit_to_app_rounded,
+                        size: 14,
+                        color: color,
+                      ),
+                      label: Text(
+                        'Tower',
+                        style: TextStyle(fontSize: 12, color: color),
+                      ),
+                      backgroundColor: color.withValues(alpha: 0.12),
+                      side: BorderSide(color: color.withValues(alpha: 0.4)),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    );
+                  },
+                ),
+              if (climbCapable != null)
+                Builder(
+                  builder: (context) {
+                    final color = Theme.of(context).colorScheme.secondary;
+                    return Chip(
+                      avatar: Icon(
+                        Symbols.stairs_rounded,
+                        size: 14,
+                        color: color,
+                      ),
+                      label: Text(
+                        'Climb $climbCapable',
+                        style: TextStyle(fontSize: 12, color: color),
+                      ),
+                      backgroundColor: color.withValues(alpha: 0.12),
+                      side: BorderSide(color: color.withValues(alpha: 0.4)),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    );
+                  },
+                ),
             ],
           ),
         ],
 
-        if (hasMatch) ...[
-          const SizedBox(height: 8),
+        // 2. SPACER: Pushes the Z-Scores and Averages to the bottom of the card
+        const Spacer(),
+
+        // 3. Z-SCORES: Pushed to the bottom by the spacer
+        if (hasZScores)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Driver Skill: ${StratZScoreData.zLabel(stratZScores!.driverSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive Skill: ${StratZScoreData.zLabel(stratZScores!.defensiveSkillZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Defensive Resilience: ${StratZScoreData.zLabel(stratZScores!.defensiveResilienceZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Mechanical Stability: ${StratZScoreData.zLabel(stratZScores!.mechanicalStabilityZ[teamNumber])}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+        const SizedBox(height: 12),
+
+        // 4. AVERAGES: Remaining stuck to the very bottom
+        if (hasMatch)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Wrap(
-                spacing: 12,
+              Row(
                 children: [
-                  _StatPill(
+                  _statPill(
+                    context,
                     label: 'Auto',
                     value: avgAutoFuel.toStringAsFixed(1),
                   ),
-                  _StatPill(
+                  const SizedBox(width: 12),
+                  _statPill(
+                    context,
                     label: 'Tele',
                     value: avgTeleFuel.toStringAsFixed(1),
                   ),
-                  _StatPill(
+                  const SizedBox(width: 12),
+                  _statPill(
+                    context,
                     label: 'Total',
                     value: (avgAutoFuel + avgTeleFuel).toStringAsFixed(1),
                     highlight: true,
                   ),
-                  _StatPill(
+                  const SizedBox(width: 12),
+                  _statPill(
+                    context,
                     label: 'Accuracy',
                     value: avgAccuracy != null
                         ? '${avgAccuracy.toStringAsFixed(1)}%'
-                        : '?',
+                        : '—',
                     highlight: true,
                   ),
                 ],
               ),
-              if (ranking != null) _RankBadge(ranking: ranking!),
+              if (ranking != null)
+                _RankBadge(
+                  rank: ranking!.rank,
+                  rankingPoints: ranking!.rankingPoints,
+                ),
             ],
           ),
-        ],
       ],
     );
   }
 
-  Widget _zScoreLabel(BuildContext context, String label, double value) {
-    return Text.rich(
-      TextSpan(
-        style: Theme.of(context).textTheme.bodySmall,
-        children: [
-          TextSpan(
-            text: '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          TextSpan(text: formattedRank(value)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChipsRow extends StatelessWidget {
-  final String mostCommonPlayStyle;
-  final bool trenchCapable;
-  final String? climbCapable;
-
-  const _ChipsRow({
-    required this.mostCommonPlayStyle,
-    required this.trenchCapable,
-    required this.climbCapable,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
-
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        if (mostCommonPlayStyle.isNotEmpty)
-          Chip(
-            label: Text(
-              mostCommonPlayStyle,
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-          ),
-        if (trenchCapable)
-          _OutlinedChip(
-            icon: Symbols.merge_type_rounded,
-            label: 'Trench',
-            color: secondaryColor,
-          ),
-        if (climbCapable != null && climbCapable != 'No Climb')
-          _OutlinedChip(
-            icon: Symbols.arrow_upload_ready_rounded,
-            label: climbCapable!,
-            color: secondaryColor,
-          ),
-      ],
-    );
-  }
-}
-
-class _OutlinedChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _OutlinedChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, size: 14, color: color),
-      label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withValues(alpha: 0.12),
-      side: BorderSide(color: color.withValues(alpha: 0.4)),
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-    );
-  }
-}
-
-class _StatPill extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool highlight;
-
-  const _StatPill({
-    required this.label,
-    required this.value,
-    this.highlight = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _statPill(
+    BuildContext context, {
+    required String label,
+    required String value,
+    bool highlight = false,
+  }) {
     final color = highlight
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
@@ -462,9 +419,10 @@ class _StatPill extends StatelessWidget {
 }
 
 class _RankBadge extends StatelessWidget {
-  final TeamRanking ranking;
+  final int rank;
+  final int rankingPoints;
 
-  const _RankBadge({required this.ranking});
+  const _RankBadge({required this.rank, required this.rankingPoints});
 
   @override
   Widget build(BuildContext context) {
@@ -474,14 +432,14 @@ class _RankBadge extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '#${ranking.rank}',
+          '#$rank',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: scheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
-          '${ranking.rankingPoints} RP',
+          '$rankingPoints RP',
           style: Theme.of(
             context,
           ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -514,7 +472,7 @@ class TeamDetailsPage extends ConsumerWidget {
       length: showNotes ? 4 : 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('$teamName — $teamNumber'),
+          title: Text('$teamName - $teamNumber'),
           leading: IconButton(
             icon: const Icon(Symbols.close),
             onPressed: () => Navigator.pop(context),
@@ -610,52 +568,6 @@ class TeamDetailsPage extends ConsumerWidget {
         );
     }
   }
-}
-
-List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(
-  List<ProcessedScoutingDoc> data,
-) {
-  return [
-    LineSeries<ProcessedScoutingDoc, num>(
-      dataSource: data,
-      xValueMapper: (doc, index) => index,
-      yValueMapper: (doc, _) =>
-          TeamScoutingBundle.getMatchField(
-            doc.raw,
-            kSectionTele,
-            kTeleFuelScored,
-          ) +
-          TeamScoutingBundle.getMatchField(
-            doc.raw,
-            kSectionAuto,
-            kAutoFuelScored,
-          ),
-      name: 'Total',
-      color: Colors.green,
-    ),
-    LineSeries<ProcessedScoutingDoc, num>(
-      dataSource: data,
-      xValueMapper: (doc, index) => index,
-      yValueMapper: (doc, _) => TeamScoutingBundle.getMatchField(
-        doc.raw,
-        kSectionTele,
-        kTeleFuelScored,
-      ),
-      name: 'Tele',
-      color: Colors.blue,
-    ),
-    LineSeries<ProcessedScoutingDoc, num>(
-      dataSource: data,
-      xValueMapper: (doc, index) => index,
-      yValueMapper: (doc, _) => TeamScoutingBundle.getMatchField(
-        doc.raw,
-        kSectionAuto,
-        kAutoFuelScored,
-      ),
-      name: 'Auto',
-      color: Colors.red,
-    ),
-  ];
 }
 
 enum _TeamAction { openTba, openStatbotics, openFrcEvents, copyNumber }

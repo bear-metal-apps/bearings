@@ -9,15 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 
-String? _scouterNameFromRaw(dynamic rawDoc) {
-  final meta = rawDoc?.meta;
-  if (meta is Map) {
-    final scoutedBy = meta['scoutedBy']?.toString().trim() ?? '';
-    if (scoutedBy.isNotEmpty) return scoutedBy;
-  }
-  return null;
-}
-
 final _teamScheduleProvider = FutureProvider.family<List<int>, int>((
   ref,
   teamNumber,
@@ -203,10 +194,9 @@ class _MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final matchNumber = TeamScoutingBundle.matchNumber(doc.raw);
-    final scouterName = _scouterNameFromRaw(doc.raw);
-    final label = matchNumber != null
-        ? 'Match $matchNumber'
+    final mn = TeamScoutingBundle.matchNumber(doc.raw);
+    final label = mn != null
+        ? 'Match $mn'
         : 'Match (${scoutingShortDate(doc.raw.timestamp)})';
 
     final autoFuel = _f(kSectionAuto, kAutoFuelScored);
@@ -235,6 +225,10 @@ class _MatchCard extends StatelessWidget {
           '$foulsCount Foul${foulsCount == 1 ? '' : 's'}',
         ),
     ];
+    final interferences = [
+      if (_f(kSectionEndgame, kEndDefendedAgainst) == true)
+        scoutingIncidentChip(context, 'Defended'),
+    ];
 
     // Summary subtitle shown in the collapsed tile.
     final autoStr = autoFuel is num ? autoFuel.toInt().toString() : '—';
@@ -257,35 +251,26 @@ class _MatchCard extends StatelessWidget {
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         visualDensity: const VisualDensity(vertical: -2),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           children: [
-            Row(
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                if (incidents.isNotEmpty) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Wrap(spacing: 4, runSpacing: 2, children: incidents),
-                  ),
-                ],
-              ],
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
-            if (scouterName != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  'Scouted by $scouterName',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
+            if (incidents.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(spacing: 4, runSpacing: 2, children: incidents),
               ),
+            ],
+            if (interferences.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(spacing: 4, runSpacing: 2, children: interferences),
+              ),
+            ],
           ],
         ),
         subtitle: Text(
@@ -462,6 +447,11 @@ class _MatchDetailSection extends StatelessWidget {
                 context,
                 'Defense Off Shift',
                 _f(kSectionEndgame, kEndPlayedDefenseOffShift),
+              ),
+              _row(
+                context,
+                'Defended Against',
+                _f(kSectionEndgame, kEndDefendedAgainst),
               ),
               _row(context, 'Play Style', _f(kSectionEndgame, kEndPlayStyle)),
               _row(context, 'No Show', _f(kSectionEndgame, kEndNoShow)),
