@@ -130,7 +130,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/up_next',
-            pageBuilder: (_, _) => const NoTransitionPage(child: UpNextPage()),
+            pageBuilder: (context, state) => NoTransitionPage<void>(
+              key: state.pageKey,
+              child: const UpNextPage(),
+            ),
             routes: [
               GoRoute(
                 path: ':matchKey',
@@ -143,8 +146,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/team_lookup',
-            pageBuilder: (_, _) =>
-                const NoTransitionPage(child: TeamLookupPage()),
+            pageBuilder: (context, state) => NoTransitionPage<void>(
+              key: state.pageKey,
+              child: const TeamLookupPage(),
+            ),
           ),
           GoRoute(
             path: '/export',
@@ -173,8 +178,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/pits_scouting',
-            pageBuilder: (_, _) =>
-                const NoTransitionPage(child: PitsScoutingHomePage()),
+            pageBuilder: (context, state) => NoTransitionPage<void>(
+              key: state.pageKey,
+              child: const PitsScoutingHomePage(),
+            ),
           ),
           GoRoute(
             path: '/utilities',

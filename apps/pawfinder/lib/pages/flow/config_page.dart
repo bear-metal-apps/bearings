@@ -57,6 +57,8 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(eventsProvider);
 
+    final canProceed = _selectedEvent != null && _selectedPosition != null;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Comp and Position'),
@@ -270,50 +272,65 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
 
                 const Spacer(),
 
-                SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: FilledButton.icon(
-                        style: ButtonStyle(
-                          backgroundColor:
-                              _selectedEvent != null &&
-                                  _selectedPosition != null
-                              ? WidgetStateProperty.all(
-                                  Theme.of(context).colorScheme.primary,
-                                )
-                              : WidgetStateProperty.all(
-                                  Theme.of(context).colorScheme.surface,
-                                ),
+                canProceed
+                    ? SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          onPressed: () {
+                            final notifier = ref.read(
+                              scoutingSessionProvider.notifier,
+                            );
+                            notifier.setEvent(_selectedEvent!);
+                            notifier.setPosition(_selectedPosition!);
+                            context.go('/scout');
+                          },
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Text('Next'),
                         ),
-                        onPressed:
-                            _selectedEvent != null && _selectedPosition != null
-                            ? () {
-                                final notifier = ref.read(
-                                  scoutingSessionProvider.notifier,
-                                );
-                                notifier.setEvent(_selectedEvent!);
-                                notifier.setPosition(_selectedPosition!);
-                                context.go('/scout');
-                              }
-                            : null,
-                        icon: const Icon(Icons.arrow_forward),
-                        label: const Text('Next'),
+                      )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 600.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
+                      )
+                      .shimmer(
+                        delay: 1200.ms,
+                        duration: 1500.ms,
+                        color: Colors.white24,
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.surface,
+                            ),
+                          ),
+                          onPressed: null,
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Text('Next'),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 600.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
                       ),
-                    )
-                    .animate()
-                    .fadeIn(delay: 600.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.3,
-                      end: 0,
-                      delay: 600.ms,
-                      duration: 500.ms,
-                      curve: Curves.easeOut,
-                    )
-                    .shimmer(
-                      delay: 1200.ms,
-                      duration: 1500.ms,
-                      color: Colors.white24,
-                    ),
               ],
             ),
           ),

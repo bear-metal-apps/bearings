@@ -55,6 +55,7 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
     }
 
     final position = session.position!;
+    final canProceed = _matchNumber != null && _matchNumber! > 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -229,57 +230,72 @@ class _MatchSelectPageState extends ConsumerState<MatchSelectPage> {
 
                 const Spacer(),
 
-                SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: FilledButton.icon(
-                        onPressed: _matchNumber != null && _matchNumber! > 0
-                            ? () {
-                                ref
-                                    .read(scoutingSessionProvider.notifier)
-                                    .setMatchNumber(_matchNumber!);
+                canProceed
+                    ? SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          onPressed: () {
+                            ref
+                                .read(scoutingSessionProvider.notifier)
+                                .setMatchNumber(_matchNumber!);
 
-                                final identity = ref
-                                    .read(scoutingSessionProvider.notifier)
-                                    .createMatchIdentity();
-                                if (identity != null) {
-                                  final team = teamAsync.when(
-                                    data: (t) => t,
-                                    loading: () => null,
-                                    error: (_, _) => null,
-                                  );
-                                  if (team != null) {
-                                    Hive.box(
-                                      boxKey,
-                                    ).put(matchTeamKey(identity), team);
-                                  }
-                                }
-
-                                if (position.isStrategy) {
-                                  context.go('/strat');
-                                } else {
-                                  context.go('/match/auto');
-                                }
+                            final identity = ref
+                                .read(scoutingSessionProvider.notifier)
+                                .createMatchIdentity();
+                            if (identity != null) {
+                              final team = teamAsync.when(
+                                data: (t) => t,
+                                loading: () => null,
+                                error: (_, _) => null,
+                              );
+                              if (team != null) {
+                                Hive.box(boxKey).put(matchTeamKey(identity), team);
                               }
-                            : null,
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text('Go'),
+                            }
+
+                            if (position.isStrategy) {
+                              context.go('/strat');
+                            } else {
+                              context.go('/match/auto');
+                            }
+                          },
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Go'),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 600.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
+                      )
+                      .shimmer(
+                        delay: 1200.ms,
+                        duration: 1500.ms,
+                        color: Colors.white24,
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Go'),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 600.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
                       ),
-                    )
-                    .animate()
-                    .fadeIn(delay: 600.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.3,
-                      end: 0,
-                      delay: 600.ms,
-                      duration: 500.ms,
-                      curve: Curves.easeOut,
-                    )
-                    .shimmer(
-                      delay: 1200.ms,
-                      duration: 1500.ms,
-                      color: Colors.white24,
-                    ),
               ],
             ),
           ),

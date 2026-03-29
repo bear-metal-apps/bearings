@@ -41,6 +41,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
   @override
   Widget build(BuildContext context) {
     final scoutsAsync = ref.watch(scoutsProvider);
+    final canProceed = _selectedScout != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -158,36 +159,53 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
 
                 const SizedBox(height: 16),
 
-                SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: FilledButton.icon(
-                        onPressed: _selectedScout != null
-                            ? () {
-                                ref
-                                    .read(scoutingSessionProvider.notifier)
-                                    .setScout(_selectedScout!);
-                                context.go('/match-select');
-                              }
-                            : null,
-                        icon: const Icon(Icons.arrow_forward),
-                        label: const Text('Next'),
+                canProceed
+                    ? SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          onPressed: () {
+                            ref
+                                .read(scoutingSessionProvider.notifier)
+                                .setScout(_selectedScout!);
+                            context.go('/match-select');
+                          },
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Text('Next'),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 300.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 300.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
+                      )
+                      .shimmer(
+                        delay: 900.ms,
+                        duration: 1500.ms,
+                        color: Colors.white24,
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Text('Next'),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 300.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 300.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
                       ),
-                    )
-                    .animate()
-                    .fadeIn(delay: 300.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.3,
-                      end: 0,
-                      delay: 300.ms,
-                      duration: 500.ms,
-                      curve: Curves.easeOut,
-                    )
-                    .shimmer(
-                      delay: 900.ms,
-                      duration: 1500.ms,
-                      color: Colors.white24,
-                    ),
               ],
             ),
           ),

@@ -20,11 +20,11 @@ class WelcomePage extends ConsumerWidget {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 )
                 .animate()
-                .fadeIn(duration: 600.ms)
+                .fadeIn(duration: 800.ms)
                 .slideY(
                   begin: -0.3,
                   end: 0,
-                  duration: 600.ms,
+                  duration: 800.ms,
                   curve: Curves.easeOutCubic,
                 ),
             IntrinsicWidth(
@@ -58,12 +58,12 @@ class WelcomePage extends ConsumerWidget {
                         icon: const Icon(Symbols.open_in_new_rounded),
                       )
                       .animate()
-                      .fadeIn(delay: 300.ms, duration: 600.ms)
+                      .fadeIn(delay: 400.ms, duration: 800.ms)
                       .slideY(
                         begin: 0.3,
                         end: 0,
-                        delay: 300.ms,
-                        duration: 600.ms,
+                        delay: 400.ms,
+                        duration: 800.ms,
                         curve: Curves.easeOutCubic,
                       ),
                 ],
