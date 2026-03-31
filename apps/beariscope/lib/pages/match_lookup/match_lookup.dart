@@ -54,63 +54,49 @@ class _MatchLookupPageState extends ConsumerState<MatchLookupPage> {
 
             const SizedBox(height: 12),
 
-            Row(
-              children: [
-                Expanded(child: _buildTeamDropdown("Team 1", _team1TEC, teams)),
-                const SizedBox(width: 8),
-                Expanded(child: _buildTeamDropdown("Team 2", _team2TEC, teams)),
-              ],
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Row(
+                  children: [
+                    Expanded(child: _buildTeamDropdown("Team 1", _team1TEC, teams)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildTeamDropdown("Team 2", _team2TEC, teams)),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 16),
 
-            SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<Alliances>(
-                segments: const [
-                  ButtonSegment(
-                    value: Alliances.same,
-                    label: Text("Same"),
-                  ),
-                  ButtonSegment(
-                    value: Alliances.opposite,
-                    label: Text("Opposite"),
-                  ),
-                  ButtonSegment(
-                    value: Alliances.all,
-                    label: Text("All"),
-                  ),
-                ],
-                selected: {_selectedAlliance},
+            Center(
+              child: SizedBox(
+                width: 600,
+                child: SegmentedButton<Alliances>(
+                  segments: const [
+                    ButtonSegment(
+                      value: Alliances.same,
+                      label: Text("Same"),
+                    ),
+                    ButtonSegment(
+                      value: Alliances.opposite,
+                      label: Text("Opposite"),
+                    ),
+                    ButtonSegment(
+                      value: Alliances.all,
+                      label: Text("All"),
+                    ),
+                  ],
+                  selected: {_selectedAlliance},
                   onSelectionChanged: (newSelection) {
                     setState(() => _selectedAlliance = newSelection.first);
                     ref.read(allianceFilterProvider.notifier).state = newSelection.first;
                   },
+                ),
               ),
             ),
 
             const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(
-                    value: true,
-                    label: Text("Current Event"),
-                  ),
-                  ButtonSegment(
-                    value: false,
-                    label: Text("All Events"),
-                  ),
-                ],
-                selected: {_currentEventOnly},
-                  onSelectionChanged: (newSelection) {
-                    setState(() => _currentEventOnly = newSelection.first);
-                    ref.read(currentEventOnlyProvider.notifier).state = newSelection.first;
-                  }
-              ),
-            ),
 
             const SizedBox(height: 20),
 
@@ -120,6 +106,8 @@ class _MatchLookupPageState extends ConsumerState<MatchLookupPage> {
                   // check if user has actually typed anything yet
                   final t1 = ref.watch(team1SearchProvider);
                   final t2 = ref.watch(team2SearchProvider);
+                  final seenKeys = <String>{};
+                  final uniqueMatches = matches.where((m) => seenKeys.add(m['key'] ?? '')).toList();
 
                   if ((t1?.isEmpty ?? true) || (t2?.isEmpty ?? true)) {
                     return const Center(child: Text("Search for two teams to see matches"));
@@ -130,9 +118,9 @@ class _MatchLookupPageState extends ConsumerState<MatchLookupPage> {
                       : ListView.builder(
                     itemCount: matches.length,
                     itemBuilder: (context, index) => MatchCard(
-                      match: matches[index],
-                      // use ! because we verified they aren't null above
+                      match: uniqueMatches[index],
                       highlightTeams: [t1!, t2!],
+
                     ),
                   );
                 },
@@ -175,13 +163,19 @@ class _MatchLookupPageState extends ConsumerState<MatchLookupPage> {
         }
       },
 
-      fieldViewBuilder: (context,
-          textController,
-          focusNode,
-          onEditingComplete,) {
+      fieldViewBuilder: (context, textController, focusNode, onEditingComplete,) {
         return TextField(
           controller: textController,
           focusNode: focusNode,
+          onChanged: (value) {
+            if (value.isEmpty) {
+              if (controller == _team1TEC) {
+                ref.read(team1SearchProvider.notifier).state = '';
+              } else {
+                ref.read(team2SearchProvider.notifier).state = '';
+              }
+            }
+          },
           decoration: InputDecoration(
             hintText: hint,
             border: const OutlineInputBorder(

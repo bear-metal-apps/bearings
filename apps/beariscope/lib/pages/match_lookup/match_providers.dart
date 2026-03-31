@@ -49,7 +49,6 @@ final filteredMatchesProvider = Provider<AsyncValue<List<Map<String, dynamic>>>>
   final allianceFilter = ref.watch(allianceFilterProvider);
   final eventOnly = ref.watch(currentEventOnlyProvider);
 
-  // determines which data source to use
   final AsyncValue<List<Map<String, dynamic>>> matchesAsync;
 
   if (eventOnly) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MatchCard extends StatelessWidget {
   final Map<String, dynamic> match;
@@ -12,6 +13,7 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String mKey = match['key']?.toString() ?? '';
     final alliances = match['alliances'] ?? {};
     final red = alliances['red'] ?? {};
     final blue = alliances['blue'] ?? {};
@@ -19,12 +21,14 @@ class MatchCard extends StatelessWidget {
     final blueScore = blue['score'] ?? 0;
 
     final matchNum = match['match_number'] ?? '';
+    final setNum = match['set_number'] ?? '';
     final compLevel = match['comp_level'] ?? 'qm';
+
     final type = switch (compLevel) {
-      'qm' => 'Qualifications',
-      'sf' => 'Semifinals',
-      'f' => 'Finals',
-      _ => compLevel.toString().toUpperCase(),
+      'qm' => 'Qualification Match $matchNum',
+      'sf' => 'Semifinal Match $setNum',
+      'f' => 'Final Match $matchNum',
+      _ => '${compLevel.toUpperCase()}',
     };
 
     List<String> parseTeams(dynamic keys) => (keys as List? ?? [])
@@ -34,77 +38,91 @@ class MatchCard extends StatelessWidget {
     final redTeams = parseTeams(red['team_keys']);
     final blueTeams = parseTeams(blue['team_keys']);
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Match $matchNum — $type',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-
-            Divider(height: 24, thickness: 1, color: Colors.grey),
-
-            _buildAllianceRow(
-              'Blue Alliance',
-              blueTeams,
-              Colors.blue.shade700,
-            ),
-
-            Divider(height: 24, thickness: 1, color: Colors.grey),
-
-            _buildAllianceRow(
-              'Red Alliance',
-              redTeams,
-              Colors.red.shade700,
-            ),
-
-            Divider(height: 24, thickness: 1, color: Colors.grey),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Score',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width > 700 ? 600 : double.infinity,
+        child: Card(
+            elevation: 0,
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                if (mKey.isNotEmpty) {
+                  context.push('/up_next/$mKey');
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$type',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                    children: [
-                      TextSpan(
-                        text: '$blueScore',
-                        style: TextStyle(color: Colors.blue.shade700),
-                      ),
-                      const TextSpan(
-                          text: ' – ',
-                        style: TextStyle(color: Colors.white)
-                      ),
-                      TextSpan(
-                        text: '$redScore',
-                        style: TextStyle(color: Colors.red.shade700),
-                      ),
-                    ],
-                  ),
+
+                    Divider(height: 24, thickness: 1, color: Colors.grey),
+
+                    _buildAllianceRow(
+                      'Blue Alliance',
+                      blueTeams,
+                      Colors.blue.shade700,
+                    ),
+
+                    Divider(height: 24, thickness: 1, color: Colors.grey),
+
+                    _buildAllianceRow(
+                      'Red Alliance',
+                      redTeams,
+                      Colors.red.shade700,
+                    ),
+
+                    Divider(height: 24, thickness: 1, color: Colors.grey),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Score',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: '$blueScore',
+                                style: TextStyle(color: Colors.blue.shade700),
+                              ),
+                              const TextSpan(
+                                  text: ' – ',
+                                  style: TextStyle(color: Colors.white)
+                              ),
+                              TextSpan(
+                                text: '$redScore',
+                                style: TextStyle(color: Colors.red.shade700),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+            )
         ),
       ),
     );
