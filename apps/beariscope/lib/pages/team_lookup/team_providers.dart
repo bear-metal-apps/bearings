@@ -58,6 +58,7 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
     final allTeamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
       final client = ref.watch(honeycombClientProvider);
 
+
       final teamData = await client.get<List<dynamic>>(
         '/teams',
         cachePolicy: CachePolicy.cacheFirst,
