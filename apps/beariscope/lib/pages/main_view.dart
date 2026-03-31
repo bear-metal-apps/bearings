@@ -69,6 +69,12 @@ class _MainViewState extends ConsumerState<MainView> {
       group: 'Insights',
     ),
     _NavItem(
+      route: '/match_lookup',
+      icon: Symbols.leaderboard,
+      label: 'Match Lookup',
+      group: 'Insights',
+    ),
+    _NavItem(
       route: '/export',
       icon: Symbols.table_chart_rounded,
       label: 'Export Data',
