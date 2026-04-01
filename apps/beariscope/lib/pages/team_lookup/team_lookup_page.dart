@@ -49,12 +49,15 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
         '/rankings',
         queryParams: {'event': selectedEvent},
       );
+      client.invalidateCache('/event/$selectedEvent/team_media');
       ref.invalidate(teamsProvider);
       ref.invalidate(eventRankingsProvider);
+      ref.invalidate(eventTeamMediaProvider);
       try {
         await Future.wait([
           ref.read(teamsProvider.future),
           ref.read(eventRankingsProvider.future),
+          ref.read(eventTeamMediaProvider.future),
         ]);
       } catch (_) {
         // Keep current cached data visible if refresh fails.
