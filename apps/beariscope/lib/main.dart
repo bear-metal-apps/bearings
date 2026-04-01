@@ -100,10 +100,10 @@ Future<void> main() async {
 
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(this.ref) {
-    ref.listen(appBootProvider, (_, __) => notifyListeners());
-    ref.listen(authStatusProvider, (_, __) => notifyListeners());
-    ref.listen(postSignInFlowPendingProvider, (_, __) => notifyListeners());
-    ref.listen(authMeProvider, (_, __) => notifyListeners());
+    ref.listen(appBootProvider, (_, _) => notifyListeners());
+    ref.listen(authStatusProvider, (_, _) => notifyListeners());
+    ref.listen(postSignInFlowPendingProvider, (_, _) => notifyListeners());
+    ref.listen(authMeProvider, (_, _) => notifyListeners());
   }
 
   final Ref ref;
