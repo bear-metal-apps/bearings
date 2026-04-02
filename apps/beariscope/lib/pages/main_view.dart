@@ -151,6 +151,8 @@ class _MainViewState extends ConsumerState<MainView> {
         final visibleNavItems = _visibleNavItems(permissionChecker);
         final selectedIndex = _selectedIndexFor(visibleNavItems);
         final isAtTopLevel = _isAtTopLevelFor(visibleNavItems);
+        final canPopRoute = Navigator.of(context).canPop();
+        final allowDrawerGesture = !isDesktop && isAtTopLevel && !canPopRoute;
 
         final isOnline = switch (ref.watch(connectivityProvider)) {
           AsyncData(:final value) => value,
@@ -185,9 +187,8 @@ class _MainViewState extends ConsumerState<MainView> {
 
         return Scaffold(
           key: _scaffoldKey,
-          // Only enable drawer when at top level and on mobile
-          drawer: isDesktop ? null : (isAtTopLevel ? navigationDrawer : null),
-          drawerEnableOpenDragGesture: !isDesktop && isAtTopLevel,
+          drawer: isDesktop ? null : navigationDrawer,
+          drawerEnableOpenDragGesture: allowDrawerGesture,
           drawerBarrierDismissible: !isDesktop,
           body: MainViewController(
             isDesktop: isDesktop,
