@@ -195,6 +195,7 @@ class _TeamCardHeader extends StatelessWidget {
                             type: '',
                             preferred: false,
                             teamKeys: [],
+                            details: {},
                             directUrl: null,
                             viewUrl: null,
                             base64Image: null,
@@ -575,7 +576,8 @@ class TeamDetailsPage extends ConsumerWidget {
           ),
       data: (media) {
         final hasMedia = media.any((record) {
-          return record.isImgurPhoto && (record.directUrl?.isNotEmpty ?? false);
+          return record.hasRenderableMedia &&
+              record.openUrl?.isNotEmpty == true;
         });
 
         return DefaultTabController(
@@ -629,6 +631,7 @@ class TeamDetailsPage extends ConsumerWidget {
                 const SizedBox(width: 8),
               ],
               bottom: TabBar(
+                tabAlignment: TabAlignment.start,
                 isScrollable: true,
                 tabs: [
                   const Tab(text: 'Averages'),

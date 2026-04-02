@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/pages/team_lookup/tabs/media_save_helper.dart';
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MediaTab extends ConsumerStatefulWidget {
@@ -40,97 +45,395 @@ class _MediaTabState extends ConsumerState<MediaTab> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (media) {
-        final imgurPhotos = media
-            .where(
-              (record) =>
-              record.isImgurPhoto &&
-                  (record.directUrl?.isNotEmpty ?? false),
-        )
-            .toList();
+        final sections = _MediaSections.fromRecords(
+          media.where((record) => !record.isAvatar),
+        );
 
-        if (imgurPhotos.isEmpty) {
+        if (sections.isEmpty) {
           return const Center(child: Text('No media recorded for this team.'));
         }
 
-        final urls = imgurPhotos.map((e) => e.directUrl!).toList();
-
-        return ListView(
-          padding: const EdgeInsets.all(16),
+        return BeariscopeCardList(
+          spacing: 0,
           children: [
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1,
+            if (sections.photos.isNotEmpty) ...[
+              const ScoutingSectionHeader(
+                icon: Symbols.photo_library_rounded,
+                title: 'Photos',
               ),
-              itemCount: imgurPhotos.length,
-              itemBuilder: (context, index) {
-                final url = urls[index];
-
-                return ValueListenableBuilder<String?>(
-                  valueListenable: _activeUrlNotifier,
-                  builder: (context, activeUrl, _) {
-                    final isViewerOpen = activeUrl != null;
-                    final isViewingThis = activeUrl == url;
-                    final shouldBeHero = !isViewerOpen || isViewingThis;
-
-                    Widget imageContent = ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: _NetworkImageWithSkeleton(
-                        url: url,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-
-                    if (shouldBeHero) {
-                      imageContent = Hero(tag: url, child: imageContent);
-                    }
-
-                    return GestureDetector(
-                      onTap: () async {
-                        _activeUrlNotifier.value = url;
-                        await Navigator.of(context).push(
-                          PageRouteBuilder(
-                            opaque: false,
-                            transitionDuration: const Duration(
-                              milliseconds: 300,
-                            ),
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    _FullscreenImageViewer(
-                                      urls: urls,
-                                      initialIndex: index,
-                                      activeUrlNotifier: _activeUrlNotifier,
-                                    ),
-                            transitionsBuilder:
-                                (context,
-                                animation,
-                                secondaryAnimation,
-                                child,
-                                ) => FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
-                          ),
-                        );
-                        _activeUrlNotifier.value = null;
-                      },
-                      child: Opacity(
-                        opacity: isViewingThis ? 0.0 : 1.0,
-                        child: imageContent,
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+              const SizedBox(height: 12),
+              _PhotoGrid(
+                photos: sections.photos,
+                activeUrlNotifier: _activeUrlNotifier,
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (sections.chiefDelphiThreads.isNotEmpty) ...[
+              const ScoutingSectionHeader(
+                icon: Symbols.forum_rounded,
+                title: 'Chief Delphi Threads',
+              ),
+              const SizedBox(height: 12),
+              ...sections.chiefDelphiThreads.map(
+                    (record) =>
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _MediaLinkCard(record: record),
+                    ),
+              ),
+            ],
+            if (sections.cadReleases.isNotEmpty) ...[
+              const ScoutingSectionHeader(
+                icon: Symbols.view_in_ar_rounded,
+                title: 'CAD Files',
+              ),
+              const SizedBox(height: 12),
+              ...sections.cadReleases.map(
+                    (record) =>
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _MediaLinkCard(record: record),
+                    ),
+              ),
+            ],
+            if (sections.youtubeVideos.isNotEmpty) ...[
+              const ScoutingSectionHeader(
+                icon: Symbols.video_library_rounded,
+                title: 'Videos',
+              ),
+              const SizedBox(height: 12),
+              ...sections.youtubeVideos.map(
+                    (record) =>
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _MediaLinkCard(record: record),
+                    ),
+              ),
+            ],
           ],
         );
       },
     );
+  }
+}
+
+class _MediaSections {
+  final List<TeamMediaRecord> photos;
+  final List<TeamMediaRecord> chiefDelphiThreads;
+  final List<TeamMediaRecord> cadReleases;
+  final List<TeamMediaRecord> youtubeVideos;
+
+  const _MediaSections({
+    required this.photos,
+    required this.chiefDelphiThreads,
+    required this.cadReleases,
+    required this.youtubeVideos,
+  });
+
+  factory _MediaSections.fromRecords(Iterable<TeamMediaRecord> records) {
+    final photos = <TeamMediaRecord>[];
+    final chiefDelphiThreads = <TeamMediaRecord>[];
+    final cadReleases = <TeamMediaRecord>[];
+    final youtubeVideos = <TeamMediaRecord>[];
+
+    for (final record in records) {
+      if (!record.hasRenderableMedia) continue;
+
+      if (record.isPhoto && record.previewImageUrl?.isNotEmpty == true) {
+        photos.add(record);
+      } else
+      if (record.isChiefDelphiThread && record.openUrl?.isNotEmpty == true) {
+        chiefDelphiThreads.add(record);
+      } else if (record.isCadRelease && record.openUrl?.isNotEmpty == true) {
+        cadReleases.add(record);
+      } else if (record.isYoutubeVideo && record.openUrl?.isNotEmpty == true) {
+        youtubeVideos.add(record);
+      }
+    }
+
+    return _MediaSections(
+      photos: photos,
+      chiefDelphiThreads: chiefDelphiThreads,
+      cadReleases: cadReleases,
+      youtubeVideos: youtubeVideos,
+    );
+  }
+
+  bool get isEmpty =>
+      photos.isEmpty &&
+          chiefDelphiThreads.isEmpty &&
+          cadReleases.isEmpty &&
+          youtubeVideos.isEmpty;
+}
+
+class _PhotoGrid extends StatelessWidget {
+  final List<TeamMediaRecord> photos;
+  final ValueNotifier<String?> activeUrlNotifier;
+
+  const _PhotoGrid({
+    required this.photos,
+    required this.activeUrlNotifier,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final urls = photos.map((e) => e.previewImageUrl!).toList();
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 200,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1,
+      ),
+      itemCount: photos.length,
+      itemBuilder: (context, index) {
+        final url = urls[index];
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: activeUrlNotifier,
+          builder: (context, activeUrl, _) {
+            final isViewerOpen = activeUrl != null;
+            final isViewingThis = activeUrl == url;
+            final shouldBeHero = !isViewerOpen || isViewingThis;
+
+            Widget imageContent = ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: _NetworkImageWithSkeleton(
+                url: url,
+                fit: BoxFit.cover,
+              ),
+            );
+
+            if (shouldBeHero) {
+              imageContent = Hero(tag: url, child: imageContent);
+            }
+
+            return GestureDetector(
+              onTap: () async {
+                activeUrlNotifier.value = url;
+                await Navigator.of(context).push(
+                  PageRouteBuilder(
+                    opaque: false,
+                    transitionDuration: const Duration(milliseconds: 300),
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        _FullscreenImageViewer(
+                          urls: urls,
+                          initialIndex: index,
+                          activeUrlNotifier: activeUrlNotifier,
+                        ),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) =>
+                        FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                  ),
+                );
+                activeUrlNotifier.value = null;
+              },
+              child: Opacity(
+                opacity: isViewingThis ? 0.0 : 1.0,
+                child: imageContent,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _MediaLinkCard extends StatelessWidget {
+  final TeamMediaRecord record;
+
+  const _MediaLinkCard({required this.record});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme
+        .of(context)
+        .colorScheme;
+    final openUrl = record.openUrl;
+
+    final subtitleText = switch (record.type) {
+      'cd-thread' => 'Chief Delphi Thread',
+      'onshape' => 'Onshape CAD File',
+      'youtube' => 'YouTube Video',
+      _ => record.type,
+    };
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: openUrl == null ? null : () => _openUrl(context, openUrl),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+              color: scheme.outlineVariant.withValues(alpha: 0.4)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Stack(
+            children: [
+              // Faded Background Image Layer
+              if (record.previewImageUrl != null)
+                Positioned.fill(
+                  child: Opacity(opacity: 0.3,
+                    child: _NetworkImageWithSkeleton(
+                      url: record.previewImageUrl!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              // Content Layer
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildTitle(context),
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitleText,
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (openUrl != null) ...[
+                      const SizedBox(width: 12),
+                      Icon(Icons.open_in_new_rounded),
+
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    final style = Theme
+        .of(context)
+        .textTheme
+        .titleMedium
+        ?.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+
+    final fallback = switch (record.type) {
+      'cd-thread' => 'Chief Delphi thread',
+      'onshape' => 'CAD release',
+      'youtube' => 'YouTube video',
+      _ => 'Media item',
+    };
+
+    final defaultTitle = record.title ?? fallback;
+
+    if (record.type == 'youtube' && record.openUrl != null) {
+      return FutureBuilder<String?>(
+        future: YoutubeTitleProvider.titleForUrl(record.openUrl!),
+        builder: (context, snapshot) {
+          final resolved = snapshot.data?.trim();
+          final displayTitle = (resolved != null && resolved.isNotEmpty)
+              ? resolved
+              : defaultTitle;
+
+          return Text(
+            displayTitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          );
+        },
+      );
+    }
+
+    return Text(
+      defaultTitle,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+
+  Future<void> _openUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open media link')),
+      );
+    }
+  }
+}
+
+class YoutubeTitleProvider {
+  static final Map<String, Future<String?>> _cache = {};
+
+  static Future<String?> titleForUrl(String url) {
+    return _cache.putIfAbsent(url, () => _fetchTitle(url));
+  }
+
+  static Future<String?> _fetchTitle(String url) async {
+    final videoId = _extractVideoId(url);
+    if (videoId == null) return null;
+
+    final response = await http.get(
+      Uri.parse(
+        'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$videoId&format=json',
+      ),
+      headers: const {'Accept': 'application/json'},
+    );
+    if (response.statusCode != 200) return null;
+
+    final json = jsonDecode(response.body);
+    if (json is Map<String, dynamic>) {
+      return json['title']?.toString().trim();
+    }
+    return null;
+  }
+
+  static String? _extractVideoId(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return null;
+
+    if (uri.host.contains('youtu.be')) {
+      return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+    }
+
+    final videoId = uri.queryParameters['v'];
+    if (videoId != null && videoId.isNotEmpty) return videoId;
+
+    final segments = uri.pathSegments;
+    if (segments.length >= 2 && segments.first == 'shorts') {
+      return segments[1];
+    }
+
+    return null;
   }
 }
 
@@ -152,6 +455,7 @@ class _FullscreenImageViewer extends StatefulWidget {
 class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     with TickerProviderStateMixin {
   late final PageController _pageController;
+  late final FocusNode _keyboardFocusNode;
   late int _currentIndex;
   double _dragOffset = 0;
   double _currentScale = 1.0;
@@ -166,6 +470,8 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     super.initState();
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: widget.initialIndex);
+    _keyboardFocusNode =
+        FocusNode(debugLabel: 'FullscreenImageViewerKeyboardFocus');
 
     _snapController = AnimationController(
       vsync: this,
@@ -180,10 +486,61 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_keyboardFocusNode.hasFocus) {
+        _keyboardFocusNode.requestFocus();
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _keyboardFocusNode.dispose();
     _snapController.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _goToPreviousImage() {
+    if (_currentIndex <= 0) return;
+    _pageController.animateToPage(
+      _currentIndex - 1,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _goToNextImage() {
+    if (_currentIndex >= widget.urls.length - 1) return;
+    _pageController.animateToPage(
+      _currentIndex + 1,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  KeyEventResult _handleKeyboard(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    if (_currentScale > _dismissScaleThreshold) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      _goToPreviousImage();
+      return KeyEventResult.handled;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      _goToNextImage();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -224,7 +581,6 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
   }
 
   void _handleOverscrollEnd(Offset velocity) {
-    // Vertical check (already handles trackpad 0-velocity drops well via distance > 100)
     if (_dragOffset.abs() > 0) {
       if (_dragOffset.abs() > 100 || velocity.dy.abs() > 500) {
         Navigator.of(context).pop();
@@ -233,7 +589,6 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
       }
     }
 
-    // Horizontal check
     if (_pageController.hasClients) {
       final double currentPage = _pageController.page ??
           _currentIndex.toDouble();
@@ -244,7 +599,6 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
       } else if (velocity.dx > 500 && currentPage > 0) {
         targetPage = currentPage.floor();
       } else {
-        // Trackpad Fallback: If velocity is 0 but user dragged more than 20%
         if (currentPage > _currentIndex + 0.2) {
           targetPage = _currentIndex + 1;
         } else if (currentPage < _currentIndex - 0.2) {
@@ -269,113 +623,119 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     final scale = 1.0 - (dragFraction * 0.15);
     final canDismiss = _currentScale <= _dismissScaleThreshold;
 
-    return Scaffold(
-      backgroundColor: Colors.black.withValues(alpha: backgroundOpacity),
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white.withValues(alpha: backgroundOpacity),
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          '${_currentIndex + 1} / ${widget.urls.length}',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.white.withValues(alpha: backgroundOpacity),
+    return Focus(
+      focusNode: _keyboardFocusNode,
+      autofocus: true,
+      onKeyEvent: _handleKeyboard,
+      child: Scaffold(
+        backgroundColor: Colors.black.withValues(alpha: backgroundOpacity),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white.withValues(alpha: backgroundOpacity),
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            '${_currentIndex + 1} / ${widget.urls.length}',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: backgroundOpacity),
+            ),
           ),
-        ),
-        actionsPadding: const EdgeInsets.only(right: 8),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) async {
-              if (value == 'share') {
-                await _shareCurrentImage(widget.urls[_currentIndex]);
-              } else if (value == 'open') {
-                final uri = Uri.parse(widget.urls[_currentIndex]);
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Could not open image')),
-                    );
+          actionsPadding: const EdgeInsets.only(right: 8),
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) async {
+                if (value == 'share') {
+                  await _shareCurrentImage(widget.urls[_currentIndex]);
+                } else if (value == 'open') {
+                  final uri = Uri.parse(widget.urls[_currentIndex]);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Could not open image')),
+                      );
+                    }
                   }
                 }
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'share',
-                child: Row(
-                  children: const [
-                    Icon(Icons.ios_share_rounded),
-                    SizedBox(width: 12),
-                    Text('Share'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'open',
-                child: Row(
-                  children: const [
-                    Icon(Icons.open_in_new_rounded),
-                    SizedBox(width: 12),
-                    Text('Open in Browser'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onVerticalDragUpdate: canDismiss ? _handleDragUpdate : null,
-        onVerticalDragEnd: canDismiss ? _handleDragEnd : null,
-        child: Transform.scale(
-          scale: scale,
-          child: Transform.translate(
-            offset: Offset(0, _dragOffset),
-            child: PageView.builder(
-              controller: _pageController,
-              physics: canDismiss
-                  ? const PageScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
-              itemCount: widget.urls.length,
-              onPageChanged: (i) {
-                setState(() {
-                  _currentIndex = i;
-                  _dragOffset = 0;
-                  _currentScale = 1.0;
-                });
-                widget.activeUrlNotifier.value = widget.urls[i];
               },
-              itemBuilder: (context, index) {
-                final url = widget.urls[index];
-                final image = _NetworkImageWithSkeleton(
-                  url: url,
-                  fit: BoxFit.contain,
-                );
+              itemBuilder: (context) =>
+              [
+                PopupMenuItem(
+                  value: 'share',
+                  child: Row(
+                    children: const [
+                      Icon(Icons.ios_share_rounded),
+                      SizedBox(width: 12),
+                      Text('Share'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'open',
+                  child: Row(
+                    children: const [
+                      Icon(Icons.open_in_new_rounded),
+                      SizedBox(width: 12),
+                      Text('Open in Browser'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        body: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragUpdate: canDismiss ? _handleDragUpdate : null,
+          onVerticalDragEnd: canDismiss ? _handleDragEnd : null,
+          child: Transform.scale(
+            scale: scale,
+            child: Transform.translate(
+              offset: Offset(0, _dragOffset),
+              child: PageView.builder(
+                controller: _pageController,
+                physics: canDismiss
+                    ? const PageScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
+                itemCount: widget.urls.length,
+                onPageChanged: (i) {
+                  setState(() {
+                    _currentIndex = i;
+                    _dragOffset = 0;
+                    _currentScale = 1.0;
+                  });
+                  widget.activeUrlNotifier.value = widget.urls[i];
+                },
+                itemBuilder: (context, index) {
+                  final url = widget.urls[index];
+                  final image = _NetworkImageWithSkeleton(
+                    url: url,
+                    fit: BoxFit.contain,
+                  );
 
-                return _ZoomablePhotoPage(
-                  url: url,
-                  image: image,
-                  isCurrent: index == _currentIndex,
-                  onScaleChanged: index == _currentIndex
-                      ? _handleScaleChanged
-                      : null,
-                  onVerticalOverscroll: index == _currentIndex
-                      ? _handleVerticalOverscroll
-                      : null,
-                  onHorizontalOverscroll: index == _currentIndex
-                      ? _handleHorizontalOverscroll
-                      : null,
-                  onOverscrollEnd: index == _currentIndex
-                      ? _handleOverscrollEnd
-                      : null,
-                );
-              },
+                  return _ZoomablePhotoPage(
+                    url: url,
+                    image: image,
+                    isCurrent: index == _currentIndex,
+                    onScaleChanged: index == _currentIndex
+                        ? _handleScaleChanged
+                        : null,
+                    onVerticalOverscroll: index == _currentIndex
+                        ? _handleVerticalOverscroll
+                        : null,
+                    onHorizontalOverscroll: index == _currentIndex
+                        ? _handleHorizontalOverscroll
+                        : null,
+                    onOverscrollEnd: index == _currentIndex
+                        ? _handleOverscrollEnd
+                        : null,
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -387,9 +747,8 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     final imgurId = url.split('/').last.split('.').first;
     final filename = '$imgurId.jpg';
     final box = context.findRenderObject() as RenderBox?;
-    final shareOrigin = box == null
-        ? null
-        : box.localToGlobal(Offset.zero) & box.size;
+    final shareOrigin =
+    box == null ? null : box.localToGlobal(Offset.zero) & box.size;
     final bytes = await _fetchImageBytes(url);
     await shareOrSaveImage(shareOrigin, bytes, filename);
   }
@@ -429,7 +788,7 @@ class _ZoomablePhotoPageState extends State<_ZoomablePhotoPage> {
   double _lastScale = 1.0;
   Matrix4 _previousMatrix = Matrix4.identity();
   Axis? _overscrollAxis;
-  Timer? _scrollEndTimer; // Debouncer for raw trackpad scrolls
+  Timer? _scrollEndTimer;
 
   @override
   void initState() {
@@ -478,18 +837,17 @@ class _ZoomablePhotoPageState extends State<_ZoomablePhotoPage> {
     }
   }
 
-  // Bridging logic for discrete trackpad/mouse scroll signals
   void _handlePointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
       final scale = _controller.value.getMaxScaleOnAxis();
-      if (scale <= 1.0) return; // Unzoomed state is handled by PageView
+      if (scale <= 1.0) return;
 
-      // Scroll delta implies direction content is moving, which is inverted from finger delta
       final trackpadFocalDelta = Offset(
-          -event.scrollDelta.dx, -event.scrollDelta.dy);
+        -event.scrollDelta.dx,
+        -event.scrollDelta.dy,
+      );
       _processDeltaBridge(trackpadFocalDelta);
 
-      // Raw scroll events don't have an "end", so we debounce one.
       _scrollEndTimer?.cancel();
       _scrollEndTimer = Timer(const Duration(milliseconds: 150), () {
         if (_overscrollAxis != null) {
@@ -520,11 +878,12 @@ class _ZoomablePhotoPageState extends State<_ZoomablePhotoPage> {
       }
     }
 
-    if (_overscrollAxis == Axis.vertical && fingerDelta.dy.abs() > 0.5 &&
+    if (_overscrollAxis == Axis.vertical &&
+        fingerDelta.dy.abs() > 0.5 &&
         dy.abs() < 0.1) {
       widget.onVerticalOverscroll?.call(fingerDelta.dy);
-    } else
-    if (_overscrollAxis == Axis.horizontal && fingerDelta.dx.abs() > 0.5 &&
+    } else if (_overscrollAxis == Axis.horizontal &&
+        fingerDelta.dx.abs() > 0.5 &&
         dx.abs() < 0.1) {
       widget.onHorizontalOverscroll?.call(fingerDelta.dx);
     }
@@ -535,7 +894,6 @@ class _ZoomablePhotoPageState extends State<_ZoomablePhotoPage> {
   @override
   Widget build(BuildContext context) {
     return Listener(
-      // The secret sauce to catch PC trackpads and mice that bypass GestureDetector
       onPointerSignal: _handlePointerSignal,
       child: Center(
         child: InteractiveViewer(
@@ -615,3 +973,4 @@ class _PulseSkeletonState extends State<_PulseSkeleton>
     );
   }
 }
+

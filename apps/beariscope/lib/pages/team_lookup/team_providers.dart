@@ -74,6 +74,7 @@ class TeamMediaRecord {
   final String type;
   final bool preferred;
   final List<String> teamKeys;
+  final Map<String, dynamic> details;
   final String? directUrl;
   final String? viewUrl;
   final Uint8List? base64Image;
@@ -83,6 +84,7 @@ class TeamMediaRecord {
     required this.type,
     required this.preferred,
     required this.teamKeys,
+    required this.details,
     required this.directUrl,
     required this.viewUrl,
     required this.base64Image,
@@ -103,6 +105,7 @@ class TeamMediaRecord {
       type: json['type']?.toString() ?? '',
       preferred: json['preferred'] == true,
       teamKeys: teamKeys,
+      details: detailsMap,
       directUrl: _cleanString(json['direct_url']),
       viewUrl: _cleanString(json['view_url']),
       base64Image: _decodeBase64Image(detailsMap['base64Image']?.toString()),
@@ -116,7 +119,36 @@ class TeamMediaRecord {
 
   bool get isAvatar => type == 'avatar';
 
-  bool get isImgurPhoto => type == 'imgur';
+  bool get isPhoto => type == 'imgur' || type == 'instagram-image';
+
+  bool get isChiefDelphiThread => type == 'cd-thread';
+
+  bool get isCadRelease => type == 'onshape';
+
+  bool get isYoutubeVideo => type == 'youtube';
+
+  bool get hasRenderableMedia =>
+      isPhoto || isChiefDelphiThread || isCadRelease || isYoutubeVideo;
+
+  String? get title => switch (type) {
+    'cd-thread' => _cleanString(details['thread_title']),
+    'onshape' => _cleanString(details['model_name']),
+    'youtube' =>
+      _cleanString(details['title']) ??
+          _cleanString(details['video_title']) ??
+          _cleanString(details['name']),
+    _ => null,
+  };
+
+  String? get previewImageUrl => switch (type) {
+    'cd-thread' => _cleanString(details['image_url']) ?? directUrl,
+    'onshape' => _cleanString(details['model_image']) ?? directUrl,
+    'youtube' => directUrl,
+    'imgur' => directUrl,
+    _ => directUrl,
+  };
+
+  String? get openUrl => viewUrl ?? directUrl;
 }
 
 final eventTeamMediaProvider = FutureProvider<List<TeamMediaRecord>>((
