@@ -20,9 +20,7 @@ final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
     ref,
     matchKey,
     ) {
-  return ref
-      .watch(honeycombClientProvider)
-      .get<Map<String, dynamic>>(
+  return ref.watch(honeycombClientProvider).get<Map<String, dynamic>>(
     '/matches?match=$matchKey',
     cachePolicy: CachePolicy.cacheFirst,
   );
@@ -158,29 +156,18 @@ class _DriveTeamMatchPreviewPageState
           appBar: AppBar(
             title: Text(matchTitle),
             actions: [
-              IconButton(
-                icon: Icon(
-                  _scrollVertical
-                      ? Icons.view_carousel_outlined
-                      : Icons.view_agenda_outlined,
+              if (MediaQuery.sizeOf(context).width <= 1380)
+                IconButton(
+                  icon: Icon(
+                    _scrollVertical ? Icons.view_agenda : Icons.view_carousel,
+                  ),
+                  tooltip: _scrollVertical
+                      ? 'Show Horizontal Layout'
+                      : 'Show Vertical Layout',
+                  onPressed: () => setState(() {
+                    _scrollVertical = !_scrollVertical;
+                  }),
                 ),
-                tooltip: _scrollVertical
-                    ? 'Switch to horizontal'
-                    : 'Switch to vertical',
-                onPressed: () {
-                  final currentPage = _currentPageNotifier.value
-                      .round()
-                      .clamp(0, cards.isEmpty ? 0 : cards.length - 1);
-                  // dispose the old controller so _updatePageController
-                  // creates a fresh one with the new fraction on next build.
-                  _pageController?.dispose();
-                  _pageController = null;
-                  setState(() => _scrollVertical = !_scrollVertical);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _pageController?.jumpToPage(currentPage);
-                  });
-                },
-              ),
               PopupMenuButton<_TeamAction>(
                 icon: const Icon(Icons.more_vert),
                 tooltip: 'More options',
@@ -225,6 +212,55 @@ class _DriveTeamMatchPreviewPageState
               final width = constraints.maxWidth;
               final height = constraints.maxHeight;
 
+              final labelStyle =
+              Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              );
+
+              Widget buildStyledCard(int index, {bool showLabel = false}) {
+                final card = cards[index];
+                final isRed = index < redTeams.length;
+                final label = isRed ? 'Red Alliance' : 'Blue Alliance';
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (showLabel)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 0),
+                        child: Text(
+                          label,
+                          style: labelStyle?.copyWith(color: Colors.white),
+                        ),
+                      ),
+                    Expanded(
+                      child: TeamCard(
+                        teamKey: card.teamKey,
+                        allianceColor: card.color,
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              if (width > 1100) {
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemCount: cards.length,
+                  itemBuilder: (context, index) => buildStyledCard(
+                    index,
+                  ),
+                );
+              }
+
               // horizontal fraction
               final cardWidth = (width - 16).clamp(0.0, 600.0);
               final hFraction =
@@ -242,15 +278,7 @@ class _DriveTeamMatchPreviewPageState
 
               _updatePageController(
                 fraction,
-                _currentPageNotifier.value
-                    .round()
-                    .clamp(0, cards.length - 1),
-              );
-
-              final labelStyle =
-              Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+                _currentPageNotifier.value.round().clamp(0, cards.length - 1),
               );
 
               Widget dots = cards.length > 1
@@ -259,8 +287,7 @@ class _DriveTeamMatchPreviewPageState
                 builder: (context, page, _) {
                   return DotsIndicator(
                     dotsCount: cards.length,
-                    position:
-                    page.clamp(0, cards.length - 1).toDouble(),
+                    position: page.clamp(0, cards.length - 1).toDouble(),
                     axis: _scrollVertical
                         ? Axis.vertical
                         : Axis.horizontal,
@@ -272,16 +299,14 @@ class _DriveTeamMatchPreviewPageState
                       );
                     },
                     decorator: DotsDecorator(
-                      activeColor:
-                      Theme.of(context).colorScheme.primary,
+                      activeColor: Theme.of(context).colorScheme.primary,
                       color: Theme.of(context)
                           .colorScheme
                           .surfaceContainerHighest,
                       colors: cards
                           .map((c) => c.color.withValues(alpha: 0.4))
                           .toList(),
-                      activeColors:
-                      cards.map((c) => c.color).toList(),
+                      activeColors: cards.map((c) => c.color).toList(),
                       spacing: const EdgeInsets.symmetric(
                         horizontal: 4,
                         vertical: 8,
@@ -297,13 +322,11 @@ class _DriveTeamMatchPreviewPageState
               )
                   : const SizedBox.shrink();
 
-              // shared pageview
               Widget pageView = NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
                   if (notification is ScrollUpdateNotification &&
                       _pageController?.hasClients == true) {
-                    _currentPageNotifier.value =
-                        _pageController?.page ?? 0.0;
+                    _currentPageNotifier.value = _pageController?.page ?? 0.0;
                   }
                   return false;
                 },
@@ -313,10 +336,21 @@ class _DriveTeamMatchPreviewPageState
                   _scrollVertical ? Axis.vertical : Axis.horizontal,
                   itemCount: cards.length,
                   itemBuilder: (context, index) {
+                    if (_scrollVertical) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        child: buildStyledCard(
+                          index,
+                          showLabel: index == 0 || index == redTeams.length,
+                        ),
+                      );
+                    }
+
                     return Padding(
-                      padding: _scrollVertical
-                          ? const EdgeInsets.symmetric(horizontal: 8, vertical: 8)
-                          : const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: TeamCard(
                         teamKey: cards[index].teamKey,
                         allianceColor: cards[index].color,
@@ -328,7 +362,9 @@ class _DriveTeamMatchPreviewPageState
 
               // vertical layout
               if (_scrollVertical) {
-                return Center(child: SizedBox(width: cardWidth, child: pageView));
+                return Center(
+                  child: SizedBox(width: cardWidth, child: pageView),
+                );
               }
 
               // horizontal layout
@@ -560,7 +596,6 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
       if (entries.isNotEmpty) {
         final client = ref.read(honeycombClientProvider);
         await client.post('/scout/ingest', data: {'entries': entries});
-        // sync the local Hive cache so notes survive a page-exit and re-entry.
         await ref.read(scoutingDataProvider.notifier).refresh();
       }
 
