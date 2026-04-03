@@ -71,10 +71,7 @@ class TeamCard extends ConsumerWidget {
         final resolvedTeam = team;
 
         return Material(
-          color: Theme
-              .of(context)
-              .colorScheme
-              .surfaceContainer,
+          color: Theme.of(context).colorScheme.surfaceContainer,
           elevation: 0,
           borderRadius: BorderRadius.circular(12),
           child: Material(
@@ -84,11 +81,10 @@ class TeamCard extends ConsumerWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        TeamDetailsPage(
-                          teamName: resolvedTeam.name,
-                          teamNumber: resolvedTeam.number,
-                        ),
+                    builder: (context) => TeamDetailsPage(
+                      teamName: resolvedTeam.name,
+                      teamNumber: resolvedTeam.number,
+                    ),
                   ),
                 );
               },
@@ -98,17 +94,17 @@ class TeamCard extends ConsumerWidget {
                 child: DecoratedBox(
                   decoration: allianceColor != null
                       ? BoxDecoration(
-                    border: Border(
-                      left: BorderSide(color: allianceColor!, width: 4),
-                    ),
-                  )
+                          border: Border(
+                            left: BorderSide(color: allianceColor!, width: 4),
+                          ),
+                        )
                       : const BoxDecoration(),
                   child: _TeamCardSummary(team: resolvedTeam),
                 ),
               ),
             ),
           ),
-        );        
+        );
       },
     );
   }
@@ -184,23 +180,20 @@ class _TeamCardHeader extends StatelessWidget {
                       .where((record) => record.isAvatar)
                       .toList();
                   final preferredAvatar = avatar.firstWhere(
-                        (record) =>
-                    record.preferred && record.base64Image != null,
-                    orElse: () =>
-                        avatar.firstWhere(
-                              (record) => record.base64Image != null,
-                          orElse: () =>
-                          const TeamMediaRecord(
-                            foreignKey: '',
-                            type: '',
-                            preferred: false,
-                            teamKeys: [],
-                            details: {},
-                            directUrl: null,
-                            viewUrl: null,
-                            base64Image: null,
-                          ),
-                        ),
+                    (record) => record.preferred && record.base64Image != null,
+                    orElse: () => avatar.firstWhere(
+                      (record) => record.base64Image != null,
+                      orElse: () => const TeamMediaRecord(
+                        foreignKey: '',
+                        type: '',
+                        preferred: false,
+                        teamKeys: [],
+                        details: {},
+                        directUrl: null,
+                        viewUrl: null,
+                        base64Image: null,
+                      ),
+                    ),
                   );
                   final bytes = preferredAvatar.base64Image;
                   if (bytes == null) return _fallbackAvatar(context);
@@ -229,10 +222,7 @@ class _TeamCardHeader extends StatelessWidget {
               team.number.toString(),
               style: TextStyle(
                 fontSize: 16,
-                color: Theme
-                    .of(context)
-                    .colorScheme
-                    .onSurfaceVariant,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -245,10 +235,7 @@ class _TeamCardHeader extends StatelessWidget {
     return Icon(
       Icons.account_circle,
       size: 32,
-      color: Theme
-          .of(context)
-          .colorScheme
-          .onSurfaceVariant,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 }
@@ -566,14 +553,11 @@ class TeamDetailsPage extends ConsumerWidget {
 
     return mediaAsync.when(
       loading: () =>
-      const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) =>
-          Scaffold(
-        appBar: AppBar(
-          title: Text('$teamName — $teamNumber'),
-        ),
-            body: Center(child: Text('Error: $e')),
-          ),
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: Text('$teamName — $teamNumber')),
+        body: Center(child: Text('Error: $e')),
+      ),
       data: (media) {
         final hasMedia = media.any((record) {
           return record.hasRenderableMedia &&
@@ -591,8 +575,7 @@ class TeamDetailsPage extends ConsumerWidget {
                   icon: const Icon(Icons.more_vert),
                   tooltip: 'More options',
                   onSelected: (action) => _handleAction(context, action, ref),
-                  itemBuilder: (context) =>
-                  [
+                  itemBuilder: (context) => [
                     PopupMenuItem(
                       value: _TeamAction.openTba,
                       child: ListTile(

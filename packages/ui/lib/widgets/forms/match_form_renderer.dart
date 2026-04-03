@@ -275,7 +275,8 @@ class _MatchFormRendererState extends State<MatchFormRenderer> {
     }
   }
 
-  Widget? _buildNextButton(BuildContext context,
+  Widget? _buildNextButton(
+    BuildContext context,
     ComponentConfig component,
     double width,
     double height,

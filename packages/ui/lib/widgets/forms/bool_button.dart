@@ -56,10 +56,10 @@ class _BoolButtonState extends State<BoolButton> {
           foregroundColor: foregroundColor,
           padding: FormWidgetStyle.compactPadding,
         ),
-          onPressed: () {
+        onPressed: () {
           setState(() => _boolButtonState = !_boolButtonState);
           widget.onChanged(_boolButtonState);
-          },
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
