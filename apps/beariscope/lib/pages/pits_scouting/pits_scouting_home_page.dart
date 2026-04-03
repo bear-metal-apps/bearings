@@ -6,10 +6,12 @@ import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:beariscope/providers/pits_progress_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 
@@ -186,7 +188,22 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
 
           return RefreshIndicator(
             onRefresh: onRefresh,
-            child: _buildTeamList(context, filteredTeams, scoutedNums),
+              child: ListView(
+                children: [
+                  TitledProgressBar(
+                    maxSteps: 100,
+                    currentStep: pullPercentage(selectedEvent),
+                    progressColor: Colors.green,
+                    backgroundColor: Colors.grey.shade300,
+                    labelType: LabelType.percentage,
+                    labelColor: Colors.white,
+                    labelFontWeight: FontWeight.bold,
+                    minHeight: 24,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  _buildTeamList(context, filteredTeams, scoutedNums)
+                ],
+            ),
           );
         },
       ),
@@ -305,9 +322,16 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                 // The provider updates automatically; just refresh it.
                 ref.read(scoutingDataProvider.notifier).refresh();
               },
+              increment: 100 / filteredTeams.length,
             ),
           )
           .toList(),
     );
+  }
+
+  int pullPercentage(String eventKey) {
+    final _requestProvider = ref.read(pitsProgressNotifierProvider);
+    final _targetMap = _requestProvider.firstWhere((i) => i.containsKey(eventKey), orElse: () => {eventKey: 0});
+    return _targetMap[eventKey]!.round();
   }
 }
