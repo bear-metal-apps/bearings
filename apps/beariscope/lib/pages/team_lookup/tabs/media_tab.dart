@@ -75,11 +75,10 @@ class _MediaTabState extends ConsumerState<MediaTab> {
               ),
               const SizedBox(height: 12),
               ...sections.chiefDelphiThreads.map(
-                    (record) =>
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _MediaLinkCard(record: record),
-                    ),
+                (record) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _MediaLinkCard(record: record),
+                ),
               ),
             ],
             if (sections.cadReleases.isNotEmpty) ...[
@@ -89,11 +88,10 @@ class _MediaTabState extends ConsumerState<MediaTab> {
               ),
               const SizedBox(height: 12),
               ...sections.cadReleases.map(
-                    (record) =>
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _MediaLinkCard(record: record),
-                    ),
+                (record) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _MediaLinkCard(record: record),
+                ),
               ),
             ],
             if (sections.youtubeVideos.isNotEmpty) ...[
@@ -103,11 +101,10 @@ class _MediaTabState extends ConsumerState<MediaTab> {
               ),
               const SizedBox(height: 12),
               ...sections.youtubeVideos.map(
-                    (record) =>
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _MediaLinkCard(record: record),
-                    ),
+                (record) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _MediaLinkCard(record: record),
+                ),
               ),
             ],
           ],
@@ -141,8 +138,8 @@ class _MediaSections {
 
       if (record.isPhoto && record.previewImageUrl?.isNotEmpty == true) {
         photos.add(record);
-      } else
-      if (record.isChiefDelphiThread && record.openUrl?.isNotEmpty == true) {
+      } else if (record.isChiefDelphiThread &&
+          record.openUrl?.isNotEmpty == true) {
         chiefDelphiThreads.add(record);
       } else if (record.isCadRelease && record.openUrl?.isNotEmpty == true) {
         cadReleases.add(record);
@@ -161,19 +158,16 @@ class _MediaSections {
 
   bool get isEmpty =>
       photos.isEmpty &&
-          chiefDelphiThreads.isEmpty &&
-          cadReleases.isEmpty &&
-          youtubeVideos.isEmpty;
+      chiefDelphiThreads.isEmpty &&
+      cadReleases.isEmpty &&
+      youtubeVideos.isEmpty;
 }
 
 class _PhotoGrid extends StatelessWidget {
   final List<TeamMediaRecord> photos;
   final ValueNotifier<String?> activeUrlNotifier;
 
-  const _PhotoGrid({
-    required this.photos,
-    required this.activeUrlNotifier,
-  });
+  const _PhotoGrid({required this.photos, required this.activeUrlNotifier});
 
   @override
   Widget build(BuildContext context) {
@@ -201,10 +195,7 @@ class _PhotoGrid extends StatelessWidget {
 
             Widget imageContent = ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: _NetworkImageWithSkeleton(
-                url: url,
-                fit: BoxFit.cover,
-              ),
+              child: _NetworkImageWithSkeleton(url: url, fit: BoxFit.cover),
             );
 
             if (shouldBeHero) {
@@ -226,10 +217,7 @@ class _PhotoGrid extends StatelessWidget {
                         ),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) =>
-                        FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        ),
+                            FadeTransition(opacity: animation, child: child),
                   ),
                 );
                 activeUrlNotifier.value = null;
@@ -253,9 +241,7 @@ class _MediaLinkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme
-        .of(context)
-        .colorScheme;
+    final scheme = Theme.of(context).colorScheme;
     final openUrl = record.openUrl;
 
     final subtitleText = switch (record.type) {
@@ -273,7 +259,8 @@ class _MediaLinkCard extends StatelessWidget {
           color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(13),
           border: Border.all(
-              color: scheme.outlineVariant.withValues(alpha: 0.4)),
+            color: scheme.outlineVariant.withValues(alpha: 0.4),
+          ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -282,7 +269,8 @@ class _MediaLinkCard extends StatelessWidget {
               // Faded Background Image Layer
               if (record.previewImageUrl != null)
                 Positioned.fill(
-                  child: Opacity(opacity: 0.3,
+                  child: Opacity(
+                    opacity: 0.3,
                     child: _NetworkImageWithSkeleton(
                       url: record.previewImageUrl!,
                       fit: BoxFit.cover,
@@ -292,7 +280,9 @@ class _MediaLinkCard extends StatelessWidget {
               // Content Layer
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 16),
+                  horizontal: 16,
+                  vertical: 16,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -305,13 +295,8 @@ class _MediaLinkCard extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             subtitleText,
-                            style: Theme
-                                .of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -319,7 +304,6 @@ class _MediaLinkCard extends StatelessWidget {
                     if (openUrl != null) ...[
                       const SizedBox(width: 12),
                       Icon(Icons.open_in_new_rounded),
-
                     ],
                   ],
                 ),
@@ -332,13 +316,9 @@ class _MediaLinkCard extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
-    final style = Theme
-        .of(context)
-        .textTheme
-        .titleMedium
-        ?.copyWith(
-      fontWeight: FontWeight.w600,
-    );
+    final style = Theme.of(
+      context,
+    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
 
     final fallback = switch (record.type) {
       'cd-thread' => 'Chief Delphi thread',
@@ -470,8 +450,9 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     super.initState();
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: widget.initialIndex);
-    _keyboardFocusNode =
-        FocusNode(debugLabel: 'FullscreenImageViewerKeyboardFocus');
+    _keyboardFocusNode = FocusNode(
+      debugLabel: 'FullscreenImageViewerKeyboardFocus',
+    );
 
     _snapController = AnimationController(
       vsync: this,
@@ -590,8 +571,8 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     }
 
     if (_pageController.hasClients) {
-      final double currentPage = _pageController.page ??
-          _currentIndex.toDouble();
+      final double currentPage =
+          _pageController.page ?? _currentIndex.toDouble();
       int targetPage = currentPage.round();
 
       if (velocity.dx < -500 && currentPage < widget.urls.length - 1) {
@@ -662,8 +643,7 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
                   }
                 }
               },
-              itemBuilder: (context) =>
-              [
+              itemBuilder: (context) => [
                 PopupMenuItem(
                   value: 'share',
                   child: Row(
@@ -747,8 +727,9 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     final imgurId = url.split('/').last.split('.').first;
     final filename = '$imgurId.jpg';
     final box = context.findRenderObject() as RenderBox?;
-    final shareOrigin =
-    box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+    final shareOrigin = box == null
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
     final bytes = await _fetchImageBytes(url);
     await shareOrSaveImage(shareOrigin, bytes, filename);
   }
@@ -868,9 +849,9 @@ class _ZoomablePhotoPageState extends State<_ZoomablePhotoPage> {
       final hitY = fingerDelta.dy.abs() > 0.5 && dy.abs() < 0.1;
 
       if (hitX && hitY) {
-        _overscrollAxis =
-        fingerDelta.dx.abs() > fingerDelta.dy.abs() ? Axis.horizontal : Axis
-            .vertical;
+        _overscrollAxis = fingerDelta.dx.abs() > fingerDelta.dy.abs()
+            ? Axis.horizontal
+            : Axis.vertical;
       } else if (hitX) {
         _overscrollAxis = Axis.horizontal;
       } else if (hitY) {
@@ -973,4 +954,3 @@ class _PulseSkeletonState extends State<_PulseSkeleton>
     );
   }
 }
-

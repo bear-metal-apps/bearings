@@ -48,7 +48,7 @@ class _NumberButtonState extends State<NumberButton> {
         onPressed: () {
           setState(() => _currentVariable++);
           widget.onChanged?.call(_currentVariable);
-          },
+        },
         style: FormWidgetStyle.elevatedButtonStyle(
           context,
           backgroundColor:
@@ -56,10 +56,10 @@ class _NumberButtonState extends State<NumberButton> {
           foregroundColor: theme.colorScheme.onSurface,
           padding: FormWidgetStyle.cardPadding,
         ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Flexible(
               child: AutoSizeText(
                 widget.dataName,
@@ -71,7 +71,7 @@ class _NumberButtonState extends State<NumberButton> {
                 minFontSize: 10,
                 overflow: TextOverflow.ellipsis,
               ),
-              ),
+            ),
             const SizedBox(height: FormWidgetStyle.controlGap - 2),
             AutoSizeText(
               _currentVariable.toString(),
@@ -85,7 +85,7 @@ class _NumberButtonState extends State<NumberButton> {
             ),
             const SizedBox(height: FormWidgetStyle.controlGap),
             Align(
-                alignment: widget.textAlignment,
+              alignment: widget.textAlignment,
               child: _DecrementButton(
                 onPressed: () {
                   setState(() {
