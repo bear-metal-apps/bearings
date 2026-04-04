@@ -376,7 +376,7 @@ class _MainViewState extends ConsumerState<MainView> {
           ),
         ),
         child: MenuAnchor(
-          animated: true,
+          // animated: true,
           alignmentOffset: const Offset(12, 0),
           builder: (context, controller, child) {
             final isOpen = controller.isOpen;
@@ -467,7 +467,7 @@ class _MainViewState extends ConsumerState<MainView> {
                     orElse: () => EventOption.current(currentEventKey),
                   );
                   return SubmenuButton(
-                    animated: true,
+                    // animated: true,
                     style: const ButtonStyle(
                       padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -602,7 +602,8 @@ class _MainViewState extends ConsumerState<MainView> {
             ),
 
             SubmenuButton(
-              animated: true,
+              // TODO: make this animated again once this param is added to flutter stable
+              // animated: true,
               style: const ButtonStyle(
                 padding: WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: 20, vertical: 14),

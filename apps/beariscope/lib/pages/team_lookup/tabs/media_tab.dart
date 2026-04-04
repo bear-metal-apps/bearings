@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
 import 'package:beariscope/pages/team_lookup/tabs/media_save_helper.dart';
 import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';

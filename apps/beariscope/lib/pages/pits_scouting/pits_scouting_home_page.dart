@@ -1,4 +1,4 @@
-import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
 import 'package:beariscope/models/pits_scouting_models.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/main_view.dart';

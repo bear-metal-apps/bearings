@@ -1,5 +1,5 @@
-import 'package:beariscope/components/beariscope_card.dart';
-import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
+import 'package:beariscope/widgets/team_card.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
