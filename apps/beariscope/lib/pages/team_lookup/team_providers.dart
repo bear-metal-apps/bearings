@@ -1,6 +1,10 @@
 import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:services/providers/api_provider.dart';
+
+final searchControllerProvider = Provider((ref) => TextEditingController());
+final searchFocusNodeProvider = Provider((ref) => FocusNode());
 
 class TeamSort {
   TeamSortOptions sort = TeamSortOptions.teamNumber;
@@ -20,6 +24,7 @@ extension TeamSortLabel on TeamSortOptions {
 }
 
 class TeamSortNotifier extends Notifier<TeamSort> {
+
   @override
   TeamSort build() => TeamSort(TeamSortOptions.teamNumber, true);
 
