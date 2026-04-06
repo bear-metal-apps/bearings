@@ -159,11 +159,11 @@ class _DriveTeamMatchPreviewPageState
               if (MediaQuery.sizeOf(context).width <= 1380)
                 IconButton(
                   icon: Icon(
-                    _scrollVertical ? Icons.view_agenda : Icons.view_carousel,
+                    _scrollVertical ? Symbols.view_agenda_rounded : Symbols.view_carousel_rounded,
                   ),
                   tooltip: _scrollVertical
-                      ? 'Show Horizontal Layout'
-                      : 'Show Vertical Layout',
+                      ? 'Tiktok Scroll Style'
+                      : 'Instagram Carousel Style',
                   onPressed: () => setState(() {
                     _scrollVertical = !_scrollVertical;
                   }),
