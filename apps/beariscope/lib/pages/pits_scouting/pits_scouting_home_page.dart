@@ -331,7 +331,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
 
   int pullPercentage(String eventKey) {
     final _requestProvider = ref.read(pitsProgressNotifierProvider);
-    final _targetMap = _requestProvider.firstWhere((i) => i.containsKey(eventKey), orElse: () => {eventKey: 0});
-    return _targetMap[eventKey]!.round();
+    return _requestProvider[eventKey]?.round() ?? 0;
   }
 }

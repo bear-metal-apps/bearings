@@ -94,10 +94,12 @@ class PitsScoutingTeamCard extends ConsumerWidget {
         );
 
         if (result != null && result == true) {
-          ref
-              .read(pitsProgressNotifierProvider.notifier)
-              .addPercentage(_currentEventKey, increment);
-          onScoutedChanged(true);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref
+                .read(pitsProgressNotifierProvider.notifier)
+                .addPercentage(_currentEventKey, increment);
+            onScoutedChanged(true);
+            });
         }
       },
     );
