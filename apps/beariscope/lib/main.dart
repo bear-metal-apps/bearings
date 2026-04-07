@@ -5,6 +5,7 @@ import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/export/export_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
@@ -15,7 +16,6 @@ import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/advanced_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
-import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
@@ -100,10 +100,10 @@ Future<void> main() async {
 
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(this.ref) {
-    ref.listen(appBootProvider, (_, __) => notifyListeners());
-    ref.listen(authStatusProvider, (_, __) => notifyListeners());
-    ref.listen(postSignInFlowPendingProvider, (_, __) => notifyListeners());
-    ref.listen(authMeProvider, (_, __) => notifyListeners());
+    ref.listen(appBootProvider, (_, _) => notifyListeners());
+    ref.listen(authStatusProvider, (_, _) => notifyListeners());
+    ref.listen(postSignInFlowPendingProvider, (_, _) => notifyListeners());
+    ref.listen(authMeProvider, (_, _) => notifyListeners());
   }
 
   final Ref ref;
