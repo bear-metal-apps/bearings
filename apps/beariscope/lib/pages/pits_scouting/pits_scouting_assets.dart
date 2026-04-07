@@ -99,7 +99,7 @@ class PitsScoutingTeamCard extends ConsumerWidget {
                 .read(pitsProgressNotifierProvider.notifier)
                 .addPercentage(_currentEventKey, increment);
             onScoutedChanged(true);
-            });
+          });
         }
       },
     );
