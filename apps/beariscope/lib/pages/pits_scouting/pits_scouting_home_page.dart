@@ -176,27 +176,27 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   }
 
   void _openScoutingForm(
-      BuildContext context,
-      int teamNumber,
-      String teamName,
-      bool scouted,
-      List<Team> teams,
-      ) {
+    BuildContext context,
+    int teamNumber,
+    String teamName,
+    bool scouted,
+    List<Team> teams,
+  ) {
     ScoutingDocument? existingDoc;
     final eventKey = ref.read(currentEventProvider);
 
     if (scouted) {
       final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
       final pitsDocs =
-      allDocs
-          .where(
-            (doc) =>
-        doc.meta?['type'] == 'pits' &&
-            doc.meta?['event'] == eventKey &&
-            (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
-      )
-          .toList()
-        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          allDocs
+              .where(
+                (doc) =>
+                    doc.meta?['type'] == 'pits' &&
+                    doc.meta?['event'] == eventKey &&
+                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+              )
+              .toList()
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
       existingDoc = pitsDocs.firstOrNull;
     }
 
@@ -213,7 +213,9 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     ).then((result) {
       if (result == true && scouted == false) {
         double increment = 100 / teams.length;
-        ref.read(pitsProgressNotifierProvider.notifier).addPercentage(eventKey, increment);
+        ref
+            .read(pitsProgressNotifierProvider.notifier)
+            .addPercentage(eventKey, increment);
         // Refresh cross-device scouted status from honeycomb.
         ref.read(scoutingDataProvider.notifier).refresh();
       }
