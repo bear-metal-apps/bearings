@@ -26,6 +26,8 @@ class TeamCard extends ConsumerWidget {
   final double? height;
   final Color? allianceColor;
 
+  static const double _defaultExpandedHeight = 360;
+
   const TeamCard({
     super.key,
     required this.teamKey,
@@ -36,15 +38,15 @@ class TeamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamsAsync = ref.watch(teamsProvider);
-    final cardHeight = height ?? 360;
+    final baseCardHeight = height ?? _defaultExpandedHeight;
 
     return teamsAsync.when(
       loading: () => SizedBox(
-        height: cardHeight,
+        height: baseCardHeight,
         child: const Center(child: CircularProgressIndicator()),
       ),
       error: (err, stack) => SizedBox(
-        height: cardHeight,
+        height: baseCardHeight,
         child: Center(child: Text('Error: $err')),
       ),
       data: (teams) {
@@ -63,12 +65,20 @@ class TeamCard extends ConsumerWidget {
 
         if (team == null) {
           return SizedBox(
-            height: cardHeight,
+            height: baseCardHeight,
             child: const Center(child: Text('Team not found')),
           );
         }
 
         final resolvedTeam = team;
+        final teamBundleAsync = ref.watch(teamScoutingProvider(team.number));
+        final hasEnoughMatchDataForGraph = teamBundleAsync.maybeWhen(
+          data: (bundle) => bundle.matchDocs.length > 1,
+          orElse: () => true,
+        );
+        final effectiveCardHeight =
+            height ??
+            (hasEnoughMatchDataForGraph ? _defaultExpandedHeight : null);
 
         return OpenContainer(
           useRootNavigator: true,
@@ -80,10 +90,8 @@ class TeamCard extends ConsumerWidget {
           closedShape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          closedBuilder: (context, action) => SizedBox(
-            height: cardHeight,
-            width: double.infinity,
-            child: InkWell(
+          closedBuilder: (context, action) {
+            final cardChild = InkWell(
               onTap: action,
               borderRadius: BorderRadius.circular(12),
               child: DecoratedBox(
@@ -96,8 +104,18 @@ class TeamCard extends ConsumerWidget {
                     : const BoxDecoration(),
                 child: _TeamCardSummary(team: resolvedTeam),
               ),
-            ),
-          ),
+            );
+
+            if (effectiveCardHeight == null) {
+              return SizedBox(width: double.infinity, child: cardChild);
+            }
+
+            return SizedBox(
+              height: effectiveCardHeight,
+              width: double.infinity,
+              child: cardChild,
+            );
+          },
           openBuilder: (context, action) => TeamDetailsPage(
             teamName: resolvedTeam.name,
             teamNumber: resolvedTeam.number,
@@ -128,12 +146,17 @@ class _TeamCardSummary extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _TeamCardHeader(team: team),
-          const SizedBox(height: 12),
-          Expanded(
-            child: bundleAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-              data: (bundle) => _SummaryMetrics(
+          bundleAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (bundle) =>
+                SizedBox(height: bundle.matchDocs.length > 1 ? 12 : 4),
+          ),
+          bundleAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (bundle) {
+              final summary = _SummaryMetrics(
                 teamNumber: team.number,
                 bundle: bundle,
                 stratZScores:
@@ -144,8 +167,14 @@ class _TeamCardSummary extends ConsumerWidget {
                         .changeToRanks() ??
                     StratZScoreData.empty,
                 ranking: rankings[team.number],
-              ),
-            ),
+              );
+
+              // Only reserve expandable vertical space when chart data exists.
+              if (bundle.matchDocs.length > 1) {
+                return Expanded(child: summary);
+              }
+              return summary;
+            },
           ),
         ],
       ),
@@ -237,6 +266,7 @@ class _SummaryMetrics extends ConsumerWidget {
     final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
     final avgAccuracy = bundle.avgMatchAccuracyTotal();
     final hasMatch = bundle.hasMatchData;
+    final hasEnoughMatchDataForGraph = bundle.matchDocs.length > 1;
     final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
     final hasPitsData = bundle.hasPitsData;
 
@@ -251,20 +281,19 @@ class _SummaryMetrics extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
         ],
-
-        const SizedBox(height: 8),
-
-        Expanded(
-          child: SfCartesianChart(
-            margin: EdgeInsets.zero,
-            primaryXAxis: NumericAxis(),
-            primaryYAxis: NumericAxis(),
-            plotAreaBorderWidth: 0,
-            series: _buildLineSeries(bundle.matchDocs),
+        if (hasEnoughMatchDataForGraph) ...[
+          const SizedBox(height: 8),
+          Expanded(
+            child: SfCartesianChart(
+              margin: EdgeInsets.zero,
+              primaryXAxis: NumericAxis(),
+              primaryYAxis: NumericAxis(),
+              plotAreaBorderWidth: 0,
+              series: _buildLineSeries(bundle.matchDocs),
+            ),
           ),
-        ),
-
-        const Divider(height: 8, thickness: 1),
+          const Divider(height: 8, thickness: 1),
+        ],
 
         if (hasZScores) ...[
           const SizedBox(height: 6),
