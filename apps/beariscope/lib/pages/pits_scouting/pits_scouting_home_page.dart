@@ -186,23 +186,28 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
             );
           }
 
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            loadProgress(filteredTeams, scoutedNums);
+          });
+
           return RefreshIndicator(
             onRefresh: onRefresh,
-              child: ListView(
-                children: [
-                  TitledProgressBar(
-                    maxSteps: 100,
-                    currentStep: pullPercentage(selectedEvent),
-                    progressColor: Colors.green,
-                    backgroundColor: Colors.grey.shade300,
-                    labelType: LabelType.percentage,
-                    labelColor: Colors.white,
-                    labelFontWeight: FontWeight.bold,
-                    minHeight: 24,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  _buildTeamList(context, filteredTeams, scoutedNums)
-                ],
+            child: ListView(
+              children: [
+                TitledProgressBar(
+                  maxSteps: 100,
+                  currentStep: pullPercentage(selectedEvent),
+                  progressColor: Colors.green,
+                  backgroundColor: Colors.grey.shade300,
+                  labelType: LabelType.percentage,
+                  labelColor: Colors.white,
+                  labelFontWeight: FontWeight.bold,
+                  label: 'Teams Scouted: ${pullPercentage(selectedEvent)}%',
+                  minHeight: 24,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                _buildTeamList(context, filteredTeams, scoutedNums),
+              ],
             ),
           );
         },
@@ -327,6 +332,18 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
           )
           .toList(),
     );
+  }
+
+  void loadProgress(List<Team> filteredTeams, Set<int> scoutedNums) {
+    for (int i = 0; i < filteredTeams.length; i++) {
+      if (scoutedNums.contains(filteredTeams[i].number)) {
+        final selectedEvent = ref.watch(currentEventProvider);
+        final double increment = 100 / filteredTeams.length;
+        ref
+            .read(pitsProgressNotifierProvider.notifier)
+            .addPercentage(selectedEvent, increment);
+      }
+    }
   }
 
   int pullPercentage(String eventKey) {
