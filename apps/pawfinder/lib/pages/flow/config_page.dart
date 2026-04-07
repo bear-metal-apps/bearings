@@ -86,235 +86,241 @@ class _ConfigPageState extends ConsumerState<ConfigPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Position', style: Theme.of(context).textTheme.titleMedium)
-                    .animate()
-                    .fadeIn(duration: 500.ms)
-                    .slideX(begin: -0.2, end: 0, duration: 500.ms),
-                const SizedBox(height: 8),
-                _PositionSelector(
-                      selected: _selectedPosition,
-                      onChanged: (pos) {
-                        setState(() => _selectedPosition = pos);
-                        ref
-                            .read(scoutingSessionProvider.notifier)
-                            .setPosition(pos);
-                      },
-                    )
-                    .animate()
-                    .fadeIn(delay: 100.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.2,
-                      end: 0,
-                      delay: 100.ms,
-                      duration: 500.ms,
-                    ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                        'Position',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      )
+                      .animate()
+                      .fadeIn(duration: 500.ms)
+                      .slideX(begin: -0.2, end: 0, duration: 500.ms),
+                  const SizedBox(height: 8),
+                  _PositionSelector(
+                        selected: _selectedPosition,
+                        onChanged: (pos) {
+                          setState(() => _selectedPosition = pos);
+                          ref
+                              .read(scoutingSessionProvider.notifier)
+                              .setPosition(pos);
+                        },
+                      )
+                      .animate()
+                      .fadeIn(delay: 100.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.2,
+                        end: 0,
+                        delay: 100.ms,
+                        duration: 500.ms,
+                      ),
 
-                const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                Text(
-                      'Competition',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    )
-                    .animate()
-                    .fadeIn(delay: 200.ms, duration: 500.ms)
-                    .slideX(
-                      begin: -0.2,
-                      end: 0,
-                      delay: 200.ms,
-                      duration: 500.ms,
-                    ),
-                const SizedBox(height: 8),
-                eventsAsync.when(
-                  data: (events) {
-                    // Ensure displayEvents has unique event keys and, if we
-                    // need to include a custom/previously-selected event,
-                    // prepend it only once. This prevents multiple
-                    // DropdownMenuItems from comparing equal and tripping the
-                    // Dropdown assertion.
-                    final combined =
-                        (_selectedEvent != null &&
-                            !events.any((e) => e.key == _selectedEvent!.key))
-                        ? [_selectedEvent!, ...events]
-                        : events;
+                  Text(
+                        'Competition',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      )
+                      .animate()
+                      .fadeIn(delay: 200.ms, duration: 500.ms)
+                      .slideX(
+                        begin: -0.2,
+                        end: 0,
+                        delay: 200.ms,
+                        duration: 500.ms,
+                      ),
+                  const SizedBox(height: 8),
+                  eventsAsync.when(
+                    data: (events) {
+                      // Ensure displayEvents has unique event keys and, if we
+                      // need to include a custom/previously-selected event,
+                      // prepend it only once. This prevents multiple
+                      // DropdownMenuItems from comparing equal and tripping the
+                      // Dropdown assertion.
+                      final combined =
+                          (_selectedEvent != null &&
+                              !events.any((e) => e.key == _selectedEvent!.key))
+                          ? [_selectedEvent!, ...events]
+                          : events;
 
-                    final displayEvents = <ScoutingEvent>[];
-                    final seenKeys = <String>{};
-                    for (final e in combined) {
-                      if (seenKeys.add(e.key)) displayEvents.add(e);
-                    }
-
-                    // Pick the instance from displayEvents that matches the
-                    // selected event by key so the Dropdown has exactly one
-                    // matching item instance.
-                    ScoutingEvent? initialValue;
-                    if (_selectedEvent != null) {
-                      try {
-                        initialValue = displayEvents.firstWhere(
-                          (e) => e.key == _selectedEvent!.key,
-                        );
-                      } catch (_) {
-                        initialValue = null;
+                      final displayEvents = <ScoutingEvent>[];
+                      final seenKeys = <String>{};
+                      for (final e in combined) {
+                        if (seenKeys.add(e.key)) displayEvents.add(e);
                       }
-                    }
 
-                    return DropdownButtonFormField<ScoutingEvent>(
-                          initialValue: initialValue,
-                          padding: EdgeInsets.all(4),
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                            ),
-                            hintText: 'Select a competition',
-                          ),
-                          items: displayEvents
-                              .map(
-                                (e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e.name),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (event) {
-                            setState(() => _selectedEvent = event);
-                            if (event != null) {
-                              ref
-                                  .read(scoutingSessionProvider.notifier)
-                                  .setEvent(event);
-                            }
-                          },
-                        )
-                        .animate()
-                        .fadeIn(delay: 300.ms, duration: 500.ms)
-                        .slideY(
-                          begin: 0.2,
-                          end: 0,
-                          delay: 300.ms,
-                          duration: 500.ms,
-                        );
-                  },
-                  loading: () => const LinearProgressIndicator(),
-                  error: (err, _) => _ErrorRetry(
-                    message: 'Failed to load competitions',
-                    onRetry: () => ref.invalidate(eventsProvider),
-                  ),
-                ),
+                      // Pick the instance from displayEvents that matches the
+                      // selected event by key so the Dropdown has exactly one
+                      // matching item instance.
+                      ScoutingEvent? initialValue;
+                      if (_selectedEvent != null) {
+                        try {
+                          initialValue = displayEvents.firstWhere(
+                            (e) => e.key == _selectedEvent!.key,
+                          );
+                        } catch (_) {
+                          initialValue = null;
+                        }
+                      }
 
-                const SizedBox(height: 16),
-                Text(
-                      'Or enter event key manually',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    )
-                    .animate()
-                    .fadeIn(delay: 400.ms, duration: 500.ms)
-                    .slideX(
-                      begin: -0.2,
-                      end: 0,
-                      delay: 400.ms,
-                      duration: 500.ms,
-                    ),
-                const SizedBox(height: 8),
-                Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _customKeyController,
+                      return DropdownButtonFormField<ScoutingEvent>(
+                            initialValue: initialValue,
+                            padding: EdgeInsets.all(4),
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(50),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
                               ),
-                              hintText: 'e.g. 2026waahs',
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 14,
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(50),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
                               ),
+                              hintText: 'Select a competition',
                             ),
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => _applyCustomKey(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton.tonal(
-                          onPressed: _applyCustomKey,
-                          child: const Text('Apply'),
-                        ),
-                      ],
-                    )
-                    .animate()
-                    .fadeIn(delay: 500.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.2,
-                      end: 0,
-                      delay: 500.ms,
-                      duration: 500.ms,
+                            items: displayEvents
+                                .map(
+                                  (e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(e.name),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (event) {
+                              setState(() => _selectedEvent = event);
+                              if (event != null) {
+                                ref
+                                    .read(scoutingSessionProvider.notifier)
+                                    .setEvent(event);
+                              }
+                            },
+                          )
+                          .animate()
+                          .fadeIn(delay: 300.ms, duration: 500.ms)
+                          .slideY(
+                            begin: 0.2,
+                            end: 0,
+                            delay: 300.ms,
+                            duration: 500.ms,
+                          );
+                    },
+                    loading: () => const LinearProgressIndicator(),
+                    error: (err, _) => _ErrorRetry(
+                      message: 'Failed to load competitions',
+                      onRetry: () => ref.invalidate(eventsProvider),
                     ),
+                  ),
 
-                if (_selectedEvent != null) ...[
                   const SizedBox(height: 16),
-                  _ScheduleDownloadTile(
-                    eventKey: _selectedEvent!.key,
-                  ).animate().fadeIn(delay: 500.ms, duration: 300.ms),
-                ],
+                  Text(
+                        'Or enter event key manually',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      )
+                      .animate()
+                      .fadeIn(delay: 400.ms, duration: 500.ms)
+                      .slideX(
+                        begin: -0.2,
+                        end: 0,
+                        delay: 400.ms,
+                        duration: 500.ms,
+                      ),
+                  const SizedBox(height: 8),
+                  Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _customKeyController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                hintText: 'e.g. 2026waahs',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 14,
+                                ),
+                              ),
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) => _applyCustomKey(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton.tonal(
+                            onPressed: _applyCustomKey,
+                            child: const Text('Apply'),
+                          ),
+                        ],
+                      )
+                      .animate()
+                      .fadeIn(delay: 500.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.2,
+                        end: 0,
+                        delay: 500.ms,
+                        duration: 500.ms,
+                      ),
 
-                const Spacer(),
+                  if (_selectedEvent != null) ...[
+                    const SizedBox(height: 16),
+                    _ScheduleDownloadTile(
+                      eventKey: _selectedEvent!.key,
+                    ).animate().fadeIn(delay: 500.ms, duration: 300.ms),
+                  ],
 
-                SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: FilledButton.icon(
-                        style: ButtonStyle(
-                          backgroundColor:
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: FilledButton.icon(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                _selectedEvent != null &&
+                                    _selectedPosition != null
+                                ? WidgetStateProperty.all(
+                                    Theme.of(context).colorScheme.primary,
+                                  )
+                                : WidgetStateProperty.all(
+                                    Theme.of(context).colorScheme.surface,
+                                  ),
+                          ),
+                          onPressed:
                               _selectedEvent != null &&
                                   _selectedPosition != null
-                              ? WidgetStateProperty.all(
-                                  Theme.of(context).colorScheme.primary,
-                                )
-                              : WidgetStateProperty.all(
-                                  Theme.of(context).colorScheme.surface,
-                                ),
+                              ? () {
+                                  final notifier = ref.read(
+                                    scoutingSessionProvider.notifier,
+                                  );
+                                  notifier.setEvent(_selectedEvent!);
+                                  notifier.setPosition(_selectedPosition!);
+                                  context.go('/scout');
+                                }
+                              : null,
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Text('Next'),
                         ),
-                        onPressed:
-                            _selectedEvent != null && _selectedPosition != null
-                            ? () {
-                                final notifier = ref.read(
-                                  scoutingSessionProvider.notifier,
-                                );
-                                notifier.setEvent(_selectedEvent!);
-                                notifier.setPosition(_selectedPosition!);
-                                context.go('/scout');
-                              }
-                            : null,
-                        icon: const Icon(Icons.arrow_forward),
-                        label: const Text('Next'),
+                      )
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 500.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        delay: 600.ms,
+                        duration: 500.ms,
+                        curve: Curves.easeOut,
+                      )
+                      .shimmer(
+                        delay: 1200.ms,
+                        duration: 1500.ms,
+                        color: Colors.white24,
                       ),
-                    )
-                    .animate()
-                    .fadeIn(delay: 600.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.3,
-                      end: 0,
-                      delay: 600.ms,
-                      duration: 500.ms,
-                      curve: Curves.easeOut,
-                    )
-                    .shimmer(
-                      delay: 1200.ms,
-                      duration: 1500.ms,
-                      color: Colors.white24,
-                    ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
