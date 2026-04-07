@@ -30,47 +30,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   // default to list view instead of map
   bool _showMapView = false;
 
-  void _openScoutingForm(
-    BuildContext context,
-    int teamNumber,
-    String teamName,
-    bool scouted,
-  ) {
-    ScoutingDocument? existingDoc;
-    if (scouted) {
-      final eventKey = ref.read(currentEventProvider);
-      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
-      final pitsDocs =
-          allDocs
-              .where(
-                (doc) =>
-                    doc.meta?['type'] == 'pits' &&
-                    doc.meta?['event'] == eventKey &&
-                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
-              )
-              .toList()
-            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      existingDoc = pitsDocs.firstOrNull;
-    }
-
-    Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PitsScoutingFormPage(
-          teamNumber: teamNumber,
-          teamName: teamName,
-          scouted: scouted,
-          initialDoc: existingDoc,
-        ),
-      ),
-    ).then((result) {
-      if (result == true) {
-        // Refresh cross-device scouted status from honeycomb.
-        ref.read(scoutingDataProvider.notifier).refresh();
-      }
-    });
-  }
-
   final TextEditingController _searchTEC = TextEditingController();
 
   @override
@@ -183,6 +142,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               onRefresh: onRefresh,
               scoutedNums: scoutedNums,
               teamNameMap: teamNameMap,
+              teams: filteredTeams,
             );
           }
 
@@ -198,9 +158,9 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                   maxSteps: 100,
                   currentStep: pullPercentage(selectedEvent),
                   progressColor: Colors.green,
-                  backgroundColor: Colors.grey.shade300,
+                  backgroundColor: Colors.white24,
                   labelType: LabelType.percentage,
-                  labelColor: Colors.white,
+                  labelColor: Colors.black,
                   labelFontWeight: FontWeight.bold,
                   label: 'Teams Scouted: ${pullPercentage(selectedEvent)}%',
                   minHeight: 24,
@@ -215,11 +175,57 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     );
   }
 
+  void _openScoutingForm(
+      BuildContext context,
+      int teamNumber,
+      String teamName,
+      bool scouted,
+      List<Team> teams,
+      ) {
+    ScoutingDocument? existingDoc;
+    final eventKey = ref.read(currentEventProvider);
+
+    if (scouted) {
+      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
+      final pitsDocs =
+      allDocs
+          .where(
+            (doc) =>
+        doc.meta?['type'] == 'pits' &&
+            doc.meta?['event'] == eventKey &&
+            (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+      )
+          .toList()
+        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      existingDoc = pitsDocs.firstOrNull;
+    }
+
+    Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PitsScoutingFormPage(
+          teamNumber: teamNumber,
+          teamName: teamName,
+          scouted: scouted,
+          initialDoc: existingDoc,
+        ),
+      ),
+    ).then((result) {
+      if (result == true && scouted == false) {
+        double increment = 100 / teams.length;
+        ref.read(pitsProgressNotifierProvider.notifier).addPercentage(eventKey, increment);
+        // Refresh cross-device scouted status from honeycomb.
+        ref.read(scoutingDataProvider.notifier).refresh();
+      }
+    });
+  }
+
   Widget _buildMapView(
     BuildContext context, {
     required Future<void> Function() onRefresh,
     required Set<int> scoutedNums,
     required Map<int, String> teamNameMap,
+    required List<Team> teams,
   }) {
     final pitsMapAsync = ref.watch(pitsMapProvider);
 
@@ -245,6 +251,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                     teamNum,
                     teamName,
                     scoutedNums.contains(teamNum),
+                    teams,
                   );
                 },
               ),
@@ -335,6 +342,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   }
 
   void loadProgress(List<Team> filteredTeams, Set<int> scoutedNums) {
+    ref.read(pitsProgressNotifierProvider.notifier).resetPercentages();
     for (int i = 0; i < filteredTeams.length; i++) {
       if (scoutedNums.contains(filteredTeams[i].number)) {
         final selectedEvent = ref.watch(currentEventProvider);

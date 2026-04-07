@@ -12,6 +12,10 @@ class PitsProgressProvider extends Notifier<Map<String, double>> {
       state = {...state, eventKey: (oldValue ?? 0) + increment};
     }
   }
+
+  void resetPercentages() {
+    state = {"2026wabon": 0, "2026wasam": 0, "2026waahs": 0, "2026pncmp": 0};
+  }
 }
 
 final pitsProgressNotifierProvider =
