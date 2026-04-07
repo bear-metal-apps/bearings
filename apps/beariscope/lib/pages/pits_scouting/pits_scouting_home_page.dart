@@ -6,10 +6,12 @@ import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:beariscope/providers/pits_progress_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 
@@ -27,47 +29,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   /// Whether to show the interactive map view (true) or the list view (false).
   // default to list view instead of map
   bool _showMapView = false;
-
-  void _openScoutingForm(
-    BuildContext context,
-    int teamNumber,
-    String teamName,
-    bool scouted,
-  ) {
-    ScoutingDocument? existingDoc;
-    if (scouted) {
-      final eventKey = ref.read(currentEventProvider);
-      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
-      final pitsDocs =
-          allDocs
-              .where(
-                (doc) =>
-                    doc.meta?['type'] == 'pits' &&
-                    doc.meta?['event'] == eventKey &&
-                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
-              )
-              .toList()
-            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      existingDoc = pitsDocs.firstOrNull;
-    }
-
-    Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PitsScoutingFormPage(
-          teamNumber: teamNumber,
-          teamName: teamName,
-          scouted: scouted,
-          initialDoc: existingDoc,
-        ),
-      ),
-    ).then((result) {
-      if (result == true) {
-        // Refresh cross-device scouted status from honeycomb.
-        ref.read(scoutingDataProvider.notifier).refresh();
-      }
-    });
-  }
 
   final TextEditingController _searchTEC = TextEditingController();
 
@@ -181,16 +142,84 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               onRefresh: onRefresh,
               scoutedNums: scoutedNums,
               teamNameMap: teamNameMap,
+              teams: filteredTeams,
             );
           }
 
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            loadProgress(filteredTeams, scoutedNums);
+          });
+
           return RefreshIndicator(
             onRefresh: onRefresh,
-            child: _buildTeamList(context, filteredTeams, scoutedNums),
+            child: ListView(
+              children: [
+                TitledProgressBar(
+                  maxSteps: 100,
+                  currentStep: pullPercentage(selectedEvent),
+                  progressColor: Colors.green,
+                  backgroundColor: Colors.white24,
+                  labelType: LabelType.percentage,
+                  labelColor: Colors.black,
+                  labelFontWeight: FontWeight.bold,
+                  label: 'Teams Scouted: ${pullPercentage(selectedEvent)}%',
+                  minHeight: 24,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                _buildTeamList(context, filteredTeams, scoutedNums),
+              ],
+            ),
           );
         },
       ),
     );
+  }
+
+  void _openScoutingForm(
+    BuildContext context,
+    int teamNumber,
+    String teamName,
+    bool scouted,
+    List<Team> teams,
+  ) {
+    ScoutingDocument? existingDoc;
+    final eventKey = ref.read(currentEventProvider);
+
+    if (scouted) {
+      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
+      final pitsDocs =
+          allDocs
+              .where(
+                (doc) =>
+                    doc.meta?['type'] == 'pits' &&
+                    doc.meta?['event'] == eventKey &&
+                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+              )
+              .toList()
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      existingDoc = pitsDocs.firstOrNull;
+    }
+
+    Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PitsScoutingFormPage(
+          teamNumber: teamNumber,
+          teamName: teamName,
+          scouted: scouted,
+          initialDoc: existingDoc,
+        ),
+      ),
+    ).then((result) {
+      if (result == true && scouted == false) {
+        double increment = 100 / teams.length;
+        ref
+            .read(pitsProgressNotifierProvider.notifier)
+            .addPercentage(eventKey, increment);
+        // Refresh cross-device scouted status from honeycomb.
+        ref.read(scoutingDataProvider.notifier).refresh();
+      }
+    });
   }
 
   Widget _buildMapView(
@@ -198,6 +227,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     required Future<void> Function() onRefresh,
     required Set<int> scoutedNums,
     required Map<int, String> teamNameMap,
+    required List<Team> teams,
   }) {
     final pitsMapAsync = ref.watch(pitsMapProvider);
 
@@ -223,6 +253,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                     teamNum,
                     teamName,
                     scoutedNums.contains(teamNum),
+                    teams,
                   );
                 },
               ),
@@ -305,9 +336,28 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                 // The provider updates automatically; just refresh it.
                 ref.read(scoutingDataProvider.notifier).refresh();
               },
+              increment: 100 / filteredTeams.length,
             ),
           )
           .toList(),
     );
+  }
+
+  void loadProgress(List<Team> filteredTeams, Set<int> scoutedNums) {
+    ref.read(pitsProgressNotifierProvider.notifier).resetPercentages();
+    for (int i = 0; i < filteredTeams.length; i++) {
+      if (scoutedNums.contains(filteredTeams[i].number)) {
+        final selectedEvent = ref.watch(currentEventProvider);
+        final double increment = 100 / filteredTeams.length;
+        ref
+            .read(pitsProgressNotifierProvider.notifier)
+            .addPercentage(selectedEvent, increment);
+      }
+    }
+  }
+
+  int pullPercentage(String eventKey) {
+    final _requestProvider = ref.read(pitsProgressNotifierProvider);
+    return _requestProvider[eventKey]?.round() ?? 0;
   }
 }
