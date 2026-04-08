@@ -52,149 +52,140 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
         actions: const [UploadStatusIndicator()],
         actionsPadding: EdgeInsets.only(right: 8),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SearchBar(
-                        hintText: 'Search scouts...',
-                        elevation: WidgetStateProperty.all(0.0),
-                        shape: WidgetStateProperty.all(
-                          StadiumBorder(
-                            side: BorderSide(
-                              color: Theme.of(context).colorScheme.outline,
-                              width: 1,
-                            ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              children: [
+                SearchBar(
+                      hintText: 'Search scouts...',
+                      elevation: WidgetStateProperty.all(0.0),
+                      shape: WidgetStateProperty.all(
+                        StadiumBorder(
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                            width: 1,
                           ),
                         ),
-                        padding: WidgetStatePropertyAll<EdgeInsets>(
-                          EdgeInsets.symmetric(horizontal: 16.0),
-                        ),
-                        leading: const Icon(Icons.search),
-                        onChanged: (value) {
-                          setState(() => _searchQuery = value);
-                        },
-                      )
-                      .animate()
-                      .fadeIn(duration: 500.ms)
-                      .slideY(
-                        begin: -0.2,
-                        end: 0,
-                        duration: 500.ms,
-                        curve: Curves.easeOut,
                       ),
-                  const SizedBox(height: 32),
+                      padding: WidgetStatePropertyAll<EdgeInsets>(
+                        EdgeInsets.symmetric(horizontal: 16.0),
+                      ),
+                      leading: const Icon(Icons.search),
+                      onChanged: (value) {
+                        setState(() => _searchQuery = value);
+                      },
+                    )
+                    .animate()
+                    .fadeIn(duration: 500.ms)
+                    .slideY(
+                      begin: -0.2,
+                      end: 0,
+                      duration: 500.ms,
+                      curve: Curves.easeOut,
+                    ),
+                Expanded(
+                  child: scoutsAsync.when(
+                    data: (scouts) {
+                      final filtered = scouts.where((s) {
+                        return s.name.toLowerCase().contains(
+                          _searchQuery.toLowerCase(),
+                        );
+                      }).toList();
 
-                  SizedBox(
-                    height: MediaQuery.sizeOf(context).height * 0.45,
-                    child: scoutsAsync.when(
-                      data: (scouts) {
-                        final filtered = scouts.where((s) {
-                          return s.name.toLowerCase().contains(
-                            _searchQuery.toLowerCase(),
-                          );
-                        }).toList();
+                      if (filtered.isEmpty) {
+                        return Center(
+                          child: Text(
+                            scouts.isEmpty
+                                ? 'No scouts found'
+                                : 'No scouts match "$_searchQuery"',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        );
+                      }
 
-                        if (filtered.isEmpty) {
-                          return Center(
-                            child: Text(
-                              scouts.isEmpty
-                                  ? 'No scouts found'
-                                  : 'No scouts match "$_searchQuery"',
-                              style: Theme.of(context).textTheme.bodyLarge,
+                      return ListView.separated(
+                        itemCount: filtered.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final scout = filtered[index];
+                          final isSelected = _selectedScout?.uuid == scout.uuid;
+
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 4,
                             ),
+                            leading: CircleAvatar(
+                              backgroundColor: isSelected
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                        .withAlpha(100)
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer,
+                              child: Text(
+                                scout.name.isNotEmpty
+                                    ? scout.name[0].toUpperCase()
+                                    : '?',
+                              ),
+                            ),
+                            title: Text(scout.name),
+                            selected: isSelected,
+                            selectedTileColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            shape: const StadiumBorder(),
+                            onTap: () {
+                              setState(() => _selectedScout = scout);
+                              ref
+                                  .read(scoutingSessionProvider.notifier)
+                                  .setScout(scout);
+                            },
                           );
-                        }
+                        },
+                      );
+                    },
+                    loading: () => _showTimeout
+                        ? _buildTimeoutWidget(context)
+                        : const Center(child: CircularProgressIndicator()),
+                    error: (_, _) => _buildTimeoutWidget(context),
+                  ),
+                ),
 
-                        return ListView.separated(
-                          itemCount: filtered.length,
-                          separatorBuilder: (context, index) {
-                            return SizedBox(height: 8);
-                          },
-                          itemBuilder: (context, index) {
-                            final scout = filtered[index];
-                            final isSelected =
-                                _selectedScout?.uuid == scout.uuid;
-                            return ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              leading: CircleAvatar(
-                                backgroundColor: isSelected
-                                    ? Theme.of(context)
-                                          .colorScheme
-                                          .primaryContainer
-                                          .withAlpha(100)
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer,
-                                child: Text(
-                                  scout.name.isNotEmpty
-                                      ? scout.name[0].toUpperCase()
-                                      : '?',
-                                ),
-                              ),
-                              title: Text(scout.name),
-                              selected: isSelected,
-                              selectedTileColor: Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer,
-                              shape: StadiumBorder(),
-                              onTap: () {
-                                setState(() => _selectedScout = scout);
+                SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: FilledButton.icon(
+                        onPressed: _selectedScout != null
+                            ? () {
                                 ref
                                     .read(scoutingSessionProvider.notifier)
-                                    .setScout(scout);
-                              },
-                            );
-                          },
-                        );
-                      },
-                      loading: () => _showTimeout
-                          ? _buildTimeoutWidget(context)
-                          : const Center(child: CircularProgressIndicator()),
-                      error: (err, _) => _buildTimeoutWidget(context),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: FilledButton.icon(
-                          onPressed: _selectedScout != null
-                              ? () {
-                                  ref
-                                      .read(scoutingSessionProvider.notifier)
-                                      .setScout(_selectedScout!);
-                                  context.go('/match-select');
-                                }
-                              : null,
-                          icon: const Icon(Icons.arrow_forward),
-                          label: const Text('Next'),
-                        ),
-                      )
-                      .animate()
-                      .fadeIn(delay: 300.ms, duration: 500.ms)
-                      .slideY(
-                        begin: 0.3,
-                        end: 0,
-                        delay: 300.ms,
-                        duration: 500.ms,
-                        curve: Curves.easeOut,
-                      )
-                      .shimmer(
-                        delay: 900.ms,
-                        duration: 1500.ms,
-                        color: Colors.white24,
+                                    .setScout(_selectedScout!);
+                                context.go('/match-select');
+                              }
+                            : null,
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text('Next'),
                       ),
-                ],
-              ),
+                    )
+                    .animate()
+                    .fadeIn(delay: 300.ms, duration: 500.ms)
+                    .slideY(
+                      begin: 0.3,
+                      end: 0,
+                      delay: 300.ms,
+                      duration: 500.ms,
+                      curve: Curves.easeOut,
+                    )
+                    .shimmer(
+                      delay: 900.ms,
+                      duration: 1500.ms,
+                      color: Colors.white24,
+                    ),
+              ],
             ),
           ),
         ),
