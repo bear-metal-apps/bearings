@@ -726,12 +726,8 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
   Future<void> _shareCurrentImage(String url) async {
     final imgurId = url.split('/').last.split('.').first;
     final filename = '$imgurId.jpg';
-    final box = context.findRenderObject() as RenderBox?;
-    final shareOrigin = box == null
-        ? null
-        : box.localToGlobal(Offset.zero) & box.size;
     final bytes = await _fetchImageBytes(url);
-    await shareOrSaveImage(shareOrigin, bytes, filename);
+    await shareOrSaveImage(context, bytes, filename);
   }
 
   Future<Uint8List> _fetchImageBytes(String url) async {
