@@ -1,5 +1,5 @@
-import 'package:beariscope/components/beariscope_card.dart';
-import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
+import 'package:beariscope/widgets/team_card.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
@@ -49,12 +49,15 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
         '/rankings',
         queryParams: {'event': selectedEvent},
       );
+      client.invalidateCache('/event/$selectedEvent/team_media');
       ref.invalidate(teamsProvider);
       ref.invalidate(eventRankingsProvider);
+      ref.invalidate(eventTeamMediaProvider);
       try {
         await Future.wait([
           ref.read(teamsProvider.future),
           ref.read(eventRankingsProvider.future),
+          ref.read(eventTeamMediaProvider.future),
         ]);
       } catch (_) {
         // Keep current cached data visible if refresh fails.
@@ -224,10 +227,10 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 }
 
 class SortByFieldItem extends StatefulWidget {
-  double total;
-  VoidCallback? onAddNew;
+  final double total;
+  final VoidCallback? onAddNew;
 
-  SortByFieldItem({super.key, required this.total, this.onAddNew});
+  const SortByFieldItem({super.key, required this.total, this.onAddNew});
 
   @override
   State<StatefulWidget> createState() {

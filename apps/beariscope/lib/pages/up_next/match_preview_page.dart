@@ -1,4 +1,4 @@
-import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/widgets/team_card.dart';
 import 'package:beariscope/models/drive_team_note.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';

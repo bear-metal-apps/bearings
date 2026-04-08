@@ -347,16 +347,6 @@ class _CapabilitiesBody extends StatelessWidget {
               value: _fmtPct(defenseOffShiftRate * 100),
             ),
         ],
-        if (bundle.hasStratData) ...[
-          const ScoutingDataDivider(),
-          ScoutingDataRow(
-            label: 'Defense Activity Level',
-            value: bundle.avgDefenseActivityLevel != null
-                ? '${bundle.avgDefenseActivityLevel!.toStringAsFixed(1)} / 10'
-                : '—',
-            highlight: true,
-          ),
-        ],
       ],
     );
   }

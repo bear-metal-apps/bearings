@@ -1,4 +1,4 @@
-import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
 import 'package:beariscope/models/pits_scouting_models.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/main_view.dart';
@@ -51,22 +51,23 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       existingDoc = pitsDocs.firstOrNull;
     }
 
-    Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PitsScoutingFormPage(
-          teamNumber: teamNumber,
-          teamName: teamName,
-          scouted: scouted,
-          initialDoc: existingDoc,
-        ),
-      ),
-    ).then((result) {
-      if (result == true) {
-        // Refresh cross-device scouted status from honeycomb.
-        ref.read(scoutingDataProvider.notifier).refresh();
-      }
-    });
+    Navigator.of(context, rootNavigator: true)
+        .push<bool>(
+          MaterialPageRoute(
+            builder: (_) => PitsScoutingFormPage(
+              teamNumber: teamNumber,
+              teamName: teamName,
+              scouted: scouted,
+              initialDoc: existingDoc,
+            ),
+          ),
+        )
+        .then((result) {
+          if (result == true) {
+            // Refresh cross-device scouted status from honeycomb.
+            ref.read(scoutingDataProvider.notifier).refresh();
+          }
+        });
   }
 
   final TextEditingController _searchTEC = TextEditingController();

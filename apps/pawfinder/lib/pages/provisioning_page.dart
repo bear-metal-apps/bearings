@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -29,13 +28,12 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
 
     DeviceCredentials credentials;
     try {
-      final json = jsonDecode(raw) as Map<String, dynamic>;
+      final json = decodeProvisioningPayload(raw);
       credentials = DeviceCredentials.fromJson(json);
     } catch (_) {
       if (mounted) {
         setState(
-          () =>
-              _error = 'Invalid payload — not a Pawfinder credential payload.',
+          () => _error = 'Invalid Code — not a Pawfinder provisioning payload.',
         );
       }
       return;
@@ -234,7 +232,7 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
                 .slideY(begin: 0.3, end: 0, delay: 200.ms, duration: 500.ms),
             const SizedBox(height: 8),
             const Text(
-                  'Paste the JSON credential payload from Beariscope to provision this device.',
+                  'Paste the provisioning code from Beariscope to provision this device.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
                 )
@@ -261,7 +259,7 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
             FilledButton.icon(
                   onPressed: _provisioning ? null : _showPasteDialog,
                   icon: const Icon(Icons.paste),
-                  label: const Text('Paste credential JSON'),
+                  label: const Text('Paste Provisioning code'),
                 )
                 .animate()
                 .fadeIn(delay: 400.ms, duration: 600.ms)
@@ -298,13 +296,13 @@ class _PastePayloadDialogState extends State<_PastePayloadDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Paste Credential Payload'),
+      title: const Text('Paste Provisioning Code'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'Paste the JSON credential payload from Beariscope below.',
+            'Paste the provisioning code from Beariscope below.',
             style: TextStyle(fontSize: 13),
           ),
           const SizedBox(height: 12),
@@ -314,7 +312,7 @@ class _PastePayloadDialogState extends State<_PastePayloadDialog> {
             autofocus: true,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: '{ "clientId": "...", ... }',
+              hintText: 'Base64 code or JSON',
             ),
           ),
         ],

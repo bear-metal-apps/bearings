@@ -5,6 +5,7 @@ import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/pages/device_provisioning/device_provisioning_page.dart';
 import 'package:beariscope/pages/export/export_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
@@ -15,7 +16,6 @@ import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/advanced_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
-import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
@@ -100,10 +100,10 @@ Future<void> main() async {
 
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(this.ref) {
-    ref.listen(appBootProvider, (_, __) => notifyListeners());
-    ref.listen(authStatusProvider, (_, __) => notifyListeners());
-    ref.listen(postSignInFlowPendingProvider, (_, __) => notifyListeners());
-    ref.listen(authMeProvider, (_, __) => notifyListeners());
+    ref.listen(appBootProvider, (_, _) => notifyListeners());
+    ref.listen(authStatusProvider, (_, _) => notifyListeners());
+    ref.listen(postSignInFlowPendingProvider, (_, _) => notifyListeners());
+    ref.listen(authMeProvider, (_, _) => notifyListeners());
   }
 
   final Ref ref;
@@ -184,6 +184,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: '/device_provisioning',
+        builder: (_, _) => const DeviceProvisioningPage(),
+      ),
+      GoRoute(
         path: '/settings',
         builder: (_, _) => const SettingsPage(),
         routes: [
@@ -210,10 +214,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'roles',
             builder: (_, _) => const TeamRoleSettingsPage(),
-          ),
-          GoRoute(
-            path: 'device_provisioning',
-            builder: (_, _) => const DeviceProvisioningPage(),
           ),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
@@ -277,8 +277,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         final isRoleManagementRoute = location == '/settings/roles';
         final isScoutManagementRoute = location == '/settings/user_selection';
         final isPicklistCreateRoute = location == '/picklists/create';
-        final isDeviceProvisioningRoute =
-            location == '/settings/device_provisioning';
+        final isDeviceProvisioningRoute = location == '/device_provisioning';
         final needsPermissions =
             isRoleManagementRoute ||
             isScoutManagementRoute ||
@@ -319,7 +318,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           if (isDeviceProvisioningRoute) {
             final canProvision =
                 checker?.hasPermission(PermissionKey.deviceProvision) ?? false;
-            if (!canProvision) return '/settings';
+            if (!canProvision) return '/up_next';
           }
         }
 

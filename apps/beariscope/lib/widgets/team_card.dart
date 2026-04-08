@@ -1,9 +1,9 @@
-import 'package:animations/animations.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
+import 'package:beariscope/pages/team_lookup/tabs/media_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
@@ -70,37 +70,39 @@ class TeamCard extends ConsumerWidget {
 
         final resolvedTeam = team;
 
-        return OpenContainer(
-          useRootNavigator: true,
-          transitionType: ContainerTransitionType.fade,
-          closedElevation: 0,
-          openColor: Theme.of(context).scaffoldBackgroundColor,
-          middleColor: Theme.of(context).scaffoldBackgroundColor,
-          closedColor: Theme.of(context).colorScheme.surfaceContainer,
-          closedShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          closedBuilder: (context, action) => SizedBox(
-            height: cardHeight,
-            width: double.infinity,
+        return Material(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          elevation: 0,
+          borderRadius: BorderRadius.circular(12),
+          child: Material(
+            color: Colors.transparent,
             child: InkWell(
-              onTap: action,
               borderRadius: BorderRadius.circular(12),
-              child: DecoratedBox(
-                decoration: allianceColor != null
-                    ? BoxDecoration(
-                        border: Border(
-                          left: BorderSide(color: allianceColor!, width: 4),
-                        ),
-                      )
-                    : const BoxDecoration(),
-                child: _TeamCardSummary(team: resolvedTeam),
+              onTap: () {
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (context) => TeamDetailsPage(
+                      teamName: resolvedTeam.name,
+                      teamNumber: resolvedTeam.number,
+                    ),
+                  ),
+                );
+              },
+              child: SizedBox(
+                height: cardHeight,
+                width: double.infinity,
+                child: DecoratedBox(
+                  decoration: allianceColor != null
+                      ? BoxDecoration(
+                          border: Border(
+                            left: BorderSide(color: allianceColor!, width: 4),
+                          ),
+                        )
+                      : const BoxDecoration(),
+                  child: _TeamCardSummary(team: resolvedTeam),
+                ),
               ),
             ),
-          ),
-          openBuilder: (context, action) => TeamDetailsPage(
-            teamName: resolvedTeam.name,
-            teamNumber: resolvedTeam.number,
           ),
         );
       },
@@ -160,41 +162,80 @@ class _TeamCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 32,
-          height: 32,
-          child: Image.network(
-            'https://www.thebluealliance.com/avatar/${DateTime.now().year}/frc${team.number}.png',
-            width: 32,
-            height: 32,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Icon(
-              Icons.account_circle,
-              size: 32,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return Consumer(
+      builder: (context, ref, _) {
+        final mediaAsync = ref.watch(teamMediaProvider(team.number));
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: mediaAsync.when(
+                loading: () => _fallbackAvatar(context),
+                error: (_, _) => _fallbackAvatar(context),
+                data: (media) {
+                  final avatar = media
+                      .where((record) => record.isAvatar)
+                      .toList();
+                  final preferredAvatar = avatar.firstWhere(
+                    (record) => record.preferred && record.base64Image != null,
+                    orElse: () => avatar.firstWhere(
+                      (record) => record.base64Image != null,
+                      orElse: () => const TeamMediaRecord(
+                        foreignKey: '',
+                        type: '',
+                        preferred: false,
+                        teamKeys: [],
+                        details: {},
+                        directUrl: null,
+                        viewUrl: null,
+                        base64Image: null,
+                      ),
+                    ),
+                  );
+                  final bytes = preferredAvatar.base64Image;
+                  if (bytes == null) return _fallbackAvatar(context);
+                  return Image.memory(
+                    bytes,
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.contain,
+                    gaplessPlayback: true,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _fallbackAvatar(context),
+                  );
+                },
+              ),
             ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            team.name,
-            style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          team.number.toString(),
-          style: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                team.name,
+                style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              team.number.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _fallbackAvatar(BuildContext context) {
+    return Icon(
+      Icons.account_circle,
+      size: 32,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 }
@@ -508,78 +549,94 @@ class TeamDetailsPage extends ConsumerWidget {
             .watch(permissionCheckerProvider)
             ?.hasPermission(PermissionKey.notesRead) ??
         false;
+    final mediaAsync = ref.watch(teamMediaProvider(teamNumber));
 
-    return DefaultTabController(
-      key: ValueKey(showNotes),
-      length: showNotes ? 4 : 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('$teamName — $teamNumber'),
-          leading: IconButton(
-            icon: const Icon(Symbols.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            PopupMenuButton<_TeamAction>(
-              icon: const Icon(Icons.more_vert),
-              tooltip: 'More options',
-              onSelected: (action) => _handleAction(context, action, ref),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _TeamAction.openTba,
-                  child: ListTile(
-                    leading: const Icon(Symbols.open_in_new_rounded),
-                    title: const Text('Open in TBA'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+    return mediaAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: Text('$teamName — $teamNumber')),
+        body: Center(child: Text('Error: $e')),
+      ),
+      data: (media) {
+        final hasMedia = media.any((record) {
+          return record.hasRenderableMedia &&
+              record.openUrl?.isNotEmpty == true;
+        });
+
+        return DefaultTabController(
+          key: ValueKey('$showNotes-$hasMedia'),
+          length: 3 + (showNotes ? 1 : 0) + (hasMedia ? 1 : 0),
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('$teamName — $teamNumber'),
+              actions: [
+                PopupMenuButton<_TeamAction>(
+                  icon: const Icon(Icons.more_vert),
+                  tooltip: 'More options',
+                  onSelected: (action) => _handleAction(context, action, ref),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: _TeamAction.openTba,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in TBA'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _TeamAction.openStatbotics,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in Statbotics'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _TeamAction.openFrcEvents,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in FRC Events'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: _TeamAction.copyNumber,
+                      child: ListTile(
+                        leading: const Icon(Symbols.content_copy_rounded),
+                        title: const Text('Copy team number'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
                 ),
-                PopupMenuItem(
-                  value: _TeamAction.openStatbotics,
-                  child: ListTile(
-                    leading: const Icon(Symbols.open_in_new_rounded),
-                    title: const Text('Open in Statbotics'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _TeamAction.openFrcEvents,
-                  child: ListTile(
-                    leading: const Icon(Symbols.open_in_new_rounded),
-                    title: const Text('Open in FRC Events'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem(
-                  value: _TeamAction.copyNumber,
-                  child: ListTile(
-                    leading: const Icon(Symbols.content_copy_rounded),
-                    title: const Text('Copy team number'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
+                const SizedBox(width: 8),
+              ],
+              bottom: TabBar(
+                tabAlignment: TabAlignment.start,
+                isScrollable: true,
+                tabs: [
+                  const Tab(text: 'Averages'),
+                  if (showNotes) const Tab(text: 'Notes'),
+                  const Tab(text: 'Capabilities'),
+                  const Tab(text: 'Matches'),
+                  if (hasMedia) const Tab(text: 'Media'),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                AveragesTab(teamNumber: teamNumber),
+                if (showNotes) NotesTab(teamNumber: teamNumber),
+                CapabilitiesTab(teamNumber: teamNumber),
+                MatchesTab(teamNumber: teamNumber),
+                if (hasMedia) MediaTab(teamNumber: teamNumber),
               ],
             ),
-            const SizedBox(width: 8),
-          ],
-          bottom: TabBar(
-            tabs: [
-              const Tab(text: 'Averages'),
-              if (showNotes) const Tab(text: 'Notes'),
-              const Tab(text: 'Capabilities'),
-              const Tab(text: 'Matches'),
-            ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            AveragesTab(teamNumber: teamNumber),
-            if (showNotes) NotesTab(teamNumber: teamNumber),
-            CapabilitiesTab(teamNumber: teamNumber),
-            MatchesTab(teamNumber: teamNumber),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
