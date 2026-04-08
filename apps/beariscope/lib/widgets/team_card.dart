@@ -79,7 +79,7 @@ class TeamCard extends ConsumerWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                Navigator.of(context).push(
+                Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
                     builder: (context) => TeamDetailsPage(
                       teamName: resolvedTeam.name,

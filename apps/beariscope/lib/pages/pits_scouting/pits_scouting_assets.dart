@@ -76,8 +76,7 @@ class PitsScoutingTeamCard extends ConsumerWidget {
         ],
       ),
       onTap: () async {
-        final result = await Navigator.push(
-          context,
+        final result = await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (context) => PitsScoutingFormPage(
               teamNumber: teamNumber,

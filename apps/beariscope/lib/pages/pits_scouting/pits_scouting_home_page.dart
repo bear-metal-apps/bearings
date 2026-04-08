@@ -51,22 +51,23 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       existingDoc = pitsDocs.firstOrNull;
     }
 
-    Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PitsScoutingFormPage(
-          teamNumber: teamNumber,
-          teamName: teamName,
-          scouted: scouted,
-          initialDoc: existingDoc,
-        ),
-      ),
-    ).then((result) {
-      if (result == true) {
-        // Refresh cross-device scouted status from honeycomb.
-        ref.read(scoutingDataProvider.notifier).refresh();
-      }
-    });
+    Navigator.of(context, rootNavigator: true)
+        .push<bool>(
+          MaterialPageRoute(
+            builder: (_) => PitsScoutingFormPage(
+              teamNumber: teamNumber,
+              teamName: teamName,
+              scouted: scouted,
+              initialDoc: existingDoc,
+            ),
+          ),
+        )
+        .then((result) {
+          if (result == true) {
+            // Refresh cross-device scouted status from honeycomb.
+            ref.read(scoutingDataProvider.notifier).refresh();
+          }
+        });
   }
 
   final TextEditingController _searchTEC = TextEditingController();

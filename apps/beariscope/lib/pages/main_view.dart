@@ -155,8 +155,10 @@ class _MainViewState extends ConsumerState<MainView> {
         final visibleNavItems = _visibleNavItems(permissionChecker);
         final selectedIndex = _selectedIndexFor(visibleNavItems);
         final isAtTopLevel = _isAtTopLevelFor(visibleNavItems);
-        final canPopRoute = Navigator.of(context).canPop();
-        final allowDrawerGesture = !isDesktop && isAtTopLevel && !canPopRoute;
+        final allowDrawerGesture =
+            !isDesktop &&
+            isAtTopLevel &&
+            ModalRoute.of(context)?.isCurrent == true;
 
         final isOnline = switch (ref.watch(connectivityProvider)) {
           AsyncData(:final value) => value,
