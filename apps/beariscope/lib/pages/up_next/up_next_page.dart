@@ -1,4 +1,4 @@
-import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/pages/up_next/up_next_widget.dart';
@@ -6,20 +6,13 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum _MatchFilter { all, bearMetal }
 
-enum _EventAction {
-  openTba,
-  openStatbotics,
-  openNexus,
-  openFrcEvents,
-  changeEventInSettings,
-}
+enum _EventAction { openTba, openStatbotics, openNexus, openFrcEvents }
 
 class UpNextPage extends ConsumerStatefulWidget {
   const UpNextPage({super.key});
@@ -38,11 +31,18 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
     final controller = MainViewController.of(context);
     final schedule = ref.watch(upNextProvider);
     final currentEventKey = ref.watch(currentEventProvider);
-    final eventDetails = ref.watch(currentEventDetailsProvider);
+    final eventDetails = ref
+        .watch(teamEventsProvider)
+        .whenData(
+          (events) => events.firstWhere(
+            (event) => event.key == currentEventKey,
+            orElse: () => EventOption.current(currentEventKey),
+          ),
+        );
 
     Future<void> refreshSchedule() async {
       ref.invalidate(upNextProvider);
-      ref.invalidate(currentEventDetailsProvider);
+      ref.invalidate(teamEventsProvider);
       try {
         await ref.read(upNextProvider.future);
       } catch (_) {}
@@ -122,14 +122,6 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              PopupMenuItem(
-                value: _EventAction.changeEventInSettings,
-                child: ListTile(
-                  leading: Icon(Symbols.settings_rounded),
-                  title: Text('Change Event in Settings'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
             ],
           ),
         ],
@@ -144,7 +136,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               data: (event) => Text(
-                'Showing Matches for ${event['name']?.toString() ?? currentEventKey}',
+                'Showing Matches for ${event.displayShortName}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -195,8 +187,6 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
           ),
           mode: LaunchMode.externalApplication,
         );
-      case _EventAction.changeEventInSettings:
-        context.push('/settings');
     }
   }
 }

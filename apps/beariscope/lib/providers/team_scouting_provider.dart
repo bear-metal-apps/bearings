@@ -12,8 +12,9 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
     return TeamScoutingBundle.teamNumber(doc.raw) == teamNumber;
   }).toList();
 
-  final matchDocs = teamDocs
-      .where((doc) => doc.raw.meta?['type']?.toString() == 'match')
+  final matchDocs =
+      teamDocs
+          .where((doc) => doc.raw.meta?['type']?.toString() == 'match')
           .toList()
         ..sort((a, b) {
           final aMatch = TeamScoutingBundle.matchNumber(a.raw) ?? 0;

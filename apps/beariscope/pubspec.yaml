@@ -36,6 +36,7 @@ dependencies:
     path: ../../packages/services
   shared_preferences: ^2.5.2
   share_plus: ^10.1.4
+  http: ^1.3.0
   simple_icons: ^14.6.1
   ui:
     path: ../../packages/ui

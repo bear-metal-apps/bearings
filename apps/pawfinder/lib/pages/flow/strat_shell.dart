@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pawfinder/custom_widgets/upload_status_indicator.dart';
 import 'package:pawfinder/providers/scouting_flow_provider.dart';
 import 'package:pawfinder/providers/scouting_providers.dart';
 
@@ -57,6 +58,10 @@ class StratShell extends ConsumerWidget {
           ],
         ),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: UploadStatusIndicator(),
+          ),
           Row(
             children: [
               IconButton(

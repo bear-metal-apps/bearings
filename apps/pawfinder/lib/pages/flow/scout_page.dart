@@ -52,11 +52,11 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
         actions: const [UploadStatusIndicator()],
         actionsPadding: EdgeInsets.only(right: 8),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
             child: Column(
               children: [
                 SearchBar(
@@ -86,8 +86,6 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                       duration: 500.ms,
                       curve: Curves.easeOut,
                     ),
-                const SizedBox(height: 32),
-
                 Expanded(
                   child: scoutsAsync.when(
                     data: (scouts) {
@@ -110,14 +108,15 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
 
                       return ListView.separated(
                         itemCount: filtered.length,
-                        separatorBuilder: (context, index) {
-                          return SizedBox(height: 8);
-                        },
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           final scout = filtered[index];
                           final isSelected = _selectedScout?.uuid == scout.uuid;
+
                           return ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                            ),
                             leading: CircleAvatar(
                               backgroundColor: isSelected
                                   ? Theme.of(context)
@@ -138,7 +137,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                             selectedTileColor: Theme.of(
                               context,
                             ).colorScheme.primaryContainer,
-                            shape: StadiumBorder(),
+                            shape: const StadiumBorder(),
                             onTap: () {
                               setState(() => _selectedScout = scout);
                               ref
@@ -152,11 +151,9 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                     loading: () => _showTimeout
                         ? _buildTimeoutWidget(context)
                         : const Center(child: CircularProgressIndicator()),
-                    error: (err, _) => _buildTimeoutWidget(context),
+                    error: (_, _) => _buildTimeoutWidget(context),
                   ),
                 ),
-
-                const SizedBox(height: 16),
 
                 SizedBox(
                       width: double.infinity,

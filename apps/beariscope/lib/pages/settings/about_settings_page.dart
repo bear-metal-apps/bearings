@@ -1,4 +1,4 @@
-import 'package:beariscope/components/settings_group.dart';
+import 'package:beariscope/widgets/settings_group.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
