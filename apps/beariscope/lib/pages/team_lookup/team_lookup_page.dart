@@ -227,10 +227,10 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 }
 
 class SortByFieldItem extends StatefulWidget {
-  double total;
-  VoidCallback? onAddNew;
+  final double total;
+  final VoidCallback? onAddNew;
 
-  SortByFieldItem({super.key, required this.total, this.onAddNew});
+  const SortByFieldItem({super.key, required this.total, this.onAddNew});
 
   @override
   State<StatefulWidget> createState() {

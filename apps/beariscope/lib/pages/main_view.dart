@@ -1,4 +1,3 @@
-import 'package:beariscope/providers/connectivity_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/auth_provider.dart';
+import 'package:services/providers/connectivity_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
 import 'package:services/widgets/profile_picture.dart';
