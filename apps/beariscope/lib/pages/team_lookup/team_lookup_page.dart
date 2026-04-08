@@ -11,6 +11,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
 
 import '../../providers/team_scouting_provider.dart';
+import '../main_view.dart';
 
 class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
@@ -22,6 +23,7 @@ class TeamLookupPage extends ConsumerStatefulWidget {
 class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   @override
   Widget build(BuildContext context) {
+    final main = MainViewController.of(context);
     final searchFocusNode = ref.watch(searchFocusNodeProvider);
     final searchTermTEC = ref.watch(searchControllerProvider);
     final selectedEvent = ref.watch(currentEventProvider);
@@ -98,6 +100,12 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             ),
           ],
         ),
+        leading: main.isDesktop
+            ? SizedBox(width: 48)
+            : IconButton(
+          icon: const Icon(Symbols.menu_rounded),
+          onPressed: main.openDrawer,
+        ),
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -153,14 +161,14 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                     data: (bundle) =>
                     bundle.avgMatchField(kSectionTele, kTeleFuelScored) +
                         bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
-                    error: (_, __) => 0,
+                    error: (_, _) => 0,
                     loading: () => 0,
                   );
                   final rankB = ref.watch(teamScoutingProvider(b.number)).when(
                     data: (bundle) =>
                     bundle.avgMatchField(kSectionTele, kTeleFuelScored) +
                         bundle.avgMatchField(kSectionAuto, kAutoFuelScored),
-                    error: (_, __) => 0,
+                    error: (_, _) => 0,
                     loading: () => 0,
                   );
                   return isAscending
