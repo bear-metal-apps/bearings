@@ -121,7 +121,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
                 type: ScoutAuditIssueType.incomplete,
                 title: 'Match ${issue.matchNumber}',
                 subtitle: '${issue.scoutedCount}/6 teams scouted',
-                onTap: () => Navigator.of(context).push(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute<void>(
                     builder: (_) => _IncompleteMatchDetailPage(
                       matchNumber: issue.matchNumber,
@@ -136,7 +136,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
                 subtitle: issue.teamNumber == null
                     ? issue.positionLabel
                     : '${issue.teamNumber} · ${issue.positionLabel}',
-                onTap: () => Navigator.of(context).push(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute<void>(
                     builder: (_) => _NotInTbaDetailPage(docId: issue.docId),
                   ),
@@ -150,7 +150,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
                     ? _posLabel(issue.pos)
                     : 'Team ${issue.teamNumber} · ${_posLabel(issue.pos)}',
                 trailing: '${issue.entries.length} entries',
-                onTap: () => Navigator.of(context).push(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute<void>(
                     builder: (_) => _DuplicateDetailPage(
                       matchNumber: issue.matchNumber,
@@ -166,7 +166,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
                 subtitle:
                     '${(issue.deviation * 100).toStringAsFixed(0)}% off TBA · ${issue.teams.join(', ')}',
                 trailing: issue.alliance == 'red' ? 'Red' : 'Blue',
-                onTap: () => Navigator.of(context).push(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute<void>(
                     builder: (_) => _IncorrectDataDetailPage(
                       matchNumber: issue.matchNumber,

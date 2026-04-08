@@ -205,7 +205,7 @@ class _PhotoGrid extends StatelessWidget {
             return GestureDetector(
               onTap: () async {
                 activeUrlNotifier.value = url;
-                await Navigator.of(context).push(
+                await Navigator.of(context, rootNavigator: true).push(
                   PageRouteBuilder(
                     opaque: false,
                     transitionDuration: const Duration(milliseconds: 300),
