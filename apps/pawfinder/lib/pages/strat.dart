@@ -232,7 +232,7 @@ class _RankingList extends StatelessWidget {
           child: ReorderableListView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            onReorderItem: onReorder,
+            onReorder: onReorder,
             children: [
               for (final item in teams)
                 ListTile(
