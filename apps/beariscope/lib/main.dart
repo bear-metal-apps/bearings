@@ -45,7 +45,7 @@ import 'package:services/providers/connectivity_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/release/release_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:beariscope/pages/match_lookup/match_lookup.dart';
+import 'package:beariscope/pages/match_lookup/match_lookup_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -150,7 +150,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/match_lookup',
             pageBuilder: (_, _) =>
-            const NoTransitionPage(child: MatchLookupPage()),
+                const NoTransitionPage(child: MatchLookupPage()),
           ),
           GoRoute(
             path: '/export',

@@ -69,22 +69,6 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   return _toStringKeyMaps(teamData);
 });
 
-    final allTeamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-      final client = ref.watch(honeycombClientProvider);
-
-
-      final teamData = await client.get<List<dynamic>>(
-        '/teams',
-        cachePolicy: CachePolicy.cacheFirst,
-      );
-
-      return teamData
-          .whereType<Map>()
-          .map((item) => Map<String, dynamic>.from(item))
-          .toList();
-    }
-  );
-
 class TeamMediaRecord {
   final String foreignKey;
   final String type;

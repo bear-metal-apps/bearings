@@ -13,6 +13,7 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final String mKey = match['key']?.toString() ?? '';
     final alliances = match['alliances'] ?? {};
     final red = alliances['red'] ?? {};
@@ -28,7 +29,7 @@ class MatchCard extends StatelessWidget {
       'qm' => 'Qualification Match $matchNum',
       'sf' => 'Semifinal Match $setNum',
       'f' => 'Final Match $matchNum',
-      _ => '${compLevel.toUpperCase()}',
+      _ => compLevel.toUpperCase(),
     };
 
     List<String> parseTeams(dynamic keys) => (keys as List? ?? [])
@@ -43,105 +44,106 @@ class MatchCard extends StatelessWidget {
       child: SizedBox(
         width: MediaQuery.of(context).size.width > 700 ? 600 : double.infinity,
         child: Card(
-            elevation: 0,
-            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                if (mKey.isNotEmpty) {
-                  context.push('/up_next/$mKey');
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$type',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+          elevation: 0,
+          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: mKey.isNotEmpty
+                ? () => context.push('/up_next/$mKey')
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    type,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+
+                  Divider(height: 24, thickness: 1, color: theme.dividerColor),
+
+                  _buildAllianceRow(
+                    context,
+                    'Blue Alliance',
+                    blueTeams,
+                    Colors.blue.shade700,
+                  ),
+
+                  Divider(height: 24, thickness: 1, color: theme.dividerColor),
+
+                  _buildAllianceRow(
+                    context,
+                    'Red Alliance',
+                    redTeams,
+                    Colors.red.shade700,
+                  ),
+
+                  Divider(height: 24, thickness: 1, color: theme.dividerColor),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Score',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
-                    ),
-
-                    Divider(height: 24, thickness: 1, color: Colors.grey),
-
-                    _buildAllianceRow(
-                      'Blue Alliance',
-                      blueTeams,
-                      Colors.blue.shade700,
-                    ),
-
-                    Divider(height: 24, thickness: 1, color: Colors.grey),
-
-                    _buildAllianceRow(
-                      'Red Alliance',
-                      redTeams,
-                      Colors.red.shade700,
-                    ),
-
-                    Divider(height: 24, thickness: 1, color: Colors.grey),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Score',
+                      RichText(
+                        text: TextSpan(
                           style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
                           ),
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          children: [
+                            TextSpan(
+                              text: '$redScore',
+                              style: TextStyle(color: Colors.red.shade700),
                             ),
-                            children: [
-                              TextSpan(
-                                text: '$blueScore',
-                                style: TextStyle(color: Colors.blue.shade700),
+                            TextSpan(
+                              text: ' – ',
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
                               ),
-                              const TextSpan(
-                                  text: ' – ',
-                                  style: TextStyle(color: Colors.white)
-                              ),
-                              TextSpan(
-                                text: '$redScore',
-                                style: TextStyle(color: Colors.red.shade700),
-                              ),
-                            ],
-                          ),
+                            ),
+                            TextSpan(
+                              text: '$blueScore',
+                              style: TextStyle(color: Colors.blue.shade700),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            )
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildAllianceRow(
-      String label,
-      List<String> teams,
-      Color allianceColor,
-      ) {
-    final normalStyle = const TextStyle(
-      color: Colors.white,
-      fontSize: 15,
-    );
+    BuildContext context,
+    String label,
+    List<String> teams,
+    Color allianceColor,
+  ) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    final normalStyle = TextStyle(color: onSurface, fontSize: 15);
     final highlightStyle = TextStyle(
       color: allianceColor,
       fontSize: 15,
       fontWeight: FontWeight.bold,
-      decorationColor: allianceColor,
     );
 
     return Padding(
@@ -161,7 +163,8 @@ class MatchCard extends StatelessWidget {
             ...teams.asMap().entries.map((entry) {
               final team = entry.value;
               final isLast = entry.key == teams.length - 1;
-              final isHighlighted = highlightTeams.contains(team) ||
+              final isHighlighted =
+                  highlightTeams.contains(team) ||
                   highlightTeams.contains('frc$team');
 
               return TextSpan(
