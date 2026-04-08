@@ -20,7 +20,6 @@ class ScoutingShell extends ConsumerStatefulWidget {
 }
 
 class _ScoutingShellState extends ConsumerState<ScoutingShell> {
-  int _selectedIndex = 0; // tracks the active tab
   bool _shouldFlashTele = true; // controls the flashing state
 
   @override
@@ -122,7 +121,6 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
 
         onDestinationSelected: (index) {
           setState(() {
-            _selectedIndex = index;
             if (index == 1) {
               _shouldFlashTele = false;
             }
