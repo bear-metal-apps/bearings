@@ -475,6 +475,20 @@ class _MainViewState extends ConsumerState<MainView> {
                         EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                       ),
                     ),
+                    menuStyle: MenuStyle(
+                      elevation: const WidgetStatePropertyAll(8.0),
+                      backgroundColor: WidgetStatePropertyAll(
+                        colorScheme.surfaceContainerHighest,
+                      ),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      padding: const WidgetStatePropertyAll(
+                        EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
                     submenuIcon: WidgetStatePropertyAll(
                       const Icon(Symbols.chevron_right_rounded, size: 16),
                     ),
@@ -609,6 +623,20 @@ class _MainViewState extends ConsumerState<MainView> {
               style: const ButtonStyle(
                 padding: WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                ),
+              ),
+              menuStyle: MenuStyle(
+                elevation: const WidgetStatePropertyAll(8.0),
+                backgroundColor: WidgetStatePropertyAll(
+                  colorScheme.surfaceContainerHighest,
+                ),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
               submenuIcon: const WidgetStatePropertyAll(
