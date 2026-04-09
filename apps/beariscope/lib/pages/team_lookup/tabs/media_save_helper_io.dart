@@ -7,10 +7,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> shareOrSaveImage(
-  Rect? shareOrigin,
+  BuildContext context,
   Uint8List bytes,
   String filename,
 ) async {
+  final shareOrigin = _getShareOrigin(context);
+
   if (Platform.isIOS || Platform.isAndroid) {
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/$filename');
@@ -19,7 +21,7 @@ Future<void> shareOrSaveImage(
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'image/jpeg', name: filename)],
       subject: filename,
-      sharePositionOrigin: shareOrigin ?? Rect.zero,
+      sharePositionOrigin: shareOrigin,
     );
     return;
   }
@@ -33,4 +35,10 @@ Future<void> shareOrSaveImage(
   if (path == null || path.isEmpty) return;
 
   await File(path).writeAsBytes(bytes, flush: true);
+}
+
+Rect _getShareOrigin(BuildContext context) {
+  final box = context.findRenderObject() as RenderBox?;
+  if (box == null) return Rect.zero;
+  return box.localToGlobal(Offset.zero) & box.size;
 }
