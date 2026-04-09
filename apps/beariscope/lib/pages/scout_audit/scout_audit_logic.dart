@@ -650,7 +650,7 @@ AllianceMetric? _buildAllianceMetric({
     return null;
   }
 
-  final deviation = (scoutedSum - tbaScore).abs() / tbaScore;
+  final deviation = (scoutedSum - tbaScore).abs().toDouble();
 
   final slots = <AuditSlot>[];
   for (var pos = minPos; pos <= maxPos; pos++) {
