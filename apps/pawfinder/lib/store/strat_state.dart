@@ -449,32 +449,46 @@ class StratStateNotifier extends _$StratStateNotifier {
     _save();
   }
 
-  void reorderDriverSkill(int oldIndex, int newIndex) {
-    final list = List<String>.from(state.driverSkill);
-    list.insert(newIndex, list.removeAt(oldIndex));
-    state = state.copyWith(driverSkill: list);
+  void _handleReorder(
+    List<String> currentList,
+    int oldIndex,
+    int newIndex,
+    Function(List<String>) updateState,
+  ) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    final list = List<String>.from(currentList);
+    final item = list.removeAt(oldIndex);
+    list.insert(newIndex, item);
+
+    updateState(list);
     _save();
+  }
+
+  void reorderDriverSkill(int oldIndex, int newIndex) {
+    _handleReorder(state.driverSkill, oldIndex, newIndex, (newList) {
+      state = state.copyWith(driverSkill: newList);
+    });
   }
 
   void reorderDefensiveSkill(int oldIndex, int newIndex) {
-    final list = List<String>.from(state.defensiveSkill);
-    list.insert(newIndex, list.removeAt(oldIndex));
-    state = state.copyWith(defensiveSkill: list);
-    _save();
+    _handleReorder(state.defensiveSkill, oldIndex, newIndex, (newList) {
+      state = state.copyWith(defensiveSkill: newList);
+    });
   }
 
   void reorderDefensiveResilience(int oldIndex, int newIndex) {
-    final list = List<String>.from(state.defensiveResilience);
-    list.insert(newIndex, list.removeAt(oldIndex));
-    state = state.copyWith(defensiveResilience: list);
-    _save();
+    _handleReorder(state.defensiveResilience, oldIndex, newIndex, (newList) {
+      state = state.copyWith(defensiveResilience: newList);
+    });
   }
 
   void reorderMechanicalStability(int oldIndex, int newIndex) {
-    final list = List<String>.from(state.mechanicalStability);
-    list.insert(newIndex, list.removeAt(oldIndex));
-    state = state.copyWith(mechanicalStability: list);
-    _save();
+    _handleReorder(state.mechanicalStability, oldIndex, newIndex, (newList) {
+      state = state.copyWith(mechanicalStability: newList);
+    });
   }
 
   void incrementAutoHumanPlayer() {
