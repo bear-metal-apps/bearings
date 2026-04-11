@@ -298,8 +298,10 @@ class _SummaryMetrics extends ConsumerWidget {
         Expanded(
           child: SfCartesianChart(
             margin: EdgeInsets.zero,
-            primaryXAxis: NumericAxis(),
-            primaryYAxis: NumericAxis(),
+            primaryXAxis: const CategoryAxis(
+              labelPlacement: LabelPlacement.onTicks,
+            ),
+            primaryYAxis: const NumericAxis(),
             plotAreaBorderWidth: 0,
             series: _buildLineSeries(bundle.matchDocs),
           ),
@@ -522,7 +524,7 @@ class _RankBadge extends StatelessWidget {
           ),
         ),
         Text(
-          '${ranking.rankingPoints} RP',
+          '${ranking.rankingPoints} RP / ${ranking.rankingScore.toStringAsFixed(2)} RS',
           style: Theme.of(
             context,
           ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -669,13 +671,14 @@ class TeamDetailsPage extends ConsumerWidget {
   }
 }
 
-List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(
+List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
   List<ProcessedScoutingDoc> data,
 ) {
   return [
-    LineSeries<ProcessedScoutingDoc, num>(
+    LineSeries<ProcessedScoutingDoc, String>(
       dataSource: data,
-      xValueMapper: (doc, index) => index,
+      // Map the actual match number as a string
+      xValueMapper: (doc, index) => doc.raw.data['matchNumber'].toString(),
       yValueMapper: (doc, _) =>
           TeamScoutingBundle.getMatchField(
             doc.raw,
@@ -690,9 +693,9 @@ List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(
       name: 'Total',
       color: Colors.green,
     ),
-    LineSeries<ProcessedScoutingDoc, num>(
+    LineSeries<ProcessedScoutingDoc, String>(
       dataSource: data,
-      xValueMapper: (doc, index) => index,
+      xValueMapper: (doc, index) => doc.raw.data['matchNumber'].toString(),
       yValueMapper: (doc, _) => TeamScoutingBundle.getMatchField(
         doc.raw,
         kSectionTele,
@@ -701,9 +704,9 @@ List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(
       name: 'Tele',
       color: Colors.blue,
     ),
-    LineSeries<ProcessedScoutingDoc, num>(
+    LineSeries<ProcessedScoutingDoc, String>(
       dataSource: data,
-      xValueMapper: (doc, index) => index,
+      xValueMapper: (doc, index) => doc.raw.data['matchNumber'].toString(),
       yValueMapper: (doc, _) => TeamScoutingBundle.getMatchField(
         doc.raw,
         kSectionAuto,
