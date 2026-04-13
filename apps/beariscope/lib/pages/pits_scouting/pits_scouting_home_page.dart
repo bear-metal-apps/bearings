@@ -32,27 +32,27 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   final TextEditingController _searchTEC = TextEditingController();
 
   void _openScoutingForm(
-      BuildContext context,
-      int teamNumber,
-      String teamName,
-      bool scouted,
-      List<Team> teams,
-      ) {
+    BuildContext context,
+    int teamNumber,
+    String teamName,
+    bool scouted,
+    List<Team> teams,
+  ) {
     ScoutingDocument? existingDoc;
     final eventKey = ref.read(currentEventProvider);
 
     if (scouted) {
       final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
       final pitsDocs =
-      allDocs
-          .where(
-            (doc) =>
-        doc.meta?['type'] == 'pits' &&
-            doc.meta?['event'] == eventKey &&
-            (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
-      )
-          .toList()
-        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          allDocs
+              .where(
+                (doc) =>
+                    doc.meta?['type'] == 'pits' &&
+                    doc.meta?['event'] == eventKey &&
+                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+              )
+              .toList()
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
       existingDoc = pitsDocs.firstOrNull;
     }
 
@@ -105,52 +105,51 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
         title: _showMapView
             ? const Text('Pits Map')
             : SearchBar(
-          controller: _searchTEC,
-          hintText: 'Team name or number',
-          padding: const WidgetStatePropertyAll<EdgeInsets>(
-            EdgeInsets.symmetric(horizontal: 16.0),
-          ),
-          elevation: const WidgetStatePropertyAll<double>(0),
-          leading: const Icon(Symbols.search_rounded),
-          trailing: [
-            PopupMenuButton<PitsScoutingFilter>(
-              icon: const Icon(Symbols.filter_list_rounded),
-              tooltip: 'Filter & Sort',
-              itemBuilder: (context) =>
-              [
-                CheckedPopupMenuItem<PitsScoutingFilter>(
-                  value: PitsScoutingFilter.allTeams,
-                  checked: _statusFilter == PitsScoutingFilter.allTeams,
-                  child: const Text('All Teams'),
+                controller: _searchTEC,
+                hintText: 'Team name or number',
+                padding: const WidgetStatePropertyAll<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 16.0),
                 ),
-                CheckedPopupMenuItem<PitsScoutingFilter>(
-                  value: PitsScoutingFilter.notScouted,
-                  checked: _statusFilter == PitsScoutingFilter.notScouted,
-                  child: const Text('Not Scouted'),
-                ),
-                CheckedPopupMenuItem<PitsScoutingFilter>(
-                  value: PitsScoutingFilter.scouted,
-                  checked: _statusFilter == PitsScoutingFilter.scouted,
-                  child: const Text('Scouted'),
-                ),
-              ],
-              onSelected: (selection) {
-                setState(() {
-                  _statusFilter = selection;
-                });
-              },
-            ),
-          ],
-          onChanged: (value) {
-            setState(() {});
-          },
-        ),
+                elevation: const WidgetStatePropertyAll<double>(0),
+                leading: const Icon(Symbols.search_rounded),
+                trailing: [
+                  PopupMenuButton<PitsScoutingFilter>(
+                    icon: const Icon(Symbols.filter_list_rounded),
+                    tooltip: 'Filter & Sort',
+                    itemBuilder: (context) => [
+                      CheckedPopupMenuItem<PitsScoutingFilter>(
+                        value: PitsScoutingFilter.allTeams,
+                        checked: _statusFilter == PitsScoutingFilter.allTeams,
+                        child: const Text('All Teams'),
+                      ),
+                      CheckedPopupMenuItem<PitsScoutingFilter>(
+                        value: PitsScoutingFilter.notScouted,
+                        checked: _statusFilter == PitsScoutingFilter.notScouted,
+                        child: const Text('Not Scouted'),
+                      ),
+                      CheckedPopupMenuItem<PitsScoutingFilter>(
+                        value: PitsScoutingFilter.scouted,
+                        checked: _statusFilter == PitsScoutingFilter.scouted,
+                        child: const Text('Scouted'),
+                      ),
+                    ],
+                    onSelected: (selection) {
+                      setState(() {
+                        _statusFilter = selection;
+                      });
+                    },
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {});
+                },
+              ),
         leading: main.isDesktop
             ? (!_showMapView ? const SizedBox(width: 40) : null)
             : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: main.openDrawer,
-        ),
+                icon: const Icon(Symbols.menu_rounded),
+                onPressed: main.openDrawer,
+              ),
         actionsPadding: EdgeInsets.symmetric(horizontal: 8),
         actions: [
           IconButton(
@@ -166,13 +165,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) =>
-            Center(
-              child: FilledButton(
-                onPressed: () => ref.invalidate(pitsTeamsProvider),
-                child: const Text('Retry'),
-              ),
-            ),
+        error: (err, stack) => Center(
+          child: FilledButton(
+            onPressed: () => ref.invalidate(pitsTeamsProvider),
+            child: const Text('Retry'),
+          ),
+        ),
         data: (teams) {
           final filteredTeams = filterPitsTeams(
             teams: teams,
