@@ -197,6 +197,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
             onRefresh: onRefresh,
             child: ListView(
               children: [
+                SizedBox(height: 16),
                 TitledProgressBar(
                   maxSteps: 100,
                   currentStep: currentStep,
