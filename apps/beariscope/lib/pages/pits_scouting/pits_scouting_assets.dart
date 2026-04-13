@@ -5,7 +5,6 @@ import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/pits_form_schema_provider.dart';
-import 'package:beariscope/providers/pits_progress_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,9 +94,6 @@ class PitsScoutingTeamCard extends ConsumerWidget {
 
         if (result != null && result == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            ref
-                .read(pitsProgressNotifierProvider.notifier)
-                .addPercentage(_currentEventKey, increment);
             onScoutedChanged(true);
           });
         }

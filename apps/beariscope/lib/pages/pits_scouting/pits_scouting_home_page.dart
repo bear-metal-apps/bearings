@@ -6,7 +6,6 @@ import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
-import 'package:beariscope/providers/pits_progress_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +30,50 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   bool _showMapView = false;
 
   final TextEditingController _searchTEC = TextEditingController();
+
+  void _openScoutingForm(
+      BuildContext context,
+      int teamNumber,
+      String teamName,
+      bool scouted,
+      List<Team> teams,
+      ) {
+    ScoutingDocument? existingDoc;
+    final eventKey = ref.read(currentEventProvider);
+
+    if (scouted) {
+      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
+      final pitsDocs =
+      allDocs
+          .where(
+            (doc) =>
+        doc.meta?['type'] == 'pits' &&
+            doc.meta?['event'] == eventKey &&
+            (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+      )
+          .toList()
+        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      existingDoc = pitsDocs.firstOrNull;
+    }
+
+    Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PitsScoutingFormPage(
+          teamNumber: teamNumber,
+          teamName: teamName,
+          scouted: scouted,
+          initialDoc: existingDoc,
+        ),
+      ),
+    ).then((result) {
+      if (result == true && scouted == false) {
+        // Refresh cross-device scouted status from honeycomb.
+        ref.read(scoutingDataProvider.notifier).refresh();
+        refreshPitsPage();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -62,51 +105,52 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
         title: _showMapView
             ? const Text('Pits Map')
             : SearchBar(
-                controller: _searchTEC,
-                hintText: 'Team name or number',
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0),
+          controller: _searchTEC,
+          hintText: 'Team name or number',
+          padding: const WidgetStatePropertyAll<EdgeInsets>(
+            EdgeInsets.symmetric(horizontal: 16.0),
+          ),
+          elevation: const WidgetStatePropertyAll<double>(0),
+          leading: const Icon(Symbols.search_rounded),
+          trailing: [
+            PopupMenuButton<PitsScoutingFilter>(
+              icon: const Icon(Symbols.filter_list_rounded),
+              tooltip: 'Filter & Sort',
+              itemBuilder: (context) =>
+              [
+                CheckedPopupMenuItem<PitsScoutingFilter>(
+                  value: PitsScoutingFilter.allTeams,
+                  checked: _statusFilter == PitsScoutingFilter.allTeams,
+                  child: const Text('All Teams'),
                 ),
-                elevation: const WidgetStatePropertyAll<double>(0),
-                leading: const Icon(Symbols.search_rounded),
-                trailing: [
-                  PopupMenuButton<PitsScoutingFilter>(
-                    icon: const Icon(Symbols.filter_list_rounded),
-                    tooltip: 'Filter & Sort',
-                    itemBuilder: (context) => [
-                      CheckedPopupMenuItem<PitsScoutingFilter>(
-                        value: PitsScoutingFilter.allTeams,
-                        checked: _statusFilter == PitsScoutingFilter.allTeams,
-                        child: const Text('All Teams'),
-                      ),
-                      CheckedPopupMenuItem<PitsScoutingFilter>(
-                        value: PitsScoutingFilter.notScouted,
-                        checked: _statusFilter == PitsScoutingFilter.notScouted,
-                        child: const Text('Not Scouted'),
-                      ),
-                      CheckedPopupMenuItem<PitsScoutingFilter>(
-                        value: PitsScoutingFilter.scouted,
-                        checked: _statusFilter == PitsScoutingFilter.scouted,
-                        child: const Text('Scouted'),
-                      ),
-                    ],
-                    onSelected: (selection) {
-                      setState(() {
-                        _statusFilter = selection;
-                      });
-                    },
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {});
-                },
-              ),
+                CheckedPopupMenuItem<PitsScoutingFilter>(
+                  value: PitsScoutingFilter.notScouted,
+                  checked: _statusFilter == PitsScoutingFilter.notScouted,
+                  child: const Text('Not Scouted'),
+                ),
+                CheckedPopupMenuItem<PitsScoutingFilter>(
+                  value: PitsScoutingFilter.scouted,
+                  checked: _statusFilter == PitsScoutingFilter.scouted,
+                  child: const Text('Scouted'),
+                ),
+              ],
+              onSelected: (selection) {
+                setState(() {
+                  _statusFilter = selection;
+                });
+              },
+            ),
+          ],
+          onChanged: (value) {
+            setState(() {});
+          },
+        ),
         leading: main.isDesktop
             ? (!_showMapView ? const SizedBox(width: 40) : null)
             : IconButton(
-                icon: const Icon(Symbols.menu_rounded),
-                onPressed: main.openDrawer,
-              ),
+          icon: const Icon(Symbols.menu_rounded),
+          onPressed: main.openDrawer,
+        ),
         actionsPadding: EdgeInsets.symmetric(horizontal: 8),
         actions: [
           IconButton(
@@ -122,12 +166,13 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: FilledButton(
-            onPressed: () => ref.invalidate(pitsTeamsProvider),
-            child: const Text('Retry'),
-          ),
-        ),
+        error: (err, stack) =>
+            Center(
+              child: FilledButton(
+                onPressed: () => ref.invalidate(pitsTeamsProvider),
+                child: const Text('Retry'),
+              ),
+            ),
         data: (teams) {
           final filteredTeams = filterPitsTeams(
             teams: teams,
@@ -146,9 +191,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
             );
           }
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            loadProgress(filteredTeams, scoutedNums);
-          });
+          int currentStep = loadProgress(filteredTeams, scoutedNums);
 
           return RefreshIndicator(
             onRefresh: onRefresh,
@@ -156,13 +199,13 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               children: [
                 TitledProgressBar(
                   maxSteps: 100,
-                  currentStep: pullPercentage(selectedEvent),
+                  currentStep: currentStep,
                   progressColor: Colors.green,
                   backgroundColor: Colors.white24,
                   labelType: LabelType.percentage,
                   labelColor: Colors.black,
                   labelFontWeight: FontWeight.bold,
-                  label: 'Teams Scouted: ${pullPercentage(selectedEvent)}%',
+                  label: 'Teams Scouted: ${currentStep.toString()}%',
                   minHeight: 24,
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -173,53 +216,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
         },
       ),
     );
-  }
-
-  void _openScoutingForm(
-    BuildContext context,
-    int teamNumber,
-    String teamName,
-    bool scouted,
-    List<Team> teams,
-  ) {
-    ScoutingDocument? existingDoc;
-    final eventKey = ref.read(currentEventProvider);
-
-    if (scouted) {
-      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
-      final pitsDocs =
-          allDocs
-              .where(
-                (doc) =>
-                    doc.meta?['type'] == 'pits' &&
-                    doc.meta?['event'] == eventKey &&
-                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
-              )
-              .toList()
-            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      existingDoc = pitsDocs.firstOrNull;
-    }
-
-    Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PitsScoutingFormPage(
-          teamNumber: teamNumber,
-          teamName: teamName,
-          scouted: scouted,
-          initialDoc: existingDoc,
-        ),
-      ),
-    ).then((result) {
-      if (result == true && scouted == false) {
-        double increment = 100 / teams.length;
-        ref
-            .read(pitsProgressNotifierProvider.notifier)
-            .addPercentage(eventKey, increment);
-        // Refresh cross-device scouted status from honeycomb.
-        ref.read(scoutingDataProvider.notifier).refresh();
-      }
-    });
   }
 
   Widget _buildMapView(
@@ -343,21 +339,18 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     );
   }
 
-  void loadProgress(List<Team> filteredTeams, Set<int> scoutedNums) {
-    ref.read(pitsProgressNotifierProvider.notifier).resetPercentages();
-    for (int i = 0; i < filteredTeams.length; i++) {
-      if (scoutedNums.contains(filteredTeams[i].number)) {
-        final selectedEvent = ref.watch(currentEventProvider);
-        final double increment = 100 / filteredTeams.length;
-        ref
-            .read(pitsProgressNotifierProvider.notifier)
-            .addPercentage(selectedEvent, increment);
-      }
-    }
+  void refreshPitsPage() {
+    ref.invalidate(pitsTeamsProvider);
   }
 
-  int pullPercentage(String eventKey) {
-    final _requestProvider = ref.read(pitsProgressNotifierProvider);
-    return _requestProvider[eventKey]?.round() ?? 0;
+  int loadProgress(List<Team> filteredTeams, Set<int> scoutedNums) {
+    double returnValue = 0;
+    final double increment = 100 / filteredTeams.length;
+    for (int i = 0; i < filteredTeams.length; i++) {
+      if (scoutedNums.contains(filteredTeams[i].number)) {
+        returnValue += increment;
+      }
+    }
+    return returnValue.round();
   }
 }
