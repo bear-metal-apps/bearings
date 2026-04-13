@@ -6,7 +6,8 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
   ref,
   teamNumber,
 ) async {
-  final allProcessed = await ref.watch(processedScoutingProvider.future);
+  final processedBundle = await ref.watch(processedScoutingProvider.future);
+  final allProcessed = processedBundle.processedDocs;
 
   final teamDocs = allProcessed.where((doc) {
     return TeamScoutingBundle.teamNumber(doc.raw) == teamNumber;
