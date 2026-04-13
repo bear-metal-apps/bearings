@@ -84,6 +84,7 @@ class TeamCard extends ConsumerWidget {
                     builder: (context) => TeamDetailsPage(
                       teamName: resolvedTeam.name,
                       teamNumber: resolvedTeam.number,
+                      teamWebsite: resolvedTeam.website,
                     ),
                   ),
                 );
@@ -547,11 +548,13 @@ class _RankBadge extends StatelessWidget {
 class TeamDetailsPage extends ConsumerWidget {
   final String teamName;
   final int teamNumber;
+  final String? teamWebsite;
 
   const TeamDetailsPage({
     super.key,
     required this.teamName,
     required this.teamNumber,
+    this.teamWebsite,
   });
 
   @override
@@ -575,10 +578,12 @@ class TeamDetailsPage extends ConsumerWidget {
           return record.hasRenderableMedia &&
               record.openUrl?.isNotEmpty == true;
         });
+        final hasWebsite = teamWebsite?.isNotEmpty == true;
+        final hasMediaTabContent = hasMedia || hasWebsite;
 
         return DefaultTabController(
-          key: ValueKey('$showNotes-$hasMedia'),
-          length: 3 + (showNotes ? 1 : 0) + (hasMedia ? 1 : 0),
+          key: ValueKey('$showNotes-$hasMediaTabContent'),
+          length: 3 + (showNotes ? 1 : 0) + (hasMediaTabContent ? 1 : 0),
           child: Scaffold(
             appBar: AppBar(
               title: Text('$teamName — $teamNumber'),
@@ -633,7 +638,7 @@ class TeamDetailsPage extends ConsumerWidget {
                   if (showNotes) const Tab(text: 'Notes'),
                   const Tab(text: 'Capabilities'),
                   const Tab(text: 'Matches'),
-                  if (hasMedia) const Tab(text: 'Media'),
+                  if (hasMediaTabContent) const Tab(text: 'Media'),
                 ],
               ),
             ),
@@ -643,7 +648,8 @@ class TeamDetailsPage extends ConsumerWidget {
                 if (showNotes) NotesTab(teamNumber: teamNumber),
                 CapabilitiesTab(teamNumber: teamNumber),
                 MatchesTab(teamNumber: teamNumber),
-                if (hasMedia) MediaTab(teamNumber: teamNumber),
+                if (hasMediaTabContent)
+                  MediaTab(teamNumber: teamNumber, teamWebsite: teamWebsite),
               ],
             ),
           ),
