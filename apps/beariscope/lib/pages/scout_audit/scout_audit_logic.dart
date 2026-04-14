@@ -5,7 +5,7 @@ import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:core/core.dart' show ScoutPosition;
 
-enum ScoutAuditIssueType { incomplete, notInTba, duplicate, incorrect }
+enum ScoutAuditIssueType { incomplete, notInTba, duplicate, incorrect, markedForReview }
 
 enum ScoutAuditEntryType { match, strat }
 

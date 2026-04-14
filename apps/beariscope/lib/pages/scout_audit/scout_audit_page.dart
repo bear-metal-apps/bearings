@@ -348,6 +348,9 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
       case ScoutAuditIssueType.incorrect:
         label = 'Incorrect Data';
         icon = Symbols.warning_rounded;
+      case ScoutAuditIssueType.markedForReview:
+        label = 'Marked For Review';
+        icon = Symbols.flag_rounded;
     }
 
     return Row(
