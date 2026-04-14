@@ -302,7 +302,6 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
           leading: Icon(Symbols.search_rounded),
           hintText: 'Search scouts',
         ),
-        actionsPadding: EdgeInsets.symmetric(horizontal: 8.0),
         actions: [
           if (canManageScouts)
             PopupMenuButton(

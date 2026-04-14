@@ -35,7 +35,6 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scout Audit'),
-        actionsPadding: const EdgeInsetsDirectional.only(end: 8),
         leading: controller.isDesktop
             ? null
             : IconButton(
@@ -540,7 +539,6 @@ class _IncompleteMatchDetailPageState
               ? 'Match ${widget.matchNumber} (Strat)'
               : 'Match ${widget.matchNumber}',
         ),
-        actionsPadding: const EdgeInsetsDirectional.only(end: 8),
         actions: [
           IconButton(
             onPressed: () => _openMatchVideo(
@@ -1177,7 +1175,6 @@ class _IncorrectDataDetailPageState
     return Scaffold(
       appBar: AppBar(
         title: Text('Match ${widget.matchNumber}'),
-        actionsPadding: const EdgeInsetsDirectional.only(end: 8),
         actions: [
           IconButton(
             onPressed: () => _launchMatchVideo(

@@ -939,7 +939,6 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
               color: Colors.white.withValues(alpha: backgroundOpacity),
             ),
           ),
-          actionsPadding: const EdgeInsets.only(right: 8),
           actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
