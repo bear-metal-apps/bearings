@@ -17,7 +17,7 @@ final currentEventMatchesProvider = FutureProvider<List<Map<String, dynamic>>>((
   final matchData = await client.get<List<dynamic>>(
     '/matches',
     queryParams: {'event': selectedEvent},
-    cachePolicy: CachePolicy.cacheFirst,
+    cachePolicy: CachePolicy.networkFirst,
   );
 
   return _toStringKeyMaps(matchData);
@@ -34,7 +34,7 @@ final teamMatchesProvider =
       final matchData = await client.get<List<dynamic>>(
         '/events',
         queryParams: {'team': teamKey},
-        cachePolicy: CachePolicy.cacheFirst,
+        cachePolicy: CachePolicy.networkFirst,
       );
 
       return _toStringKeyMaps(matchData);

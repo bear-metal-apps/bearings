@@ -38,7 +38,7 @@ final teamEventsProvider = FutureProvider<List<EventOption>>((ref) async {
   final response = await client.get<List<dynamic>>(
     '/events',
     queryParams: {'team': 'frc2046', 'year': year, 'enrich': false},
-    cachePolicy: CachePolicy.cacheFirst,
+    cachePolicy: CachePolicy.networkFirst,
   );
 
   final events = response

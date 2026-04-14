@@ -29,7 +29,7 @@ final _teamScheduleProvider = FutureProvider.family<List<int>, int>((
     final data = await client.get<List<dynamic>>(
       '/matches',
       queryParams: {'team': 'frc$teamNumber', 'event': eventKey},
-      cachePolicy: CachePolicy.cacheFirst,
+      cachePolicy: CachePolicy.networkFirst,
     );
 
     final matchNumbers = <int>[];
