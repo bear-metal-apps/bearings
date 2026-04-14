@@ -260,7 +260,19 @@
           "layout": {
             "x": 0,
             "y": 3,
-            "w": 6,
+            "w": 5,
+            "h": 1
+          },
+          "parameters": {}
+        },
+        {
+          "alias": "Mark Match for Review?",
+          "fieldId": "marked_for_review",
+          "type": "checkbox",
+          "layout": {
+            "x": 5,
+            "y": 3,
+            "w": 1,
             "h": 1
           },
           "parameters": {}
