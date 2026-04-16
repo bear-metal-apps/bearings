@@ -159,8 +159,44 @@
       "height": 8,
       "components": [
         {
+          "alias": "Stopped working",
+          "fieldId": "stopped_working",
+          "type": "toggle_switch",
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 2
+          },
+          "parameters": {}
+        },
+        {
+          "alias": "Lost Comms",
+          "fieldId": "lost_comms",
+          "type": "toggle_switch",
+          "layout": {
+            "x": 1,
+            "y": 0,
+            "w": 1,
+            "h": 2
+          },
+          "parameters": {}
+        },
+        {
           "alias": "Periods started with Full Hopper",
           "fieldId": "periods_started_with_full_hopper",
+          "type": "int_button",
+          "layout": {
+            "x": 2,
+            "y": 0,
+            "w": 2,
+            "h": 2
+          },
+          "parameters": {}
+        },
+        {
+          "alias": "Beached / High Center",
+          "fieldId": "beached_high_center",
           "type": "int_button",
           "layout": {
             "x": 4,
@@ -203,30 +239,6 @@
             "y": 4,
             "w": 2,
             "h": 4
-          },
-          "parameters": {}
-        },
-        {
-          "alias": "Stopped working",
-          "fieldId": "stopped_working",
-          "type": "toggle_switch",
-          "layout": {
-            "x": 0,
-            "y": 0,
-            "w": 2,
-            "h": 2
-          },
-          "parameters": {}
-        },
-        {
-          "alias": "Lost Comms",
-          "fieldId": "lost_comms",
-          "type": "toggle_switch",
-          "layout": {
-            "x": 2,
-            "y": 0,
-            "w": 2,
-            "h": 2
           },
           "parameters": {}
         },
@@ -317,7 +329,7 @@
           "parameters": {}
         },
         {
-          "alias": "Off Shift Defense",
+          "alias": "OFF Shift Defense",
           "fieldId": "played_defense_off_shift",
           "type": "checkbox",
           "layout": {
