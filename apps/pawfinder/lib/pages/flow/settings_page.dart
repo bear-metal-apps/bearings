@@ -98,7 +98,7 @@ class SettingsPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<AppColorScheme>(
-                    value: colorScheme,
+                    initialValue: colorScheme,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),

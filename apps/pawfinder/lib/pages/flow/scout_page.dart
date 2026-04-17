@@ -104,7 +104,7 @@ class _ScoutPageState extends ConsumerState<ScoutPage> {
                           physics: const ClampingScrollPhysics(),
                           padding: const EdgeInsets.only(top: 4),
                           itemCount: filtered.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final scout = filtered[index];
