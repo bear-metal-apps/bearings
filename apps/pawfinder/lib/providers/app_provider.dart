@@ -20,7 +20,8 @@ enum AppColorScheme {
   cyan('Chill Out Cyan', Color.fromARGB(255, 0, 221, 255)),
   emerald('Jack in the Bot Emerald', Color.fromARGB(255, 24, 201, 97)),
   sunset('Future Martian Orange', Color.fromARGB(255, 255, 120, 89)),
-  amethyst('Code Purple', Color.fromARGB(255, 149, 117, 205));
+  amethyst('Code Purple', Color.fromARGB(255, 149, 117, 205)),
+  red('Robototes Red', Color.fromARGB(255, 255, 0, 0));
 
   const AppColorScheme(this.label, this.seedColor);
 
