@@ -152,8 +152,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
                             runSpacing: 3,
                             borderRadius: 22,
                             wheelDiameter: 169,
-                            enableOpacity: true,
-                            showColorCode: true,
+                            enableOpacity: false,
+                            showColorCode: false,
                             pickersEnabled: const <ColorPickerType, bool>{
                               ColorPickerType.both: false,
                               ColorPickerType.primary: false,
