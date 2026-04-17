@@ -15,8 +15,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MediaTab extends ConsumerStatefulWidget {
   final int teamNumber;
+  final String? teamWebsite;
 
-  const MediaTab({super.key, required this.teamNumber});
+  const MediaTab({super.key, required this.teamNumber, this.teamWebsite});
 
   @override
   ConsumerState<MediaTab> createState() => _MediaTabState();
@@ -40,6 +41,10 @@ class _MediaTabState extends ConsumerState<MediaTab> {
   @override
   Widget build(BuildContext context) {
     final mediaAsync = ref.watch(teamMediaProvider(widget.teamNumber));
+    final websiteUri = _normalizeWebsiteUri(widget.teamWebsite);
+    final websiteMetadataFuture = websiteUri == null
+        ? null
+        : WebsiteMetadataProvider.metadataForUrl(websiteUri);
 
     return mediaAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -49,8 +54,33 @@ class _MediaTabState extends ConsumerState<MediaTab> {
           media.where((record) => !record.isAvatar),
         );
 
-        if (sections.isEmpty) {
+        if (sections.isEmpty && websiteMetadataFuture == null) {
           return const Center(child: Text('No media recorded for this team.'));
+        }
+
+        if (sections.isEmpty && websiteMetadataFuture != null) {
+          return FutureBuilder<WebsiteMetadata?>(
+            future: websiteMetadataFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final metadata = snapshot.data;
+              if (metadata == null) {
+                return const Center(
+                  child: Text('No media recorded for this team.'),
+                );
+              }
+
+              return BeariscopeCardList(
+                spacing: 0,
+                children: [
+                  _TeamWebsiteSection(uri: websiteUri!, metadata: metadata),
+                ],
+              );
+            },
+          );
         }
 
         return BeariscopeCardList(
@@ -107,9 +137,147 @@ class _MediaTabState extends ConsumerState<MediaTab> {
                 ),
               ),
             ],
+            if (websiteUri != null && websiteMetadataFuture != null) ...[
+              _TeamWebsiteSectionLoader(
+                uri: websiteUri,
+                metadataFuture: websiteMetadataFuture,
+              ),
+            ],
           ],
         );
       },
+    );
+  }
+}
+
+class _TeamWebsiteSectionLoader extends StatelessWidget {
+  final Uri uri;
+  final Future<WebsiteMetadata?> metadataFuture;
+
+  const _TeamWebsiteSectionLoader({
+    required this.uri,
+    required this.metadataFuture,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<WebsiteMetadata?>(
+      future: metadataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done ||
+            snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+
+        return _TeamWebsiteSection(uri: uri, metadata: snapshot.data!);
+      },
+    );
+  }
+}
+
+class _TeamWebsiteSection extends StatelessWidget {
+  final Uri uri;
+  final WebsiteMetadata metadata;
+
+  const _TeamWebsiteSection({required this.uri, required this.metadata});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final title =
+        _cleanWebsiteTitle(metadata.title) ??
+        (uri.host.isNotEmpty ? uri.host : uri.toString());
+
+    return Column(
+      children: [
+        const ScoutingSectionHeader(
+          icon: Symbols.public_rounded,
+          title: 'Team Website',
+        ),
+        const SizedBox(height: 12),
+        InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _MediaLinkCard._openUri(context, uri),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(13),
+              border: Border.all(
+                color: scheme.outlineVariant.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  _WebsiteFavicon(
+                    faviconUrl: metadata.faviconUrl,
+                    fallbackColor: scheme.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          uri.toString(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Icon(Icons.open_in_new_rounded),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}
+
+class _WebsiteFavicon extends StatelessWidget {
+  final Uri? faviconUrl;
+  final Color fallbackColor;
+
+  const _WebsiteFavicon({
+    required this.faviconUrl,
+    required this.fallbackColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final favicon = faviconUrl;
+    if (favicon == null) {
+      return Icon(Symbols.public_rounded, color: fallbackColor);
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: SizedBox(
+        width: 24,
+        height: 24,
+        child: Image.network(
+          favicon.toString(),
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              Icon(Symbols.public_rounded, color: fallbackColor),
+        ),
+      ),
     );
   }
 }
@@ -161,6 +329,133 @@ class _MediaSections {
       chiefDelphiThreads.isEmpty &&
       cadReleases.isEmpty &&
       youtubeVideos.isEmpty;
+}
+
+String? _cleanWebsiteTitle(String? value) {
+  final text = value?.trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+class WebsiteMetadata {
+  final String? title;
+  final Uri? faviconUrl;
+
+  const WebsiteMetadata({required this.title, required this.faviconUrl});
+}
+
+class WebsiteMetadataProvider {
+  static final Map<String, Future<WebsiteMetadata?>> _cache = {};
+
+  static Future<WebsiteMetadata?> metadataForUrl(Uri url) {
+    return _cache.putIfAbsent(url.toString(), () => _fetchMetadata(url));
+  }
+
+  static Future<WebsiteMetadata?> _fetchMetadata(Uri url) async {
+    try {
+      final response = await http
+          .get(
+            url,
+            headers: const {'Accept': 'text/html,application/xhtml+xml'},
+          )
+          .timeout(const Duration(seconds: 4));
+
+      if (response.statusCode < 200 || response.statusCode >= 400) {
+        return null;
+      }
+
+      final body = response.body;
+      return WebsiteMetadata(
+        title: _extractTitle(body),
+        faviconUrl: _extractFaviconUrl(body, url) ?? _fallbackFavicon(url),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String? _extractTitle(String html) {
+    final titleMatch = RegExp(
+      r'<title[^>]*>(.*?)</title>',
+      caseSensitive: false,
+      dotAll: true,
+    ).firstMatch(html);
+    final title = _decodeHtmlEntities(titleMatch?.group(1));
+    if (title != null && title.isNotEmpty) return title;
+
+    for (final pattern in [
+      r'''<meta[^>]*property=["']og:title["'][^>]*content=["'](.*?)["']''',
+      r'''<meta[^>]*name=["']twitter:title["'][^>]*content=["'](.*?)["']''',
+    ]) {
+      final match = RegExp(
+        pattern,
+        caseSensitive: false,
+        dotAll: true,
+      ).firstMatch(html);
+      final metaTitle = _decodeHtmlEntities(match?.group(1));
+      if (metaTitle != null && metaTitle.isNotEmpty) return metaTitle;
+    }
+
+    return null;
+  }
+
+  static Uri? _extractFaviconUrl(String html, Uri baseUrl) {
+    final linkTags = RegExp(
+      r'<link\b[^>]*>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(html);
+
+    for (final match in linkTags) {
+      final tag = match.group(0) ?? '';
+      final rel = _extractAttribute(tag, 'rel')?.toLowerCase() ?? '';
+      if (!rel.contains('icon') && !rel.contains('shortcut icon')) continue;
+
+      final href = _extractAttribute(tag, 'href');
+      if (href == null || href.isEmpty) continue;
+
+      final resolved = baseUrl.resolve(href);
+      if (resolved.scheme == 'http' || resolved.scheme == 'https') {
+        return resolved;
+      }
+    }
+
+    return null;
+  }
+
+  static Uri _fallbackFavicon(Uri url) => url.resolve('/favicon.ico');
+
+  static String? _extractAttribute(String tag, String attribute) {
+    final match = RegExp(
+      '$attribute\\s*=\\s*["\']([^"\']+)["\']',
+      caseSensitive: false,
+      dotAll: true,
+    ).firstMatch(tag);
+    return match?.group(1);
+  }
+
+  static String? _decodeHtmlEntities(String? value) {
+    if (value == null) return null;
+
+    return value
+        .replaceAll('&amp;', '&')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .trim();
+  }
+}
+
+Uri? _normalizeWebsiteUri(String? website) {
+  final value = website?.trim();
+  if (value == null || value.isEmpty) return null;
+
+  final parsed = Uri.tryParse(value);
+  if (parsed == null) return null;
+
+  if (parsed.hasScheme) return parsed;
+
+  return Uri.tryParse('https://$value');
 }
 
 class _PhotoGrid extends StatelessWidget {
@@ -357,7 +652,15 @@ class _MediaLinkCard extends StatelessWidget {
   }
 
   Future<void> _openUrl(BuildContext context, String url) async {
-    final uri = Uri.parse(url);
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open media link')),
+        );
+      }
+      return;
+    }
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
       return;
@@ -367,6 +670,19 @@ class _MediaLinkCard extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not open media link')),
       );
+    }
+  }
+
+  static Future<void> _openUri(BuildContext context, Uri uri) async {
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open website')));
     }
   }
 }
@@ -727,6 +1043,7 @@ class _FullscreenImageViewerState extends State<_FullscreenImageViewer>
     final imgurId = url.split('/').last.split('.').first;
     final filename = '$imgurId.jpg';
     final bytes = await _fetchImageBytes(url);
+    if (!mounted) return;
     await shareOrSaveImage(context, bytes, filename);
   }
 

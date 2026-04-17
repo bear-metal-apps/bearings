@@ -94,7 +94,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                 value: _EventAction.openTba,
                 child: ListTile(
                   leading: Icon(Symbols.open_in_new_rounded),
-                  title: Text('Open in TBA'),
+                  title: Text('View Event in TBA'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -102,15 +102,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                 value: _EventAction.openStatbotics,
                 child: ListTile(
                   leading: Icon(Symbols.open_in_new_rounded),
-                  title: Text('Open in Statbotics'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: _EventAction.openNexus,
-                child: ListTile(
-                  leading: Icon(Symbols.open_in_new_rounded),
-                  title: Text('Open in Nexus'),
+                  title: Text('View Event in Statbotics'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -118,7 +110,15 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                 value: _EventAction.openFrcEvents,
                 child: ListTile(
                   leading: Icon(Symbols.open_in_new_rounded),
-                  title: Text('Open in FRC Events'),
+                  title: Text('View Event in FIRST Events'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: _EventAction.openNexus,
+                child: ListTile(
+                  leading: Icon(Symbols.open_in_new_rounded),
+                  title: Text('Open Schedule in Nexus'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -177,7 +177,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
         );
       case _EventAction.openNexus:
         launchUrl(
-          Uri.parse('https://frc.nexus/en/event/$eventKey/team/2046'),
+          Uri.parse('https://frc.nexus/en/event/$eventKey/team/2046/matches'),
           mode: LaunchMode.externalApplication,
         );
       case _EventAction.openFrcEvents:
