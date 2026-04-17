@@ -151,7 +151,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
 
                   // Version
                   Text(
-                    'Version 1.0.0',
+                    '2026.3',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,

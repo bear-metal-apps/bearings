@@ -9,8 +9,18 @@ import 'scouting_providers.dart';
 
 class ScoutingFlowController {
   final Ref _ref;
+  final List<DateTime> _nextMatchTapTimes = <DateTime>[];
 
   ScoutingFlowController(this._ref);
+
+  bool shouldWarnForRapidNextMatchTaps() {
+    final now = DateTime.now();
+    _nextMatchTapTimes.removeWhere(
+      (time) => now.difference(time) > const Duration(seconds: 5),
+    );
+    _nextMatchTapTimes.add(now);
+    return _nextMatchTapTimes.length >= 3;
+  }
 
   bool markCurrentMatchForUpload() {
     final session = _ref.read(scoutingSessionProvider);
