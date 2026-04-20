@@ -15,17 +15,14 @@ class BrightnessProvider extends Notifier<Brightness> {
 final brightnessNotifierProvider =
     NotifierProvider<BrightnessProvider, Brightness>(BrightnessProvider.new);
 
-enum AppColorScheme {  
-  yellow('Bear Metal Yellow', Color.fromARGB(255, 255, 214, 10)),
-  red('Robototes Red', Color.fromARGB(255, 255, 0, 0)),  
-  sunset('Future Martian Orange', Color.fromARGB(255, 253, 139, 0)),
-  blue('Arrowdynamics Blue', Color.fromARGB(255, 9, 106, 241)),  
-  emerald('Jack in the Bot Emerald', Color.fromARGB(255, 24, 201, 97)),
-  cyan('Chill Out Cyan', Color.fromARGB(255, 0, 221, 255)),
-
-  amethyst('Code Purple', Color.fromARGB(255, 149, 117, 205));
-
-
+enum AppColorScheme {
+  red('Robototes Red', Color.fromARGB(255, 255, 0, 0)),
+  orange('Future Martian Orange', Color.fromARGB(255, 237, 95, 21)),
+  yellow('Bear Metal Yellow', Color.fromARGB(255, 255, 241, 32)),
+  green('Jack in the Bot Green', Color.fromARGB(255, 7, 160, 0)),
+  cyan('Chill Out Cyan', Color.fromARGB(255, 0, 188, 212)),
+  blue('Arrowdynamics Blue', Color.fromARGB(255, 35, 109, 200)),
+  purple('Code Purple', Color.fromARGB(255, 85, 0, 144));
 
   const AppColorScheme(this.label, this.seedColor);
 

@@ -172,7 +172,7 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
                   builder: (context) => AlertDialog(
                     title: const Text('Next Match Spam'),
                     content: const Text(
-                      'Please do not spam the next match button, it essentially jams empty matches into Azure. Use the dropdown instead (click the Match # • Color # • #### title bar)',
+                      'Please do not spam the next match button. Every time you advance a match, it uploads it. By spamming you are uploading multiple empty matches which messes with the data. Use the dropdown instead (click the Match # • Color # • #### title bar)',
                     ),
                     actions: [
                       TextButton(
@@ -190,7 +190,9 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
               }
 
               flow.nextMatch();
-              context.go('/match/auto');
+              if (context.mounted) {
+                context.go('/match/auto');
+              }
             },
           ),
           const SizedBox(width: 4),

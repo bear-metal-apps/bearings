@@ -37,6 +37,7 @@ dependencies:
     path: ../../packages/ui
   core: any
   animate_do: any
+  package_info_plus: ^9.0.1
 
 dev_dependencies:
   flutter_test:
