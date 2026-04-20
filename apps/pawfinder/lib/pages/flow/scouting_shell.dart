@@ -164,9 +164,35 @@ class _ScoutingShellState extends ConsumerState<ScoutingShell> {
             tooltip: 'Next Match',
             visualDensity: VisualDensity.compact,
             constraints: BoxConstraints.tightFor(width: 36, height: 36),
-            onPressed: () {
-              ref.read(scoutingFlowControllerProvider).nextMatch();
-              context.go('/match/auto');
+            onPressed: () async {
+              final flow = ref.read(scoutingFlowControllerProvider);
+              if (flow.shouldWarnForRapidNextMatchTaps()) {
+                final shouldContinue = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Next Match Spam'),
+                    content: const Text(
+                      'Please do not spam the next match button. Every time you advance a match, it uploads it. By spamming you are uploading multiple empty matches which messes with the data. Use the dropdown instead (click the Match # • Color # • #### title bar)',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Continue'),
+                      ),
+                    ],
+                  ),
+                );
+                if (!(shouldContinue ?? false)) return;
+              }
+
+              flow.nextMatch();
+              if (context.mounted) {
+                context.go('/match/auto');
+              }
             },
           ),
           const SizedBox(width: 4),
