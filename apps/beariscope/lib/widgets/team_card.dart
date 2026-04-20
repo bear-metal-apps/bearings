@@ -26,7 +26,7 @@ class TeamCard extends ConsumerWidget {
   final double? height;
   final Color? allianceColor;
 
-  static const double _defaultExpandedHeight = 360;
+  static const double _defaultPlaceholderHeight = 120;
 
   const TeamCard({
     super.key,
@@ -38,15 +38,16 @@ class TeamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamsAsync = ref.watch(teamsProvider);
-    final baseCardHeight = height ?? _defaultExpandedHeight;
 
     return teamsAsync.when(
-      loading: () => SizedBox(
-        height: baseCardHeight,
+      loading: () => _buildCardShell(
+        context,
+        height: height ?? _defaultPlaceholderHeight,
         child: const Center(child: CircularProgressIndicator()),
       ),
-      error: (err, stack) => SizedBox(
-        height: baseCardHeight,
+      error: (err, _) => _buildCardShell(
+        context,
+        height: height ?? _defaultPlaceholderHeight,
         child: Center(child: Text('Error: $err')),
       ),
       data: (teams) {
@@ -64,64 +65,78 @@ class TeamCard extends ConsumerWidget {
         }
 
         if (team == null) {
-          return SizedBox(
-            height: baseCardHeight,
+          return _buildCardShell(
+            context,
+            height: height ?? _defaultPlaceholderHeight,
             child: const Center(child: Text('Team not found')),
           );
         }
 
         final resolvedTeam = team;
-        final teamBundleAsync = ref.watch(teamScoutingProvider(team.number));
-        final hasEnoughMatchDataForGraph = teamBundleAsync.maybeWhen(
-          data: (bundle) => bundle.matchDocs.length > 1,
-          orElse: () => true,
-        );
-        final effectiveCardHeight =
-            height ??
-            (hasEnoughMatchDataForGraph ? _defaultExpandedHeight : null);
 
-        return Material(
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          elevation: 0,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              Navigator.of(context, rootNavigator: true).push(
-                MaterialPageRoute(
-                  builder: (context) => TeamDetailsPage(
-                    teamName: resolvedTeam.name,
-                    teamNumber: resolvedTeam.number,
-                    teamWebsite: resolvedTeam.website,
-                  ),
+        return _buildCardShell(
+          context,
+          height: height,
+          onTap: () {
+            Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute(
+                builder: (context) => TeamDetailsPage(
+                  teamName: resolvedTeam.name,
+                  teamNumber: resolvedTeam.number,
+                  teamWebsite: resolvedTeam.website,
                 ),
-              );
-            },
-            child: SizedBox(
-              height: effectiveCardHeight,
-              width: double.infinity,
-              child: DecoratedBox(
-                decoration: allianceColor != null
-                    ? BoxDecoration(
-                        border: Border(
-                          left: BorderSide(color: allianceColor!, width: 4),
-                        ),
-                      )
-                    : const BoxDecoration(),
-                child: _TeamCardSummary(team: resolvedTeam),
               ),
-            ),
+            );
+          },
+          child: _TeamCardSummary(
+            team: resolvedTeam,
+            expandToFillHeight: height != null,
           ),
         );
       },
+    );
+  }
+
+  Widget _buildCardShell(
+    BuildContext context, {
+    required Widget child,
+    VoidCallback? onTap,
+    double? height,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: height,
+      child: Material(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        elevation: 0,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: allianceColor != null
+                ? BoxDecoration(
+                    border: Border(
+                      left: BorderSide(color: allianceColor!, width: 4),
+                    ),
+                  )
+                : const BoxDecoration(),
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 }
 
 class _TeamCardSummary extends ConsumerWidget {
   final Team team;
+  final bool expandToFillHeight;
 
-  const _TeamCardSummary({required this.team});
+  const _TeamCardSummary({
+    required this.team,
+    required this.expandToFillHeight,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,6 +150,7 @@ class _TeamCardSummary extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
+        mainAxisSize: expandToFillHeight ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _TeamCardHeader(team: team),
@@ -151,6 +167,7 @@ class _TeamCardSummary extends ConsumerWidget {
               final summary = _SummaryMetrics(
                 teamNumber: team.number,
                 bundle: bundle,
+                expandToFillHeight: expandToFillHeight,
                 stratZScores:
                     ref
                         .watch(stratZScoresProvider)
@@ -162,7 +179,7 @@ class _TeamCardSummary extends ConsumerWidget {
               );
 
               // Only reserve expandable vertical space when chart data exists.
-              if (bundle.matchDocs.length > 1) {
+              if (expandToFillHeight && bundle.matchDocs.length > 1) {
                 return Expanded(child: summary);
               }
               return summary;
@@ -262,12 +279,14 @@ class _TeamCardHeader extends StatelessWidget {
 class _SummaryMetrics extends ConsumerWidget {
   final int teamNumber;
   final TeamScoutingBundle bundle;
+  final bool expandToFillHeight;
   final StratZScoreData? stratZScores;
   final TeamRanking? ranking;
 
   const _SummaryMetrics({
     required this.teamNumber,
     required this.bundle,
+    required this.expandToFillHeight,
     required this.stratZScores,
     required this.ranking,
   });
@@ -301,17 +320,8 @@ class _SummaryMetrics extends ConsumerWidget {
     final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
     final hasPitsData = bundle.hasPitsData;
 
-    double maxDataY = 0;
-    for (final doc in bundle.matchDocs) {
-      final total =
-          _scaledMatchField(doc, kSectionTele, kTeleFuelScored) +
-          _scaledMatchField(doc, kSectionAuto, kAutoFuelScored);
-      if (total > maxDataY) {
-        maxDataY = total;
-      }
-    }
-
     return Column(
+      mainAxisSize: expandToFillHeight ? MainAxisSize.max : MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (hasPitsData) ...[
@@ -324,20 +334,33 @@ class _SummaryMetrics extends ConsumerWidget {
         ],
         if (hasEnoughMatchDataForGraph) ...[
           const SizedBox(height: 8),
-          Expanded(
-            child: SfCartesianChart(
-              margin: EdgeInsets.zero,
-              primaryXAxis: const CategoryAxis(
-                labelPlacement: LabelPlacement.onTicks,
+          if (expandToFillHeight)
+            Expanded(
+              child: SfCartesianChart(
+                margin: EdgeInsets.zero,
+                primaryXAxis: const CategoryAxis(
+                  labelPlacement: LabelPlacement.onTicks,
+                ),
+                primaryYAxis: const NumericAxis(),
+                plotAreaBorderWidth: 0,
+                series: _buildLineSeries(context, bundle.matchDocs),
               ),
-              primaryYAxis: const NumericAxis(),
-              plotAreaBorderWidth: 0,
-              series: _buildLineSeries(context, bundle.matchDocs),
+            )
+          else
+            SizedBox(
+              height: 180,
+              child: SfCartesianChart(
+                margin: EdgeInsets.zero,
+                primaryXAxis: const CategoryAxis(
+                  labelPlacement: LabelPlacement.onTicks,
+                ),
+                primaryYAxis: const NumericAxis(),
+                plotAreaBorderWidth: 0,
+                series: _buildLineSeries(context, bundle.matchDocs),
+              ),
             ),
-          ),
           const Divider(height: 8, thickness: 1),
         ],
-
         if (hasZScores) ...[
           const SizedBox(height: 6),
           Wrap(
@@ -762,31 +785,43 @@ List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
               final doc = data as ProcessedScoutingDoc;
 
               final bool brokeDown =
-                  TeamScoutingBundle.getMatchField(
-                    doc.raw,
-                    kSectionTele,
-                    kTeleStoppedWorking,
+                  _parseSafetyBool(
+                    TeamScoutingBundle.getMatchField(
+                      doc.raw,
+                      kSectionTele,
+                      kTeleStoppedWorking,
+                    ),
                   ) ||
-                  TeamScoutingBundle.getMatchField(
-                    doc.raw,
-                    kSectionTele,
-                    kTeleLostComms,
+                  _parseSafetyBool(
+                    TeamScoutingBundle.getMatchField(
+                      doc.raw,
+                      kSectionTele,
+                      kTeleLostComms,
+                    ),
                   );
+
               final bool playedDefense =
-                  TeamScoutingBundle.getMatchField(
-                    doc.raw,
-                    kSectionEndgame,
-                    kEndPlayedDefenseOffShift,
+                  _parseSafetyBool(
+                    TeamScoutingBundle.getMatchField(
+                      doc.raw,
+                      kSectionEndgame,
+                      kEndPlayedDefenseOffShift,
+                    ),
                   ) ||
-                  TeamScoutingBundle.getMatchField(
-                    doc.raw,
-                    kSectionEndgame,
-                    kEndPlayedDefenseOnShift,
+                  _parseSafetyBool(
+                    TeamScoutingBundle.getMatchField(
+                      doc.raw,
+                      kSectionEndgame,
+                      kEndPlayedDefenseOnShift,
+                    ),
                   );
-              final bool noShow = TeamScoutingBundle.getMatchField(
-                doc.raw,
-                kSectionEndgame,
-                kEndNoShow,
+
+              final bool noShow = _parseSafetyBool(
+                TeamScoutingBundle.getMatchField(
+                  doc.raw,
+                  kSectionEndgame,
+                  kEndNoShow,
+                ),
               );
 
               if (!brokeDown && !playedDefense && !noShow) {
@@ -821,6 +856,18 @@ List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
       animationDuration: 1000,
     ),
   ];
+}
+
+// temp until we make fields typed/versioned
+bool _parseSafetyBool(dynamic value) {
+  if (value == null) return false;
+  if (value is bool) return value;
+  if (value is num) return value > 0;
+  if (value is String) {
+    final lower = value.toLowerCase();
+    return lower == 'true' || lower == '1' || lower == 'y';
+  }
+  return false;
 }
 
 double _scaledMatchField(

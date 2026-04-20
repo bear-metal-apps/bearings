@@ -278,6 +278,7 @@ class _DriveTeamMatchPreviewPageState
                             child: TeamCard(
                               teamKey: cards[index].teamKey,
                               allianceColor: cards[index].color,
+                              height: constraints.maxHeight,
                             ),
                           );
                         },
