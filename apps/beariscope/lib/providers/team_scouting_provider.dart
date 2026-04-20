@@ -6,14 +6,16 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
   ref,
   teamNumber,
 ) async {
-  final allProcessed = await ref.watch(processedScoutingProvider.future);
+  final processedBundle = await ref.watch(processedScoutingProvider.future);
+  final allProcessed = processedBundle.processedDocs;
 
   final teamDocs = allProcessed.where((doc) {
     return TeamScoutingBundle.teamNumber(doc.raw) == teamNumber;
   }).toList();
 
-  final matchDocs = teamDocs
-      .where((doc) => doc.raw.meta?['type']?.toString() == 'match')
+  final matchDocs =
+      teamDocs
+          .where((doc) => doc.raw.meta?['type']?.toString() == 'match')
           .toList()
         ..sort((a, b) {
           final aMatch = TeamScoutingBundle.matchNumber(a.raw) ?? 0;

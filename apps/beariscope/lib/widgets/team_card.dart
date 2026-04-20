@@ -1,9 +1,9 @@
-import 'package:animations/animations.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
 import 'package:beariscope/pages/team_lookup/tabs/averages_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
+import 'package:beariscope/pages/team_lookup/tabs/media_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
@@ -80,45 +80,37 @@ class TeamCard extends ConsumerWidget {
             height ??
             (hasEnoughMatchDataForGraph ? _defaultExpandedHeight : null);
 
-        return OpenContainer(
-          useRootNavigator: true,
-          transitionType: ContainerTransitionType.fade,
-          closedElevation: 0,
-          openColor: Theme.of(context).scaffoldBackgroundColor,
-          middleColor: Theme.of(context).scaffoldBackgroundColor,
-          closedColor: Theme.of(context).colorScheme.surfaceContainer,
-          closedShape: RoundedRectangleBorder(
+        return Material(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          elevation: 0,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
             borderRadius: BorderRadius.circular(12),
-          ),
-          closedBuilder: (context, action) {
-            final cardChild = InkWell(
-              onTap: action,
-              borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (context) => TeamDetailsPage(
+                    teamName: resolvedTeam.name,
+                    teamNumber: resolvedTeam.number,
+                    teamWebsite: resolvedTeam.website,
+                  ),
+                ),
+              );
+            },
+            child: SizedBox(
+              height: effectiveCardHeight,
+              width: double.infinity,
               child: DecoratedBox(
                 decoration: allianceColor != null
                     ? BoxDecoration(
-                        border: Border(
-                          left: BorderSide(color: allianceColor!, width: 4),
-                        ),
-                      )
+                  border: Border(
+                    left: BorderSide(color: allianceColor!, width: 4),
+                  ),
+                )
                     : const BoxDecoration(),
                 child: _TeamCardSummary(team: resolvedTeam),
               ),
-            );
-
-            if (effectiveCardHeight == null) {
-              return SizedBox(width: double.infinity, child: cardChild);
-            }
-
-            return SizedBox(
-              height: effectiveCardHeight,
-              width: double.infinity,
-              child: cardChild,
-            );
-          },
-          openBuilder: (context, action) => TeamDetailsPage(
-            teamName: resolvedTeam.name,
-            teamNumber: resolvedTeam.number,
+            ),
           ),
         );
       },
@@ -189,41 +181,80 @@ class _TeamCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 32,
-          height: 32,
-          child: Image.network(
-            'https://www.thebluealliance.com/avatar/${DateTime.now().year}/frc${team.number}.png',
-            width: 32,
-            height: 32,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Icon(
-              Icons.account_circle,
-              size: 32,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return Consumer(
+      builder: (context, ref, _) {
+        final mediaAsync = ref.watch(teamMediaProvider(team.number));
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: mediaAsync.when(
+                loading: () => _fallbackAvatar(context),
+                error: (_, _) => _fallbackAvatar(context),
+                data: (media) {
+                  final avatar = media
+                      .where((record) => record.isAvatar)
+                      .toList();
+                  final preferredAvatar = avatar.firstWhere(
+                    (record) => record.preferred && record.base64Image != null,
+                    orElse: () => avatar.firstWhere(
+                      (record) => record.base64Image != null,
+                      orElse: () => const TeamMediaRecord(
+                        foreignKey: '',
+                        type: '',
+                        preferred: false,
+                        teamKeys: [],
+                        details: {},
+                        directUrl: null,
+                        viewUrl: null,
+                        base64Image: null,
+                      ),
+                    ),
+                  );
+                  final bytes = preferredAvatar.base64Image;
+                  if (bytes == null) return _fallbackAvatar(context);
+                  return Image.memory(
+                    bytes,
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.contain,
+                    gaplessPlayback: true,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _fallbackAvatar(context),
+                  );
+                },
+              ),
             ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            team.name,
-            style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          team.number.toString(),
-          style: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                team.name,
+                style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              team.number.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _fallbackAvatar(BuildContext context) {
+    return Icon(
+      Icons.account_circle,
+      size: 32,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 }
@@ -270,6 +301,16 @@ class _SummaryMetrics extends ConsumerWidget {
     final hasZScores = stratZScores?.hasDataForTeam(teamNumber) ?? false;
     final hasPitsData = bundle.hasPitsData;
 
+    double maxDataY = 0;
+    for (final doc in bundle.matchDocs) {
+      final total =
+          _scaledMatchField(doc, kSectionTele, kTeleFuelScored) +
+          _scaledMatchField(doc, kSectionAuto, kAutoFuelScored);
+      if (total > maxDataY) {
+        maxDataY = total;
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -286,10 +327,12 @@ class _SummaryMetrics extends ConsumerWidget {
           Expanded(
             child: SfCartesianChart(
               margin: EdgeInsets.zero,
-              primaryXAxis: NumericAxis(),
-              primaryYAxis: NumericAxis(),
+              primaryXAxis: const CategoryAxis(
+              labelPlacement: LabelPlacement.onTicks,
+            ),
+              primaryYAxis: const NumericAxis(),
               plotAreaBorderWidth: 0,
-              series: _buildLineSeries(bundle.matchDocs),
+              series: _buildLineSeries(context, bundle.matchDocs),
             ),
           ),
           const Divider(height: 8, thickness: 1),
@@ -510,7 +553,7 @@ class _RankBadge extends StatelessWidget {
           ),
         ),
         Text(
-          '${ranking.rankingPoints} RP',
+          '${ranking.rankingPoints} RP — ${ranking.rankingScore.toStringAsFixed(2)} RS',
           style: Theme.of(
             context,
           ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -523,11 +566,13 @@ class _RankBadge extends StatelessWidget {
 class TeamDetailsPage extends ConsumerWidget {
   final String teamName;
   final int teamNumber;
+  final String? teamWebsite;
 
   const TeamDetailsPage({
     super.key,
     required this.teamName,
     required this.teamNumber,
+    this.teamWebsite,
   });
 
   @override
@@ -537,78 +582,97 @@ class TeamDetailsPage extends ConsumerWidget {
             .watch(permissionCheckerProvider)
             ?.hasPermission(PermissionKey.notesRead) ??
         false;
+    final mediaAsync = ref.watch(teamMediaProvider(teamNumber));
 
-    return DefaultTabController(
-      key: ValueKey(showNotes),
-      length: showNotes ? 4 : 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('$teamName — $teamNumber'),
-          leading: IconButton(
-            icon: const Icon(Symbols.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            PopupMenuButton<_TeamAction>(
-              icon: const Icon(Icons.more_vert),
-              tooltip: 'More options',
-              onSelected: (action) => _handleAction(context, action, ref),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _TeamAction.openTba,
-                  child: ListTile(
-                    leading: const Icon(Symbols.open_in_new_rounded),
-                    title: const Text('Open in TBA'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+    return mediaAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: Text('$teamName — $teamNumber')),
+        body: Center(child: Text('Error: $e')),
+      ),
+      data: (media) {
+        final hasMedia = media.any((record) {
+          return record.hasRenderableMedia &&
+              record.openUrl?.isNotEmpty == true;
+        });
+        final hasWebsite = teamWebsite?.isNotEmpty == true;
+        final hasMediaTabContent = hasMedia || hasWebsite;
+
+        return DefaultTabController(
+          key: ValueKey('$showNotes-$hasMediaTabContent'),
+          length: 3 + (showNotes ? 1 : 0) + (hasMediaTabContent ? 1 : 0),
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('$teamName — $teamNumber'),
+              actions: [
+                PopupMenuButton<_TeamAction>(
+                  icon: const Icon(Icons.more_vert),
+                  tooltip: 'More options',
+                  onSelected: (action) => _handleAction(context, action, ref),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: _TeamAction.openTba,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in TBA'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _TeamAction.openStatbotics,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in Statbotics'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _TeamAction.openFrcEvents,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in FRC Events'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: _TeamAction.copyNumber,
+                      child: ListTile(
+                        leading: const Icon(Symbols.content_copy_rounded),
+                        title: const Text('Copy team number'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
                 ),
-                PopupMenuItem(
-                  value: _TeamAction.openStatbotics,
-                  child: ListTile(
-                    leading: const Icon(Symbols.open_in_new_rounded),
-                    title: const Text('Open in Statbotics'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _TeamAction.openFrcEvents,
-                  child: ListTile(
-                    leading: const Icon(Symbols.open_in_new_rounded),
-                    title: const Text('Open in FRC Events'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem(
-                  value: _TeamAction.copyNumber,
-                  child: ListTile(
-                    leading: const Icon(Symbols.content_copy_rounded),
-                    title: const Text('Copy team number'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
+                const SizedBox(width: 8),
+              ],
+              bottom: TabBar(
+                tabAlignment: TabAlignment.start,
+                isScrollable: true,
+                tabs: [
+                  const Tab(text: 'Averages'),
+                  if (showNotes) const Tab(text: 'Notes'),
+                  const Tab(text: 'Capabilities'),
+                  const Tab(text: 'Matches'),
+                  if (hasMediaTabContent) const Tab(text: 'Media'),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                AveragesTab(teamNumber: teamNumber),
+                if (showNotes) NotesTab(teamNumber: teamNumber),
+                CapabilitiesTab(teamNumber: teamNumber),
+                MatchesTab(teamNumber: teamNumber),
+                if (hasMediaTabContent)
+                  MediaTab(teamNumber: teamNumber, teamWebsite: teamWebsite),
               ],
             ),
-            const SizedBox(width: 8),
-          ],
-          bottom: TabBar(
-            tabs: [
-              const Tab(text: 'Averages'),
-              if (showNotes) const Tab(text: 'Notes'),
-              const Tab(text: 'Capabilities'),
-              const Tab(text: 'Matches'),
-            ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            AveragesTab(teamNumber: teamNumber),
-            if (showNotes) NotesTab(teamNumber: teamNumber),
-            CapabilitiesTab(teamNumber: teamNumber),
-            MatchesTab(teamNumber: teamNumber),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -641,50 +705,143 @@ class TeamDetailsPage extends ConsumerWidget {
   }
 }
 
-List<LineSeries<ProcessedScoutingDoc, num>> _buildLineSeries(
+List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
+  BuildContext context,
   List<ProcessedScoutingDoc> data,
 ) {
+  const markerSettings = MarkerSettings(
+    isVisible: true,
+    height: 6,
+    width: 6,
+    shape: DataMarkerType.verticalLine,
+    borderWidth: 2,
+  );
+
   return [
-    LineSeries<ProcessedScoutingDoc, num>(
+    LineSeries<ProcessedScoutingDoc, String>(
       dataSource: data,
-      xValueMapper: (doc, index) => index,
+      xValueMapper: (doc, index) => doc.raw.data['matchNumber'].toString(),
       yValueMapper: (doc, _) =>
-          TeamScoutingBundle.getMatchField(
-            doc.raw,
-            kSectionTele,
-            kTeleFuelScored,
-          ) +
-          TeamScoutingBundle.getMatchField(
-            doc.raw,
-            kSectionAuto,
-            kAutoFuelScored,
-          ),
-      name: 'Total',
-      color: Colors.green,
-    ),
-    LineSeries<ProcessedScoutingDoc, num>(
-      dataSource: data,
-      xValueMapper: (doc, index) => index,
-      yValueMapper: (doc, _) => TeamScoutingBundle.getMatchField(
-        doc.raw,
-        kSectionTele,
-        kTeleFuelScored,
-      ),
-      name: 'Tele',
-      color: Colors.blue,
-    ),
-    LineSeries<ProcessedScoutingDoc, num>(
-      dataSource: data,
-      xValueMapper: (doc, index) => index,
-      yValueMapper: (doc, _) => TeamScoutingBundle.getMatchField(
-        doc.raw,
-        kSectionAuto,
-        kAutoFuelScored,
-      ),
+          _scaledMatchField(doc, kSectionAuto, kAutoFuelScored),
       name: 'Auto',
       color: Colors.red,
+      markerSettings: markerSettings,
+      animationDuration: 1000,
+    ),
+    LineSeries<ProcessedScoutingDoc, String>(
+      dataSource: data,
+      xValueMapper: (doc, index) => doc.raw.data['matchNumber'].toString(),
+      yValueMapper: (doc, _) =>
+          _scaledMatchField(doc, kSectionTele, kTeleFuelScored),
+      name: 'Tele',
+      color: Colors.blue,
+      markerSettings: markerSettings,
+      animationDuration: 1000,
+    ),
+    LineSeries<ProcessedScoutingDoc, String>(
+      dataSource: data,
+      xValueMapper: (doc, index) => doc.raw.data['matchNumber'].toString(),
+      yValueMapper: (doc, _) =>
+          _scaledMatchField(doc, kSectionTele, kTeleFuelScored) +
+          _scaledMatchField(doc, kSectionAuto, kAutoFuelScored),
+      name: 'Total',
+      color: Colors.green,
+      markerSettings: markerSettings,
+      dataLabelSettings: DataLabelSettings(
+        isVisible: true,
+        labelAlignment: ChartDataLabelAlignment.top,
+        offset: Offset(0, 8),
+        builder:
+            (
+              dynamic data,
+              dynamic point,
+              dynamic series,
+              int pointIndex,
+              int seriesIndex,
+            ) {
+              final doc = data as ProcessedScoutingDoc;
+
+              final bool brokeDown =
+                  TeamScoutingBundle.getMatchField(
+                    doc.raw,
+                    kSectionTele,
+                    kTeleStoppedWorking,
+                  ) ||
+                  TeamScoutingBundle.getMatchField(
+                    doc.raw,
+                    kSectionTele,
+                    kTeleLostComms,
+                  );
+              final bool playedDefense =
+                  TeamScoutingBundle.getMatchField(
+                    doc.raw,
+                    kSectionEndgame,
+                    kEndPlayedDefenseOffShift,
+                  ) ||
+                  TeamScoutingBundle.getMatchField(
+                    doc.raw,
+                    kSectionEndgame,
+                    kEndPlayedDefenseOnShift,
+                  );
+              final bool noShow = TeamScoutingBundle.getMatchField(
+                doc.raw,
+                kSectionEndgame,
+                kEndNoShow,
+              );
+
+              if (!brokeDown && !playedDefense && !noShow) {
+                return const SizedBox.shrink();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (brokeDown)
+                    Icon(
+                      Symbols.build_circle_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 14,
+                    ),
+                  if (playedDefense)
+                    Icon(
+                      Symbols.shield_rounded,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 14,
+                    ),
+                  if (noShow)
+                    Icon(
+                      Symbols.help_rounded,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 14,
+                    ),
+                ],
+              );
+            },
+      ),
+      animationDuration: 1000,
     ),
   ];
 }
+
+double _scaledMatchField(
+  ProcessedScoutingDoc doc,
+  String sectionId,
+  String fieldId,
+) {
+  final value = TeamScoutingBundle.getMatchField(doc.raw, sectionId, fieldId);
+  if (value is! num) return 0.0;
+
+  final raw = value.toDouble();
+  if (sectionId == kSectionAuto && _scaledAutoFields.contains(fieldId)) {
+    return raw * doc.autoFuelScalar;
+  }
+  if (sectionId == kSectionTele && _scaledTeleFields.contains(fieldId)) {
+    return raw * doc.teleFuelScalar;
+  }
+  return raw;
+}
+
+const _scaledAutoFields = {kAutoFuelScored, kAutoFuelPassed};
+const _scaledTeleFields = {kTeleFuelScored, kTeleFuelPassed, kTeleFuelPoached};
 
 enum _TeamAction { openTba, openStatbotics, openFrcEvents, copyNumber }
