@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:services/providers/auth_provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class WelcomePage extends ConsumerWidget {
@@ -9,8 +9,6 @@ class WelcomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.read(authProvider);
-
     return Scaffold(
       body: Center(
         child: Column(
@@ -36,23 +34,7 @@ class WelcomePage extends ConsumerWidget {
                 children: [
                   FilledButton.icon(
                         onPressed: () async {
-                          try {
-                            await auth.login([
-                              'openid',
-                              'profile',
-                              'email',
-                              'offline_access',
-                              'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
-                            ]);
-                          } on OfflineAuthException {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('No internet connection'),
-                                ),
-                              );
-                            }
-                          }
+                          context.go('/provision');
                         },
                         label: const Text('Sign In'),
                         icon: const Icon(Symbols.open_in_new_rounded),
