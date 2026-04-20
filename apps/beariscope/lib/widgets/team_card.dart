@@ -103,10 +103,10 @@ class TeamCard extends ConsumerWidget {
               child: DecoratedBox(
                 decoration: allianceColor != null
                     ? BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: allianceColor!, width: 4),
-                  ),
-                )
+                        border: Border(
+                          left: BorderSide(color: allianceColor!, width: 4),
+                        ),
+                      )
                     : const BoxDecoration(),
                 child: _TeamCardSummary(team: resolvedTeam),
               ),
@@ -328,8 +328,8 @@ class _SummaryMetrics extends ConsumerWidget {
             child: SfCartesianChart(
               margin: EdgeInsets.zero,
               primaryXAxis: const CategoryAxis(
-              labelPlacement: LabelPlacement.onTicks,
-            ),
+                labelPlacement: LabelPlacement.onTicks,
+              ),
               primaryYAxis: const NumericAxis(),
               plotAreaBorderWidth: 0,
               series: _buildLineSeries(context, bundle.matchDocs),
