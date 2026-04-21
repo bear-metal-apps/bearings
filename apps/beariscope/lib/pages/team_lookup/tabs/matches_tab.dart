@@ -435,6 +435,8 @@ class _MatchDetailSection extends StatelessWidget {
                 'Full-Hopper Periods',
                 _f(kSectionTele, kTelePeriodStartedWithFullHopper),
               ),
+              _row(context, 'Over Bump', _f(kSectionTele, kTeleOverBump)),
+              _row(context, 'Under Trench', _f(kSectionTele, kTeleUnderTrench)),
               _row(context, 'Fouls', _f(kSectionTele, kEndFouls)),
             ],
           ),
