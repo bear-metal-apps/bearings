@@ -165,8 +165,8 @@
           "layout": {
             "x": 0,
             "y": 0,
-            "w": 2,
-            "h": 1.5
+            "w": 1,
+            "h": 2
           },
           "parameters": {}
         },
@@ -175,10 +175,10 @@
           "fieldId": "lost_comms",
           "type": "toggle_switch",
           "layout": {
-            "x": 0,
-            "y": 1.5,
-            "w": 2,
-            "h": 1.5
+            "x": 1,
+            "y": 0,
+            "w": 1,
+            "h": 2
           },
           "parameters": {}
         },
@@ -190,7 +190,7 @@
             "x": 2,
             "y": 0,
             "w": 2,
-            "h": 3
+            "h": 2
           },
           "parameters": {}
         },
@@ -202,7 +202,7 @@
             "x": 4,
             "y": 0,
             "w": 2,
-            "h": 3
+            "h": 2
           },
           "parameters": {}
         },
@@ -248,9 +248,9 @@
           "type": "slider",
           "layout": {
             "x": 0,
-            "y": 3,
+            "y": 2,
             "w": 6,
-            "h": 1
+            "h": 2
           },
           "parameters": {
             "segment_length": 1,
