@@ -5,6 +5,7 @@ import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/media_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
+import 'package:beariscope/pages/team_lookup/tabs/graph_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
@@ -624,7 +625,7 @@ class TeamDetailsPage extends ConsumerWidget {
 
         return DefaultTabController(
           key: ValueKey('$showNotes-$hasMediaTabContent'),
-          length: 3 + (showNotes ? 1 : 0) + (hasMediaTabContent ? 1 : 0),
+          length: 4 + (showNotes ? 1 : 0) + (hasMediaTabContent ? 1 : 0),
           child: Scaffold(
             appBar: AppBar(
               title: Text('$teamName — $teamNumber'),
@@ -680,6 +681,7 @@ class TeamDetailsPage extends ConsumerWidget {
                   const Tab(text: 'Capabilities'),
                   const Tab(text: 'Matches'),
                   if (hasMediaTabContent) const Tab(text: 'Media'),
+                  const Tab(text: 'Graph'),
                 ],
               ),
             ),
@@ -691,6 +693,7 @@ class TeamDetailsPage extends ConsumerWidget {
                 MatchesTab(teamNumber: teamNumber),
                 if (hasMediaTabContent)
                   MediaTab(teamNumber: teamNumber, teamWebsite: teamWebsite),
+                GraphTab(teamNumber: teamNumber),
               ],
             ),
           ),
@@ -891,4 +894,4 @@ double _scaledMatchField(
 const _scaledAutoFields = {kAutoFuelScored, kAutoFuelPassed};
 const _scaledTeleFields = {kTeleFuelScored, kTeleFuelPassed, kTeleFuelPoached};
 
-enum _TeamAction { openTba, openStatbotics, openFrcEvents, copyNumber }
+enum _TeamAction { openTba, openStatbotics, openFrcEvents, copyNumber}
