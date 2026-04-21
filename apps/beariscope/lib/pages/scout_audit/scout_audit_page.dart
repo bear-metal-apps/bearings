@@ -182,7 +182,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
                 type: ScoutAuditIssueType.incorrect,
                 title: 'Match ${issue.matchNumber}',
                 subtitle:
-                    '${issue.deviation.toInt()} pts off TBA · ${issue.teams.join(', ')}',
+                    '${(issue.deviation * 100).toStringAsFixed(0)}% off TBA · ${issue.teams.join(', ')}',
                 trailing: issue.alliance == 'red' ? 'Red' : 'Blue',
                 onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute<void>(
@@ -313,7 +313,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Incorrect Data Threshold: >${threshold.toInt()} pts deviation',
+              'Incorrect Data Threshold: >${(threshold * 100).toStringAsFixed(0)}% deviation',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.onPrimaryContainer.withAlpha(200),
               ),
@@ -465,16 +465,16 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('${value.toInt()} pts'),
+                Text('${(value * 100).toStringAsFixed(0)}%'),
                 const SizedBox(height: 8),
                 SfSlider(
-                  min: 0.0,
-                  max: 300.0,
-                  stepSize: 1.0,
+                  min: 0.05,
+                  max: 1.0,
+                  stepSize: 0.01,
                   value: value,
                   enableTooltip: true,
                   tooltipTextFormatterCallback: (actualValue, _) =>
-                      '${actualValue.toInt()} pts',
+                      '${(actualValue * 100).toStringAsFixed(0)}%',
                   onChanged: (dynamic next) {
                     setState(() => value = (next as double));
                   },
@@ -1260,7 +1260,7 @@ class _IncorrectDataDetailPageState
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '${metric.deviation.toInt()} pts deviation from TBA',
+                                      '${(metric.deviation * 100).toStringAsFixed(0)}% deviation from TBA',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall

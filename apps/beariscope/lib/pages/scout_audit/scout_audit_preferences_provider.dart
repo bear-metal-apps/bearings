@@ -1,7 +1,7 @@
 import 'package:beariscope/providers/shared_preferences_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const kDefaultIncorrectDataThreshold = 10.0;
+const kDefaultIncorrectDataThreshold = 0.40;
 const _incorrectDataThresholdKey = 'scout_audit_incorrect_data_threshold';
 
 final scoutAuditIncorrectThresholdProvider =
@@ -17,11 +17,11 @@ class ScoutAuditIncorrectThresholdNotifier extends Notifier<double> {
     if (stored == null || stored.isNaN || stored <= 0) {
       return kDefaultIncorrectDataThreshold;
     }
-    return stored.clamp(0.0, 300.0);
+    return stored.clamp(0.01, 2.0);
   }
 
   Future<void> setThreshold(double threshold) async {
-    final value = threshold.clamp(1.0, 300.0);
+    final value = threshold.clamp(0.01, 2.0);
     state = value;
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setDouble(_incorrectDataThresholdKey, value);
