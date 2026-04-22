@@ -22,6 +22,7 @@ class BeariscopeCardList extends StatelessWidget {
     }
 
     return ListView.separated(
+      physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       padding: padding,
       separatorBuilder: (context, index) => SizedBox(height: spacing),
