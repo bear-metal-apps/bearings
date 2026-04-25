@@ -5,6 +5,7 @@ import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/media_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
+import 'package:beariscope/pages/team_lookup/tabs/observation_sheet.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
@@ -625,74 +626,117 @@ class TeamDetailsPage extends ConsumerWidget {
         return DefaultTabController(
           key: ValueKey('$showNotes-$hasMediaTabContent'),
           length: 3 + (showNotes ? 1 : 0) + (hasMediaTabContent ? 1 : 0),
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text('$teamName — $teamNumber'),
-              actions: [
-                PopupMenuButton<_TeamAction>(
-                  icon: const Icon(Icons.more_vert),
-                  tooltip: 'More options',
-                  onSelected: (action) => _handleAction(context, action, ref),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: _TeamAction.openTba,
-                      child: ListTile(
-                        leading: const Icon(Symbols.open_in_new_rounded),
-                        title: const Text('Open in TBA'),
-                        contentPadding: EdgeInsets.zero,
+          child: Builder(
+            builder: (context) {
+              final tabController = DefaultTabController.of(context);
+
+              return AnimatedBuilder(
+                animation: tabController,
+                builder: (context, _) {
+                  final showObservationFab =
+                      showNotes && tabController.index == 1;
+
+                  return Scaffold(
+                    floatingActionButton: showObservationFab
+                        ? FloatingActionButton.extended(
+                            onPressed: () {
+                              showModalBottomSheet<void>(
+                                context: context,
+                                isScrollControlled: true,
+                                useSafeArea: true,
+                                builder: (_) => ObservationSheet(
+                                  teamName: teamName,
+                                  teamNumber: teamNumber,
+                                ),
+                              );
+                            },
+                            icon: const Icon(Symbols.add_comment_rounded),
+                            label: const Text('Observation'),
+                          )
+                        : null,
+                    appBar: AppBar(
+                      title: Text('$teamName — $teamNumber'),
+                      actions: [
+                        PopupMenuButton<_TeamAction>(
+                          icon: const Icon(Icons.more_vert),
+                          tooltip: 'More options',
+                          onSelected: (action) =>
+                              _handleAction(context, action, ref),
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: _TeamAction.openTba,
+                              child: ListTile(
+                                leading: const Icon(
+                                  Symbols.open_in_new_rounded,
+                                ),
+                                title: const Text('Open in TBA'),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: _TeamAction.openStatbotics,
+                              child: ListTile(
+                                leading: const Icon(
+                                  Symbols.open_in_new_rounded,
+                                ),
+                                title: const Text('Open in Statbotics'),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: _TeamAction.openFrcEvents,
+                              child: ListTile(
+                                leading: const Icon(
+                                  Symbols.open_in_new_rounded,
+                                ),
+                                title: const Text('Open in FRC Events'),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                            const PopupMenuDivider(),
+                            PopupMenuItem(
+                              value: _TeamAction.copyNumber,
+                              child: ListTile(
+                                leading: const Icon(
+                                  Symbols.content_copy_rounded,
+                                ),
+                                title: const Text('Copy team number'),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      bottom: TabBar(
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
+                        tabs: [
+                          const Tab(text: 'Averages'),
+                          if (showNotes) const Tab(text: 'Notes'),
+                          const Tab(text: 'Capabilities'),
+                          const Tab(text: 'Matches'),
+                          if (hasMediaTabContent) const Tab(text: 'Media'),
+                        ],
                       ),
                     ),
-                    PopupMenuItem(
-                      value: _TeamAction.openStatbotics,
-                      child: ListTile(
-                        leading: const Icon(Symbols.open_in_new_rounded),
-                        title: const Text('Open in Statbotics'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                    body: TabBarView(
+                      children: [
+                        AveragesTab(teamNumber: teamNumber),
+                        if (showNotes) NotesTab(teamNumber: teamNumber),
+                        CapabilitiesTab(teamNumber: teamNumber),
+                        MatchesTab(teamNumber: teamNumber),
+                        if (hasMediaTabContent)
+                          MediaTab(
+                            teamNumber: teamNumber,
+                            teamWebsite: teamWebsite,
+                          ),
+                      ],
                     ),
-                    PopupMenuItem(
-                      value: _TeamAction.openFrcEvents,
-                      child: ListTile(
-                        leading: const Icon(Symbols.open_in_new_rounded),
-                        title: const Text('Open in FRC Events'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: _TeamAction.copyNumber,
-                      child: ListTile(
-                        leading: const Icon(Symbols.content_copy_rounded),
-                        title: const Text('Copy team number'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-              ],
-              bottom: TabBar(
-                tabAlignment: TabAlignment.start,
-                isScrollable: true,
-                tabs: [
-                  const Tab(text: 'Averages'),
-                  if (showNotes) const Tab(text: 'Notes'),
-                  const Tab(text: 'Capabilities'),
-                  const Tab(text: 'Matches'),
-                  if (hasMediaTabContent) const Tab(text: 'Media'),
-                ],
-              ),
-            ),
-            body: TabBarView(
-              children: [
-                AveragesTab(teamNumber: teamNumber),
-                if (showNotes) NotesTab(teamNumber: teamNumber),
-                CapabilitiesTab(teamNumber: teamNumber),
-                MatchesTab(teamNumber: teamNumber),
-                if (hasMediaTabContent)
-                  MediaTab(teamNumber: teamNumber, teamWebsite: teamWebsite),
-              ],
-            ),
+                  );
+                },
+              );
+            },
           ),
         );
       },
