@@ -9,7 +9,7 @@ final upNextProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final matches = await client.get<List<dynamic>>(
     '/matches',
     queryParams: {'event': currentEventKey},
-    cachePolicy: CachePolicy.cacheFirst,
+    cachePolicy: CachePolicy.networkFirst,
   );
 
   final eventMatches =

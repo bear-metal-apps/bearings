@@ -58,7 +58,6 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
                 icon: const Icon(Symbols.menu_rounded),
                 onPressed: controller.openDrawer,
               ),
-        actionsPadding: const EdgeInsets.only(right: 12.0),
         actions: [
           PopupMenuButton<_MatchFilter>(
             icon: Icon(
@@ -84,7 +83,6 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
               ),
             ],
           ),
-          const SizedBox(width: 8),
           PopupMenuButton<_EventAction>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'More options',

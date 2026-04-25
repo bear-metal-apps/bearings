@@ -45,7 +45,7 @@ class HoneycombClient {
     String endpoint, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    CachePolicy cachePolicy = CachePolicy.cacheFirst,
+    CachePolicy cachePolicy = CachePolicy.networkFirst,
     Duration? cacheTtl,
   }) async {
     final dio = _ref.read(dioProvider);
@@ -101,7 +101,7 @@ class HoneycombClient {
 
   Future<T> get<T>(
     String endpoint, {
-    CachePolicy cachePolicy = CachePolicy.cacheFirst,
+    CachePolicy cachePolicy = CachePolicy.networkFirst,
     Map<String, dynamic>? queryParams,
     Duration? cacheTtl,
   }) async {
