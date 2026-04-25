@@ -60,6 +60,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
         pitsDoc: widget.bundle.pitsDoc,
         stratDocs: widget.bundle.stratDocs,
         driveTeamDocs: widget.bundle.driveTeamDocs,
+        observationDocs: widget.bundle.observationDocs,
         weight: 2,
       );
     } else {
@@ -75,6 +76,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
         pitsDoc: widget.bundle.pitsDoc,
         stratDocs: widget.bundle.stratDocs,
         driveTeamDocs: widget.bundle.driveTeamDocs,
+        observationDocs: widget.bundle.observationDocs,
       );
     }
   }
