@@ -38,6 +38,7 @@ dependencies:
   core:
     path: ../../packages/core
   animate_do: ^5.1.0
+  package_info_plus: ^9.0.1
 
 dev_dependencies:
   flutter_test:

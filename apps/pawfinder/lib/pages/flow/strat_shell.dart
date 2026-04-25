@@ -72,7 +72,31 @@ class StratShell extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.skip_next),
                 tooltip: 'Next Match',
-                onPressed: () => flow.nextMatch(),
+                onPressed: () async {
+                  if (flow.shouldWarnForRapidNextMatchTaps()) {
+                    final shouldContinue = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Next Match Spam'),
+                        content: const Text(
+                          'Please do not spam the next match button. Every time you advance a match, it uploads it. By spamming you are uploading multiple empty matches which messes with the data.)',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Continue'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (!(shouldContinue ?? false)) return;
+                  }
+                  flow.nextMatch();
+                },
               ),
             ],
           ),
