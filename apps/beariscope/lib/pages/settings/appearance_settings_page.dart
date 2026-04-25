@@ -319,7 +319,10 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         switchInCurve: Curves.easeInOut,
                         switchOutCurve: Curves.easeInOut,
                         transitionBuilder: (child, animation) {
-                          return FadeTransition(opacity: animation, child: child);
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
                         },
                         child: Image.asset(
                           '${icon.assetPath}_${Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light'}.png',
@@ -333,7 +336,9 @@ class AppearanceSettingsPage extends ConsumerWidget {
                               child: Container(
                                 width: 64,
                                 height: 64,
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
                                 child: const Icon(
                                   Symbols.image_not_supported_rounded,
                                   size: 24,
