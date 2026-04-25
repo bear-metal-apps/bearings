@@ -70,9 +70,10 @@ flutter:
     enable-swift-package-manager: true
   uses-material-design: true
   assets:
-    - assets/
-    - assets/sounds/
-    - assets/icon/ios_previews/
+    - path: assets/
+    - path: assets/sounds/
+    - path: assets/icon/ios_previews/
+      platforms: [ ios ]
   fonts:
     - family: Xolonium
       fonts:
