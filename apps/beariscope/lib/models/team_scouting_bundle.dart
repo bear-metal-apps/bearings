@@ -13,6 +13,8 @@ class TeamScoutingBundle {
 
   final List<ScoutingDocument> driveTeamDocs;
 
+  final List<ScoutingDocument> observationDocs;
+
   final int weight;
 
   const TeamScoutingBundle({
@@ -20,6 +22,7 @@ class TeamScoutingBundle {
     required this.pitsDoc,
     required this.stratDocs,
     required this.driveTeamDocs,
+    required this.observationDocs,
     this.weight = 1,
   });
 
@@ -28,6 +31,8 @@ class TeamScoutingBundle {
   bool get hasPitsData => pitsDoc != null;
 
   bool get hasStratData => stratDocs.isNotEmpty;
+
+  bool get hasObservationData => observationDocs.isNotEmpty;
 
   static dynamic getMatchField(
     ScoutingDocument doc,

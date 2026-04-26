@@ -24,7 +24,7 @@ final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
       .watch(honeycombClientProvider)
       .get<Map<String, dynamic>>(
         '/matches?match=$matchKey',
-        cachePolicy: CachePolicy.cacheFirst,
+        cachePolicy: CachePolicy.networkFirst,
       );
 });
 

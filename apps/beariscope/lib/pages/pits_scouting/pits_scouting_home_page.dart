@@ -147,7 +147,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                 icon: const Icon(Symbols.menu_rounded),
                 onPressed: main.openDrawer,
               ),
-        actionsPadding: EdgeInsets.symmetric(horizontal: 8),
         actions: [
           IconButton(
             tooltip: _showMapView

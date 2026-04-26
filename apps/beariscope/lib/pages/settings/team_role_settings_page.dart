@@ -288,7 +288,6 @@ class _TeamRoleSettingsPageState extends ConsumerState<TeamRoleSettingsPage>
                   child: Scaffold(
                     appBar: AppBar(
                       title: Text(titleText),
-                      actionsPadding: const EdgeInsets.only(right: 12),
                       leading: IconButton(
                         onPressed: () => Navigator.pop(dialogContext),
                         icon: const Icon(Symbols.close),
@@ -520,7 +519,6 @@ class _TeamRoleSettingsPageState extends ConsumerState<TeamRoleSettingsPage>
                 child: Scaffold(
                   appBar: AppBar(
                     title: const Text('Edit User'),
-                    actionsPadding: const EdgeInsets.only(right: 12),
                     leading: IconButton(
                       onPressed: () => Navigator.pop(dialogContext),
                       icon: const Icon(Symbols.close),

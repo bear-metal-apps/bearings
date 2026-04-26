@@ -9,12 +9,12 @@ enum CachePolicy {
   /// Return cached data if it is fresh (< 1 hour old). If stale or absent,
   /// fetch from the network. If offline, return any cached data regardless
   /// of age.
-  ///
-  /// This is the default policy.
   cacheFirst,
 
   /// Always attempt a network fetch. Fall back to any cached data (regardless
   /// of age) on any network error or when offline.
+  ///
+  /// This is the default policy
   networkFirst,
 
   /// Always attempt a network fetch. Do not fall back to cache on transient
@@ -75,10 +75,10 @@ class HiveCacheInterceptor extends Interceptor {
     if (raw is String) {
       return CachePolicy.values.firstWhere(
         (value) => value.name == raw,
-        orElse: () => CachePolicy.cacheFirst,
+        orElse: () => CachePolicy.networkFirst,
       );
     }
-    return CachePolicy.cacheFirst;
+    return CachePolicy.networkFirst;
   }
 
   Duration _readTtl(RequestOptions options) {

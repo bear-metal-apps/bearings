@@ -39,6 +39,13 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
           .toList()
         ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
+  final observationDocs =
+      teamDocs
+          .where((doc) => doc.raw.meta?['type']?.toString() == 'observation')
+          .map((doc) => doc.raw)
+          .toList()
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
   const stratRankingKeys = [
     'driverSkillRanking',
     'defensiveSkillRanking',
@@ -64,5 +71,6 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
     pitsDoc: pitsDoc,
     stratDocs: stratDocs,
     driveTeamDocs: driveTeamDocs,
+    observationDocs: observationDocs,
   );
 });

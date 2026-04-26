@@ -1,6 +1,6 @@
 name: beariscope
 description: "FRC strategy data viewer developed by Bear Metal, team 2046"
-version: 26.4.0+18
+version: 26.5.0+20
 resolution: workspace
 publish_to: none
 
@@ -53,7 +53,7 @@ dependencies:
   audioplayers: ^6.6.0
   path_provider: ^2.1.5
   flutter_animate: ^4.5.2
-  flex_color_picker: any
+  flex_color_picker: ^3.8.0
 
 dev_dependencies:
   flutter_test:
@@ -70,8 +70,10 @@ flutter:
     enable-swift-package-manager: true
   uses-material-design: true
   assets:
-    - assets/
-    - assets/sounds/
+    - path: assets/
+    - path: assets/sounds/
+    - path: assets/icon/ios_previews/
+      platforms: [ ios ]
   fonts:
     - family: Xolonium
       fonts:

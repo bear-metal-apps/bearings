@@ -66,7 +66,7 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final teamData = await client.get<List<dynamic>>(
     '/teams',
     queryParams: {'event': selectedEvent},
-    cachePolicy: CachePolicy.cacheFirst,
+    cachePolicy: CachePolicy.networkFirst,
   );
 
   return _toStringKeyMaps(teamData);
@@ -162,7 +162,7 @@ final eventTeamMediaProvider = FutureProvider<List<TeamMediaRecord>>((
 
   final response = await client.get<List<dynamic>>(
     '/event/$selectedEvent/team_media',
-    cachePolicy: CachePolicy.cacheFirst,
+    cachePolicy: CachePolicy.networkFirst,
   );
 
   return response
