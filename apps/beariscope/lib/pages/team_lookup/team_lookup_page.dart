@@ -10,8 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:services/providers/api_provider.dart';
-
-import '../../providers/team_scouting_provider.dart';
+import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/providers/team_scouting_provider.dart';
+import 'package:flutter/services.dart';
 
 class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
@@ -155,8 +156,77 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                       teamKey.contains(searchTerm);
                 }).toList();
 
-          // Apply sort
+          // apply sort
           filteredTeams = List.of(filteredTeams);
+          bool _parseSafetyBool(dynamic value) {
+            if (value == null) return false;
+            if (value is bool) return value;
+            if (value is num) return value > 0;
+            if (value is String) {
+              final lower = value.toLowerCase();
+              return lower == 'true' || lower == '1' || lower == 'y';
+            }
+            return false;
+          }
+
+          // helper to calculate team stats
+          (int defenseCount, int noShowCount, int breakdownCount) _getTeamStats(int teamNumber) {
+            int defenseCount = 0;
+            int noShowCount = 0;
+            int breakdownCount = 0;
+
+            final bundleAsync = ref.watch(teamScoutingProvider(teamNumber));
+            bundleAsync.whenData((bundle) {
+              for (final doc in bundle.matchDocs) {
+                final playedDefense =
+                    _parseSafetyBool(
+                      TeamScoutingBundle.getMatchField(
+                        doc.raw,
+                        kSectionEndgame,
+                        kEndPlayedDefenseOffShift,
+                      ),
+                    ) ||
+                    _parseSafetyBool(
+                      TeamScoutingBundle.getMatchField(
+                        doc.raw,
+                        kSectionEndgame,
+                        kEndPlayedDefenseOnShift,
+                      ),
+                    );
+
+                final noShow = _parseSafetyBool(
+                  TeamScoutingBundle.getMatchField(
+                    doc.raw,
+                    kSectionEndgame,
+                    kEndNoShow,
+                  ),
+                );
+
+                final brokeDown =
+                    _parseSafetyBool(
+                      TeamScoutingBundle.getMatchField(
+                        doc.raw,
+                        kSectionTele,
+                        kTeleStoppedWorking,
+                      ),
+                    ) ||
+                    _parseSafetyBool(
+                      TeamScoutingBundle.getMatchField(
+                        doc.raw,
+                        kSectionTele,
+                        kTeleLostComms,
+                      ),
+                    );
+
+                if (playedDefense) defenseCount++;
+                if (noShow) noShowCount++;
+                if (brokeDown) breakdownCount++;
+              }
+            });
+
+            return (defenseCount, noShowCount, breakdownCount);
+          }
+
           switch (selectedSort.sort) {
             case TeamSortOptions.teamNumber:
               if (isAscending) {
@@ -181,7 +251,6 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
               }
             case TeamSortOptions.custom:
               filteredTeams.sort((a, b) {
-                // Teams without a rank go to the end
                 final rankA = ref
                     .watch(teamScoutingProvider(a.number))
                     .when(
@@ -204,6 +273,36 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                   return rankA.compareTo(rankB);
                 } else {
                   return rankB.compareTo(rankA);
+                }
+              });
+            case TeamSortOptions.defense:
+              filteredTeams.sort((a, b) {
+                final statsA = _getTeamStats(a.number);
+                final statsB = _getTeamStats(b.number);
+                if (isAscending) {
+                  return statsA.$1.compareTo(statsB.$1);
+                } else {
+                  return statsB.$1.compareTo(statsA.$1);
+                }
+              });
+            case TeamSortOptions.noShow:
+              filteredTeams.sort((a, b) {
+                final statsA = _getTeamStats(a.number);
+                final statsB = _getTeamStats(b.number);
+                if (isAscending) {
+                  return statsA.$2.compareTo(statsB.$2);
+                } else {
+                  return statsB.$2.compareTo(statsA.$2);
+                }
+              });
+            case TeamSortOptions.brokeDown:
+              filteredTeams.sort((a, b) {
+                final statsA = _getTeamStats(a.number);
+                final statsB = _getTeamStats(b.number);
+                if (isAscending) {
+                  return statsA.$3.compareTo(statsB.$3);
+                } else {
+                  return statsB.$3.compareTo(statsA.$3);
                 }
               });
           }
