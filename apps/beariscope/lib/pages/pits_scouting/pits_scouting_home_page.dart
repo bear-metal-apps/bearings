@@ -1,13 +1,13 @@
-import 'package:beariscope/widgets/beariscope_card.dart';
 import 'package:beariscope/models/pits_scouting_models.dart';
 import 'package:beariscope/models/scouting_document.dart';
-import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
+import 'package:beariscope/widgets/top_level_page_app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -21,12 +21,10 @@ class PitsScoutingHomePage extends ConsumerStatefulWidget {
       PitsScoutingHomePageState();
 }
 
-class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
+class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
   PitsScoutingFilter _statusFilter = PitsScoutingFilter.allTeams;
-
-  /// Whether to show the interactive map view (true) or the list view (false).
-  // default to list view instead of map
-  bool _showMapView = false;
 
   void _openScoutingForm(
     BuildContext context,
@@ -73,14 +71,25 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   final TextEditingController _searchTEC = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this)
+      ..addListener(() {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+  }
+
+  @override
   void dispose() {
+    _tabController.dispose();
     _searchTEC.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final main = MainViewController.of(context);
     final selectedEvent = ref.watch(currentEventProvider);
     final teamsAsync = ref.watch(pitsTeamsProvider);
     final scoutedNums = ref.watch(pitsScoutedProvider);
@@ -97,67 +106,15 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: !_showMapView,
-        titleSpacing: !_showMapView ? 8.0 : 16.0,
-        title: _showMapView
-            ? const Text('Pits Map')
-            : SearchBar(
-                controller: _searchTEC,
-                hintText: 'Team name or number',
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0),
-                ),
-                elevation: const WidgetStatePropertyAll<double>(0),
-                leading: const Icon(Symbols.search_rounded),
-                trailing: [
-                  PopupMenuButton<PitsScoutingFilter>(
-                    icon: const Icon(Symbols.filter_list_rounded),
-                    tooltip: 'Filter & Sort',
-                    itemBuilder: (context) => [
-                      CheckedPopupMenuItem<PitsScoutingFilter>(
-                        value: PitsScoutingFilter.allTeams,
-                        checked: _statusFilter == PitsScoutingFilter.allTeams,
-                        child: const Text('All Teams'),
-                      ),
-                      CheckedPopupMenuItem<PitsScoutingFilter>(
-                        value: PitsScoutingFilter.notScouted,
-                        checked: _statusFilter == PitsScoutingFilter.notScouted,
-                        child: const Text('Not Scouted'),
-                      ),
-                      CheckedPopupMenuItem<PitsScoutingFilter>(
-                        value: PitsScoutingFilter.scouted,
-                        checked: _statusFilter == PitsScoutingFilter.scouted,
-                        child: const Text('Scouted'),
-                      ),
-                    ],
-                    onSelected: (selection) {
-                      setState(() {
-                        _statusFilter = selection;
-                      });
-                    },
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {});
-                },
-              ),
-        leading: main.isDesktop
-            ? (!_showMapView ? const SizedBox(width: 40) : null)
-            : IconButton(
-                icon: const Icon(Symbols.menu_rounded),
-                onPressed: main.openDrawer,
-              ),
-        actions: [
-          IconButton(
-            tooltip: _showMapView
-                ? 'Switch to list view'
-                : 'Switch to map view',
-            icon: Icon(
-              _showMapView ? Symbols.list_rounded : Symbols.map_rounded,
-            ),
-            onPressed: () => setState(() => _showMapView = !_showMapView),
-          ),
-        ],
+        title: const Text('Pits'),
+        actions: [const TopLevelPageAppBarActions()],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Map'),
+            Tab(text: 'List'),
+          ],
+        ),
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -175,18 +132,25 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
             statusFilter: _statusFilter,
           );
 
-          if (_showMapView) {
-            return _buildMapView(
-              context,
-              onRefresh: onRefresh,
-              scoutedNums: scoutedNums,
-              teamNameMap: teamNameMap,
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: onRefresh,
-            child: _buildTeamList(context, filteredTeams, scoutedNums),
+          return TabBarView(
+            controller: _tabController,
+            physics: _tabController.index == 1
+                ? const PageScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
+            children: [
+              _buildMapView(
+                context,
+                onRefresh: onRefresh,
+                scoutedNums: scoutedNums,
+                teamNameMap: teamNameMap,
+              ),
+              _buildListTab(
+                context,
+                onRefresh: onRefresh,
+                teams: filteredTeams,
+                scoutedNums: scoutedNums,
+              ),
+            ],
           );
         },
       ),
@@ -203,8 +167,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
 
     return pitsMapAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => _buildMapError(context, onRefresh),
+      error: (err, stack) => _buildMapError(context),
       data: (mapData) {
+        if (mapData == null) {
+          return _buildMapError(context);
+        }
+
         return RefreshIndicator(
           onRefresh: onRefresh,
           // RefreshIndicator needs a scrollable child; wrap PitsMapView in a
@@ -233,10 +201,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     );
   }
 
-  Widget _buildMapError(
-    BuildContext context,
-    Future<void> Function() onRefresh,
-  ) {
+  Widget _buildMapError(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -250,38 +215,90 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Pit map unavailable',
+              'Pits map unavailable',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'The Nexus pit map for this event has not been published yet.',
+              'No pits map published by Nexus for this event',
               style: Theme.of(context).textTheme.bodySmall,
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FilledButton.icon(
-                  onPressed: () {
-                    ref.invalidate(pitsMapProvider);
-                  },
-                  icon: const Icon(Symbols.refresh_rounded),
-                  label: const Text('Retry'),
-                ),
-                const SizedBox(width: 12),
-                OutlinedButton.icon(
-                  onPressed: () => setState(() => _showMapView = false),
-                  icon: const Icon(Symbols.list_rounded),
-                  label: const Text('Show List'),
-                ),
-              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildListTab(
+    BuildContext context, {
+    required Future<void> Function() onRefresh,
+    required List<Team> teams,
+    required Set<int> scoutedNums,
+  }) {
+    final content = Stack(
+      children: [
+        Positioned.fill(
+          child: RefreshIndicator(
+            onRefresh: onRefresh,
+            child: _buildTeamList(
+              context,
+              teams,
+              scoutedNums,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 72),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 8,
+          right: 8,
+          bottom: 8,
+          child: SafeArea(
+            child: SearchBar(
+              controller: _searchTEC,
+              hintText: 'Team name or number',
+              padding: const WidgetStatePropertyAll<EdgeInsets>(
+                EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              leading: const Icon(Symbols.search_rounded),
+              trailing: [
+                PopupMenuButton<PitsScoutingFilter>(
+                  icon: const Icon(Symbols.filter_list_rounded),
+                  tooltip: 'Filter & Sort',
+                  itemBuilder: (context) => [
+                    CheckedPopupMenuItem<PitsScoutingFilter>(
+                      value: PitsScoutingFilter.allTeams,
+                      checked: _statusFilter == PitsScoutingFilter.allTeams,
+                      child: const Text('All Teams'),
+                    ),
+                    CheckedPopupMenuItem<PitsScoutingFilter>(
+                      value: PitsScoutingFilter.notScouted,
+                      checked: _statusFilter == PitsScoutingFilter.notScouted,
+                      child: const Text('Not Scouted'),
+                    ),
+                    CheckedPopupMenuItem<PitsScoutingFilter>(
+                      value: PitsScoutingFilter.scouted,
+                      checked: _statusFilter == PitsScoutingFilter.scouted,
+                      child: const Text('Scouted'),
+                    ),
+                  ],
+                  onSelected: (selection) {
+                    setState(() {
+                      _statusFilter = selection;
+                    });
+                  },
+                ),
+              ],
+              onChanged: (_) {
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    return content;
   }
 
   // --------------------------------------------------------------------------
@@ -291,9 +308,11 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   Widget _buildTeamList(
     BuildContext context,
     List<Team> filteredTeams,
-    Set<int> scoutedNums,
-  ) {
+    Set<int> scoutedNums, {
+    EdgeInsetsGeometry? padding,
+  }) {
     return BeariscopeCardList(
+      padding: padding,
       children: filteredTeams
           .map(
             (team) => PitsScoutingTeamCard(

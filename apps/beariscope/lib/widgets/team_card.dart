@@ -706,7 +706,6 @@ class TeamDetailsPage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(width: 8),
                       ],
                       bottom: TabBar(
                         tabAlignment: TabAlignment.start,

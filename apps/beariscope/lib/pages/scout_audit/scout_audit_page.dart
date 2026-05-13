@@ -3,13 +3,13 @@ import 'dart:math' as math;
 
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
-import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/scout_audit/match_scouting_form_page.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_logic.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_preferences_provider.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
+import 'package:beariscope/widgets/top_level_page_app_bar_actions.dart';
 import 'package:core/core.dart' show ScoutPosition;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,19 +28,12 @@ class ScoutAuditPage extends ConsumerStatefulWidget {
 class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
   @override
   Widget build(BuildContext context) {
-    final controller = MainViewController.of(context);
     final threshold = ref.watch(scoutAuditIncorrectThresholdProvider);
     final snapshotAsync = ref.watch(scoutAuditSnapshotProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scout Audit'),
-        leading: controller.isDesktop
-            ? null
-            : IconButton(
-                icon: const Icon(Symbols.menu_rounded),
-                onPressed: controller.openDrawer,
-              ),
+        title: const Text('Audit'),
         actions: [
           IconButton(
             onPressed: () => _showManualScoutDialog(context),
@@ -52,6 +45,7 @@ class _ScoutAuditPageState extends ConsumerState<ScoutAuditPage> {
             icon: const Icon(Symbols.tune_rounded),
             tooltip: 'Adjust Threshold',
           ),
+          const TopLevelPageAppBarActions(),
         ],
       ),
       body: snapshotAsync.when(

@@ -1,10 +1,10 @@
-import 'package:beariscope/widgets/team_card.dart';
 import 'package:beariscope/models/drive_team_note.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/drive_team_notes_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
+import 'package:beariscope/widgets/team_card.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

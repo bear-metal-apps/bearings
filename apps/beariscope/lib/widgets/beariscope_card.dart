@@ -12,7 +12,7 @@ class BeariscopeCardList extends StatelessWidget {
     required this.children,
     this.padding = const EdgeInsets.all(16),
     this.maxWidth = 600,
-    this.spacing = 16,
+    this.spacing = 8,
   });
 
   @override

@@ -1,11 +1,9 @@
-import 'package:beariscope/pages/main_view.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:beariscope/pages/match_lookup/match_card.dart';
+import 'package:beariscope/pages/match_lookup/match_providers.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
-import 'package:beariscope/pages/match_lookup/match_providers.dart';
-import 'package:beariscope/pages/match_lookup/match_card.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MatchLookupPage extends ConsumerStatefulWidget {
   const MatchLookupPage({super.key});
@@ -19,7 +17,6 @@ class _MatchLookupPageState extends ConsumerState<MatchLookupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = MainViewController.of(context);
     final teamsAsync = ref.watch(teamsProvider);
     final filteredMatches = ref.watch(filteredMatchesProvider);
     final t1 = ref.watch(team1SearchProvider);
@@ -34,15 +31,7 @@ class _MatchLookupPageState extends ConsumerState<MatchLookupPage> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Match Lookup'),
-        leading: controller.isDesktop
-            ? null
-            : IconButton(
-                icon: const Icon(Symbols.menu_rounded),
-                onPressed: controller.openDrawer,
-              ),
-      ),
+      appBar: AppBar(title: const Text('Match Lookup')),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
         child: Column(

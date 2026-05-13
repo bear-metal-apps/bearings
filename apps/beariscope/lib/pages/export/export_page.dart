@@ -6,7 +6,6 @@ import 'package:beariscope/pages/export/export_options.dart';
 import 'package:beariscope/pages/export/export_service.dart';
 import 'package:beariscope/pages/export/save_helper.dart';
 import 'package:beariscope/pages/export/ui_creator_schema.dart';
-import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_logic.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_preferences_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
@@ -212,7 +211,6 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = MainViewController.of(context);
     final processedAsync = ref.watch(processedScoutingProvider);
     final allDocs = processedAsync.value?.rawDocs ?? [];
     final currentEvent = ref.watch(currentEventProvider);
@@ -237,12 +235,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     final counts = ExportService.previewCounts(allDocs, options, currentEvent);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Export Data'),
-        leading: controller.isDesktop
-            ? null
-            : IconButton(icon: const Icon(Symbols.menu_rounded), onPressed: controller.openDrawer),
-      ),
+      appBar: AppBar(title: const Text('Export Data')),
       body: _schemaError != null
           ? Center(
               child: Padding(

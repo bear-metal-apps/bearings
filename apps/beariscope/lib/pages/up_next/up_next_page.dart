@@ -1,9 +1,9 @@
-import 'package:beariscope/widgets/beariscope_card.dart';
-import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
+import 'package:beariscope/widgets/beariscope_card.dart';
+import 'package:beariscope/widgets/top_level_page_app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -28,17 +28,8 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = MainViewController.of(context);
     final schedule = ref.watch(upNextProvider);
     final currentEventKey = ref.watch(currentEventProvider);
-    final eventDetails = ref
-        .watch(teamEventsProvider)
-        .whenData(
-          (events) => events.firstWhere(
-            (event) => event.key == currentEventKey,
-            orElse: () => EventOption.current(currentEventKey),
-          ),
-        );
 
     Future<void> refreshSchedule() async {
       ref.invalidate(upNextProvider);
@@ -52,12 +43,6 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
       appBar: AppBar(
         title: const Text('Up Next'),
 
-        leading: controller.isDesktop
-            ? null
-            : IconButton(
-                icon: const Icon(Symbols.menu_rounded),
-                onPressed: controller.openDrawer,
-              ),
         actions: [
           PopupMenuButton<_MatchFilter>(
             icon: Icon(
@@ -122,24 +107,8 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
               ),
             ],
           ),
+          TopLevelPageAppBarActions(),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(24),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: eventDetails.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => Text(
-                'Showing Matches for ${_filter == _MatchFilter.bearMetal ? '2046 at' : 'All Teams'} $currentEventKey',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              data: (event) => Text(
-                'Showing Matches for ${event.displayShortName}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ),
-        ),
       ),
       body: schedule.when(
         loading: () => const Center(child: CircularProgressIndicator()),

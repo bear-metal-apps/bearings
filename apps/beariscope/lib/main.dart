@@ -1,13 +1,10 @@
-import 'dart:math';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
-import 'package:beariscope/pages/corrections/corrections_page.dart';
 import 'package:beariscope/pages/device_provisioning/device_provisioning_page.dart';
 import 'package:beariscope/pages/export/export_page.dart';
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/match_lookup/match_lookup_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/picklists/picklists_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
@@ -45,7 +42,6 @@ import 'package:services/providers/connectivity_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/release/release_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:beariscope/pages/match_lookup/match_lookup_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,12 +51,6 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox('api_cache');
   await Hive.openBox<String>('scouting_data');
-
-  // happy easter
-  if (Random().nextInt(500) == 0) {
-    final player = AudioPlayer();
-    await player.play(AssetSource('sounds/jingle.wav'), volume: 1000);
-  }
 
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(500, 600));
@@ -153,10 +143,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 const NoTransitionPage(child: MatchLookupPage()),
           ),
           GoRoute(
-            path: '/export',
-            pageBuilder: (_, _) => const NoTransitionPage(child: ExportPage()),
-          ),
-          GoRoute(
             path: '/picklists',
             pageBuilder: (_, _) =>
                 const NoTransitionPage(child: PicklistsPage()),
@@ -166,11 +152,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const PicklistsCreatePage(),
               ),
             ],
-          ),
-          GoRoute(
-            path: '/corrections',
-            pageBuilder: (_, _) =>
-                const NoTransitionPage(child: CorrectionsPage()),
           ),
           GoRoute(
             path: '/scout_audit',
@@ -189,6 +170,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(path: '/export', builder: (_, _) => const ExportPage()),
       GoRoute(
         path: '/device_provisioning',
         builder: (_, _) => const DeviceProvisioningPage(),
