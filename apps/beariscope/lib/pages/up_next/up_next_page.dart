@@ -64,7 +64,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
             itemBuilder: (context) => [
               _filterMenuItem(
                 value: _MatchFilter.all,
-                label: 'All Teams',
+                label: 'All Matches',
                 current: _filter,
               ),
               _filterMenuItem(

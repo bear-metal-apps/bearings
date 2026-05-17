@@ -95,7 +95,7 @@ class _MainViewState extends ConsumerState<MainView> {
     const _NavItem(
       route: '/team_lookup',
       icon: LucideIcons.bot,
-      label: 'Team Lookup',
+      label: 'Teams',
       group: 'Insights',
     ),
     const _NavItem(

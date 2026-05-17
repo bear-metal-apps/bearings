@@ -121,6 +121,34 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
                 icon: const Icon(LucideIcons.menu),
                 onPressed: main.openDrawer,
               ),
+        actions: [
+          PopupMenuButton<PitsScoutingFilter>(
+            icon: const Icon(LucideIcons.listFilter),
+            tooltip: 'Filter & Sort',
+            itemBuilder: (context) => [
+              CheckedPopupMenuItem<PitsScoutingFilter>(
+                value: PitsScoutingFilter.allTeams,
+                checked: _statusFilter == PitsScoutingFilter.allTeams,
+                child: const Text('All Teams'),
+              ),
+              CheckedPopupMenuItem<PitsScoutingFilter>(
+                value: PitsScoutingFilter.notScouted,
+                checked: _statusFilter == PitsScoutingFilter.notScouted,
+                child: const Text('Not Scouted'),
+              ),
+              CheckedPopupMenuItem<PitsScoutingFilter>(
+                value: PitsScoutingFilter.scouted,
+                checked: _statusFilter == PitsScoutingFilter.scouted,
+                child: const Text('Scouted'),
+              ),
+            ],
+            onSelected: (selection) {
+              setState(() {
+                _statusFilter = selection;
+              });
+            },
+          ),
+        ],
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -260,44 +288,35 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
           right: 8,
           bottom: 8,
           child: SafeArea(
-            child: SearchBar(
-              controller: _searchTEC,
-              hintText: 'Team name or number',
-              padding: const WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.symmetric(horizontal: 16.0),
-              ),
-              leading: const Icon(LucideIcons.search),
-              trailing: [
-                PopupMenuButton<PitsScoutingFilter>(
-                  icon: const Icon(LucideIcons.listFilter),
-                  tooltip: 'Filter & Sort',
-                  itemBuilder: (context) => [
-                    CheckedPopupMenuItem<PitsScoutingFilter>(
-                      value: PitsScoutingFilter.allTeams,
-                      checked: _statusFilter == PitsScoutingFilter.allTeams,
-                      child: const Text('All Teams'),
-                    ),
-                    CheckedPopupMenuItem<PitsScoutingFilter>(
-                      value: PitsScoutingFilter.notScouted,
-                      checked: _statusFilter == PitsScoutingFilter.notScouted,
-                      child: const Text('Not Scouted'),
-                    ),
-                    CheckedPopupMenuItem<PitsScoutingFilter>(
-                      value: PitsScoutingFilter.scouted,
-                      checked: _statusFilter == PitsScoutingFilter.scouted,
-                      child: const Text('Scouted'),
-                    ),
-                  ],
-                  onSelected: (selection) {
-                    setState(() {
-                      _statusFilter = selection;
-                    });
-                  },
-                ),
-              ],
-              onChanged: (_) {
-                setState(() {});
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onVerticalDragEnd: (details) {
+                if ((details.primaryVelocity ?? 0) > 0) {
+                  FocusScope.of(context).unfocus();
+                }
               },
+              child: SearchBar(
+                controller: _searchTEC,
+                hintText: 'Team name or number',
+                padding: const WidgetStatePropertyAll<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 16.0),
+                ),
+                leading: const Icon(LucideIcons.search),
+                trailing: _searchTEC.text.isNotEmpty
+                    ? [
+                        IconButton(
+                          icon: const Icon(LucideIcons.x),
+                          onPressed: () {
+                            _searchTEC.clear();
+                            setState(() {});
+                          },
+                        ),
+                      ]
+                    : null,
+                onChanged: (_) {
+                  setState(() {});
+                },
+              ),
             ),
           ),
         ),

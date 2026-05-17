@@ -219,14 +219,33 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             right: 8,
             bottom: 8,
             child: SafeArea(
-              child: SearchBar(
-                controller: _searchTermTEC,
-                onChanged: (_) => setState(() {}),
-                hintText: 'Team name or number',
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0),
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onVerticalDragEnd: (details) {
+                  if ((details.primaryVelocity ?? 0) > 0) {
+                    FocusScope.of(context).unfocus();
+                  }
+                },
+                child: SearchBar(
+                  controller: _searchTermTEC,
+                  onChanged: (_) => setState(() {}),
+                  hintText: 'Team name or number',
+                  padding: const WidgetStatePropertyAll<EdgeInsets>(
+                    EdgeInsets.symmetric(horizontal: 16.0),
+                  ),
+                  leading: const Icon(LucideIcons.search),
+                  trailing: _searchTermTEC.text.isNotEmpty
+                      ? [
+                          IconButton(
+                            icon: const Icon(LucideIcons.x),
+                            onPressed: () {
+                              _searchTermTEC.clear();
+                              setState(() {});
+                            },
+                          ),
+                        ]
+                      : null,
                 ),
-                leading: const Icon(LucideIcons.search),
               ),
             ),
           ),
