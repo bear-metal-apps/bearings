@@ -1,4 +1,5 @@
 import 'package:beariscope/models/match_field_ids.dart';
+import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
@@ -6,10 +7,9 @@ import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:beariscope/widgets/beariscope_card.dart';
 import 'package:beariscope/widgets/team_card.dart';
-import 'package:beariscope/widgets/top_level_page_app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/api_provider.dart';
 
 class TeamLookupPage extends ConsumerStatefulWidget {
@@ -30,6 +30,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = MainViewController.of(context);
     final selectedEvent = ref.watch(currentEventProvider);
     final teamsAsync = ref.watch(teamsProvider);
     final selectedSort = ref.watch(teamSortProvider);
@@ -65,9 +66,19 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Teams'),
+        leading: controller.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(LucideIcons.menu),
+                onPressed: controller.openDrawer,
+              ),
         actions: [
           PopupMenuButton<TeamSortOptions>(
-            icon: const Icon(Symbols.sort_rounded),
+            icon: Icon(
+              isAscending
+                  ? LucideIcons.arrowUpNarrowWide
+                  : LucideIcons.arrowDownWideNarrow,
+            ),
             tooltip: 'Sort',
             itemBuilder: (context) => TeamSortOptions.values
                 .map(
@@ -96,7 +107,6 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
               ref.read(teamSortProvider.notifier).setSort(newSort, isAscending);
             },
           ),
-          const TopLevelPageAppBarActions(),
         ],
       ),
 
@@ -195,10 +205,10 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
               return RefreshIndicator(
                 onRefresh: onRefresh,
                 child: BeariscopeCardList(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 72),
                   children: filteredTeams
                       .map((team) => TeamCard(teamKey: team.key))
                       .toList(),
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 72),
                 ),
               );
             },
@@ -216,7 +226,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                 padding: const WidgetStatePropertyAll<EdgeInsets>(
                   EdgeInsets.symmetric(horizontal: 16.0),
                 ),
-                leading: const Icon(Symbols.search_rounded),
+                leading: const Icon(LucideIcons.search),
               ),
             ),
           ),
@@ -293,7 +303,7 @@ class SortByFieldItemState extends State<SortByFieldItem> {
         onPressed: () {
           widget.onAddNew;
         },
-        child: Icon(Icons.add_circle_outline),
+        child: Icon(LucideIcons.circlePlus),
       ),
     );
   }

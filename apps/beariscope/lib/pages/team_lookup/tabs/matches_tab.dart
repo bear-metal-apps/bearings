@@ -6,7 +6,7 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/api_provider.dart';
 
 String? _scouterNameFromRaw(dynamic rawDoc) {
@@ -366,7 +366,7 @@ class _MatchDetailSection extends StatelessWidget {
             context,
             header: const ScoutingSubHeader(
               title: 'Auto',
-              icon: Symbols.timer_rounded,
+              icon: LucideIcons.timer,
             ),
             rows: [
               _row(context, 'Fuel Scored', _f(kSectionAuto, kAutoFuelScored)),
@@ -412,7 +412,7 @@ class _MatchDetailSection extends StatelessWidget {
             context,
             header: const ScoutingSubHeader(
               title: 'Teleop',
-              icon: Symbols.gamepad_rounded,
+              icon: LucideIcons.gamepad2,
             ),
             rows: [
               _row(context, 'Fuel Scored', _f(kSectionTele, kTeleFuelScored)),
@@ -442,7 +442,7 @@ class _MatchDetailSection extends StatelessWidget {
             context,
             header: const ScoutingSubHeader(
               title: 'Endgame',
-              icon: Symbols.flag_rounded,
+              icon: LucideIcons.flag,
             ),
             rows: [
               _row(context, 'Climb Level', _f(kSectionEndgame, kEndClimb)),
@@ -469,7 +469,6 @@ class _MatchDetailSection extends StatelessWidget {
               _row(context, 'Play Style', _f(kSectionEndgame, kEndPlayStyle)),
               _row(context, 'No Show', _f(kSectionEndgame, kEndNoShow)),
               _row(context, 'Scout Notes', _f(kSectionEndgame, kEndNotes)),
-              // TODO(strat): add strat fields once strat data is implemented.
             ],
           ),
         ],

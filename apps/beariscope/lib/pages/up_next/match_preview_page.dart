@@ -8,7 +8,7 @@ import 'package:beariscope/widgets/team_card.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:services/providers/user_profile_provider.dart';
@@ -158,7 +158,7 @@ class _DriveTeamMatchPreviewPageState
             title: Text(matchTitle),
             actions: [
               PopupMenuButton<_TeamAction>(
-                icon: const Icon(Icons.more_vert),
+                icon: const Icon(LucideIcons.ellipsisVertical),
                 tooltip: 'More options',
                 onSelected: (action) =>
                     handleAction(context, action, video['key'].toString()),
@@ -166,7 +166,7 @@ class _DriveTeamMatchPreviewPageState
                   PopupMenuItem(
                     value: _TeamAction.openTba,
                     child: ListTile(
-                      leading: Icon(Symbols.open_in_new_rounded),
+                      leading: Icon(LucideIcons.externalLink),
                       title: Text('Open in TBA'),
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -174,7 +174,7 @@ class _DriveTeamMatchPreviewPageState
                   PopupMenuItem(
                     value: _TeamAction.openStatbotics,
                     child: ListTile(
-                      leading: Icon(Symbols.open_in_new_rounded),
+                      leading: Icon(LucideIcons.externalLink),
                       title: Text('Open in Statbotics'),
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -182,14 +182,13 @@ class _DriveTeamMatchPreviewPageState
                   PopupMenuItem(
                     value: _TeamAction.openYouTube,
                     child: ListTile(
-                      leading: Icon(Symbols.open_in_new_rounded),
+                      leading: Icon(LucideIcons.externalLink),
                       title: Text('Watch Match Video'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: 8),
             ],
           ),
           body: LayoutBuilder(

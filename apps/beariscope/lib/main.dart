@@ -36,6 +36,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/providers/auth_provider.dart';
 import 'package:services/providers/connectivity_provider.dart';
@@ -53,7 +54,7 @@ Future<void> main() async {
   await Hive.openBox<String>('scouting_data');
 
   if (PlatformUtils.isDesktop()) {
-    setWindowMinSize(const Size(500, 600));
+    setWindowMinSize(const Size(400, 600));
     setWindowMaxSize(Size.infinite);
     setWindowTitle('Beariscope');
   }
@@ -143,6 +144,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 const NoTransitionPage(child: MatchLookupPage()),
           ),
           GoRoute(
+            path: '/export',
+            pageBuilder: (_, _) => const NoTransitionPage(child: ExportPage()),
+          ),
+          GoRoute(
             path: '/picklists',
             pageBuilder: (_, _) =>
                 const NoTransitionPage(child: PicklistsPage()),
@@ -170,7 +175,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      GoRoute(path: '/export', builder: (_, _) => const ExportPage()),
       GoRoute(
         path: '/device_provisioning',
         builder: (_, _) => const DeviceProvisioningPage(),
@@ -380,12 +384,27 @@ ThemeData _createTheme(Brightness brightness, Color accentColor) {
     brightness: brightness,
     useMaterial3: true,
     colorScheme: colorScheme,
+    splashFactory: NoSplash.splashFactory,
+    actionIconTheme: ActionIconThemeData(
+      backButtonIconBuilder: (BuildContext context) =>
+          const Icon(LucideIcons.chevronLeft),
+      closeButtonIconBuilder: (BuildContext context) =>
+          const Icon(LucideIcons.x),
+      drawerButtonIconBuilder: (BuildContext context) =>
+          const Icon(LucideIcons.menu),
+      endDrawerButtonIconBuilder: (BuildContext context) =>
+          const Icon(LucideIcons.ellipsisVertical),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(iconSize: 20),
+    ),
+    popupMenuTheme: const PopupMenuThemeData(iconSize: 22),
     iconTheme: IconThemeData(
-      fill: 0.0,
       weight: 600,
+      size: 22,
       color: colorScheme.onSurface,
     ),
-    textTheme: GoogleFonts.nunitoSansTextTheme(
+    textTheme: GoogleFonts.outfitTextTheme(
       ThemeData(brightness: brightness, colorScheme: colorScheme).textTheme,
     ),
   );

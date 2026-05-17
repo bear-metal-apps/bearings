@@ -1,6 +1,8 @@
+import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:ui/widgets/text_divider.dart';
 
@@ -18,12 +20,21 @@ class PicklistsPageState extends ConsumerState<PicklistsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = MainViewController.of(context);
     final permissionChecker = ref.watch(permissionCheckerProvider);
     final canCreatePicklists =
         permissionChecker?.hasPermission(PermissionKey.picklistsManage) ??
         false;
     return Scaffold(
-      appBar: AppBar(title: const Text('Picklists')),
+      appBar: AppBar(
+        title: const Text('Picklists'),
+        leading: controller.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(LucideIcons.menu),
+                onPressed: controller.openDrawer,
+              ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

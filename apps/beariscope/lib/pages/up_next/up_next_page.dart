@@ -1,13 +1,13 @@
+import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
 import 'package:beariscope/widgets/beariscope_card.dart';
-import 'package:beariscope/widgets/top_level_page_app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum _MatchFilter { all, bearMetal }
@@ -28,6 +28,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = MainViewController.of(context);
     final schedule = ref.watch(upNextProvider);
     final currentEventKey = ref.watch(currentEventProvider);
 
@@ -42,13 +43,18 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Up Next'),
-
+        leading: controller.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(LucideIcons.menu),
+                onPressed: controller.openDrawer,
+              ),
         actions: [
           PopupMenuButton<_MatchFilter>(
             icon: Icon(
               _filter == _MatchFilter.bearMetal
-                  ? Symbols.filter_list_rounded
-                  : Symbols.filter_list_off_rounded,
+                  ? LucideIcons.funnel
+                  : LucideIcons.funnelX,
               color: _filter == _MatchFilter.bearMetal
                   ? Theme.of(context).colorScheme.primary
                   : null,
@@ -69,14 +75,14 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
             ],
           ),
           PopupMenuButton<_EventAction>(
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(LucideIcons.ellipsisVertical),
             tooltip: 'More options',
             onSelected: (action) => _handleAction(action, currentEventKey, ref),
             itemBuilder: (context) => const [
               PopupMenuItem(
                 value: _EventAction.openTba,
                 child: ListTile(
-                  leading: Icon(Symbols.open_in_new_rounded),
+                  leading: Icon(LucideIcons.externalLink),
                   title: Text('View Event in TBA'),
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -84,7 +90,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
               PopupMenuItem(
                 value: _EventAction.openStatbotics,
                 child: ListTile(
-                  leading: Icon(Symbols.open_in_new_rounded),
+                  leading: Icon(LucideIcons.externalLink),
                   title: Text('View Event in Statbotics'),
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -92,7 +98,7 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
               PopupMenuItem(
                 value: _EventAction.openFrcEvents,
                 child: ListTile(
-                  leading: Icon(Symbols.open_in_new_rounded),
+                  leading: Icon(LucideIcons.externalLink),
                   title: Text('View Event in FIRST Events'),
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -100,14 +106,13 @@ class _UpNextPageState extends ConsumerState<UpNextPage> {
               PopupMenuItem(
                 value: _EventAction.openNexus,
                 child: ListTile(
-                  leading: Icon(Symbols.open_in_new_rounded),
+                  leading: Icon(LucideIcons.externalLink),
                   title: Text('Open Schedule in Nexus'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
             ],
           ),
-          TopLevelPageAppBarActions(),
         ],
       ),
       body: schedule.when(
@@ -170,7 +175,7 @@ PopupMenuItem<_MatchFilter> _filterMenuItem({
         SizedBox(
           width: 32,
           child: current == value
-              ? const Icon(Symbols.check_rounded, size: 20)
+              ? const Icon(LucideIcons.check, size: 20)
               : null,
         ),
         Text(label),

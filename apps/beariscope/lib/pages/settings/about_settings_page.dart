@@ -1,8 +1,8 @@
-import 'package:beariscope/widgets/settings_group.dart';
 import 'package:beariscope/providers/tba_preferences_provider.dart';
+import 'package:beariscope/widgets/settings_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/release/release_info.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -69,7 +69,7 @@ class AboutSettingsPage extends ConsumerWidget {
               ListTile(
                 title: const Text('Beariscope GitHub'),
                 subtitle: const Text('Source code & other downloads'),
-                trailing: const Icon(Symbols.open_in_new_rounded),
+                trailing: const Icon(LucideIcons.externalLink),
                 onTap: () => _launchUrl(
                   context,
                   Uri.parse('https://github.com/bear-metal-apps/beariscope'),
@@ -85,7 +85,7 @@ class AboutSettingsPage extends ConsumerWidget {
               ListTile(
                 title: const Text('The Blue Alliance'),
                 subtitle: const Text('Match schedule & team data'),
-                trailing: const Icon(Symbols.open_in_new_rounded),
+                trailing: const Icon(LucideIcons.externalLink),
                 onTap: () {
                   _launchUrl(
                     context,
@@ -97,7 +97,7 @@ class AboutSettingsPage extends ConsumerWidget {
               ListTile(
                 title: const Text('FRC Nexus'),
                 subtitle: const Text('Event pit & queue information'),
-                trailing: const Icon(Symbols.open_in_new_rounded),
+                trailing: const Icon(LucideIcons.externalLink),
                 onTap: () => _launchUrl(
                   context,
                   Uri.parse('https://frc.nexus'),
@@ -112,7 +112,7 @@ class AboutSettingsPage extends ConsumerWidget {
             children: [
               ListTile(
                 title: const Text('Privacy Policy'),
-                trailing: const Icon(Symbols.open_in_new_rounded),
+                trailing: const Icon(LucideIcons.externalLink),
                 onTap: () => _launchUrl(
                   context,
                   Uri.parse(

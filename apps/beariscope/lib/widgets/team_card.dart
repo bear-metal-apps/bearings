@@ -14,7 +14,7 @@ import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -250,7 +250,11 @@ class _TeamCardHeader extends StatelessWidget {
             Expanded(
               child: Text(
                 team.name,
-                style: const TextStyle(fontSize: 20, fontFamily: 'Xolonium'),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  // font,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -481,13 +485,13 @@ class _ChipsRow extends StatelessWidget {
           ),
         if (trenchCapable)
           _OutlinedChip(
-            icon: Symbols.merge_type_rounded,
+            icon: LucideIcons.merge,
             label: 'Trench',
             color: secondaryColor,
           ),
         if (climbCapable != null && climbCapable != 'No Climb')
           _OutlinedChip(
-            icon: Symbols.arrow_upload_ready_rounded,
+            icon: LucideIcons.circleDotDashed,
             label: climbCapable!,
             color: secondaryColor,
           ),
@@ -650,7 +654,7 @@ class TeamDetailsPage extends ConsumerWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Symbols.add_comment_rounded),
+                            icon: const Icon(LucideIcons.messageSquarePlus),
                             label: const Text('Observation'),
                           )
                         : null,
@@ -658,7 +662,7 @@ class TeamDetailsPage extends ConsumerWidget {
                       title: Text('$teamName — $teamNumber'),
                       actions: [
                         PopupMenuButton<_TeamAction>(
-                          icon: const Icon(Icons.more_vert),
+                          icon: const Icon(LucideIcons.ellipsisVertical),
                           tooltip: 'More options',
                           onSelected: (action) =>
                               _handleAction(context, action, ref),
@@ -666,9 +670,7 @@ class TeamDetailsPage extends ConsumerWidget {
                             PopupMenuItem(
                               value: _TeamAction.openTba,
                               child: ListTile(
-                                leading: const Icon(
-                                  Symbols.open_in_new_rounded,
-                                ),
+                                leading: const Icon(LucideIcons.externalLink),
                                 title: const Text('Open in TBA'),
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -676,9 +678,7 @@ class TeamDetailsPage extends ConsumerWidget {
                             PopupMenuItem(
                               value: _TeamAction.openStatbotics,
                               child: ListTile(
-                                leading: const Icon(
-                                  Symbols.open_in_new_rounded,
-                                ),
+                                leading: const Icon(LucideIcons.externalLink),
                                 title: const Text('Open in Statbotics'),
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -686,9 +686,7 @@ class TeamDetailsPage extends ConsumerWidget {
                             PopupMenuItem(
                               value: _TeamAction.openFrcEvents,
                               child: ListTile(
-                                leading: const Icon(
-                                  Symbols.open_in_new_rounded,
-                                ),
+                                leading: const Icon(LucideIcons.externalLink),
                                 title: const Text('Open in FRC Events'),
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -697,9 +695,7 @@ class TeamDetailsPage extends ConsumerWidget {
                             PopupMenuItem(
                               value: _TeamAction.copyNumber,
                               child: ListTile(
-                                leading: const Icon(
-                                  Symbols.content_copy_rounded,
-                                ),
+                                leading: const Icon(LucideIcons.copy),
                                 title: const Text('Copy team number'),
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -876,19 +872,19 @@ List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
                 children: [
                   if (brokeDown)
                     Icon(
-                      Symbols.build_circle_rounded,
+                      LucideIcons.bomb,
                       color: Theme.of(context).colorScheme.error,
                       size: 14,
                     ),
                   if (playedDefense)
                     Icon(
-                      Symbols.shield_rounded,
+                      LucideIcons.shield,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 14,
                     ),
                   if (noShow)
                     Icon(
-                      Symbols.help_rounded,
+                      LucideIcons.mapPinXInside,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 14,
                     ),

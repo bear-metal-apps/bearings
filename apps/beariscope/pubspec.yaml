@@ -9,60 +9,60 @@ environment:
   flutter: ^3.0.0
 
 dependencies:
+  animations: ^2.1.1
   core:
     path: ../../packages/core
   crop_your_image: ^2.0.0
   cupertino_icons: ^1.0.8
+  dots_indicator: ^4.0.1
+  excel: ^4.0.6
   file_picker: ^10.3.3
-  syncfusion_flutter_charts: ^32.2.9
-  syncfusion_flutter_core: ^32.2.9
-  syncfusion_flutter_sliders: ^32.2.9
+  flex_color_picker: ^3.8.0
   flutter:
     sdk: flutter
+  flutter_animate: ^4.5.2
   flutter_riverpod: ^3.0.0
   flutter_speed_dial: ^7.0.0
   flutter_svg: ^2.2.1
   flutter_web_plugins:
     sdk: flutter
   go_router: ^17.1.0
-  excel: ^4.0.6
-  qr_flutter: ^4.1.0
+  google_fonts: ^8.0.0
+  hive_ce_flutter: ^2.3.3
+  http: ^1.3.0
+  image: ^4.3.0
+  internet_connection_checker_plus: ^2.9.1+2
+  intl: ^0.20.2
   logger: ^2.6.2
-  material_symbols_icons: ^4.2808.1
+  lucide_icons_flutter: ^3.1.13
+  mime: ^2.0.0
   package_info_plus: ^9.0.0
+  path_provider: ^2.1.5
   provider: ^6.1.2
+  qr_flutter: ^4.1.0
   riverpod_annotation: ^4.0.0
   services:
     path: ../../packages/services
-  shared_preferences: ^2.5.2
   share_plus: ^10.1.4
-  http: ^1.3.0
+  shared_preferences: ^2.5.2
   simple_icons: ^14.6.1
+  syncfusion_flutter_charts: ^32.2.9
+  syncfusion_flutter_core: ^32.2.9
+  syncfusion_flutter_sliders: ^32.2.9
   ui:
     path: ../../packages/ui
   url_launcher: ^6.3.1
   window_size: ^0.1.0
-  hive_ce_flutter: ^2.3.3
-  image: ^4.3.0
-  google_fonts: ^8.0.0
-  animations: ^2.1.1
-  dots_indicator: ^4.0.1
-  intl: ^0.20.2
-  mime: ^2.0.0
-  internet_connection_checker_plus: ^2.9.1+2
-  path_provider: ^2.1.5
-  flutter_animate: ^4.5.2
-  flex_color_picker: ^3.8.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^6.0.0
-  riverpod_generator: ^4.0.0+1
   build_runner: ^2.5.4
   custom_lint: ^0.8.0
-  riverpod_lint: ^3.0.0
   flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  riverpod_generator: ^4.0.0+1
+  riverpod_lint: ^3.0.0
 
 flutter:
   config:
@@ -71,7 +71,8 @@ flutter:
   assets:
     - path: assets/
     - path: assets/icon/ios_previews/
-      platforms: [ ios ]
+      platforms:
+        - ios
   fonts:
     - family: Xolonium
       fonts:

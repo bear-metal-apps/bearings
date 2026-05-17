@@ -2,7 +2,7 @@ import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:services/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -78,7 +78,7 @@ class WelcomePage extends ConsumerWidget {
                           }
                         },
                         label: const Text('Sign In'),
-                        icon: const Icon(Symbols.open_in_new_rounded),
+                        icon: const Icon(LucideIcons.externalLink),
                       ),
                     ],
                   ),

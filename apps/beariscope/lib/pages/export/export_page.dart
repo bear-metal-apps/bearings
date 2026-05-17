@@ -6,6 +6,7 @@ import 'package:beariscope/pages/export/export_options.dart';
 import 'package:beariscope/pages/export/export_service.dart';
 import 'package:beariscope/pages/export/save_helper.dart';
 import 'package:beariscope/pages/export/ui_creator_schema.dart';
+import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_logic.dart';
 import 'package:beariscope/pages/scout_audit/scout_audit_preferences_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
@@ -14,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/api_provider.dart';
 import 'package:services/providers/permissions_provider.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -211,6 +212,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = MainViewController.of(context);
     final processedAsync = ref.watch(processedScoutingProvider);
     final allDocs = processedAsync.value?.rawDocs ?? [];
     final currentEvent = ref.watch(currentEventProvider);
@@ -235,7 +237,12 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     final counts = ExportService.previewCounts(allDocs, options, currentEvent);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Export Data')),
+      appBar: AppBar(
+        title: const Text('Export Data'),
+        leading: controller.isDesktop
+            ? null
+            : IconButton(icon: const Icon(LucideIcons.menu), onPressed: controller.openDrawer),
+      ),
       body: _schemaError != null
           ? Center(
               child: Padding(
@@ -243,7 +250,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Symbols.error_rounded, size: 48),
+                    const Icon(LucideIcons.circleAlert, size: 48),
                     const SizedBox(height: 12),
                     Text('Failed to load schema: $_schemaError', textAlign: TextAlign.center),
                   ],
@@ -982,23 +989,23 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                           children: [
                                             if (_sheets.rawMatch || _sheets.processedMatch)
                                               _PreviewChip(
-                                                icon: Symbols.table_chart_rounded,
+                                                icon: LucideIcons.sheet,
                                                 label: '${counts.match} Match Entr${counts.match == 1 ? 'y' : 'ies'}',
                                               ),
                                             if (_sheets.stratRaw)
                                               _PreviewChip(
-                                                icon: Symbols.analytics_rounded,
+                                                icon: LucideIcons.chartColumnStacked,
                                                 label: '${counts.stratRaw} Strat Row${counts.stratRaw == 1 ? '' : 's'}',
                                               ),
                                             if (_sheets.stratZScore)
                                               _PreviewChip(
-                                                icon: Symbols.trending_up_rounded,
+                                                icon: LucideIcons.chartLine,
                                                 label:
                                                     '${counts.stratZScore} Z-Score${counts.stratZScore == 1 ? '' : 's'}',
                                               ),
                                             if (_sheets.correctionTodoList)
                                               const _PreviewChip(
-                                                icon: Symbols.rule_rounded,
+                                                icon: LucideIcons.listCheck,
                                                 label: 'Correction To-Do List',
                                               ),
                                           ],
@@ -1012,7 +1019,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                                                 height: 18,
                                                 child: CircularProgressIndicator(strokeWidth: 2),
                                               )
-                                            : const Icon(Symbols.download_rounded),
+                                            : const Icon(LucideIcons.download),
                                         label: Text(
                                           _isExporting
                                               ? 'Exporting…'

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class UtilitiesPage extends StatefulWidget {
   const UtilitiesPage({super.key});
@@ -24,7 +24,7 @@ class _UtilitiesPageState extends State<UtilitiesPage> {
           padding: const WidgetStatePropertyAll<EdgeInsets>(
             EdgeInsets.symmetric(horizontal: 16.0),
           ),
-          leading: const Icon(Symbols.search_rounded),
+          leading: const Icon(LucideIcons.search),
         ),
         actions: [SizedBox(width: 48)],
       ),

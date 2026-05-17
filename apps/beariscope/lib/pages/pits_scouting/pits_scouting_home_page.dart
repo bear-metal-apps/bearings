@@ -1,5 +1,6 @@
 import 'package:beariscope/models/pits_scouting_models.dart';
 import 'package:beariscope/models/scouting_document.dart';
+import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
@@ -7,10 +8,9 @@ import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
 import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:beariscope/widgets/beariscope_card.dart';
-import 'package:beariscope/widgets/top_level_page_app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:services/providers/api_provider.dart';
 
 class PitsScoutingHomePage extends ConsumerStatefulWidget {
@@ -90,6 +90,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
 
   @override
   Widget build(BuildContext context) {
+    final main = MainViewController.of(context);
     final selectedEvent = ref.watch(currentEventProvider);
     final teamsAsync = ref.watch(pitsTeamsProvider);
     final scoutedNums = ref.watch(pitsScoutedProvider);
@@ -107,7 +108,6 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pits'),
-        actions: [const TopLevelPageAppBarActions()],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -115,6 +115,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
             Tab(text: 'List'),
           ],
         ),
+        leading: main.isDesktop
+            ? null
+            : IconButton(
+                icon: const Icon(LucideIcons.menu),
+                onPressed: main.openDrawer,
+              ),
       ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -209,7 +215,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Symbols.fmd_bad_rounded,
+              LucideIcons.mapPinXInside,
               size: 56,
               color: Theme.of(context).colorScheme.error,
             ),
@@ -260,10 +266,10 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage>
               padding: const WidgetStatePropertyAll<EdgeInsets>(
                 EdgeInsets.symmetric(horizontal: 16.0),
               ),
-              leading: const Icon(Symbols.search_rounded),
+              leading: const Icon(LucideIcons.search),
               trailing: [
                 PopupMenuButton<PitsScoutingFilter>(
-                  icon: const Icon(Symbols.filter_list_rounded),
+                  icon: const Icon(LucideIcons.listFilter),
                   tooltip: 'Filter & Sort',
                   itemBuilder: (context) => [
                     CheckedPopupMenuItem<PitsScoutingFilter>(
