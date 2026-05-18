@@ -413,7 +413,7 @@ ThemeData _createTheme(Brightness brightness, Color accentColor) {
     appBarTheme: baseTheme.appBarTheme.copyWith(
       centerTitle: false,
       actionsPadding: EdgeInsets.symmetric(horizontal: 8),
-      scrolledUnderElevation: 2,
+      scrolledUnderElevation: 1,
       //   titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
       //     fontFamily: 'Xolonium',
       //     fontSize: 20,

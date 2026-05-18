@@ -44,10 +44,10 @@ CompareSheetConfig compareSheetConfigForState(CompareSheetState state) {
       return const CompareSheetConfig(height: 180, raiseSearchBar: false);
 
     case CompareSheetState.collapsed:
-      return const CompareSheetConfig(height: 84, raiseSearchBar: true);
+      return const CompareSheetConfig(height: 72, raiseSearchBar: true);
 
     case CompareSheetState.expanded:
-      return const CompareSheetConfig(height: 700, raiseSearchBar: false);
+      return const CompareSheetConfig(height: 700, raiseSearchBar: true);
   }
 }
 
@@ -105,9 +105,13 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
   }
 
   void _animateToState(CompareSheetState state) {
-    final targetHeight = state == CompareSheetState.expanded
-        ? _sheetMaxHeight
-        : compareSheetConfigForState(state).height;
+    final targetHeight = switch (state) {
+      CompareSheetState.collapsed =>
+        compareSheetConfigForState(state).height +
+            MediaQuery.of(context).padding.bottom,
+      CompareSheetState.expanded => _sheetMaxHeight,
+      _ => compareSheetConfigForState(state).height,
+    };
 
     _sheetHeightAnimation =
         Tween<double>(begin: _sheetHeight, end: targetHeight).animate(
@@ -246,10 +250,10 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
           ).height;
           _sheetMaxHeight = math.min(expandedHeight, constraints.maxHeight);
 
-          final searchBarBottom =
-              compareSheetState == CompareSheetState.collapsed
+          final double searchBarBottom =
+              compareSheetConfigForState(compareSheetState).raiseSearchBar
               ? collapsedHeight + 8
-              : 8.0;
+              : 8;
 
           return Stack(
             children: [
@@ -375,13 +379,13 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
                                 ? CompareSheetState.hidden
                                 : CompareSheetState.collapsed;
                           },
-                          feedback: Material(
-                            elevation: 16,
-                            color: Colors.transparent,
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width - 32,
-                              child: Transform.rotate(
-                                angle: 0.05,
+                          feedback: SizedBox(
+                            width: MediaQuery.of(context).size.width - 32,
+                            child: Transform.rotate(
+                              angle: 0.05,
+                              child: Material(
+                                elevation: 16,
+                                color: Colors.transparent,
                                 child: Opacity(
                                   opacity: 0.95,
                                   child: TeamCard(teamKey: team.key),
@@ -408,18 +412,38 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
                 right: 8,
                 bottom: searchBarBottom,
                 child: SafeArea(
-                  child: SearchBar(
-                    controller: _searchTermTEC,
-                    onChanged: (_) => setState(() {}),
-                    hintText: 'Team name or number',
-                    padding: const WidgetStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(horizontal: 16),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onVerticalDragEnd: (details) {
+                      if ((details.primaryVelocity ?? 0) > 0) {
+                        FocusScope.of(context).unfocus();
+                      }
+                    },
+                    child: SearchBar(
+                      controller: _searchTermTEC,
+                      hintText: 'Team name or number',
+                      padding: const WidgetStatePropertyAll<EdgeInsets>(
+                        EdgeInsets.symmetric(horizontal: 16.0),
+                      ),
+                      leading: const Icon(LucideIcons.search),
+                      trailing: _searchTermTEC.text.isNotEmpty
+                          ? [
+                              IconButton(
+                                icon: const Icon(LucideIcons.x),
+                                onPressed: () {
+                                  _searchTermTEC.clear();
+                                  setState(() {});
+                                },
+                              ),
+                            ]
+                          : null,
+                      onChanged: (_) {
+                        setState(() {});
+                      },
                     ),
-                    leading: const Icon(LucideIcons.search),
                   ),
                 ),
               ),
-
               if (_sheetHeight > 0)
                 Positioned(
                   left: 0,
@@ -462,7 +486,13 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
                         : null,
                     child: TeamCompareSheet(
                       state: compareSheetState,
-                      expanded: math.min(_sheetHeight, _sheetMaxHeight) > 200,
+                      expanded:
+                          math.min(_sheetHeight, _sheetMaxHeight) >
+                          compareSheetConfigForState(
+                                CompareSheetState.collapsed,
+                              ).height +
+                              MediaQuery.of(context).padding.bottom +
+                              2, // 2 is height of the divider, just to make it clear
                     ),
                   ),
                 ),
@@ -519,7 +549,7 @@ class TeamCompareSheet extends ConsumerWidget {
           decoration: BoxDecoration(
             color: isHovering
                 ? theme.colorScheme.primaryContainer
-                : theme.colorScheme.surfaceContainerHigh,
+                : theme.colorScheme.surfaceContainerLow,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             boxShadow: [
               BoxShadow(
@@ -530,51 +560,64 @@ class TeamCompareSheet extends ConsumerWidget {
               ),
             ],
           ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-
-                Container(
-                  height: 4,
-                  width: 32,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: isDragging
-                      ? Row(
-                          key: const ValueKey('dragging'),
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              LucideIcons.arrowDownToLine,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: isDragging
+                ? Stack(
+                    fit: StackFit.expand,
+                    alignment: AlignmentGeometry.center,
+                    children: [
+                      Positioned(
+                        top: 12,
+                        child: Container(
+                          height: 4,
+                          width: 32,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            LucideIcons.arrowDownToLine,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Drop to add to compare',
+                            style: theme.textTheme.titleMedium?.copyWith(
                               color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Drop to add to compare',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.bold,
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      SizedBox(
+                        height: 72,
+                        child: Stack(
+                          alignment: AlignmentGeometry.center,
+                          children: [
+                            Positioned(
+                              top: 12,
+                              child: Container(
+                                height: 4,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
                               ),
                             ),
-                          ],
-                        )
-                      : Padding(
-                          key: const ValueKey('resting'),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
+                            Positioned(
+                              left: 16,
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
@@ -589,8 +632,11 @@ class TeamCompareSheet extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              if (collectedTeams.isNotEmpty)
-                                FilledButton.tonalIcon(
+                            ),
+                            if (collectedTeams.isNotEmpty)
+                              Positioned(
+                                right: 16,
+                                child: FilledButton.tonalIcon(
                                   onPressed: () {
                                     ref
                                             .read(
@@ -612,30 +658,64 @@ class TeamCompareSheet extends ConsumerWidget {
                                   ),
                                   label: const Text('Clear'),
                                 ),
-                            ],
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (expanded) const Divider(height: 2),
+
+                      if (expanded)
+                        Expanded(
+                          child: BeariscopeCardList(
+                            children: collectedTeams.map((teamKey) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Dismissible(
+                                  key: ValueKey(teamKey),
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.errorContainer,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Icon(
+                                      LucideIcons.trash2,
+                                      color: theme.colorScheme.error,
+                                    ),
+                                  ),
+
+                                  onDismissed: (_) {
+                                    final updatedTeams = [...collectedTeams]
+                                      ..remove(teamKey);
+
+                                    ref
+                                            .read(
+                                              collectedTeamsProvider.notifier,
+                                            )
+                                            .state =
+                                        updatedTeams;
+
+                                    if (updatedTeams.isEmpty) {
+                                      ref
+                                          .read(
+                                            compareSheetStateProvider.notifier,
+                                          )
+                                          .state = CompareSheetState
+                                          .hidden;
+                                    }
+                                  },
+                                  child: TeamCard(teamKey: teamKey),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                ),
-
-                const SizedBox(height: 12),
-
-                if (expanded) const Divider(height: 2),
-
-                if (expanded)
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: collectedTeams.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: TeamCard(teamKey: collectedTeams[index]),
-                        );
-                      },
-                    ),
+                    ],
                   ),
-              ],
-            ),
           ),
         );
       },
