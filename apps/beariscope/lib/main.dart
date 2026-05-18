@@ -414,16 +414,16 @@ ThemeData _createTheme(Brightness brightness, Color accentColor) {
       centerTitle: false,
       actionsPadding: EdgeInsets.symmetric(horizontal: 8),
       scrolledUnderElevation: 2,
-      titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
-        fontFamily: 'Xolonium',
-        fontSize: 20,
-      ),
-    ),
-    dialogTheme: baseTheme.dialogTheme.copyWith(
-      titleTextStyle: baseTheme.textTheme.headlineSmall!.copyWith(
-        fontFamily: 'Xolonium',
-        fontSize: 20,
-      ),
+      //   titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
+      //     fontFamily: 'Xolonium',
+      //     fontSize: 20,
+      //   ),
+      // ),
+      // dialogTheme: baseTheme.dialogTheme.copyWith(
+      //   titleTextStyle: baseTheme.textTheme.headlineSmall!.copyWith(
+      //     fontFamily: 'Xolonium',
+      //     fontSize: 20,
+      //   ),
     ),
   );
 }

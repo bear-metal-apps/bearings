@@ -844,10 +844,10 @@ packages:
     dependency: transitive
     description:
       name: lucide_icons_flutter
-      sha256: "2d30a7bdd308b853f04e4eefc755e00df34d645c6c08b5591271cf38127e75f1"
+      sha256: "32d30fd06a84308204e0a2f7725b846a4b289d0ffefd880120989045c760cf94"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.13"
+    version: "3.1.14"
   matcher:
     dependency: transitive
     description:

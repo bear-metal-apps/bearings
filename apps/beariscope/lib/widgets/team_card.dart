@@ -274,7 +274,7 @@ class _TeamCardHeader extends StatelessWidget {
 
   Widget _fallbackAvatar(BuildContext context) {
     return Icon(
-      Icons.account_circle,
+      LucideIcons.bot,
       size: 32,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );

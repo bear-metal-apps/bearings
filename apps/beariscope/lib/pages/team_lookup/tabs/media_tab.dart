@@ -1226,7 +1226,7 @@ class _NetworkImageWithSkeleton extends StatelessWidget {
       errorBuilder: (context, error, stackTrace) => Container(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: Icon(
-          Icons.broken_image_outlined,
+          LucideIcons.image,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
