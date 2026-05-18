@@ -292,30 +292,33 @@ class _MainViewState extends ConsumerState<MainView> {
     final children = <Widget>[];
 
     children.add(
-      Padding(
-        padding: const EdgeInsets.fromLTRB(28, 12, 24, 10),
-        child: Row(
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/beariscope_head.svg',
-                    width: 24,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.primary,
-                      BlendMode.srcATop,
+      SizedBox(
+        height: kToolbarHeight,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/beariscope_head.svg',
+                      width: 24,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.primary,
+                        BlendMode.srcATop,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Beariscope',
-                    style: TextStyle(fontFamily: 'Xolonium', fontSize: 20),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Text(
+                      'Beariscope',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -323,7 +326,7 @@ class _MainViewState extends ConsumerState<MainView> {
     children.add(
       const Padding(
         padding: EdgeInsets.symmetric(horizontal: 28),
-        child: Divider(),
+        child: Divider(height: 2),
       ),
     );
 

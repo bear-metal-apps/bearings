@@ -788,7 +788,7 @@ List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
       name: 'Auto',
       color: Colors.red,
       markerSettings: markerSettings,
-      animationDuration: 1000,
+      animationDuration: 0,
     ),
     LineSeries<ProcessedScoutingDoc, String>(
       dataSource: data,
@@ -798,7 +798,7 @@ List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
       name: 'Tele',
       color: Colors.blue,
       markerSettings: markerSettings,
-      animationDuration: 1000,
+      animationDuration: 0,
     ),
     LineSeries<ProcessedScoutingDoc, String>(
       dataSource: data,
@@ -892,7 +892,7 @@ List<LineSeries<ProcessedScoutingDoc, String>> _buildLineSeries(
               );
             },
       ),
-      animationDuration: 1000,
+      animationDuration: 0,
     ),
   ];
 }

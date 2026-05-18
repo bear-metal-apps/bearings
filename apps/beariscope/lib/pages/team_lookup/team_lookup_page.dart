@@ -70,6 +70,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
   double _sheetMaxHeight = 700;
 
   bool _isUserDraggingSheet = false;
+  bool _didRestoreSheetHeight = false;
 
   @override
   void initState() {
@@ -104,6 +105,28 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_didRestoreSheetHeight) {
+      return;
+    }
+
+    _didRestoreSheetHeight = true;
+
+    final currentState = ref.read(compareSheetStateProvider);
+    if (currentState != CompareSheetState.hidden) {
+      _sheetHeight = switch (currentState) {
+        CompareSheetState.collapsed =>
+          compareSheetConfigForState(currentState).height +
+              MediaQuery.of(context).padding.bottom,
+        CompareSheetState.expanded => _sheetMaxHeight,
+        _ => 0,
+      };
+    }
+  }
+
   void _animateToState(CompareSheetState state) {
     final targetHeight = switch (state) {
       CompareSheetState.collapsed =>
@@ -132,7 +155,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
     ).height;
     final midpoint = (collapsedHeight + _sheetMaxHeight) / 2;
 
-    final targetState = velocity.abs() > 0
+    final targetState = velocity.abs() > 150
         ? (velocity < 0
               ? CompareSheetState.expanded
               : CompareSheetState.collapsed)
@@ -145,6 +168,8 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
     if (currentState == targetState) {
       _animateToState(targetState);
       return;
+    } else {
+      HapticFeedback.selectionClick(); // Only haptic when state actually changes
     }
 
     ref.read(compareSheetStateProvider.notifier).state = targetState;
@@ -248,7 +273,10 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
           final expandedHeight = compareSheetConfigForState(
             CompareSheetState.expanded,
           ).height;
-          _sheetMaxHeight = math.min(expandedHeight, constraints.maxHeight);
+          _sheetMaxHeight = math.min(
+            expandedHeight,
+            constraints.maxHeight - 24,
+          );
 
           final double searchBarBottom =
               compareSheetConfigForState(compareSheetState).raiseSearchBar
@@ -380,7 +408,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
                                 : CompareSheetState.collapsed;
                           },
                           feedback: SizedBox(
-                            width: MediaQuery.of(context).size.width - 32,
+                            width: math.min(constraints.maxWidth - 32, 600),
                             child: Transform.rotate(
                               angle: 0.05,
                               child: Material(
@@ -605,13 +633,42 @@ class TeamCompareSheet extends ConsumerWidget {
                           alignment: AlignmentGeometry.center,
                           children: [
                             Positioned(
-                              top: 12,
-                              child: Container(
-                                height: 4,
-                                width: 32,
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  borderRadius: BorderRadius.circular(2),
+                              top: 0,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  final currentState = ref.read(
+                                    compareSheetStateProvider,
+                                  );
+
+                                  if (currentState ==
+                                          CompareSheetState.hidden ||
+                                      currentState ==
+                                          CompareSheetState.dragging) {
+                                    return;
+                                  }
+
+                                  HapticFeedback.selectionClick();
+
+                                  ref
+                                          .read(
+                                            compareSheetStateProvider.notifier,
+                                          )
+                                          .state =
+                                      currentState == CompareSheetState.expanded
+                                      ? CompareSheetState.collapsed
+                                      : CompareSheetState.expanded;
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Container(
+                                    height: 4,
+                                    width: 32,
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
