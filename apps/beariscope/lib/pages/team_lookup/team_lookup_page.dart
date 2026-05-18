@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
@@ -16,7 +18,38 @@ import 'package:services/providers/api_provider.dart';
 
 final collectedTeamsProvider = StateProvider<List<String>>((ref) => []);
 final isDraggingProvider = StateProvider<bool>((ref) => false);
-final compareSheetVisibleProvider = StateProvider<bool>((ref) => false);
+
+enum CompareSheetState { hidden, dragging, collapsed, expanded }
+
+final compareSheetStateProvider = StateProvider<CompareSheetState>((ref) {
+  return CompareSheetState.hidden;
+});
+
+class CompareSheetConfig {
+  final double height;
+  final bool raiseSearchBar;
+
+  const CompareSheetConfig({
+    required this.height,
+    required this.raiseSearchBar,
+  });
+}
+
+CompareSheetConfig compareSheetConfigForState(CompareSheetState state) {
+  switch (state) {
+    case CompareSheetState.hidden:
+      return const CompareSheetConfig(height: 0, raiseSearchBar: false);
+
+    case CompareSheetState.dragging:
+      return const CompareSheetConfig(height: 180, raiseSearchBar: false);
+
+    case CompareSheetState.collapsed:
+      return const CompareSheetConfig(height: 84, raiseSearchBar: true);
+
+    case CompareSheetState.expanded:
+      return const CompareSheetConfig(height: 700, raiseSearchBar: false);
+  }
+}
 
 class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
@@ -25,18 +58,98 @@ class TeamLookupPage extends ConsumerStatefulWidget {
   ConsumerState<TeamLookupPage> createState() => _TeamLookupPageState();
 }
 
-class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
+class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchTermTEC = TextEditingController();
-  final DraggableScrollableController _sheetController =
-      DraggableScrollableController();
 
-  static const double _collapsedSheetHeight = 84.0;
-  static const double _expandedSheetHeight = 700.0;
+  late final AnimationController _sheetAnimationController;
+
+  late Animation<double> _sheetHeightAnimation;
+
+  double _sheetHeight = 0;
+  double _sheetMaxHeight = 700;
+
+  bool _isUserDraggingSheet = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _sheetAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+
+    _sheetHeightAnimation = Tween<double>(begin: 0, end: 0).animate(
+      CurvedAnimation(
+        parent: _sheetAnimationController,
+        curve: Curves.easeOutCirc,
+      ),
+    );
+
+    _sheetAnimationController.addListener(() {
+      if (!_isUserDraggingSheet) {
+        setState(() {
+          _sheetHeight = _sheetHeightAnimation.value;
+        });
+      }
+    });
+
+    ref.listenManual<CompareSheetState>(compareSheetStateProvider, (_, next) {
+      if (_isUserDraggingSheet) {
+        return;
+      }
+
+      _animateToState(next);
+    });
+  }
+
+  void _animateToState(CompareSheetState state) {
+    final targetHeight = state == CompareSheetState.expanded
+        ? _sheetMaxHeight
+        : compareSheetConfigForState(state).height;
+
+    _sheetHeightAnimation =
+        Tween<double>(begin: _sheetHeight, end: targetHeight).animate(
+          CurvedAnimation(
+            parent: _sheetAnimationController,
+            curve: Curves.easeOutCirc,
+          ),
+        );
+
+    _sheetAnimationController
+      ..reset()
+      ..forward();
+  }
+
+  void _snapSheet({required double velocity}) {
+    final collapsedHeight = compareSheetConfigForState(
+      CompareSheetState.collapsed,
+    ).height;
+    final midpoint = (collapsedHeight + _sheetMaxHeight) / 2;
+
+    final targetState = velocity.abs() > 0
+        ? (velocity < 0
+              ? CompareSheetState.expanded
+              : CompareSheetState.collapsed)
+        : (_sheetHeight >= midpoint
+              ? CompareSheetState.expanded
+              : CompareSheetState.collapsed);
+
+    final currentState = ref.read(compareSheetStateProvider);
+
+    if (currentState == targetState) {
+      _animateToState(targetState);
+      return;
+    }
+
+    ref.read(compareSheetStateProvider.notifier).state = targetState;
+  }
 
   @override
   void dispose() {
     _searchTermTEC.dispose();
-    _sheetController.dispose();
+    _sheetAnimationController.dispose();
     super.dispose();
   }
 
@@ -45,8 +158,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
     final controller = MainViewController.of(context);
     final selectedEvent = ref.watch(currentEventProvider);
     final teamsAsync = ref.watch(teamsProvider);
-    final collectedTeams = ref.watch(collectedTeamsProvider);
-    final isCompareSheetVisible = ref.watch(compareSheetVisibleProvider);
+
     final selectedSort = ref.watch(teamSortProvider);
     final rankingsAsync = ref.watch(eventRankingsProvider);
     final rankings = switch (rankingsAsync) {
@@ -125,271 +237,236 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return AnimatedBuilder(
-            animation: _sheetController,
-            builder: (context, _) {
-              final showCompareSheet =
-                  collectedTeams.isNotEmpty || isCompareSheetVisible;
-              final collapsedSheetFraction =
-                  _collapsedSheetHeight / constraints.maxHeight;
+          final compareSheetState = ref.watch(compareSheetStateProvider);
+          final collapsedHeight = compareSheetConfigForState(
+            CompareSheetState.collapsed,
+          ).height;
+          final expandedHeight = compareSheetConfigForState(
+            CompareSheetState.expanded,
+          ).height;
+          _sheetMaxHeight = math.min(expandedHeight, constraints.maxHeight);
 
-              final searchBarBottom =
-                  showCompareSheet &&
-                      (!_sheetController.isAttached ||
-                          _sheetController.size <=
-                              collapsedSheetFraction + 0.01)
-                  ? _collapsedSheetHeight + 8
-                  : 8.0;
+          final searchBarBottom =
+              compareSheetState == CompareSheetState.collapsed
+              ? collapsedHeight + 8
+              : 8.0;
 
-              return Stack(
-                children: [
-                  teamsAsync.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (error, stack) =>
-                        Center(child: Text('Error: $error')),
-                    data: (teams) {
-                      final teamList = teams
-                          .whereType<Map<String, dynamic>>()
-                          .map((json) => Team.fromJson(json))
-                          .toList();
+          return Stack(
+            children: [
+              teamsAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text('Error: $error')),
+                data: (teams) {
+                  final teamList = teams
+                      .whereType<Map<String, dynamic>>()
+                      .map((json) => Team.fromJson(json))
+                      .toList();
 
-                      final searchTerm = _searchTermTEC.text
-                          .trim()
-                          .toLowerCase();
+                  final searchTerm = _searchTermTEC.text.trim().toLowerCase();
 
-                      var filteredTeams = searchTerm.isEmpty
-                          ? teamList
-                          : teamList.where((team) {
-                              final teamName = team.name.toLowerCase();
-                              final teamNumber = team.number.toString();
-                              final teamKey = team.key.toLowerCase();
+                  var filteredTeams = searchTerm.isEmpty
+                      ? teamList
+                      : teamList.where((team) {
+                          final teamName = team.name.toLowerCase();
 
-                              return teamName.contains(searchTerm) ||
-                                  teamNumber.contains(searchTerm) ||
-                                  teamKey.contains(searchTerm);
-                            }).toList();
+                          final teamNumber = team.number.toString();
 
-                      filteredTeams = List.of(filteredTeams);
-                      switch (selectedSort.sort) {
-                        case TeamSortOptions.teamNumber:
-                          if (isAscending) {
-                            filteredTeams.sort(
-                              (a, b) => a.number.compareTo(b.number),
-                            );
-                          } else {
-                            filteredTeams.sort(
-                              (a, b) => b.number.compareTo(a.number),
-                            );
-                          }
-                        case TeamSortOptions.rank:
-                          if (isAscending) {
-                            filteredTeams.sort((a, b) {
-                              // Teams without a rank go to the end
-                              final rankA = rankings[a.number]?.rank ?? 999999;
-                              final rankB = rankings[b.number]?.rank ?? 999999;
-                              return rankA.compareTo(rankB);
-                            });
-                          } else {
-                            filteredTeams.sort((a, b) {
-                              final rankA = rankings[a.number]?.rank ?? 0;
-                              final rankB = rankings[b.number]?.rank ?? 0;
-                              return rankB.compareTo(rankA);
-                            });
-                          }
-                        case TeamSortOptions.custom:
-                          filteredTeams.sort((a, b) {
-                            final rankA = ref
-                                .watch(teamScoutingProvider(a.number))
-                                .when(
-                                  data: (bundle) =>
-                                      bundle.avgMatchField(
-                                        kSectionTele,
-                                        kTeleFuelScored,
-                                      ) +
-                                      bundle.avgMatchField(
-                                        kSectionAuto,
-                                        kAutoFuelScored,
-                                      ),
-                                  error: (_, _) => 0,
-                                  loading: () => 0,
-                                );
-                            final rankB = ref
-                                .watch(teamScoutingProvider(b.number))
-                                .when(
-                                  data: (bundle) =>
-                                      bundle.avgMatchField(
-                                        kSectionTele,
-                                        kTeleFuelScored,
-                                      ) +
-                                      bundle.avgMatchField(
-                                        kSectionAuto,
-                                        kAutoFuelScored,
-                                      ),
-                                  error: (_, _) => 0,
-                                  loading: () => 0,
-                                );
-                            if (isAscending) {
-                              return rankA.compareTo(rankB);
-                            } else {
-                              return rankB.compareTo(rankA);
-                            }
-                          });
+                          final teamKey = team.key.toLowerCase();
+
+                          return teamName.contains(searchTerm) ||
+                              teamNumber.contains(searchTerm) ||
+                              teamKey.contains(searchTerm);
+                        }).toList();
+
+                  filteredTeams = List.of(filteredTeams);
+                  switch (selectedSort.sort) {
+                    case TeamSortOptions.teamNumber:
+                      if (isAscending) {
+                        filteredTeams.sort(
+                          (a, b) => a.number.compareTo(b.number),
+                        );
+                      } else {
+                        filteredTeams.sort(
+                          (a, b) => b.number.compareTo(a.number),
+                        );
                       }
-
-                      if (filteredTeams.isEmpty) {
-                        return const Center(child: Text('No teams found'));
+                    case TeamSortOptions.rank:
+                      if (isAscending) {
+                        filteredTeams.sort((a, b) {
+                          // Teams without a rank go to the end
+                          final rankA = rankings[a.number]?.rank ?? 999999;
+                          final rankB = rankings[b.number]?.rank ?? 999999;
+                          return rankA.compareTo(rankB);
+                        });
+                      } else {
+                        filteredTeams.sort((a, b) {
+                          final rankA = rankings[a.number]?.rank ?? 0;
+                          final rankB = rankings[b.number]?.rank ?? 0;
+                          return rankB.compareTo(rankA);
+                        });
                       }
-
-                      return RefreshIndicator(
-                        onRefresh: onRefresh,
-                        child: BeariscopeCardList(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-                          children: filteredTeams.map((team) {
-                            return LongPressDraggable<String>(
-                              data: team.key,
-                              onDragStarted: () {
-                                HapticFeedback.lightImpact();
-                                ref.read(isDraggingProvider.notifier).state =
-                                    true;
-                                ref
-                                        .read(
-                                          compareSheetVisibleProvider.notifier,
-                                        )
-                                        .state =
-                                    true;
-
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  if (!mounted ||
-                                      !_sheetController.isAttached) {
-                                    return;
-                                  }
-
-                                  _sheetController.animateTo(
-                                    0.25, // Peeks open just enough
-                                    duration: const Duration(milliseconds: 350),
-                                    curve: Curves.easeOutBack,
-                                  );
-                                });
-                              },
-                              onDragEnd: (details) {
-                                ref.read(isDraggingProvider.notifier).state =
-                                    false;
-
-                                if (ref
-                                    .read(collectedTeamsProvider)
-                                    .isNotEmpty) {
-                                  _sheetController.animateTo(
-                                    _TeamLookupPageState._collapsedSheetHeight /
-                                        MediaQuery.of(context).size.height,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeOutBack,
-                                  );
-                                } else if (_sheetController.isAttached) {
-                                  _sheetController.animateTo(
-                                    0,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeOutBack,
-                                  );
-
-                                  Future.delayed(
-                                    const Duration(milliseconds: 300),
-                                    () {
-                                      if (!mounted) {
-                                        return;
-                                      }
-
-                                      ref
-                                              .read(
-                                                compareSheetVisibleProvider
-                                                    .notifier,
-                                              )
-                                              .state =
-                                          false;
-                                    },
-                                  );
-                                } else {
-                                  ref
-                                          .read(
-                                            compareSheetVisibleProvider
-                                                .notifier,
-                                          )
-                                          .state =
-                                      false;
-                                }
-                              },
-
-                              feedback: Material(
-                                elevation: 16.0,
-                                color: Colors.transparent,
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width - 32,
-                                  child: Transform.rotate(
-                                    angle: 0.05,
-                                    // Slight tilt makes it feel "picked up"
-                                    child: Opacity(
-                                      opacity: 0.95,
-                                      child: TeamCard(teamKey: team.key),
-                                    ),
+                    case TeamSortOptions.custom:
+                      filteredTeams.sort((a, b) {
+                        final rankA = ref
+                            .watch(teamScoutingProvider(a.number))
+                            .when(
+                              data: (bundle) =>
+                                  bundle.avgMatchField(
+                                    kSectionTele,
+                                    kTeleFuelScored,
+                                  ) +
+                                  bundle.avgMatchField(
+                                    kSectionAuto,
+                                    kAutoFuelScored,
                                   ),
+                              error: (_, _) => 0,
+                              loading: () => 0,
+                            );
+                        final rankB = ref
+                            .watch(teamScoutingProvider(b.number))
+                            .when(
+                              data: (bundle) =>
+                                  bundle.avgMatchField(
+                                    kSectionTele,
+                                    kTeleFuelScored,
+                                  ) +
+                                  bundle.avgMatchField(
+                                    kSectionAuto,
+                                    kAutoFuelScored,
+                                  ),
+                              error: (_, _) => 0,
+                              loading: () => 0,
+                            );
+                        if (isAscending) {
+                          return rankA.compareTo(rankB);
+                        } else {
+                          return rankB.compareTo(rankA);
+                        }
+                      });
+                  }
+
+                  if (filteredTeams.isEmpty) {
+                    return const Center(child: Text('No teams found'));
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: BeariscopeCardList(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+                      children: filteredTeams.map((team) {
+                        return LongPressDraggable<String>(
+                          data: team.key,
+                          onDragStarted: () {
+                            HapticFeedback.lightImpact();
+
+                            ref.read(isDraggingProvider.notifier).state = true;
+
+                            ref.read(compareSheetStateProvider.notifier).state =
+                                CompareSheetState.dragging;
+                          },
+                          onDragEnd: (_) {
+                            ref.read(isDraggingProvider.notifier).state = false;
+
+                            final teams = ref.read(collectedTeamsProvider);
+
+                            ref
+                                .read(compareSheetStateProvider.notifier)
+                                .state = teams.isEmpty
+                                ? CompareSheetState.hidden
+                                : CompareSheetState.collapsed;
+                          },
+                          feedback: Material(
+                            elevation: 16,
+                            color: Colors.transparent,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width - 32,
+                              child: Transform.rotate(
+                                angle: 0.05,
+                                child: Opacity(
+                                  opacity: 0.95,
+                                  child: TeamCard(teamKey: team.key),
                                 ),
                               ),
-                              childWhenDragging: Opacity(
-                                opacity: 0.3,
-                                child: TeamCard(teamKey: team.key),
-                              ),
-                              child: TeamCard(teamKey: team.key),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOutBack,
-                    left: 8,
-                    right: 8,
-                    bottom: searchBarBottom,
-                    child: SafeArea(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onVerticalDragEnd: (details) {
-                          if ((details.primaryVelocity ?? 0) > 0) {
-                            FocusScope.of(context).unfocus();
-                          }
-                        },
-                        child: SearchBar(
-                          controller: _searchTermTEC,
-                          onChanged: (_) => setState(() {}),
-                          hintText: 'Team name or number',
-                          padding: const WidgetStatePropertyAll<EdgeInsets>(
-                            EdgeInsets.symmetric(horizontal: 16.0),
+                            ),
                           ),
-                          leading: const Icon(LucideIcons.search),
-                          trailing: _searchTermTEC.text.isNotEmpty
-                              ? [
-                                  IconButton(
-                                    icon: const Icon(LucideIcons.x),
-                                    onPressed: () {
-                                      _searchTermTEC.clear();
-                                      setState(() {});
-                                    },
-                                  ),
-                                ]
-                              : null,
-                        ),
-                      ),
+                          childWhenDragging: Opacity(
+                            opacity: 0.3,
+                            child: TeamCard(teamKey: team.key),
+                          ),
+                          child: TeamCard(teamKey: team.key),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
+
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutBack,
+                left: 8,
+                right: 8,
+                bottom: searchBarBottom,
+                child: SafeArea(
+                  child: SearchBar(
+                    controller: _searchTermTEC,
+                    onChanged: (_) => setState(() {}),
+                    hintText: 'Team name or number',
+                    padding: const WidgetStatePropertyAll<EdgeInsets>(
+                      EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    leading: const Icon(LucideIcons.search),
+                  ),
+                ),
+              ),
+
+              if (_sheetHeight > 0)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: math.min(_sheetHeight, _sheetMaxHeight),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onVerticalDragStart:
+                        compareSheetState == CompareSheetState.collapsed ||
+                            compareSheetState == CompareSheetState.expanded
+                        ? (_) {
+                            _isUserDraggingSheet = true;
+
+                            _sheetAnimationController.stop();
+                          }
+                        : null,
+                    onVerticalDragUpdate:
+                        compareSheetState == CompareSheetState.collapsed ||
+                            compareSheetState == CompareSheetState.expanded
+                        ? (details) {
+                            setState(() {
+                              _sheetHeight -= details.delta.dy;
+
+                              _sheetHeight = _sheetHeight.clamp(
+                                collapsedHeight,
+                                _sheetMaxHeight,
+                              );
+                            });
+                          }
+                        : null,
+                    onVerticalDragEnd:
+                        compareSheetState == CompareSheetState.collapsed ||
+                            compareSheetState == CompareSheetState.expanded
+                        ? (details) {
+                            _isUserDraggingSheet = false;
+
+                            _snapSheet(velocity: details.primaryVelocity ?? 0);
+                          }
+                        : null,
+                    child: TeamCompareSheet(
+                      state: compareSheetState,
+                      expanded: math.min(_sheetHeight, _sheetMaxHeight) > 200,
                     ),
                   ),
-                  if (showCompareSheet)
-                    TeamCompareSheet(controller: _sheetController),
-                ],
-              );
-            },
+                ),
+            ],
           );
         },
       ),
@@ -398,232 +475,168 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
 }
 
 class TeamCompareSheet extends ConsumerWidget {
-  final DraggableScrollableController controller;
+  final CompareSheetState state;
+  final bool expanded;
 
-  const TeamCompareSheet({super.key, required this.controller});
-
-  double pxToSheetFraction(double pixels, double availableHeight) {
-    return pixels / availableHeight;
-  }
+  const TeamCompareSheet({
+    super.key,
+    required this.state,
+    required this.expanded,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final collectedTeams = ref.watch(collectedTeamsProvider);
+
     final isDragging = ref.watch(isDraggingProvider);
-    final isCompareSheetVisible = ref.watch(compareSheetVisibleProvider);
+
     final theme = Theme.of(context);
 
-    if (collectedTeams.isEmpty && !isCompareSheetVisible) {
-      return const SizedBox.shrink();
-    }
+    return DragTarget<String>(
+      onAcceptWithDetails: (details) {
+        final teamKey = details.data;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableHeight = constraints.maxHeight;
+        final currentList = ref.read(collectedTeamsProvider);
 
-        // Pixel-based heights
-        const collapsedHeight = _TeamLookupPageState._collapsedSheetHeight;
-        const expandedHeight = _TeamLookupPageState._expandedSheetHeight;
+        if (!currentList.contains(teamKey)) {
+          HapticFeedback.mediumImpact();
 
-        final minSize = (collapsedHeight / availableHeight).clamp(0.0, 1.0);
+          ref.read(collectedTeamsProvider.notifier).state = [
+            teamKey,
+            ...currentList,
+          ];
 
-        final maxSize = (expandedHeight / availableHeight).clamp(minSize, 1.0);
+          ref.read(compareSheetStateProvider.notifier).state =
+              CompareSheetState.collapsed;
+        }
+      },
+      builder: (context, candidateData, rejectedData) {
+        final isHovering = candidateData.isNotEmpty;
 
-        return DraggableScrollableSheet(
-          controller: controller,
-          initialChildSize: minSize,
-          minChildSize: minSize,
-          maxChildSize: maxSize,
-          snap: true,
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutBack,
+          decoration: BoxDecoration(
+            color: isHovering
+                ? theme.colorScheme.primaryContainer
+                : theme.colorScheme.surfaceContainerHigh,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.shadow.withValues(alpha: 0.2),
+                blurRadius: 20,
+                spreadRadius: 5,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
 
-          builder: (context, scrollController) {
-            return DragTarget<String>(
-              onAcceptWithDetails: (details) {
-                final teamKey = details.data;
-                final currentList = ref.read(collectedTeamsProvider);
-
-                if (!currentList.contains(teamKey)) {
-                  HapticFeedback.mediumImpact();
-
-                  ref.read(collectedTeamsProvider.notifier).state = [
-                    teamKey,
-                    ...currentList,
-                  ];
-                }
-              },
-
-              builder: (context, candidateData, rejectedData) {
-                final isHovering = candidateData.isNotEmpty;
-
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOutBack,
+                Container(
+                  height: 4,
+                  width: 32,
                   decoration: BoxDecoration(
-                    color: isHovering
-                        ? theme.colorScheme.primaryContainer
-                        : theme.colorScheme.surfaceContainerHigh,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.shadow.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                        offset: const Offset(0, -5),
-                      ),
-                    ],
+                    color: theme.colorScheme.onSurfaceVariant,
+                    borderRadius: BorderRadius.circular(2),
                   ),
+                ),
 
-                  child: CustomScrollView(
-                    controller: scrollController,
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Column(
+                const SizedBox(height: 12),
+
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: isDragging
+                      ? Row(
+                          key: const ValueKey('dragging'),
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 12),
-                            Container(
-                              height: 4,
-                              width: 32,
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.onSurfaceVariant,
-                                borderRadius: BorderRadius.circular(2),
+                            Icon(
+                              LucideIcons.arrowDownToLine,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Drop to add to compare',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-
-                            const SizedBox(height: 12),
-
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: isDragging
-                                  ? Row(
-                                      key: const ValueKey('dragging'),
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          LucideIcons.arrowDownToLine,
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Drop to add to compare',
-
-                                          style: theme.textTheme.titleMedium
-                                              ?.copyWith(
-                                                color:
-                                                    theme.colorScheme.primary,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                      ],
-                                    )
-                                  : Padding(
-                                      key: const ValueKey('resting'),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Compare',
-                                                style:
-                                                    theme.textTheme.titleMedium,
-                                              ),
-                                              Text(
-                                                '${collectedTeams.length} team${collectedTeams.length == 1 ? '' : 's'}',
-                                                style: theme
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.copyWith(
-                                                      color: theme
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          if (collectedTeams.isNotEmpty)
-                                            FilledButton.tonalIcon(
-                                              onPressed: () {
-                                                HapticFeedback.lightImpact();
-                                                ref
-                                                        .read(
-                                                          collectedTeamsProvider
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    [];
-
-                                                controller.animateTo(
-                                                  minSize,
-                                                  duration: const Duration(
-                                                    milliseconds: 300,
-                                                  ),
-                                                  curve: Curves.easeOutBack,
-                                                );
-
-                                                Future.delayed(
-                                                  const Duration(
-                                                    milliseconds: 300,
-                                                  ),
-                                                  () {
-                                                    ref
-                                                            .read(
-                                                              compareSheetVisibleProvider
-                                                                  .notifier,
-                                                            )
-                                                            .state =
-                                                        false;
-                                                  },
-                                                );
-                                              },
-
-                                              icon: const Icon(
-                                                LucideIcons.trash2,
-                                                size: 18,
-                                              ),
-
-                                              label: const Text('Clear'),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                            ),
-
-                            const SizedBox(height: 8),
-                            const Divider(),
                           ],
-                        ),
-                      ),
+                        )
+                      : Padding(
+                          key: const ValueKey('resting'),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Compare',
+                                    style: theme.textTheme.titleMedium,
+                                  ),
+                                  Text(
+                                    '${collectedTeams.length} team${collectedTeams.length == 1 ? '' : 's'}',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (collectedTeams.isNotEmpty)
+                                FilledButton.tonalIcon(
+                                  onPressed: () {
+                                    ref
+                                            .read(
+                                              collectedTeamsProvider.notifier,
+                                            )
+                                            .state =
+                                        [];
 
-                      SliverPadding(
-                        padding: const EdgeInsets.all(16.0),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-
-                              child: TeamCard(teamKey: collectedTeams[index]),
-                            );
-                          }, childCount: collectedTeams.length),
+                                    ref
+                                        .read(
+                                          compareSheetStateProvider.notifier,
+                                        )
+                                        .state = CompareSheetState
+                                        .hidden;
+                                  },
+                                  icon: const Icon(
+                                    LucideIcons.trash2,
+                                    size: 18,
+                                  ),
+                                  label: const Text('Clear'),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                ),
+
+                const SizedBox(height: 12),
+
+                if (expanded) const Divider(height: 2),
+
+                if (expanded)
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: collectedTeams.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: TeamCard(teamKey: collectedTeams[index]),
+                        );
+                      },
+                    ),
                   ),
-                );
-              },
-            );
-          },
+              ],
+            ),
+          ),
         );
       },
     );
