@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -566,6 +567,37 @@ class TeamPicklistSheet extends ConsumerStatefulWidget {
 
 class _TeamPicklistSheetState extends ConsumerState<TeamPicklistSheet> {
   bool _lastReached = false;
+  bool _showCopyCheck = false;
+  Timer? _copyIconResetTimer;
+
+  void _handleCopyTeamNumbers(List<String> collectedTeams) {
+    final teamNumbers = collectedTeams
+        .map(
+          (teamKey) => RegExp(r'\d+').firstMatch(teamKey)?.group(0) ?? teamKey,
+        )
+        .join(',');
+
+    Clipboard.setData(ClipboardData(text: teamNumbers));
+
+    setState(() {
+      _showCopyCheck = true;
+    });
+
+    _copyIconResetTimer?.cancel();
+    _copyIconResetTimer = Timer(const Duration(seconds: 1), () {
+      if (!mounted) return;
+
+      setState(() {
+        _showCopyCheck = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _copyIconResetTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -743,18 +775,39 @@ class _TeamPicklistSheetState extends ConsumerState<TeamPicklistSheet> {
                             ),
                             Positioned(
                               left: 16,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: [
-                                  Text(
-                                    'Picklist',
-                                    style: theme.textTheme.titleMedium,
-                                  ),
-                                  Text(
-                                    '${collectedTeams.length} team${collectedTeams.length == 1 ? '' : 's'}',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                  Container(
+                                    height: 32,
+                                    width: 32,
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.primaryContainer,
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
+                                    child: const Icon(
+                                      LucideIcons.listOrdered,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Picklist',
+                                        style: theme.textTheme.titleMedium,
+                                      ),
+                                      Text(
+                                        '${collectedTeams.length} team${collectedTeams.length == 1 ? '' : 's'}',
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -762,36 +815,100 @@ class _TeamPicklistSheetState extends ConsumerState<TeamPicklistSheet> {
                             if (collectedTeams.isNotEmpty)
                               Positioned(
                                 right: 16,
-                                child: FilledButton.tonalIcon(
-                                  style: ButtonStyle(
-                                    backgroundColor: WidgetStatePropertyAll(
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.tertiaryContainer,
-                                    ),
-                                    foregroundColor: WidgetStatePropertyAll(
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onTertiaryContainer,
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    ref
-                                            .read(
-                                              collectedTeamsProvider.notifier,
-                                            )
-                                            .state =
-                                        [];
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'Clear picklist',
+                                      icon: const Icon(
+                                        LucideIcons.trash2,
+                                        size: 20,
+                                      ),
+                                      onPressed: () async {
+                                        final shouldClear = await showDialog<bool>(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return AlertDialog(
+                                              title: const Text(
+                                                'Clear picklist?',
+                                              ),
+                                              content: const Text(
+                                                'This will remove all teams from the picklist.',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(
+                                                      dialogContext,
+                                                    ).pop(false);
+                                                  },
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(
+                                                      dialogContext,
+                                                    ).pop(true);
+                                                  },
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor:
+                                                        theme.colorScheme.error,
+                                                  ),
+                                                  child: const Text('Clear'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
 
-                                    ref
-                                        .read(
-                                          picklistSheetStateProvider.notifier,
-                                        )
-                                        .state = PicklistSheetState
-                                        .hidden;
-                                  },
-                                  icon: const Icon(LucideIcons.trash2),
-                                  label: const Text('Clear'),
+                                        if (shouldClear != true) {
+                                          return;
+                                        }
+
+                                        ref
+                                                .read(
+                                                  collectedTeamsProvider
+                                                      .notifier,
+                                                )
+                                                .state =
+                                            [];
+
+                                        ref
+                                                .read(
+                                                  picklistSheetStateProvider
+                                                      .notifier,
+                                                )
+                                                .state =
+                                            PicklistSheetState.hidden;
+                                      },
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton.filledTonal(
+                                      tooltip: 'Copy team numbers',
+                                      icon: Icon(
+                                        _showCopyCheck
+                                            ? LucideIcons.check
+                                            : LucideIcons.copy,
+                                      ),
+                                      style: ButtonStyle(
+                                        foregroundColor:
+                                            WidgetStateProperty.all(
+                                              theme
+                                                  .colorScheme
+                                                  .onTertiaryContainer,
+                                            ),
+                                        backgroundColor:
+                                            WidgetStateProperty.all(
+                                              theme
+                                                  .colorScheme
+                                                  .tertiaryContainer,
+                                            ),
+                                      ),
+                                      onPressed: () {
+                                        _handleCopyTeamNumbers(collectedTeams);
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                           ],
