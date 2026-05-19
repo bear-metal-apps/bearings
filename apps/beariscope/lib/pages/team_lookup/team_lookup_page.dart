@@ -18,6 +18,9 @@ import 'package:services/providers/api_provider.dart';
 
 final collectedTeamsProvider = StateProvider<List<String>>((ref) => []);
 final isDraggingProvider = StateProvider<bool>((ref) => false);
+final picklistSheetHoverHapticPlayedProvider = StateProvider<bool>(
+  (ref) => false,
+);
 
 enum PicklistSheetState { hidden, dragging, collapsed, expanded }
 
@@ -107,21 +110,27 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (_didRestoreSheetHeight) {
+    final currentState = ref.read(picklistSheetStateProvider);
+    if (currentState == PicklistSheetState.hidden || _isUserDraggingSheet) {
       return;
     }
 
-    _didRestoreSheetHeight = true;
+    final double targetHeight = switch (currentState) {
+      PicklistSheetState.collapsed =>
+        picklistSheetConfigForState(currentState).height +
+            MediaQuery.of(context).padding.bottom,
+      PicklistSheetState.expanded => _sheetMaxHeight,
+      _ => 0,
+    };
 
-    final currentState = ref.read(picklistSheetStateProvider);
-    if (currentState != PicklistSheetState.hidden) {
-      _sheetHeightNotifier.value = switch (currentState) {
-        PicklistSheetState.collapsed =>
-          picklistSheetConfigForState(currentState).height +
-              MediaQuery.of(context).padding.bottom,
-        PicklistSheetState.expanded => _sheetMaxHeight,
-        _ => 0,
-      };
+    if (!_didRestoreSheetHeight) {
+      _didRestoreSheetHeight = true;
+      _sheetHeightNotifier.value = targetHeight;
+      return;
+    }
+
+    if ((_sheetHeightNotifier.value - targetHeight).abs() > 0.5) {
+      _animateToState(currentState);
     }
   }
 
@@ -578,6 +587,17 @@ class TeamPicklistSheet extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return DragTarget<String>(
+      onMove: (details) {
+        if (ref.read(picklistSheetHoverHapticPlayedProvider)) {
+          return;
+        }
+
+        HapticFeedback.selectionClick();
+        ref.read(picklistSheetHoverHapticPlayedProvider.notifier).state = true;
+      },
+      onLeave: (data) {
+        ref.read(picklistSheetHoverHapticPlayedProvider.notifier).state = false;
+      },
       onAcceptWithDetails: (details) {
         final teamKey = details.data;
 
@@ -590,6 +610,9 @@ class TeamPicklistSheet extends ConsumerWidget {
             ...currentList,
             teamKey,
           ];
+
+          ref.read(picklistSheetHoverHapticPlayedProvider.notifier).state =
+              false;
 
           ref.read(picklistSheetStateProvider.notifier).state =
               PicklistSheetState.collapsed;
@@ -781,13 +804,18 @@ class TeamPicklistSheet extends ConsumerWidget {
                                 child: child,
                               );
                             },
+                            onReorderStart: (_) {
+                              HapticFeedback.selectionClick();
+                            },
+                            onReorderEnd: (_) {
+                              HapticFeedback.selectionClick();
+                            },
                             onReorderItem: (oldIndex, newIndex) {
                               final updatedTeams = [...collectedTeams];
 
                               final moved = updatedTeams.removeAt(oldIndex);
                               updatedTeams.insert(newIndex, moved);
 
-                              HapticFeedback.selectionClick();
                               ref.read(collectedTeamsProvider.notifier).state =
                                   updatedTeams;
                             },
