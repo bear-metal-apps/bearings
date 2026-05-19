@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/pages/main_view.dart';
@@ -179,7 +180,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
       _animateToState(targetState);
       return;
     } else {
-      HapticFeedback.selectionClick(); // Only haptic when state actually changes
+      HapticFeedback.lightImpact(); // Only haptic when state actually changes
     }
 
     ref.read(picklistSheetStateProvider.notifier).state = targetState;
@@ -300,9 +301,12 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, stack) => Center(child: Text('Error: $error')),
                 data: (teams) {
+                  final collectedTeams = ref.watch(collectedTeamsProvider);
+
                   final teamList = teams
                       .whereType<Map<String, dynamic>>()
                       .map((json) => Team.fromJson(json))
+                      .where((team) => !collectedTeams.contains(team.key))
                       .toList();
 
                   final searchTerm = _searchTermTEC.text.trim().toLowerCase();
@@ -394,7 +398,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
                         return LongPressDraggable<String>(
                           data: team.key,
                           onDragStarted: () {
-                            HapticFeedback.lightImpact();
+                            HapticFeedback.selectionClick();
 
                             ref.read(isDraggingProvider.notifier).state = true;
 
@@ -546,7 +550,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage>
   }
 }
 
-class TeamPicklistSheet extends ConsumerWidget {
+class TeamPicklistSheet extends ConsumerStatefulWidget {
   final PicklistSheetState state;
   final bool expanded;
 
@@ -557,7 +561,14 @@ class TeamPicklistSheet extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TeamPicklistSheet> createState() => _TeamPicklistSheetState();
+}
+
+class _TeamPicklistSheetState extends ConsumerState<TeamPicklistSheet> {
+  bool _lastReached = false;
+
+  @override
+  Widget build(BuildContext context) {
     final collectedTeams = ref.watch(collectedTeamsProvider);
 
     final isDragging = ref.watch(isDraggingProvider);
@@ -705,7 +716,7 @@ class TeamPicklistSheet extends ConsumerWidget {
                                     return;
                                   }
 
-                                  HapticFeedback.selectionClick();
+                                  HapticFeedback.lightImpact();
 
                                   ref
                                           .read(
@@ -786,9 +797,9 @@ class TeamPicklistSheet extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      if (expanded) const Divider(height: 2),
+                      if (widget.expanded) const Divider(height: 2),
 
-                      if (expanded)
+                      if (widget.expanded)
                         Expanded(
                           child: ReorderableListView.builder(
                             key: const PageStorageKey<String>(
@@ -798,10 +809,47 @@ class TeamPicklistSheet extends ConsumerWidget {
 
                             buildDefaultDragHandles: false,
                             proxyDecorator: (child, index, animation) {
-                              return Material(
-                                elevation: 10,
-                                color: Colors.transparent,
+                              final curved = CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutCirc,
+                              );
+
+                              return AnimatedBuilder(
+                                animation: curved,
                                 child: child,
+                                builder: (context, child) {
+                                  final t = curved.value;
+
+                                  return Transform.scale(
+                                    scale: lerpDouble(1.0, 1.03, t)!,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .shadow
+                                                .withValues(
+                                                  alpha: lerpDouble(
+                                                    0.0,
+                                                    0.18,
+                                                    t,
+                                                  )!,
+                                                ),
+                                            blurRadius: lerpDouble(0, 24, t)!,
+                                            spreadRadius: lerpDouble(0, 1, t)!,
+                                            offset: Offset(
+                                              0,
+                                              lerpDouble(0, 8, t)!,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      child: child,
+                                    ),
+                                  );
+                                },
                               );
                             },
                             onReorderStart: (_) {
@@ -850,6 +898,15 @@ class TeamPicklistSheet extends ConsumerWidget {
                                           color: theme.colorScheme.error,
                                         ),
                                       ),
+                                      onUpdate: (details) {
+                                        if (details.reached != _lastReached) {
+                                          _lastReached = details.reached;
+
+                                          if (details.reached) {
+                                            HapticFeedback.selectionClick();
+                                          }
+                                        }
+                                      },
                                       onDismissed: (_) {
                                         final updatedTeams = [...collectedTeams]
                                           ..remove(teamKey);
