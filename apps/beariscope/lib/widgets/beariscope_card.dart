@@ -6,6 +6,7 @@ class BeariscopeCardList extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final double maxWidth;
   final double spacing;
+  final Key? listKey;
 
   const BeariscopeCardList({
     super.key,
@@ -13,6 +14,7 @@ class BeariscopeCardList extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.maxWidth = 600,
     this.spacing = 8,
+    this.listKey,
   });
 
   @override
@@ -22,6 +24,7 @@ class BeariscopeCardList extends StatelessWidget {
     }
 
     return ListView.separated(
+      key: listKey,
       padding: padding,
       separatorBuilder: (context, index) => SizedBox(height: spacing),
       itemCount: children.length,

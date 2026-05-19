@@ -24,6 +24,7 @@ import '../providers/strat_z_score_provider.dart';
 
 class TeamCard extends ConsumerWidget {
   final String teamKey;
+  final bool headerOnly;
   final double? height;
   final Color? allianceColor;
 
@@ -31,6 +32,7 @@ class TeamCard extends ConsumerWidget {
 
   const TeamCard({
     super.key,
+    this.headerOnly = false,
     required this.teamKey,
     this.height,
     this.allianceColor,
@@ -69,7 +71,7 @@ class TeamCard extends ConsumerWidget {
           return _buildCardShell(
             context,
             height: height ?? _defaultPlaceholderHeight,
-            child: const Center(child: Text('Team not found')),
+            child: const Center(child: Text('Team not in current event')),
           );
         }
 
@@ -78,21 +80,28 @@ class TeamCard extends ConsumerWidget {
         return _buildCardShell(
           context,
           height: height,
-          onTap: () {
-            Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (context) => TeamDetailsPage(
-                  teamName: resolvedTeam.name,
-                  teamNumber: resolvedTeam.number,
-                  teamWebsite: resolvedTeam.website,
+          onTap: headerOnly
+              ? null
+              : () {
+                  Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(
+                      builder: (context) => TeamDetailsPage(
+                        teamName: resolvedTeam.name,
+                        teamNumber: resolvedTeam.number,
+                        teamWebsite: resolvedTeam.website,
+                      ),
+                    ),
+                  );
+                },
+          child: headerOnly
+              ? Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _TeamCardHeader(team: resolvedTeam),
+                )
+              : _TeamCardSummary(
+                  team: resolvedTeam,
+                  expandToFillHeight: height != null,
                 ),
-              ),
-            );
-          },
-          child: _TeamCardSummary(
-            team: resolvedTeam,
-            expandToFillHeight: height != null,
-          ),
         );
       },
     );
